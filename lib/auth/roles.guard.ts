@@ -20,10 +20,10 @@ export class RolesGuard implements CanActivate {
     const ctx = ContextUtil.normalizeContext(context);
     const { user } = ctx.switchToHttp().getRequest();
 
-    let hasRole = requiredRoles.some((role) => user?.hasRole(role));
+    const hasRole = requiredRoles.some((role) => user?.hasRole(role));
 
     if (!hasRole) {
-        throw new AuthorizationError('User does not meet role requirement', 403);
+      throw new AuthorizationError('User does not meet role requirement', 403);
     }
     return true;
   }

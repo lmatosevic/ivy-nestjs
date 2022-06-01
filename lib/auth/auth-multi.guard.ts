@@ -37,13 +37,15 @@ export class AuthMultiGuard implements CanActivate {
       return true;
     }
 
-    let authTypes = this.reflector.getAllAndOverride<AuthType[]>(AUTH_KEY, [
+    const authTypes = this.reflector.getAllAndOverride<AuthType[]>(AUTH_KEY, [
       context.getHandler(),
       context.getClass()
     ]);
 
-    let enabledAuthTypes = authTypes.filter(
-      (t) => this.authModuleOptions[t.toLowerCase()] && this.authModuleOptions[t.toLowerCase()].enabled
+    const enabledAuthTypes = authTypes.filter(
+      (t) =>
+        this.authModuleOptions[t.toLowerCase()] &&
+        this.authModuleOptions[t.toLowerCase()].enabled
     );
 
     if (enabledAuthTypes.length === 0) {
@@ -78,9 +80,12 @@ export class AuthMultiGuard implements CanActivate {
     throw new AuthorizationError('Unauthorized', 401);
   }
 
-  private async checkGuardActivation(guard: CanActivate, context: ExecutionContext): Promise<boolean> {
+  private async checkGuardActivation(
+    guard: CanActivate,
+    context: ExecutionContext
+  ): Promise<boolean> {
     try {
-      let call = guard.canActivate(context);
+      const call = guard.canActivate(context);
       if (isObservable(call)) {
         return await firstValueFrom(call);
       } else {

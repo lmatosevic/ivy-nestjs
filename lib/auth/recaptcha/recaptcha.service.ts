@@ -31,7 +31,7 @@ export class RecaptchaService {
     }
 
     try {
-      let response = await firstValueFrom(
+      const response = await firstValueFrom(
         this.httpService.get(this.checkTokenUri, {
           params: {
             secret: this.recaptchaSecret,
@@ -45,7 +45,10 @@ export class RecaptchaService {
     }
   }
 
-  async verifyTokenFromRequest(request: any, methods: DeliveryMethod[]): Promise<boolean> {
+  async verifyTokenFromRequest(
+    request: any,
+    methods: DeliveryMethod[]
+  ): Promise<boolean> {
     if (!this.enabled) {
       return true;
     }
@@ -72,7 +75,9 @@ export class RecaptchaService {
     }
 
     throw new AuthorizationError(
-      'ReCaptcha token not submitted in any of delivery methods: "' + methods.join(',') + '"',
+      'ReCaptcha token not submitted in any of delivery methods: "' +
+        methods.join(',') +
+        '"',
       400
     );
   }

@@ -5,7 +5,7 @@ export class HealthDto {
   status: string;
   info: HealthStatusDto;
   details: HealthStatusDto;
-  error: HealthStatusDto
+  error: HealthStatusDto;
 }
 
 @ObjectType()

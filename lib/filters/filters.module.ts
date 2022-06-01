@@ -23,7 +23,10 @@ export class FiltersModule {
   }
 
   static forRootAsync(options: ModuleAsyncOptions<FiltersModuleOptions>): DynamicModule {
-    const { providers, imports } = ModuleUtil.makeAsyncImportsAndProviders(options, FILTERS_MODULE_OPTIONS);
+    const { providers, imports } = ModuleUtil.makeAsyncImportsAndProviders(
+      options,
+      FILTERS_MODULE_OPTIONS
+    );
     return this.createModule(providers, imports);
   }
 

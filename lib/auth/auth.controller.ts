@@ -29,7 +29,10 @@ import { AuthModuleOptions } from './auth.module';
 import { AUTH_MODULE_OPTIONS } from './auth.constants';
 import { AuthType } from '../enums';
 
-export function AuthController<T extends Type<unknown>>(authUserRef: T, registerUserRef: T): any {
+export function AuthController<T extends Type<unknown>>(
+  authUserRef: T,
+  registerUserRef: T
+): any {
   class SuccessResponse {
     @ApiProperty()
     result: boolean;
@@ -54,11 +57,17 @@ export function AuthController<T extends Type<unknown>>(authUserRef: T, register
         Reflect.defineMetadata('path', authModuleOptions.route, AuthController);
       }
       if (authModuleOptions.registration === false) {
-        const descriptor = Object.getOwnPropertyDescriptor(AuthController.prototype, 'registration');
+        const descriptor = Object.getOwnPropertyDescriptor(
+          AuthController.prototype,
+          'registration'
+        );
         Reflect.deleteMetadata('path', descriptor.value);
       }
       if (authModuleOptions.login === false) {
-        const descriptor = Object.getOwnPropertyDescriptor(AuthController.prototype, 'login');
+        const descriptor = Object.getOwnPropertyDescriptor(
+          AuthController.prototype,
+          'login'
+        );
         Reflect.deleteMetadata('path', descriptor.value);
       }
     }
@@ -80,7 +89,7 @@ export function AuthController<T extends Type<unknown>>(authUserRef: T, register
     @HttpCode(201)
     @Post('registration')
     async registration(@Body() data): Promise<AuthUser> {
-      let instance = await RequestUtil.deserializeAndValidate(registerUserRef, data);
+      const instance = await RequestUtil.deserializeAndValidate(registerUserRef, data);
       return await this.authService.register(instance);
     }
 

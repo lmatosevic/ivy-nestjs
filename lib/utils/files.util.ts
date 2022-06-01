@@ -19,7 +19,9 @@ export class FilesUtil {
     return uuidValidate(suffix);
   }
 
-  static async removeTemporaryFiles(files: Record<string, Express.Multer.File[]>): Promise<void> {
+  static async removeTemporaryFiles(
+    files: Record<string, Express.Multer.File[]>
+  ): Promise<void> {
     for (let fileObjects of Object.values(files || {})) {
       if (!Array.isArray(fileObjects)) {
         fileObjects = [fileObjects];
@@ -44,7 +46,9 @@ export class FilesUtil {
     fileProps: FileProps
   ): ValidationError[] {
     if (!file) {
-      return [{ value: null, property: field, constraints: { required: 'File is required' } }];
+      return [
+        { value: null, property: field, constraints: { required: 'File is required' } }
+      ];
     }
 
     let mimetype: string = file['mimetype'];
@@ -59,7 +63,7 @@ export class FilesUtil {
       size = match.value[2].length;
     }
 
-    let errors = [];
+    const errors = [];
 
     if (fileProps.mimeType) {
       let match;
@@ -79,7 +83,7 @@ export class FilesUtil {
     }
 
     if (fileProps.maxSize) {
-      let maxSizeBytes =
+      const maxSizeBytes =
         typeof fileProps.maxSize === 'number'
           ? fileProps.maxSize
           : StringUtil.fileSizeStringToBytes(fileProps.maxSize);
@@ -102,10 +106,10 @@ export class FilesUtil {
     if (!files) {
       throw new FileError('Empty file contents provided', 400);
     }
-    let errors = [];
-    let filesUpdateDto = {};
+    const errors = [];
+    const filesUpdateDto = {};
     for (let [fieldName, fileObjects] of Object.entries(files)) {
-      let fileProps = filePropsMap[fieldName];
+      const fileProps = filePropsMap[fieldName];
       if (!fileProps) {
         throw new FileError('Invalid file name provided', 400);
       }
@@ -114,7 +118,7 @@ export class FilesUtil {
       }
       for (const file of fileObjects) {
         errors.push(...this.validateFile(fieldName, file, fileProps));
-        let fileData = {
+        const fileData = {
           data: file.filename,
           originalName: file.originalname,
           description: `${file.mimetype}_${file.size}`
@@ -138,7 +142,7 @@ export class FilesUtil {
   }
 
   static createFilesResponseDto(files: Record<string, Express.Multer.File[]>, data: any) {
-    let filesResponseDto = {};
+    const filesResponseDto = {};
     for (const [fieldName, file] of Object.entries(files)) {
       const fileData = data[fieldName];
       if (Array.isArray(fileData) && Array.isArray(file)) {

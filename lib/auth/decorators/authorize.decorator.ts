@@ -14,7 +14,7 @@ export const AUTH_KEY = 'authType';
 export const SCOPE_KEY = 'scopes';
 
 export const Authorized = (...types: AuthType[] | string[]) => {
-  let decorators = [];
+  const decorators = [];
 
   if (!types || types.length === 0) {
     types = Object.values(AuthType);

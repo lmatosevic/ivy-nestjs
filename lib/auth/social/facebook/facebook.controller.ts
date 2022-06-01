@@ -23,7 +23,10 @@ export class FacebookController {
       FacebookController
     );
     if (authModuleOptions.facebook?.enabled === false) {
-      const descriptor = Object.getOwnPropertyDescriptor(FacebookController.prototype, 'authorize');
+      const descriptor = Object.getOwnPropertyDescriptor(
+        FacebookController.prototype,
+        'authorize'
+      );
       Reflect.deleteMetadata('path', descriptor.value);
     }
   }
@@ -34,7 +37,7 @@ export class FacebookController {
   @HttpCode(200)
   @Post('authorize')
   async authorize(@Body() data): Promise<JwtToken> {
-    let instance = await RequestUtil.deserializeAndValidate(FacebookAuth, data);
+    const instance = await RequestUtil.deserializeAndValidate(FacebookAuth, data);
     return await this.facebookService.authorize(instance);
   }
 }

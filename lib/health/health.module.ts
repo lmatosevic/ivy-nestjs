@@ -25,7 +25,10 @@ export class HealthModule {
   }
 
   static forRootAsync(options: ModuleAsyncOptions<HealthModuleOptions>): DynamicModule {
-    const { providers, imports } = ModuleUtil.makeAsyncImportsAndProviders(options, HEALTH_MODULE_OPTIONS);
+    const { providers, imports } = ModuleUtil.makeAsyncImportsAndProviders(
+      options,
+      HEALTH_MODULE_OPTIONS
+    );
     return this.createModule(providers, imports);
   }
 

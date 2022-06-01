@@ -35,7 +35,10 @@ export class FacebookService {
       throw new AuthorizationError('Facebook authentication is not supported');
     }
 
-    const checkResponse = await this.getRequest(this.checkTokenUri, { input_token: data.accessToken, access_token: this.accessToken });
+    const checkResponse = await this.getRequest(this.checkTokenUri, {
+      input_token: data.accessToken,
+      access_token: this.accessToken
+    });
 
     if (checkResponse.data.data.app_id != this.appId) {
       throw new AuthorizationError('Invalid app ID');
@@ -53,7 +56,10 @@ export class FacebookService {
 
     let profile;
     try {
-      profile = await this.getRequest(this.profileUri, { fields: 'id,name,first_name,last_name,email', access_token: data.accessToken });
+      profile = await this.getRequest(this.profileUri, {
+        fields: 'id,name,first_name,last_name,email',
+        access_token: data.accessToken
+      });
     } catch (e) {
       throw new AuthorizationError('Error while fetching Facebook profile data', 500, e);
     }
@@ -79,14 +85,12 @@ export class FacebookService {
   }
 
   async getRequest(uri: string, params: any = {}): Promise<AxiosResponse> {
-    return await firstValueFrom(
-      this.httpService.get(uri, { params })
-    );
+    return await firstValueFrom(this.httpService.get(uri, { params }));
   }
 
   private base64UrlDecode(data: string, encoding: BufferEncoding = 'utf-8'): string {
     data = data.replace('-', '+').replace('_', '/');
-    let paddingfactor = (4 - (data.length % 4)) % 4;
+    const paddingfactor = (4 - (data.length % 4)) % 4;
     for (let i = 0; i < paddingfactor; i++) {
       data += '=';
     }
@@ -94,16 +98,19 @@ export class FacebookService {
   }
 
   private parseSignedRequest(signedRequest: string, secret: string): any | null {
-    let parts = signedRequest.split('.', 2);
-    let encodedSignature = parts[0];
-    let payload = parts[1];
+    const parts = signedRequest.split('.', 2);
+    const encodedSignature = parts[0];
+    const payload = parts[1];
 
-    let signature = this.base64UrlDecode(encodedSignature, 'hex');
-    let data = this.base64UrlDecode(payload);
-    let jsonData = JSON.parse(data);
+    const signature = this.base64UrlDecode(encodedSignature, 'hex');
+    const data = this.base64UrlDecode(payload);
+    const jsonData = JSON.parse(data);
 
-    let expectedSignature = CryptoUtil.signText(payload, secret);
-    if (jsonData['algorithm'].toUpperCase() === 'HMAC-SHA256' && expectedSignature === signature) {
+    const expectedSignature = CryptoUtil.signText(payload, secret);
+    if (
+      jsonData['algorithm'].toUpperCase() === 'HMAC-SHA256' &&
+      expectedSignature === signature
+    ) {
       return jsonData;
     }
     return null;

@@ -36,8 +36,8 @@ import { ResourcePolicy, ResourcePolicyInterceptor } from '../policy';
 function extractFileProps<T>(classRef: Type<T>): Record<string, FileProps> {
   const types = {};
   const metadata = classRef['_OPENAPI_METADATA_FACTORY']?.();
-  for (let fileName of Object.keys(metadata || {})) {
-    let fileProps = Reflect.getMetadata(FILE_PROPS_KEY, classRef.prototype);
+  for (const fileName of Object.keys(metadata || {})) {
+    const fileProps = Reflect.getMetadata(FILE_PROPS_KEY, classRef.prototype);
     if (fileProps && fileProps[fileName]) {
       types[fileName] = fileProps[fileName];
     }
@@ -51,7 +51,7 @@ function FilesDtoType<T>(classRef: Type<T>): any {
   }
 
   const filePropsMap = extractFileProps(classRef);
-  for (let [name, value] of Object.entries(filePropsMap)) {
+  for (const [name, value] of Object.entries(filePropsMap)) {
     Object.defineProperty(FilesDtoClass, name, {});
     ApiProperty(
       !value.isArray
@@ -80,33 +80,41 @@ function OperatorInputType<T>(classRef: Type<T>): any {
   }
 
   const metadata = classRef['_OPENAPI_METADATA_FACTORY']?.();
-  for (let key of Object.keys(metadata || {})) {
+  for (const key of Object.keys(metadata || {})) {
     Object.defineProperty(OperatorValueClass, key, {});
     let type = metadata[key].type?.();
     type = Array.isArray(type) && type.length > 0 ? type[0] : type;
     if (type?.name === 'File') {
-      ApiProperty({ type: () => FileFilter, required: false })(OperatorValueClass.prototype, key);
+      ApiProperty({ type: () => FileFilter, required: false })(
+        OperatorValueClass.prototype,
+        key
+      );
     } else if (!!type?._OPENAPI_METADATA_FACTORY) {
-      ApiProperty({ type: () => type._OPENAPI_QUERY_FILTER_FACTORY?.() })(OperatorValueClass.prototype, key);
+      ApiProperty({ type: () => type._OPENAPI_QUERY_FILTER_FACTORY?.() })(
+        OperatorValueClass.prototype,
+        key
+      );
     } else if (key === '_id') {
       ApiProperty({ type: () => FilterOperator, required: false, name: 'id' })(
         OperatorValueClass.prototype,
         key
       );
     } else {
-      ApiProperty({ type: () => FilterOperator, required: false })(OperatorValueClass.prototype, key);
+      ApiProperty({ type: () => FilterOperator, required: false })(
+        OperatorValueClass.prototype,
+        key
+      );
     }
   }
 
   return OperatorValueClass;
 }
 
-export function ResourceController<T extends Type<unknown>, C extends Type<unknown>, U extends Type<unknown>>(
-  resourceRef: T,
-  createDtoRef: C,
-  updateDtoRef: U,
-  config?: ResourceConfig
-): any {
+export function ResourceController<
+  T extends Type<unknown>,
+  C extends Type<unknown>,
+  U extends Type<unknown>
+>(resourceRef: T, createDtoRef: C, updateDtoRef: U, config?: ResourceConfig): any {
   const pluralName = pluralize(resourceRef.name);
 
   const updateDtoProxy = {
@@ -158,7 +166,10 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
 
   resourceRef['_OPENAPI_QUERY_FILTER_FACTORY'] = () => queryFilter;
 
-  @ApiInternalServerErrorResponse({ description: 'Internal server error', type: ErrorResponse })
+  @ApiInternalServerErrorResponse({
+    description: 'Internal server error',
+    type: ErrorResponse
+  })
   @ApiExtraModels(QueryResponse, QueryRequest, resourceRef, queryFilter)
   @ApiTags(pluralName.toLowerCase())
   @Resource(config)
@@ -173,7 +184,10 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
     }
 
     @ApiOkResponse({ type: () => resourceRef })
-    @ApiNotFoundResponse({ description: `${resourceRef.name} not found`, type: ErrorResponse })
+    @ApiNotFoundResponse({
+      description: `${resourceRef.name} not found`,
+      type: ErrorResponse
+    })
     @HttpCode(200)
     @Get('/:id')
     find(@Param('id') id: string): Promise<T> {
@@ -213,7 +227,7 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
     @HttpCode(200)
     @Post('/query')
     query(@Body() queryDto: QueryRequest<T>): Promise<QueryResponse<T>> {
-      let { filter, ...options } = queryDto;
+      const { filter, ...options } = queryDto;
       const query = RequestUtil.transformFilter(filter);
       return this.service.query({
         filter: query,
@@ -227,7 +241,7 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
     @HttpCode(201)
     @Post()
     async create(@Body() createDto: C): Promise<T> {
-      let instance = await RequestUtil.deserializeAndValidate(createDtoRef, createDto);
+      const instance = await RequestUtil.deserializeAndValidate(createDtoRef, createDto);
       return this.service.create(instance);
     }
 
@@ -237,12 +251,15 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
     @HttpCode(200)
     @Put('/:id')
     async update(@Param('id') id: string, @Body() updateDto: U): Promise<T> {
-      let instance = await RequestUtil.deserializeAndValidate(updateDtoRef, updateDto);
+      const instance = await RequestUtil.deserializeAndValidate(updateDtoRef, updateDto);
       return this.service.update(id, instance);
     }
 
     @ApiOkResponse({ type: () => resourceRef })
-    @ApiNotFoundResponse({ description: `${resourceRef.name} not found`, type: ErrorResponse })
+    @ApiNotFoundResponse({
+      description: `${resourceRef.name} not found`,
+      type: ErrorResponse
+    })
     @HttpCode(200)
     @Delete('/:id')
     async delete(@Param('id') id: string): Promise<T> {
@@ -259,16 +276,25 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
       type: filesDto
     })
     @ApiConsumes('multipart/form-data')
-    @ApiNotFoundResponse({ description: `${resourceRef.name} not found`, type: ErrorResponse })
+    @ApiNotFoundResponse({
+      description: `${resourceRef.name} not found`,
+      type: ErrorResponse
+    })
     @ApiBadRequestResponse({ description: 'Bad request', type: ErrorResponse })
     @UseInterceptors(FileFieldsInterceptor(fileTypesMulterArray))
     @HttpCode(201)
     @Post('/:id/files')
-    async upload(@Param('id') id: string, @UploadedFiles() files: Record<string, Express.Multer.File[]>) {
+    async upload(
+      @Param('id') id: string,
+      @UploadedFiles() files: Record<string, Express.Multer.File[]>
+    ) {
       try {
-        let updateDto = FilesUtil.createFilesUpdateDto(files, filePropsMap);
-        let instance = await RequestUtil.deserializeAndValidate(updateDtoRef, updateDto);
-        let updated = await this.service.update(id, instance, true);
+        const updateDto = FilesUtil.createFilesUpdateDto(files, filePropsMap);
+        const instance = await RequestUtil.deserializeAndValidate(
+          updateDtoRef,
+          updateDto
+        );
+        const updated = await this.service.update(id, instance, true);
         return FilesUtil.createFilesResponseDto(files, updated);
       } catch (e) {
         throw e;
@@ -279,7 +305,10 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
   }
 
   if (fileTypesMulterArray.length === 0) {
-    const descriptor = Object.getOwnPropertyDescriptor(ResourceController.prototype, 'upload');
+    const descriptor = Object.getOwnPropertyDescriptor(
+      ResourceController.prototype,
+      'upload'
+    );
     Reflect.deleteMetadata('path', descriptor.value);
   }
 

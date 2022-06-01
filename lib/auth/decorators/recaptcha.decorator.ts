@@ -5,7 +5,7 @@ import { DeliveryMethod } from '../../enums';
 export const RECAPTCHA_KEY = 'recaptcha';
 
 export const ReCaptcha = (...methods: DeliveryMethod[]) => {
-  let decorators = [];
+  const decorators = [];
 
   if (!methods || methods.length === 0) {
     methods = Object.values(DeliveryMethod);
@@ -17,7 +17,9 @@ export const ReCaptcha = (...methods: DeliveryMethod[]) => {
         decorators.push(ApiHeader({ name: 'X-RECAPTCHA-TOKEN', required: false }));
         break;
       case DeliveryMethod.Query:
-        decorators.push(ApiQuery({ name: 'recaptcha_token', type: 'string', required: false }));
+        decorators.push(
+          ApiQuery({ name: 'recaptcha_token', type: 'string', required: false })
+        );
         break;
       case DeliveryMethod.Body:
         break;

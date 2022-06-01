@@ -24,7 +24,7 @@ export class MongoFileMetaService implements FileMetaService {
     const model = new this.fileMetaModel(meta);
 
     try {
-      let savedModel = await model.save();
+      const savedModel = await model.save();
       return savedModel._id;
     } catch (e) {
       this.logger.error('Error saving file metadata "%s", %j', meta.name, e);
@@ -34,7 +34,7 @@ export class MongoFileMetaService implements FileMetaService {
 
   async delete(name: string): Promise<boolean> {
     try {
-      let metadata = await this.fileMetaModel.findOne({ name }).exec();
+      const metadata = await this.fileMetaModel.findOne({ name }).exec();
       await metadata.remove();
     } catch (e) {
       this.logger.error('Error deleting file metadata "%s", %j', name, e);
@@ -44,7 +44,7 @@ export class MongoFileMetaService implements FileMetaService {
   }
 
   async filePropsMeta(name: string): Promise<FilePropsMeta> {
-    let meta = await this.find(name);
+    const meta = await this.find(name);
 
     if (!meta) {
       return { props: null, meta: null };
@@ -52,7 +52,10 @@ export class MongoFileMetaService implements FileMetaService {
 
     for (const [modelName, model] of Object.entries(this.fileMetaModel?.db?.models)) {
       if (modelName === meta.resource) {
-        let props = Reflect.getMetadata(FILE_PROPS_KEY, model.schema['classRef']?.prototype);
+        const props = Reflect.getMetadata(
+          FILE_PROPS_KEY,
+          model.schema['classRef']?.prototype
+        );
         if (props && props[meta.field]) {
           return { props: props[meta.field], meta };
         }
@@ -67,7 +70,11 @@ export class MongoFileMetaService implements FileMetaService {
     try {
       return await model.findOne({ _id: meta.resourceId }).exec();
     } catch (e) {
-      this.logger.error('Error finding file\'s resource model "%s", %j', meta.resource, e);
+      this.logger.error(
+        'Error finding file\'s resource model "%s", %j',
+        meta.resource,
+        e
+      );
       return null;
     }
   }

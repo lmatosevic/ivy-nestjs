@@ -1,7 +1,12 @@
 import { Logger } from '@nestjs/common';
 import { Document, Model } from 'mongoose';
 import { ResourceError } from '../../resource/errors';
-import { FILE_PROPS_KEY, FileError, FileManager, FileProps } from '../../storage';
+import {
+  FILE_PROPS_KEY,
+  FileError,
+  FileManager,
+  FileProps
+} from '../../storage';
 import { ObjectUtil } from '../../utils';
 import { QueryRequest, QueryResponse, ValidationError } from '../dto';
 import { ResourceService } from './resource.service';
@@ -16,11 +21,17 @@ type ModelReferences = {
   fieldProps: Record<string, any>;
 };
 
-export abstract class MongoResourceService<T> extends ResourcePolicyService implements ResourceService<T> {
+export abstract class MongoResourceService<T>
+  extends ResourcePolicyService
+  implements ResourceService<T>
+{
   private static modelReferences: Record<string, ModelReferences>;
   private readonly logger = new Logger(MongoResourceService.name);
 
-  protected constructor(protected model: Model<T & Document>, protected fileManager?: FileManager) {
+  protected constructor(
+    protected model: Model<T & Document>,
+    protected fileManager?: FileManager
+  ) {
     super();
 
     if (!MongoResourceService.modelReferences) {
@@ -31,9 +42,14 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
   async find(id: string): Promise<T> {
     let result;
     try {
-      let policyFilter = await this.resolveFilterSubReferences(this.policyFilter());
+      const policyFilter = await this.resolveFilterSubReferences(
+        this.policyFilter()
+      );
       result = await this.model
-        .findOne({ $and: [{ _id: id }, policyFilter] } as any, this.policyProjection())
+        .findOne(
+          { $and: [{ _id: id }, policyFilter] } as any,
+          this.policyProjection()
+        )
         .populate(this.makePopulationArray())
         .exec();
     } catch (e) {
@@ -77,7 +93,11 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
       });
     }
 
-    return { resultCount: results.length, totalCount: totalCount, items: results };
+    return {
+      resultCount: results.length,
+      totalCount: totalCount,
+      items: results
+    };
   }
 
   async create(createDto: any): Promise<T> {
@@ -89,7 +109,10 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     let createdModel;
     let storedFiles;
     try {
-      storedFiles = await this.fileManager?.persistFiles(this.fileProps(), model);
+      storedFiles = await this.fileManager?.persistFiles(
+        this.fileProps(),
+        model
+      );
       createdModel = await model.save();
     } catch (e) {
       this.logger.debug(e);
@@ -107,11 +130,11 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     return this.populateModelDeep(createdModel);
   }
 
-  async update(id: string, updateDto: any, isFileUpload: boolean = false): Promise<T> {
+  async update(id: string, updateDto: any, isFileUpload = false): Promise<T> {
     const intersectedDto = this.intersectFields(updateDto);
 
-    let resource = await this.findResource(id);
-    let currentResource = _.cloneDeep(resource);
+    const resource = await this.findResource(id);
+    const currentResource = _.cloneDeep(resource);
 
     resource.set(intersectedDto);
 
@@ -129,7 +152,11 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
         isFileUpload
       );
       updatedModel = await resource.save();
-      await this.fileManager?.deleteFiles(this.fileProps(), currentResource, updatedModel);
+      await this.fileManager?.deleteFiles(
+        this.fileProps(),
+        currentResource,
+        updatedModel
+      );
     } catch (e) {
       this.logger.debug(e);
       await this.fileManager?.deleteFileArray(storedFiles);
@@ -147,7 +174,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
   }
 
   async delete(id: string): Promise<T> {
-    let resource = await this.findResource(id);
+    const resource = await this.findResource(id);
 
     const session = await this.model.db.startSession();
 
@@ -182,9 +209,14 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     let resource;
 
     try {
-      let policyFilter = await this.resolveFilterSubReferences(this.policyFilter());
+      const policyFilter = await this.resolveFilterSubReferences(
+        this.policyFilter()
+      );
       resource = await this.model
-        .findOne({ $and: [{ _id: id }, policyFilter] } as any, this.policyProjection())
+        .findOne(
+          { $and: [{ _id: id }, policyFilter] } as any,
+          this.policyProjection()
+        )
         .exec();
     } catch (e) {
       this.logger.debug(e);
@@ -207,7 +239,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
 
   private mergeFileArrays(currentResource: any, resource: any): void {
     for (const fileField of this.fileFields()) {
-      let fileValue = currentResource[fileField];
+      const fileValue = currentResource[fileField];
       if (Array.isArray(fileValue) && fileValue.length > 0) {
         resource[fileField] = [...fileValue, ...resource[fileField]];
       }
@@ -215,7 +247,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
   }
 
   private errorReasonsList(error: any): ValidationError[] | string {
-    let reasons = [];
+    const reasons = [];
     for (const [field, err] of Object.entries(error?.errors || {})) {
       reasons.push({
         value: err['value'],
@@ -228,27 +260,34 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     return reasons.length > 0 ? reasons : 'Invalid data provided';
   }
 
-  private async populateModel(model: T & Document, modelName?: string): Promise<T & Document> {
+  private async populateModel(
+    model: T & Document,
+    modelName?: string
+  ): Promise<T & Document> {
     return model.populate(this.makePopulationArray(modelName, 1));
   }
 
-  private async populateModelDeep(model: T & Document, modelName?: string): Promise<T & Document> {
-    let populations = this.makePopulationArray(modelName);
+  private async populateModelDeep(
+    model: T & Document,
+    modelName?: string
+  ): Promise<T & Document> {
+    const populations = this.makePopulationArray(modelName);
     return model.populate(populations);
   }
 
   private makePopulationArray(
     modelName?: string,
-    depth: number = 5,
-    level: number = 0,
+    depth = 5,
+    level = 0,
     excludeFields: string[] = []
   ): any[] {
-    let populations = [];
-    let fields = [...this.referencedFields(modelName), ...this.virtualFields(modelName)].filter(
-      (f) => !excludeFields.includes(f)
-    );
+    const populations = [];
+    const fields = [
+      ...this.referencedFields(modelName),
+      ...this.virtualFields(modelName)
+    ].filter((f) => !excludeFields.includes(f));
 
-    let fileFields = this.fileFields(modelName);
+    const fileFields = this.fileFields(modelName);
     for (const fileField of fileFields) {
       populations.push({ path: fileField, populate: ['meta'] });
     }
@@ -257,63 +296,76 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
       return populations;
     }
 
-    let policyProjection = this.policyProjection(false);
-    let hasPolicyProjections = Object.keys(policyProjection).length > 0;
+    const policyProjection = this.policyProjection(false);
+    const hasPolicyProjections = Object.keys(policyProjection).length > 0;
 
     for (const field of fields) {
-      let fieldProp = this.refProp(field, modelName);
+      const fieldProp = this.refProp(field, modelName);
       if (!fieldProp?.populate) {
         continue;
       }
 
       let excludeProjection = true;
-      let projectionFields = ['_id'];
+      const projectionFields = ['_id'];
       for (const policyKey of Object.keys(policyProjection)) {
-        let keyParts = policyKey.split('.');
-        if (excludeProjection && keyParts.length > level && field === keyParts[level]) {
+        const keyParts = policyKey.split('.');
+        if (
+          excludeProjection &&
+          keyParts.length > level &&
+          field === keyParts[level]
+        ) {
           excludeProjection = false;
         }
         if (keyParts.length > level + 1) {
-          let projectField = keyParts[level + 1];
+          const projectField = keyParts[level + 1];
           if (!this.refProp(projectField, fieldProp.ref)?.ref) {
             projectionFields.push(projectField);
           }
         }
       }
 
-      let policySelect = [];
+      const policySelect = [];
       if (hasPolicyProjections) {
         if (excludeProjection) {
           continue;
         }
 
         if (projectionFields.length > 1) {
-          let model = this.model?.db?.models[fieldProp.ref];
+          const model = this.model?.db?.models[fieldProp.ref];
           for (const fieldPath of Object.keys(model?.schema?.paths || {})) {
             if (fieldPath === '__v') {
               continue;
             }
-            if (!projectionFields.includes(fieldPath) && !this.refProp(fieldPath, fieldProp.ref)?.ref) {
+            if (
+              !projectionFields.includes(fieldPath) &&
+              !this.refProp(fieldPath, fieldProp.ref)?.ref
+            ) {
               policySelect.push('-' + fieldPath);
             }
           }
         }
       }
 
-      let exclude = fieldProp.excludeFields || [];
-      let select = exclude
+      const exclude = fieldProp.excludeFields || [];
+      const select = exclude
         .filter((f) => !this.refProp(f, fieldProp.ref)?.ref)
         .map((f) => '-' + f)
         .concat(policySelect);
-      let newPopulationArray = this.makePopulationArray(fieldProp.ref, depth, level + 1, [
-        ...excludeFields,
-        ...exclude,
-        ...[fieldProp.foreignField].filter((f) => !!f)
-      ]);
+      const newPopulationArray = this.makePopulationArray(
+        fieldProp.ref,
+        depth,
+        level + 1,
+        [
+          ...excludeFields,
+          ...exclude,
+          ...[fieldProp.foreignField].filter((f) => !!f)
+        ]
+      );
 
       populations.push({
         path: field,
-        populate: newPopulationArray.length > 0 ? newPopulationArray : undefined,
+        populate:
+          newPopulationArray.length > 0 ? newPopulationArray : undefined,
         select: select.length > 0 ? select : undefined
       });
     }
@@ -326,8 +378,8 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
   }
 
   private async cascadeDelete(deletedResource: T & Document): Promise<void> {
-    let deletedModelName = deletedResource.constructor['modelName'];
-    let virtuals = this.virtualFields(deletedModelName);
+    const deletedModelName = deletedResource.constructor['modelName'];
+    const virtuals = this.virtualFields(deletedModelName);
 
     if (virtuals.length === 0) {
       return;
@@ -341,20 +393,30 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
         referencedModels = [referencedModels];
       }
 
-      let fieldProp = this.refProp(virtualField);
-      let fieldRefs = this.refProps(fieldProp.ref);
-      let fieldsToUpdate = Object.entries(fieldRefs)
+      const fieldProp = this.refProp(virtualField);
+      const fieldRefs = this.refProps(fieldProp.ref);
+      const fieldsToUpdate = Object.entries(fieldRefs)
         .filter(([_, props]) => props?.ref === deletedModelName)
         .map(([field, props]) => ({ name: field, props }));
 
       for (const referencedModel of referencedModels) {
-        let logData = { id: referencedModel.id };
+        const logData = { id: referencedModel.id };
 
         if (fieldProp.onDelete === 'cascade') {
           await referencedModel.remove();
-          await this.fileManager?.deleteFiles(this.fileProps(fieldProp.ref), referencedModel);
-          this.logger.verbose('Cascade delete for %s, %j', fieldProp.ref, logData);
-          let populatedRefModel = await this.populateModel(referencedModel, fieldProp.ref);
+          await this.fileManager?.deleteFiles(
+            this.fileProps(fieldProp.ref),
+            referencedModel
+          );
+          this.logger.verbose(
+            'Cascade delete for %s, %j',
+            fieldProp.ref,
+            logData
+          );
+          const populatedRefModel = await this.populateModel(
+            referencedModel,
+            fieldProp.ref
+          );
           await this.cascadeDelete(populatedRefModel);
           continue;
         }
@@ -369,9 +431,19 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
               );
             }
             await referencedModel.save();
-            this.logger.verbose('Cascaded to null value for %s.%s, %j', fieldProp.ref, field.name, logData);
+            this.logger.verbose(
+              'Cascaded to null value for %s.%s, %j',
+              fieldProp.ref,
+              field.name,
+              logData
+            );
           } else {
-            this.logger.verbose('Do nothing on cascade for %s.%s, %j', fieldProp.ref, field.name, logData);
+            this.logger.verbose(
+              'Do nothing on cascade for %s.%s, %j',
+              fieldProp.ref,
+              field.name,
+              logData
+            );
           }
         }
       }
@@ -384,29 +456,39 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     const resolvedFilter = await ObjectUtil.transfromKeysAndValuesAsync(
       filter,
       async (key, value, keyList) => {
-        let modelName = this.modelNameFromFieldList(keyList);
+        const modelName = this.modelNameFromFieldList(keyList);
 
-        if (value !== null && typeof value === 'object' && this.virtualFields(modelName).includes(key)) {
+        if (
+          value !== null &&
+          typeof value === 'object' &&
+          this.virtualFields(modelName).includes(key)
+        ) {
           return '_id';
         }
         return key;
       },
       async (key, value, keyList) => {
-        let modelName = this.modelNameFromFieldList(keyList);
+        const modelName = this.modelNameFromFieldList(keyList);
 
         if (value !== null && typeof value === 'object') {
-          let model = this.model.db.models[this.refProp(key, modelName)?.ref];
+          const model = this.model.db.models[this.refProp(key, modelName)?.ref];
 
-          if (model && !Array.isArray(value) && this.referencedFields(modelName).includes(key)) {
+          if (
+            model &&
+            !Array.isArray(value) &&
+            this.referencedFields(modelName).includes(key)
+          ) {
             return await model.distinct('_id', value).exec();
           }
 
           if (model && this.virtualFields(modelName).includes(key)) {
-            let query = Array.isArray(value) ? { _id: value } : value;
-            let fieldRefs = this.refProps(model.modelName);
-            let refData = Object.entries(fieldRefs).find(([_, meta]) => (meta as any).ref === modelName);
+            const query = Array.isArray(value) ? { _id: value } : value;
+            const fieldRefs = this.refProps(model.modelName);
+            const refData = Object.entries(fieldRefs).find(
+              ([_, meta]) => (meta as any).ref === modelName
+            );
             if (refData && refData.length > 1) {
-              let refName = refData[0];
+              const refName = refData[0];
               return await model.distinct(refName, query).exec();
             }
           }
@@ -414,7 +496,11 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
         return value;
       },
       async (key1, value1, key2, value2) => {
-        return { key: '$and', value: [{ [key2]: value1 }, { [key2]: value2 }], remove: true };
+        return {
+          key: '$and',
+          value: [{ [key2]: value1 }, { [key2]: value2 }],
+          remove: true
+        };
       }
     );
 
@@ -424,37 +510,49 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
   }
 
   private referencedFields(modelName?: string): string[] {
-    return MongoResourceService.modelReferences[modelName || this.model.modelName]?.references;
+    return MongoResourceService.modelReferences[
+      modelName || this.model.modelName
+    ]?.references;
   }
 
   private virtualFields(modelName?: string): string[] {
-    return MongoResourceService.modelReferences[modelName || this.model.modelName]?.virtuals;
+    return MongoResourceService.modelReferences[
+      modelName || this.model.modelName
+    ]?.virtuals;
   }
 
   private fileFields(modelName?: string): string[] {
-    return MongoResourceService.modelReferences[modelName || this.model.modelName]?.files;
+    return MongoResourceService.modelReferences[
+      modelName || this.model.modelName
+    ]?.files;
   }
 
   private fileProps(modelName?: string): Record<string, FileProps> {
-    return MongoResourceService.modelReferences[modelName || this.model.modelName]?.fileProps;
+    return MongoResourceService.modelReferences[
+      modelName || this.model.modelName
+    ]?.fileProps;
   }
 
   private refProps(modelName?: string): Record<string, any> {
-    return MongoResourceService.modelReferences[modelName || this.model.modelName]?.fieldProps;
+    return MongoResourceService.modelReferences[
+      modelName || this.model.modelName
+    ]?.fieldProps;
   }
 
   private refProp(fieldName: string, modelName?: string): any {
-    return MongoResourceService.modelReferences[modelName || this.model.modelName]?.fieldProps?.[fieldName];
+    return MongoResourceService.modelReferences[
+      modelName || this.model.modelName
+    ]?.fieldProps?.[fieldName];
   }
 
   private modelNameFromFieldList(fieldList: string[]): string {
-    let fields = [...fieldList];
+    const fields = [...fieldList];
     let previousModelName = this.model.modelName;
     let currentModelName = this.model.modelName;
 
     while (fields.length > 0) {
-      let field = fields.shift();
-      let fieldRef = this.refProp(field, currentModelName);
+      const field = fields.shift();
+      const fieldRef = this.refProp(field, currentModelName);
       if (fieldRef && fieldRef.ref) {
         previousModelName = currentModelName;
         currentModelName = fieldRef.ref;
@@ -472,7 +570,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     }
 
     for (const modelName of Object.keys(this.model?.db?.models)) {
-      let model = this.model?.db?.models[modelName];
+      const model = this.model?.db?.models[modelName];
       referencesMap[modelName] = this.fetchReferences(model);
     }
 
@@ -480,17 +578,20 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
   }
 
   private fetchReferences(model: Model<T & Document>): ModelReferences {
-    let references: string[] = [];
-    let virtuals: string[] = [];
-    let files: string[] = [];
-    let fileProps: Record<string, FileProps> = {};
-    let fieldProps: Record<string, any> = [];
+    const references: string[] = [];
+    const virtuals: string[] = [];
+    const files: string[] = [];
+    const fileProps: Record<string, FileProps> = {};
+    const fieldProps: Record<string, any> = [];
 
     for (const fieldName of Object.keys(model?.schema?.obj)) {
-      let fieldData = model?.schema?.obj[fieldName];
+      const fieldData = model?.schema?.obj[fieldName];
       let referenceProperties;
 
-      let props = Reflect.getMetadata(FILE_PROPS_KEY, model.schema['classRef']?.prototype);
+      const props = Reflect.getMetadata(
+        FILE_PROPS_KEY,
+        model.schema['classRef']?.prototype
+      );
       if (props && props[fieldName]) {
         fileProps[fieldName] = props[fieldName];
         files.push(fieldName);
@@ -509,7 +610,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     }
 
     for (const virtualModelName of Object.keys(model?.schema?.virtuals)) {
-      let value = model?.schema?.virtuals[virtualModelName];
+      const value = model?.schema?.virtuals[virtualModelName];
       if (value?.options && virtualModelName !== 'id') {
         virtuals.push(virtualModelName);
         fieldProps[virtualModelName] = value?.options;
@@ -517,7 +618,11 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     }
 
     this.logger.verbose('%s file fields: %j', model.modelName, files);
-    this.logger.verbose('%s referenced fields: %j', model.modelName, references);
+    this.logger.verbose(
+      '%s referenced fields: %j',
+      model.modelName,
+      references
+    );
     this.logger.verbose('%s virtual fields: %j', model.modelName, virtuals);
 
     return { references, virtuals, files, fileProps, fieldProps };

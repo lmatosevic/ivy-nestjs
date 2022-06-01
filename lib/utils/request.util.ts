@@ -7,7 +7,7 @@ import { ObjectUtil } from './object.util';
 import * as _ from 'lodash';
 
 export class RequestUtil {
-  static maxQueryLimit: number = 2000;
+  static maxQueryLimit = 2000;
 
   static restrictQueryLimit(options: QueryOptions, max?: number): QueryOptions {
     if (!max) {
@@ -49,7 +49,7 @@ export class RequestUtil {
   }
 
   static transformFilter(filter: any): any {
-    let newFilter = ObjectUtil.transfromKeysAndValues(
+    const newFilter = ObjectUtil.transfromKeysAndValues(
       filter,
       (key) => key.replace('_', '$'),
       (key, value) => {
@@ -69,7 +69,9 @@ export class RequestUtil {
 
   static mapIdKeys(filter: any): any {
     return _.transform(filter, (result, value, key) => {
-      result[key === 'id' ? '_id' : key] = _.isObject(value) ? this.mapIdKeys(value) : value;
+      result[key === 'id' ? '_id' : key] = _.isObject(value)
+        ? this.mapIdKeys(value)
+        : value;
     });
   }
 }

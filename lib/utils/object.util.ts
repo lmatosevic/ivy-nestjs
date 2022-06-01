@@ -2,14 +2,20 @@ export class ObjectUtil {
   static transfromKeysAndValues(
     object: any,
     newKey: (key: string, value: any, keyList?: string[]) => string = (key) => key,
-    newValue: (key: string, value: any, keyList?: string[]) => any = (key, value) => value,
+    newValue: (key: string, value: any, keyList?: string[]) => any = (key, value) =>
+      value,
     mergeKeyValue: (
       key1: string,
       value1: any,
       key2: string,
       value2: any,
       keyList?: string[]
-    ) => { key: string; value: any; remove?: boolean } = (key1, value1, key2, value2) => ({
+    ) => { key: string; value: any; remove?: boolean } = (
+      key1,
+      value1,
+      key2,
+      value2
+    ) => ({
       key: key2,
       value: value2
     }),
@@ -26,11 +32,11 @@ export class ObjectUtil {
         val = this.transfromKeysAndValues(val, newKey, newValue, mergeKeyValue);
       }
 
-      let newKeyResult = newKey(key, val);
+      const newKeyResult = newKey(key, val);
       if (newKeyResult) {
-        let newValueResult = newValue(key, val);
+        const newValueResult = newValue(key, val);
         if (Object.keys(acc).includes(newKeyResult)) {
-          let { key: resolvedKey, value: resolvedValue } = mergeKeyValue(
+          const { key: resolvedKey, value: resolvedValue } = mergeKeyValue(
             key,
             acc[key],
             newKeyResult,
@@ -50,15 +56,25 @@ export class ObjectUtil {
 
   static async transfromKeysAndValuesAsync(
     object: any,
-    newKey: (key: string, value: any, keyList?: string[]) => Promise<string> = async (key) => key,
-    newValue: (key: string, value: any, keyList?: string[]) => Promise<any> = async (key, value) => value,
+    newKey: (key: string, value: any, keyList?: string[]) => Promise<string> = async (
+      key
+    ) => key,
+    newValue: (key: string, value: any, keyList?: string[]) => Promise<any> = async (
+      key,
+      value
+    ) => value,
     mergeKeyValue: (
       key1: string,
       value1: any,
       key2: string,
       value2: any,
       keyList?: string[]
-    ) => Promise<{ key: string; value: any; remove?: boolean }> = async (key1, value1, key2, value2) => ({
+    ) => Promise<{ key: string; value: any; remove?: boolean }> = async (
+      key1,
+      value1,
+      key2,
+      value2
+    ) => ({
       key: key2,
       value: value2
     }),
@@ -68,25 +84,37 @@ export class ObjectUtil {
       return object;
     }
 
-    let acc = {};
+    const acc = {};
 
-    for (let key of Object.keys(object)) {
+    for (const key of Object.keys(object)) {
       let val = object[key];
 
       if (val && typeof val === 'object' && !Array.isArray(val)) {
         keyList.push(key);
-        val = await this.transfromKeysAndValuesAsync(val, newKey, newValue, mergeKeyValue, keyList);
+        val = await this.transfromKeysAndValuesAsync(
+          val,
+          newKey,
+          newValue,
+          mergeKeyValue,
+          keyList
+        );
       }
 
-      let newKeyResult = await newKey(key, val, keyList);
+      const newKeyResult = await newKey(key, val, keyList);
       if (newKeyResult) {
-        let newValueResult = await newValue(key, val, keyList);
+        const newValueResult = await newValue(key, val, keyList);
         if (Object.keys(acc).includes(newKeyResult)) {
-          let {
+          const {
             key: resolvedKey,
             value: resolvedValue,
             remove
-          } = await mergeKeyValue(key, acc[newKeyResult], newKeyResult, newValueResult, keyList);
+          } = await mergeKeyValue(
+            key,
+            acc[newKeyResult],
+            newKeyResult,
+            newValueResult,
+            keyList
+          );
           if (remove) {
             delete acc[newKeyResult];
           }

@@ -5,7 +5,11 @@ import { AuthUser } from '../../auth';
 
 export const FILE_PROPS_KEY = 'fileProps';
 
-export type FileAccessPolicyFn = (user: AuthUser, meta: FileMetadata, resource: any) => boolean;
+export type FileAccessPolicyFn = (
+  user: AuthUser,
+  meta: FileMetadata,
+  resource: any
+) => boolean;
 
 export interface FileProps {
   access?: 'public' | 'protected' | 'private';

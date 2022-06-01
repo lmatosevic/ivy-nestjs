@@ -1,4 +1,10 @@
-import { CallHandler, ExecutionContext, ForbiddenException, Logger, NestInterceptor } from '@nestjs/common';
+import {
+  CallHandler,
+  ExecutionContext,
+  ForbiddenException,
+  Logger,
+  NestInterceptor
+} from '@nestjs/common';
 import { Ability } from '@casl/ability';
 import { Observable } from 'rxjs';
 import { Action, Operation } from '../../enums';
@@ -33,7 +39,9 @@ export class ResourcePolicyInterceptor<T extends Ability> implements NestInterce
       ability = this.resourcePolicy.createAbilityForUser(user);
     } catch (e) {
       this.logger.error(`Error while creating ability for subject ${sub}`, e);
-      throw new ForbiddenException('The user does not meet policy requirements for this operation');
+      throw new ForbiddenException(
+        'The user does not meet policy requirements for this operation'
+      );
     }
 
     let allowed = true;
@@ -56,7 +64,9 @@ export class ResourcePolicyInterceptor<T extends Ability> implements NestInterce
     }
 
     if (!allowed) {
-      throw new ForbiddenException('The user does not meet policy requirements for this operation');
+      throw new ForbiddenException(
+        'The user does not meet policy requirements for this operation'
+      );
     }
 
     if (rules.length > 0) {
@@ -67,8 +77,8 @@ export class ResourcePolicyInterceptor<T extends Ability> implements NestInterce
   }
 
   private checkAbility(ability: T, action: Action, subject: any): AbilityCheck {
-    let allowed = ability.can(Action.Manage, subject) || ability.can(action, subject);
-    let rules = ability.rulesFor(action, subject);
+    const allowed = ability.can(Action.Manage, subject) || ability.can(action, subject);
+    const rules = ability.rulesFor(action, subject);
     return { allowed, rules };
   }
 
@@ -78,7 +88,7 @@ export class ResourcePolicyInterceptor<T extends Ability> implements NestInterce
       policyRules = { filter: {}, projection: {} };
     }
 
-    for (let rule of rules) {
+    for (const rule of rules) {
       if (rule.conditions) {
         for (let [condName, condValue] of Object.entries(rule.conditions)) {
           if (condName === 'id') {

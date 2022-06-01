@@ -33,7 +33,9 @@ export class StorageModule {
       [
         MulterModule.register({
           storage: diskStorage({
-            destination: `${options.rootDir || './storage'}/${options.tempDirname || 'temp'}`,
+            destination: `${options.rootDir || './storage'}/${
+              options.tempDirname || 'temp'
+            }`,
             filename: (
               req: any,
               file: Express.Multer.File,
@@ -48,7 +50,10 @@ export class StorageModule {
   }
 
   static forRootAsync(options: ModuleAsyncOptions<StorageModuleOptions>): DynamicModule {
-    const { providers, imports } = ModuleUtil.makeAsyncImportsAndProviders(options, STORAGE_MODULE_OPTIONS);
+    const { providers, imports } = ModuleUtil.makeAsyncImportsAndProviders(
+      options,
+      STORAGE_MODULE_OPTIONS
+    );
     return this.createModule(providers, [
       ...imports,
       MulterModule.registerAsync({
@@ -76,9 +81,16 @@ export class StorageModule {
       module: StorageModule,
       imports: [
         ...imports,
-        MongooseModule.forFeature([{ name: FileMeta.name, schema: FileMetaSchema, collection: '_files' }])
+        MongooseModule.forFeature([
+          { name: FileMeta.name, schema: FileMetaSchema, collection: '_files' }
+        ])
       ],
-      providers: [...providers, FileManager, FilesystemStorageService, MongoFileMetaService],
+      providers: [
+        ...providers,
+        FileManager,
+        FilesystemStorageService,
+        MongoFileMetaService
+      ],
       controllers: [StorageController],
       exports: [STORAGE_MODULE_OPTIONS, MulterModule, FileManager]
     };

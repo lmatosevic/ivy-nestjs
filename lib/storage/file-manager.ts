@@ -50,21 +50,30 @@ export class FileManager {
     }
 
     if (props.access === 'private' && meta && user) {
-      let resource = await this.fileMetaService.filesResource(meta);
+      const resource = await this.fileMetaService.filesResource(meta);
       return { allowed: user.getId().equals(resource?.createdBy), meta };
     }
 
-    if (props.access === 'protected' && user && props.policy && props.policy instanceof Function) {
-      let resource = await this.fileMetaService.filesResource(meta);
+    if (
+      props.access === 'protected' &&
+      user &&
+      props.policy &&
+      props.policy instanceof Function
+    ) {
+      const resource = await this.fileMetaService.filesResource(meta);
       return { allowed: props.policy(user, meta, resource), meta };
     }
 
     return { allowed: false, meta };
   }
 
-  async storeFile(name: string, data: Buffer, meta?: FileMetadata): Promise<StoredFile | null> {
+  async storeFile(
+    name: string,
+    data: Buffer,
+    meta?: FileMetadata
+  ): Promise<StoredFile | null> {
     const fileName = FilesUtil.generateFileName(name);
-    let res = await this.storageService.store(fileName, data, this.dirname);
+    const res = await this.storageService.store(fileName, data, this.dirname);
     if (res) {
       this.logger.verbose('Stored file "%s"', fileName);
     }
@@ -89,7 +98,7 @@ export class FileManager {
   }
 
   async deleteFile(name: string): Promise<boolean> {
-    let result = await this.storageService.delete(name, this.dirname);
+    const result = await this.storageService.delete(name, this.dirname);
     if (result) {
       this.logger.verbose('Deleted file "%s"', name);
       await this.fileMetaService.delete(name);
@@ -98,7 +107,7 @@ export class FileManager {
   }
 
   async moveFromTemp(name: string, meta?: FileMetadata): Promise<StoredFile | null> {
-    let result = await this.storageService.move(name, this.tempDirname, this.dirname);
+    const result = await this.storageService.move(name, this.tempDirname, this.dirname);
     let metaId;
     if (result) {
       this.logger.verbose('Moved file "%s"', name);
@@ -133,7 +142,7 @@ export class FileManager {
         continue;
       }
 
-      let currentValue = currentModel[fileField];
+      const currentValue = currentModel[fileField];
 
       // Delete all files
       if (!newModel) {
@@ -151,7 +160,7 @@ export class FileManager {
         continue;
       }
 
-      let newValue = newModel[fileField];
+      const newValue = newModel[fileField];
 
       // Delete only files that are not present in new data model
       if (Array.isArray(currentValue) && Array.isArray(newValue)) {
@@ -175,7 +184,11 @@ export class FileManager {
     return deleteCount;
   }
 
-  async persistFile(file: File, isUpdate: boolean = false, meta?: FileMetadata): Promise<StoredFile | null> {
+  async persistFile(
+    file: File,
+    isUpdate = false,
+    meta?: FileMetadata
+  ): Promise<StoredFile | null> {
     if (!file) {
       return null;
     }
@@ -227,23 +240,23 @@ export class FileManager {
     currentModel?: any,
     isFileUpload?: boolean
   ): Promise<string[]> {
-    let storedFiles: string[] = [];
-    let errors = [];
+    const storedFiles: string[] = [];
+    const errors = [];
     try {
       for (const [fileField, props] of Object.entries(fileProps)) {
         if (!this.fileMetaService.modelFields(newModel).includes(fileField)) {
           continue;
         }
 
-        let metadata = {
+        const metadata = {
           resource: this.fileMetaService.modelName(newModel),
           field: fileField,
           resourceId: newModel.id
         };
 
-        let newValue = newModel[fileField];
-        let currentValue = currentModel?.[fileField];
-        let isUpdate = !!currentModel;
+        const newValue = newModel[fileField];
+        const currentValue = currentModel?.[fileField];
+        const isUpdate = !!currentModel;
 
         if (Array.isArray(newValue)) {
           if (props.maxCount > 0 && newValue.length > props.maxCount) {
@@ -260,15 +273,15 @@ export class FileManager {
             if (errors.length > 0) {
               continue;
             }
-            let storedFile = await this.persistFile(value, isUpdate, metadata);
+            const storedFile = await this.persistFile(value, isUpdate, metadata);
             if (storedFile !== null) {
               value.data = storedFile.fileName;
               value.meta = storedFile.metaId;
               storedFiles.push(storedFile.fileName);
             } else {
               if (isFileUpload) {
-                let metaParts = value.description?.split('_');
-                let movedFile = await this.moveFromTemp(value.data, {
+                const metaParts = value.description?.split('_');
+                const movedFile = await this.moveFromTemp(value.data, {
                   ...metadata,
                   mimeType: metaParts?.[0],
                   size: parseInt(metaParts?.[1])
@@ -279,13 +292,14 @@ export class FileManager {
                   storedFiles.push(movedFile.fileName);
                 }
               } else if (isUpdate && Array.isArray(currentValue)) {
-                let existingFile = currentValue.find((cv) => cv.data === value.data);
+                const existingFile = currentValue.find((cv) => cv.data === value.data);
                 if (!existingFile) {
                   errors.push({
                     value: value.data,
                     property: fileField,
                     constraints: {
-                      invalidName: 'Only file names from this resource and field property can be used'
+                      invalidName:
+                        'Only file names from this resource and field property can be used'
                     }
                   });
                 } else {
@@ -299,15 +313,15 @@ export class FileManager {
           if (errors.length > 0) {
             continue;
           }
-          let storedFile = await this.persistFile(newValue, isUpdate, metadata);
+          const storedFile = await this.persistFile(newValue, isUpdate, metadata);
           if (storedFile !== null) {
             newValue.data = storedFile.fileName;
             newValue.meta = storedFile.metaId;
             storedFiles.push(storedFile.fileName);
           } else {
             if (isFileUpload) {
-              let metaParts = newValue.description?.split('_');
-              let movedFile = await this.moveFromTemp(newValue.data, {
+              const metaParts = newValue.description?.split('_');
+              const movedFile = await this.moveFromTemp(newValue.data, {
                 ...metadata,
                 mimeType: metaParts?.[0],
                 size: parseInt(metaParts?.[1])

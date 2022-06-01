@@ -9,7 +9,9 @@ export class MongoExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(MongoExceptionFilter.name);
   private readonly debug: boolean;
 
-  constructor(@Inject(FILTERS_MODULE_OPTIONS) private filtersModuleOptions: FiltersModuleOptions) {
+  constructor(
+    @Inject(FILTERS_MODULE_OPTIONS) private filtersModuleOptions: FiltersModuleOptions
+  ) {
     this.debug = filtersModuleOptions.debug ?? false;
   }
 
@@ -18,12 +20,14 @@ export class MongoExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
 
-    let data = {
+    const data = {
       timestamp: new Date().toISOString(),
       path: request?.url || ctx['args'][3]?.['fieldName'],
       message: this.debug ? exception.message : 'Internal server error',
       code: exception.code,
-      reason: this.debug ? 'MongoDB engine failed to perform required operations' : undefined
+      reason: this.debug
+        ? 'MongoDB engine failed to perform required operations'
+        : undefined
     };
 
     this.logger.error('%j', data);

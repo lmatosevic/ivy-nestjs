@@ -5,7 +5,7 @@ import { AuthUser } from '../../auth';
 
 export abstract class ResourcePolicyService {
   intersectFields(object: any): any {
-    let allowedFields = this.policyProjection();
+    const allowedFields = this.policyProjection();
 
     if (!object || !allowedFields || Object.keys(allowedFields).length === 0) {
       return object;
@@ -13,7 +13,7 @@ export abstract class ResourcePolicyService {
 
     let dtoObject = {};
     if (Array.isArray(object)) {
-      for (let field of object) {
+      for (const field of object) {
         dtoObject[field] = 1;
       }
     } else {
@@ -25,15 +25,15 @@ export abstract class ResourcePolicyService {
   }
 
   policyFilter(): any {
-    let policyRules = this.getPolicyRules();
+    const policyRules = this.getPolicyRules();
     if (!policyRules || Object.keys(policyRules).length === 0) {
       return {};
     }
     return policyRules.filter;
   }
 
-  policyProjection(excludeSubFields: boolean = true): any {
-    let policyRules = this.getPolicyRules();
+  policyProjection(excludeSubFields = true): any {
+    const policyRules = this.getPolicyRules();
     if (!policyRules || Object.keys(policyRules).length === 0) {
       return {};
     }
@@ -52,6 +52,6 @@ export abstract class ResourcePolicyService {
   }
 
   getAuthUser(): AuthUser {
-    return RequestContext.currentContext?.req?.['user'] as AuthUser || null;
+    return (RequestContext.currentContext?.req?.['user'] as AuthUser) || null;
   }
 }

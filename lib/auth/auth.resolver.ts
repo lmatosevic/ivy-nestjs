@@ -10,7 +10,10 @@ import { AUTH_MODULE_OPTIONS } from '../auth/auth.constants';
 import { AuthModuleOptions } from '../auth/auth.module';
 import { AuthSource, AuthType } from '../enums';
 
-export function AuthResolver<T extends Type<unknown>>(authUserRef: T, registerUserRef: T): any {
+export function AuthResolver<T extends Type<unknown>>(
+  authUserRef: T,
+  registerUserRef: T
+): any {
   @ObjectType()
   class SuccessResponse {
     @Field()
@@ -24,11 +27,17 @@ export function AuthResolver<T extends Type<unknown>>(authUserRef: T, registerUs
       private authService: AuthService
     ) {
       if (authModuleOptions.registration === false) {
-        const descriptor = Object.getOwnPropertyDescriptor(AuthResolver.prototype, 'registration');
+        const descriptor = Object.getOwnPropertyDescriptor(
+          AuthResolver.prototype,
+          'registration'
+        );
         Reflect.deleteMetadata('graphql:resolver_type', descriptor.value);
       }
       if (authModuleOptions.login === false) {
-        const descriptor = Object.getOwnPropertyDescriptor(AuthResolver.prototype, 'login');
+        const descriptor = Object.getOwnPropertyDescriptor(
+          AuthResolver.prototype,
+          'login'
+        );
         Reflect.deleteMetadata('graphql:resolver_type', descriptor.value);
       }
     }
@@ -50,8 +59,10 @@ export function AuthResolver<T extends Type<unknown>>(authUserRef: T, registerUs
 
     @ReCaptcha()
     @Mutation(() => authUserRef)
-    async registration(@Args('data', { type: () => registerUserRef }) data: any): Promise<AuthUser> {
-      let instance = await RequestUtil.deserializeAndValidate(registerUserRef, data);
+    async registration(
+      @Args('data', { type: () => registerUserRef }) data: any
+    ): Promise<AuthUser> {
+      const instance = await RequestUtil.deserializeAndValidate(registerUserRef, data);
       return await this.authService.register(instance);
     }
 

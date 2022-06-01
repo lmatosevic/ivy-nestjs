@@ -22,14 +22,14 @@ export class MongooseSchemaFactory {
       }
     }
 
-    let virtualFields = Reflect.getMetadata(VIRTUAL_PROPS_KEY, proto);
+    const virtualFields = Reflect.getMetadata(VIRTUAL_PROPS_KEY, proto);
     if (virtualFields) {
       for (const [prop, config] of Object.entries(virtualFields)) {
         schema.virtual(prop, config);
       }
     }
 
-    let deleteFromJSON = [];
+    const deleteFromJSON = [];
     for (const [prop, config] of Object.entries(schema.obj)) {
       if (config['toJSON'] === false) {
         deleteFromJSON.push(prop);

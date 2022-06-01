@@ -28,14 +28,17 @@ function OperatorInputType<T>(classRef: Type<T>): any {
   inputType(OperatorValueClass);
 
   const metadata = classRef['_GRAPHQL_METADATA_FACTORY']?.();
-  for (let key of Object.keys(metadata || {})) {
+  for (const key of Object.keys(metadata || {})) {
     Object.defineProperty(OperatorValueClass, key, {});
     let type = metadata[key].type?.();
     type = Array.isArray(type) && type.length > 0 ? type[0] : type;
     if (type?.name === 'File') {
       Field(() => FileFilter)(OperatorValueClass.prototype, key);
     } else if (!!type?._GRAPHQL_METADATA_FACTORY) {
-      Field(() => type._GRAPHQL_QUERY_FILTER_FACTORY?.())(OperatorValueClass.prototype, key);
+      Field(() => type._GRAPHQL_QUERY_FILTER_FACTORY?.())(
+        OperatorValueClass.prototype,
+        key
+      );
     } else if (key === '_id') {
       Field(() => FilterOperator, { name: 'id' })(OperatorValueClass.prototype, key);
     } else {
@@ -46,12 +49,11 @@ function OperatorInputType<T>(classRef: Type<T>): any {
   return OperatorValueClass;
 }
 
-export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown>, U extends Type<unknown>>(
-  resourceRef: T,
-  createDtoRef: C,
-  updateDtoRef: U,
-  config?: ResourceConfig
-): any {
+export function ResourceResolver<
+  T extends Type<unknown>,
+  C extends Type<unknown>,
+  U extends Type<unknown>
+>(resourceRef: T, createDtoRef: C, updateDtoRef: U, config?: ResourceConfig): any {
   const pluralName = pluralize(resourceRef.name);
 
   @InputType(`${pluralName}Filter`)
@@ -114,7 +116,7 @@ export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown
 
     @Query(() => QueryResponse, { name: `${pluralName.toLowerCase()}` })
     async query(@Args() queryOptions: QueryOptions): Promise<QueryResponse> {
-      let { filter, ...options } = queryOptions;
+      const { filter, ...options } = queryOptions;
       const query = RequestUtil.transformFilter(filter);
       return await this.service.query({
         filter: query,
@@ -124,7 +126,7 @@ export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown
 
     @Mutation(() => resourceRef, { name: `create${resourceRef.name}` })
     async create(@Args('data', { type: () => createDtoRef }) createDto: C): Promise<T> {
-      let instance = await RequestUtil.deserializeAndValidate(createDtoRef, createDto);
+      const instance = await RequestUtil.deserializeAndValidate(createDtoRef, createDto);
       return this.service.create(instance);
     }
 
@@ -133,7 +135,7 @@ export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown
       @Args('id') id: string,
       @Args('data', { type: () => updateDtoRef }) updateDto: U
     ): Promise<T> {
-      let instance = await RequestUtil.deserializeAndValidate(updateDtoRef, updateDto);
+      const instance = await RequestUtil.deserializeAndValidate(updateDtoRef, updateDto);
       return this.service.update(id, instance);
     }
 

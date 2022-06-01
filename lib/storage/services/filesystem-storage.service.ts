@@ -11,7 +11,9 @@ export class FilesystemStorageService implements StorageService {
   private readonly logger = new Logger(FilesystemStorageService.name);
   private readonly rootDir: string;
 
-  constructor(@Inject(STORAGE_MODULE_OPTIONS) private storageModuleOptions: StorageModuleOptions) {
+  constructor(
+    @Inject(STORAGE_MODULE_OPTIONS) private storageModuleOptions: StorageModuleOptions
+  ) {
     this.rootDir = storageModuleOptions.rootDir || './storage';
     if (!fs.existsSync(this.rootDir)) {
       fs.mkdirSync(this.rootDir, { recursive: true });
@@ -22,7 +24,7 @@ export class FilesystemStorageService implements StorageService {
   }
 
   async store(fileName: string, data: Buffer, dirname?: string): Promise<boolean> {
-    let filePath = this.filePath(fileName, dirname);
+    const filePath = this.filePath(fileName, dirname);
     try {
       await fsp.writeFile(filePath, data);
     } catch (e) {
@@ -33,7 +35,7 @@ export class FilesystemStorageService implements StorageService {
   }
 
   async load(fileName: string, dirname?: string): Promise<Buffer | null> {
-    let filePath = this.filePath(fileName, dirname);
+    const filePath = this.filePath(fileName, dirname);
     try {
       return await fsp.readFile(filePath);
     } catch (e) {
@@ -43,7 +45,7 @@ export class FilesystemStorageService implements StorageService {
   }
 
   async stream(fileName: string, dirname?: string): Promise<ReadStream | null> {
-    let filePath = this.filePath(fileName, dirname);
+    const filePath = this.filePath(fileName, dirname);
     try {
       return fs.createReadStream(filePath);
     } catch (e) {
@@ -53,7 +55,7 @@ export class FilesystemStorageService implements StorageService {
   }
 
   async delete(fileName: string, dirname?: string): Promise<boolean> {
-    let filePath = this.filePath(fileName, dirname);
+    const filePath = this.filePath(fileName, dirname);
     try {
       await fsp.unlink(filePath);
     } catch (e) {
@@ -64,7 +66,7 @@ export class FilesystemStorageService implements StorageService {
   }
 
   async exists(fileName: string, dirname?: string): Promise<boolean> {
-    let filePath = this.filePath(fileName, dirname);
+    const filePath = this.filePath(fileName, dirname);
     try {
       await fsp.access(filePath, constants.F_OK);
       return true;
@@ -74,10 +76,10 @@ export class FilesystemStorageService implements StorageService {
   }
 
   async move(fileName: string, fromDir: string, toDir: string): Promise<boolean> {
-    let fromFilePath = this.filePath(fileName, fromDir);
-    let toFilePath = this.filePath(fileName, toDir);
+    const fromFilePath = this.filePath(fileName, fromDir);
+    const toFilePath = this.filePath(fileName, toDir);
     try {
-      if (!await this.exists(fileName, fromDir)) {
+      if (!(await this.exists(fileName, fromDir))) {
         return false;
       }
       await fsp.rename(fromFilePath, toFilePath);

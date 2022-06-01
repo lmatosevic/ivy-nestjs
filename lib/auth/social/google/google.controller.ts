@@ -23,7 +23,10 @@ export class GoogleController {
       GoogleController
     );
     if (authModuleOptions.google.enabled === false) {
-      const descriptor = Object.getOwnPropertyDescriptor(GoogleController.prototype, 'authorize');
+      const descriptor = Object.getOwnPropertyDescriptor(
+        GoogleController.prototype,
+        'authorize'
+      );
       Reflect.deleteMetadata('path', descriptor.value);
     }
   }
@@ -34,7 +37,7 @@ export class GoogleController {
   @HttpCode(200)
   @Post('authorize')
   async authorize(@Body() data): Promise<JwtToken> {
-    let instance = await RequestUtil.deserializeAndValidate(GoogleAuth, data);
+    const instance = await RequestUtil.deserializeAndValidate(GoogleAuth, data);
     return await this.googleService.authorize(instance);
   }
 }

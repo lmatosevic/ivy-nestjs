@@ -1,5 +1,12 @@
 import { AuthType, DeliveryMethod, Operation, Role } from '../../enums';
-import { AUTH_KEY, Authorized, ReCaptcha, RECAPTCHA_KEY, Roles, ROLES_KEY } from '../../auth';
+import {
+  AUTH_KEY,
+  Authorized,
+  ReCaptcha,
+  RECAPTCHA_KEY,
+  Roles,
+  ROLES_KEY
+} from '../../auth';
 
 export type ResourceConfig = Partial<Record<keyof typeof Operation, OperationConfig>>;
 
@@ -21,8 +28,8 @@ export function Resource(config?: ResourceConfig) {
     if (!allConf) {
       allConf = {};
     }
-    for (let operation of Object.values(Operation).filter((o) => o !== Operation.All)) {
-      let value = config[operation];
+    for (const operation of Object.values(Operation).filter((o) => o !== Operation.All)) {
+      const value = config[operation];
       if (!value) {
         config[operation] = allConf;
         continue;
@@ -75,7 +82,8 @@ function authorizedOperation(target: Function, operation: string, conf: Operatio
     return;
   }
 
-  const currentAuths = Reflect.getMetadata(AUTH_KEY, descriptor ? descriptor.value : '') || [];
+  const currentAuths =
+    Reflect.getMetadata(AUTH_KEY, descriptor ? descriptor.value : '') || [];
   let authorize = Authorized(...currentAuths);
   if (conf.auth && Array.isArray(conf.auth)) {
     authorize = Authorized(...currentAuths, ...conf.auth);

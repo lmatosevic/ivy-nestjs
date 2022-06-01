@@ -74,7 +74,10 @@ export class AuthModule {
   }
 
   static forRootAsync(options: AuthModuleAsyncOptions): DynamicModule {
-    const { providers, imports } = ModuleUtil.makeAsyncImportsAndProviders(options, AUTH_MODULE_OPTIONS);
+    const { providers, imports } = ModuleUtil.makeAsyncImportsAndProviders(
+      options,
+      AUTH_MODULE_OPTIONS
+    );
     return this.createModule(
       options,
       [
@@ -83,7 +86,9 @@ export class AuthModule {
           inject: [AUTH_MODULE_OPTIONS],
           useFactory: async (authModuleOptions: AuthModuleOptions) => ({
             secret: authModuleOptions.jwt?.secret,
-            signOptions: { expiresIn: (authModuleOptions.jwt?.expiresIn || 2592000) + 's' }
+            signOptions: {
+              expiresIn: (authModuleOptions.jwt?.expiresIn || 2592000) + 's'
+            }
           })
         })
       ],

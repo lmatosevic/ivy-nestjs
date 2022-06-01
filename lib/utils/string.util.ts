@@ -1,11 +1,11 @@
 import { ObjectUtil } from './object.util';
 
 export class StringUtil {
-  static parseInteger(value: string, defaultVal: number, radix: number = 10): number {
+  static parseInteger(value: string, defaultVal: number, radix = 10): number {
     if (value === undefined || value === null) {
       return defaultVal;
     }
-    let parsedVal = parseInt(value, radix);
+    const parsedVal = parseInt(value, radix);
     return isNaN(parsedVal) ? defaultVal : parsedVal;
   }
 
@@ -13,11 +13,11 @@ export class StringUtil {
     if (value === undefined || value === null) {
       return defaultVal;
     }
-    let parsedVal = parseFloat(value);
+    const parsedVal = parseFloat(value);
     return isNaN(parsedVal) ? defaultVal : parsedVal;
   }
 
-  static parseBool(value: string, defaultVal: boolean = false): boolean {
+  static parseBool(value: string, defaultVal = false): boolean {
     if (!value) {
       return defaultVal;
     }
@@ -39,9 +39,9 @@ export class StringUtil {
     let replacedText = text;
 
     for (const rule of rules) {
-      let group = rule.group ?? 1;
-      let regex = new RegExp(rule.regex, 'g');
-      let matches = replacedText.matchAll(regex);
+      const group = rule.group ?? 1;
+      const regex = new RegExp(rule.regex, 'g');
+      const matches = replacedText.matchAll(regex);
 
       let match = matches.next();
       while (match && match.value?.length > group - 1) {
@@ -56,7 +56,7 @@ export class StringUtil {
     return replacedText;
   }
 
-  static sanitizeText(text: string, replacement: string = '********'): string {
+  static sanitizeText(text: string, replacement = '********'): string {
     const sensitiveDataRules = [
       { regex: '"password":\\s?"(.*?)"' },
       { regex: 'password:\\s?\\"(.*?)\\"' },
@@ -69,8 +69,15 @@ export class StringUtil {
     return StringUtil.replaceRegexes(text, replacement, sensitiveDataRules);
   }
 
-  static sanitizeData(data: any, replacement: string = '********'): any {
-    const sensitiveKeys = ['password', 'authorization', 'cookie', 'accesstoken', 'refreshtoken', 'idtoken'];
+  static sanitizeData(data: any, replacement = '********'): any {
+    const sensitiveKeys = [
+      'password',
+      'authorization',
+      'cookie',
+      'accesstoken',
+      'refreshtoken',
+      'idtoken'
+    ];
 
     return ObjectUtil.transfromKeysAndValues(
       data,
@@ -84,7 +91,7 @@ export class StringUtil {
         }
 
         if (Array.isArray(value)) {
-          let newArray = [];
+          const newArray = [];
           for (const item of value) {
             if (typeof item == 'string') {
               newArray.push(this.sanitizeText(item, replacement));
@@ -107,16 +114,16 @@ export class StringUtil {
       return sizeInBytes;
     }
 
-    let matches = fileSize.matchAll(/([\d.]*)\s*([a-zA-Z]*)/g); // 1.5 MB
-    let match = matches.next();
+    const matches = fileSize.matchAll(/([\d.]*)\s*([a-zA-Z]*)/g); // 1.5 MB
+    const match = matches.next();
 
     if (match && match.value?.length > 0) {
       let multiplier = 1;
-      let value = match.value[1];
-      let unit = match.value[2];
+      const value = match.value[1];
+      const unit = match.value[2];
 
       if (unit) {
-        let index = units.indexOf(unit.toLowerCase().replace('b', ''));
+        const index = units.indexOf(unit.toLowerCase().replace('b', ''));
         if (index !== -1) {
           multiplier = Math.pow(1000, index + 1);
         }
@@ -124,7 +131,7 @@ export class StringUtil {
 
       let numericalValue = 1;
       if (value) {
-        let number = parseFloat(value);
+        const number = parseFloat(value);
         if (!isNaN(number)) {
           numericalValue = number;
         }

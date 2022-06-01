@@ -38,8 +38,8 @@ export class AuthService {
       sub: user.getId(),
       iat: new Date().getTime()
     };
-    let accessToken = await this.jwtService.signAsync(payload);
-    let refreshToken = await this.jwtService.signAsync({ ...payload, refresh: true });
+    const accessToken = await this.jwtService.signAsync(payload);
+    const refreshToken = await this.jwtService.signAsync({ ...payload, refresh: true });
 
     let result;
     try {
@@ -60,7 +60,7 @@ export class AuthService {
 
   async logout(user: AuthUser): Promise<{ result: boolean }> {
     try {
-      let result = await this.authModuleOptions.userDetailsService.onLogout(user);
+      const result = await this.authModuleOptions.userDetailsService.onLogout(user);
       return { result };
     } catch (e) {
       this.logger.warn(e);
@@ -68,7 +68,10 @@ export class AuthService {
     }
   }
 
-  async register(data: any, source: AuthSource = AuthSource.Local): Promise<AuthUser | null> {
+  async register(
+    data: any,
+    source: AuthSource = AuthSource.Local
+  ): Promise<AuthUser | null> {
     if (this.authModuleOptions.registration === false) {
       throw new AuthorizationError('Registration is not supported');
     }
@@ -77,9 +80,14 @@ export class AuthService {
 
   async identifierAvailable(field: string, value: string): Promise<{ result: boolean }> {
     if (!field || !value) {
-      throw new AuthorizationError('Missing required query parameters "field" and/or "value');
+      throw new AuthorizationError(
+        'Missing required query parameters "field" and/or "value'
+      );
     }
-    let result = await this.authModuleOptions.userDetailsService.identifierAvailable(field, value);
+    const result = await this.authModuleOptions.userDetailsService.identifierAvailable(
+      field,
+      value
+    );
     return { result };
   }
 }
