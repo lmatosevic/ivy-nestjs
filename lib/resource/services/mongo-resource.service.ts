@@ -1,12 +1,7 @@
 import { Logger } from '@nestjs/common';
 import { Document, Model } from 'mongoose';
 import { ResourceError } from '../../resource/errors';
-import {
-  FILE_PROPS_KEY,
-  FileError,
-  FileManager,
-  FileProps
-} from '../../storage';
+import { FILE_PROPS_KEY, FileError, FileManager, FileProps } from '../../storage';
 import { ObjectUtil } from '../../utils';
 import { QueryRequest, QueryResponse, ValidationError } from '../dto';
 import { ResourceService } from './resource.service';
@@ -42,14 +37,9 @@ export abstract class MongoResourceService<T>
   async find(id: string): Promise<T> {
     let result;
     try {
-      const policyFilter = await this.resolveFilterSubReferences(
-        this.policyFilter()
-      );
+      const policyFilter = await this.resolveFilterSubReferences(this.policyFilter());
       result = await this.model
-        .findOne(
-          { $and: [{ _id: id }, policyFilter] } as any,
-          this.policyProjection()
-        )
+        .findOne({ $and: [{ _id: id }, policyFilter] } as any, this.policyProjection())
         .populate(this.makePopulationArray())
         .exec();
     } catch (e) {
@@ -109,10 +99,7 @@ export abstract class MongoResourceService<T>
     let createdModel;
     let storedFiles;
     try {
-      storedFiles = await this.fileManager?.persistFiles(
-        this.fileProps(),
-        model
-      );
+      storedFiles = await this.fileManager?.persistFiles(this.fileProps(), model);
       createdModel = await model.save();
     } catch (e) {
       this.logger.debug(e);
@@ -209,14 +196,9 @@ export abstract class MongoResourceService<T>
     let resource;
 
     try {
-      const policyFilter = await this.resolveFilterSubReferences(
-        this.policyFilter()
-      );
+      const policyFilter = await this.resolveFilterSubReferences(this.policyFilter());
       resource = await this.model
-        .findOne(
-          { $and: [{ _id: id }, policyFilter] } as any,
-          this.policyProjection()
-        )
+        .findOne({ $and: [{ _id: id }, policyFilter] } as any, this.policyProjection())
         .exec();
     } catch (e) {
       this.logger.debug(e);
@@ -309,11 +291,7 @@ export abstract class MongoResourceService<T>
       const projectionFields = ['_id'];
       for (const policyKey of Object.keys(policyProjection)) {
         const keyParts = policyKey.split('.');
-        if (
-          excludeProjection &&
-          keyParts.length > level &&
-          field === keyParts[level]
-        ) {
+        if (excludeProjection && keyParts.length > level && field === keyParts[level]) {
           excludeProjection = false;
         }
         if (keyParts.length > level + 1) {
@@ -355,17 +333,12 @@ export abstract class MongoResourceService<T>
         fieldProp.ref,
         depth,
         level + 1,
-        [
-          ...excludeFields,
-          ...exclude,
-          ...[fieldProp.foreignField].filter((f) => !!f)
-        ]
+        [...excludeFields, ...exclude, ...[fieldProp.foreignField].filter((f) => !!f)]
       );
 
       populations.push({
         path: field,
-        populate:
-          newPopulationArray.length > 0 ? newPopulationArray : undefined,
+        populate: newPopulationArray.length > 0 ? newPopulationArray : undefined,
         select: select.length > 0 ? select : undefined
       });
     }
@@ -408,11 +381,7 @@ export abstract class MongoResourceService<T>
             this.fileProps(fieldProp.ref),
             referencedModel
           );
-          this.logger.verbose(
-            'Cascade delete for %s, %j',
-            fieldProp.ref,
-            logData
-          );
+          this.logger.verbose('Cascade delete for %s, %j', fieldProp.ref, logData);
           const populatedRefModel = await this.populateModel(
             referencedModel,
             fieldProp.ref
@@ -510,39 +479,32 @@ export abstract class MongoResourceService<T>
   }
 
   private referencedFields(modelName?: string): string[] {
-    return MongoResourceService.modelReferences[
-      modelName || this.model.modelName
-    ]?.references;
+    return MongoResourceService.modelReferences[modelName || this.model.modelName]
+      ?.references;
   }
 
   private virtualFields(modelName?: string): string[] {
-    return MongoResourceService.modelReferences[
-      modelName || this.model.modelName
-    ]?.virtuals;
+    return MongoResourceService.modelReferences[modelName || this.model.modelName]
+      ?.virtuals;
   }
 
   private fileFields(modelName?: string): string[] {
-    return MongoResourceService.modelReferences[
-      modelName || this.model.modelName
-    ]?.files;
+    return MongoResourceService.modelReferences[modelName || this.model.modelName]?.files;
   }
 
   private fileProps(modelName?: string): Record<string, FileProps> {
-    return MongoResourceService.modelReferences[
-      modelName || this.model.modelName
-    ]?.fileProps;
+    return MongoResourceService.modelReferences[modelName || this.model.modelName]
+      ?.fileProps;
   }
 
   private refProps(modelName?: string): Record<string, any> {
-    return MongoResourceService.modelReferences[
-      modelName || this.model.modelName
-    ]?.fieldProps;
+    return MongoResourceService.modelReferences[modelName || this.model.modelName]
+      ?.fieldProps;
   }
 
   private refProp(fieldName: string, modelName?: string): any {
-    return MongoResourceService.modelReferences[
-      modelName || this.model.modelName
-    ]?.fieldProps?.[fieldName];
+    return MongoResourceService.modelReferences[modelName || this.model.modelName]
+      ?.fieldProps?.[fieldName];
   }
 
   private modelNameFromFieldList(fieldList: string[]): string {
@@ -618,11 +580,7 @@ export abstract class MongoResourceService<T>
     }
 
     this.logger.verbose('%s file fields: %j', model.modelName, files);
-    this.logger.verbose(
-      '%s referenced fields: %j',
-      model.modelName,
-      references
-    );
+    this.logger.verbose('%s referenced fields: %j', model.modelName, references);
     this.logger.verbose('%s virtual fields: %j', model.modelName, virtuals);
 
     return { references, virtuals, files, fileProps, fieldProps };
