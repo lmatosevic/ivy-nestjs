@@ -20,6 +20,7 @@
     "build": "nest build",
     "format": "prettier --write \"lib/**/*.ts\" \"test/**/*.ts\"",
     "lint": "eslint \"{lib,test}/**/*.ts\" --fix",
+    "compodoc": "npx compodoc -p tsconfig.json src",
     "test": "jest --no-cache --forceExit --detectOpenHandles --coverage",
     "release": "standard-version",
     "release:minor": "standard-version --release-as minor",
@@ -66,6 +67,7 @@
     "winston": "^3.6.0"
   },
   "devDependencies": {
+    "@compodoc/compodoc": "1.1.19",
     "@nestjs/cli": "^8.0.0",
     "@nestjs/schematics": "^8.0.0",
     "@nestjs/testing": "^8.0.0",

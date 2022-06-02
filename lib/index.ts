@@ -1,4 +1,5 @@
 export * from './auth';
+export * from './config';
 export * from './context';
 export * from './enums';
 export * from './filters';

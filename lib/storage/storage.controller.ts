@@ -8,10 +8,10 @@ import {
   StreamableFile
 } from '@nestjs/common';
 import { ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { AuthUser, Authorized } from '../auth';
+import { AuthUser } from '../auth';
+import { CurrentUser, Authorized } from '../auth/decorators';
 import { FileManager } from './file-manager';
 import { FileError } from './errors';
-import { CurrentUser } from '../auth/decorators';
 import { StorageModuleOptions } from './storage.module';
 import { STORAGE_MODULE_OPTIONS } from './storage.constants';
 
