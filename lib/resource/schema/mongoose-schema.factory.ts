@@ -1,7 +1,7 @@
 import { Type } from '@nestjs/common';
 import { SchemaFactory } from '@nestjs/mongoose';
 import { Schema } from 'mongoose';
-import { VIRTUAL_PROPS_KEY } from '../resource/decorators';
+import { VIRTUAL_PROPS_KEY } from '../../resource/decorators';
 
 export class MongooseSchemaFactory {
   public static createForClass<T>(target: Type): Schema<T> {
