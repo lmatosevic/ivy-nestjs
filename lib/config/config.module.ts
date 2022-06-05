@@ -15,7 +15,7 @@ import { CONFIG_MODULE_OPTIONS } from './config.constants';
   exports: [NestJsConfigModule]
 })
 export class ConfigModule {
-  static forRoot(options: ConfigModuleOptions): DynamicModule {
+  static forRoot(options: ConfigModuleOptions = {}): DynamicModule {
     return this.createModule(
       [
         {
