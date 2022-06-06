@@ -1,36 +1,12 @@
-# IDEs and editors
-.idea/*
-.vscode/*
-
-# Logs
-logs
-*.log
-npm-debug.log*
-pnpm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
-
-# OS
-.DS_Store
-
-# Tests
-/coverage
-/.nyc_output
-test
-
-# Node modules
-node_modules
-
-# Sources
+# sources
 **/*.ts
 *.ts
 
-# Definitions
+# definitions
 !**/*.d.ts
 !*.d.ts
 
-# Configuration
+# configuration
 package-lock.json
 tslint.json
 tsconfig.json
