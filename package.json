@@ -43,6 +43,7 @@
     "prerelease": "npm run build",
     "release": "standard-version -a",
     "postrelease": "git commit -am \"chore: update version\" && git push --follow-tags origin main",
+    "prepublish": "npm run copy-prepare",
     "publish": "cd ./dist && npm publish"
   },
   "dependencies": {
