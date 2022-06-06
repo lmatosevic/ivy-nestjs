@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.18](https://github.com/Lujo5/ivy-nestjs/compare/v0.0.17...v0.0.18) (2022-06-06)
+
+
+### Features
+
+* add class validator shim ([8d94b9e](https://github.com/Lujo5/ivy-nestjs/commit/8d94b9e4efcf3108f89c85d722b0ed18a9b1fdfb))
+
 ### [0.0.17](https://github.com/Lujo5/ivy-nestjs/compare/v0.0.16...v0.0.17) (2022-06-06)
 
 ### [0.0.16](https://github.com/Lujo5/ivy-nestjs/compare/v0.0.15...v0.0.16) (2022-06-06)
