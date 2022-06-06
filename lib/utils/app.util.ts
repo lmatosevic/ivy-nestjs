@@ -54,7 +54,7 @@ export class AppUtil {
       logger.warn('Debug mode activated');
     }
 
-    if (configService.get('rest.swagger')) {
+    if (configService.get('rest.enabled') && configService.get('rest.swagger')) {
       const builder = new DocumentBuilder()
         .setTitle(configService.get('app.name'))
         .setDescription(
@@ -85,7 +85,7 @@ export class AppUtil {
       logger.log(`Swagger docs available on: ${address}/api-docs`);
     }
 
-    if (configService.get('graphql.playground')) {
+    if (configService.get('graphql.enabled') && configService.get('graphql.playground')) {
       logger.log(`GraphQL playground available on: ${address}/graphql`);
     }
 
