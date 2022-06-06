@@ -34,4 +34,5 @@ node_modules
 package-lock.json
 tslint.json
 tsconfig.json
+tsconfig.build.json
 .prettierrc
