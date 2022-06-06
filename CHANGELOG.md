@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.16](https://github.com/Lujo5/ivy-nestjs/compare/v0.0.15...v0.0.16) (2022-06-06)
+
+
+### Features
+
+* add auto schema generation plugin ([4e620bf](https://github.com/Lujo5/ivy-nestjs/commit/4e620bf271d153a55bf4d438abae386236b9f89b))
+
 ### [0.0.15](https://github.com/Lujo5/ivy-nestjs/compare/v0.0.14...v0.0.15) (2022-06-06)
 
 
