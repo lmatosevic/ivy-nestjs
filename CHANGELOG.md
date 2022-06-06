@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.8](https://github.com/Lujo5/ivy-nestjs/compare/v0.0.7...v0.0.8) (2022-06-06)
+
+
+### Bug Fixes
+
+* remove .idea from package ([89e7f4a](https://github.com/Lujo5/ivy-nestjs/commit/89e7f4a35eb3a00f17fc1152ee9de3f3335ece70))
+* update script task ([b48b74d](https://github.com/Lujo5/ivy-nestjs/commit/b48b74df9936c389e50e0795a232e98505c2b658))
+
 ### [0.0.7](https://github.com/Lujo5/ivy-nestjs/compare/v0.0.6...v0.0.7) (2022-06-06)
 
 
