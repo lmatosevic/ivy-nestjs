@@ -17,6 +17,9 @@
     "type": "git",
     "url": "https://github.com/Lujo5/ivy-nestjs.git"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
@@ -24,6 +27,7 @@
     "lint": "eslint \"{lib,test}/**/*.ts\" --fix",
     "compodoc": "npx compodoc -p tsconfig.json src",
     "test": "jest --no-cache --forceExit --detectOpenHandles --coverage",
+    "prerelease": "npm run build",
     "release": "standard-version",
     "release:minor": "standard-version --release-as minor",
     "release:patch": "standard-version --release-as patch",
