@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.15](https://github.com/Lujo5/ivy-nestjs/compare/v0.0.14...v0.0.15) (2022-06-06)
+
+
+### Bug Fixes
+
+* fix pluralize import ([3cc16c6](https://github.com/Lujo5/ivy-nestjs/commit/3cc16c614368bd1be5ea1c51a1f11ebdca73262c))
+
 ### [0.0.14](https://github.com/Lujo5/ivy-nestjs/compare/v0.0.13...v0.0.14) (2022-06-06)
 
 
