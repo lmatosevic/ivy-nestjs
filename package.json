@@ -20,6 +20,16 @@
   "publishConfig": {
     "access": "public"
   },
+  "keywords": [
+    "nestjs",
+    "web",
+    "api",
+    "graphql",
+    "auth",
+    "logging",
+    "config",
+    "database"
+  ],
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
