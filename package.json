@@ -37,10 +37,9 @@
     "lint": "eslint \"{lib,test}/**/*.ts\" --fix",
     "compodoc": "npx compodoc -p tsconfig.json src",
     "test": "jest --no-cache --forceExit --detectOpenHandles --coverage",
-    "prerelease": "npm run build && git add -A",
+    "prerelease": "npm run build",
     "release": "standard-version -a",
-    "postrelease": "git push --follow-tags origin main",
-    "postpublish": "git commit -am \"chore: update changelog\" && git push origin main"
+    "postrelease": "git commit -am \"chore: update changelog\" && git push --follow-tags origin main"
   },
   "dependencies": {
     "@casl/ability": "^5.4.3",
