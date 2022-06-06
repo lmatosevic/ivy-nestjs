@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.13](https://github.com/Lujo5/ivy-nestjs/compare/v0.0.12...v0.0.13) (2022-06-06)
+
+
+### Bug Fixes
+
+* remove changelog from bundle folder ([3833310](https://github.com/Lujo5/ivy-nestjs/commit/3833310561e19e37389b0c58a41b50ababd72129))
+
 ### [0.0.12](https://github.com/Lujo5/ivy-nestjs/compare/v0.0.11...v0.0.12) (2022-06-06)
 
 
