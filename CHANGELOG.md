@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.19](https://github.com/Lujo5/ivy-nestjs/compare/v0.0.18...v0.0.19) (2022-06-06)
+
+
+### Bug Fixes
+
+* add rest/graphql flag for console log swagger/graphql doc endpoints ([991d754](https://github.com/Lujo5/ivy-nestjs/commit/991d75427bd119af1d53256b87a81be4a0b56184))
+
 ### [0.0.18](https://github.com/Lujo5/ivy-nestjs/compare/v0.0.17...v0.0.18) (2022-06-06)
 
 
