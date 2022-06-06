@@ -74,10 +74,7 @@ export class AuthModule {
   }
 
   static forRootAsync(options: AuthModuleAsyncOptions): DynamicModule {
-    const { providers, imports } = ModuleUtil.makeAsyncImportsAndProviders(
-      options,
-      AUTH_MODULE_OPTIONS
-    );
+    const { providers, imports } = ModuleUtil.makeAsyncImportsAndProviders(options, AUTH_MODULE_OPTIONS);
     return this.createModule(
       options,
       [

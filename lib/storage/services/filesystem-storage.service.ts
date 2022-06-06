@@ -11,9 +11,7 @@ export class FilesystemStorageService implements StorageService {
   private readonly logger = new Logger(FilesystemStorageService.name);
   private readonly rootDir: string;
 
-  constructor(
-    @Inject(STORAGE_MODULE_OPTIONS) private storageModuleOptions: StorageModuleOptions
-  ) {
+  constructor(@Inject(STORAGE_MODULE_OPTIONS) private storageModuleOptions: StorageModuleOptions) {
     this.rootDir = storageModuleOptions.rootDir || './storage';
     if (!fs.existsSync(this.rootDir)) {
       fs.mkdirSync(this.rootDir, { recursive: true });

@@ -16,17 +16,11 @@ type ModelReferences = {
   fieldProps: Record<string, any>;
 };
 
-export abstract class MongoResourceService<T>
-  extends ResourcePolicyService
-  implements ResourceService<T>
-{
+export abstract class MongoResourceService<T> extends ResourcePolicyService implements ResourceService<T> {
   private static modelReferences: Record<string, ModelReferences>;
   private readonly logger = new Logger(MongoResourceService.name);
 
-  protected constructor(
-    protected model: Model<T & Document>,
-    protected fileManager?: FileManager
-  ) {
+  protected constructor(protected model: Model<T & Document>, protected fileManager?: FileManager) {
     super();
 
     if (!MongoResourceService.modelReferences) {
@@ -139,11 +133,7 @@ export abstract class MongoResourceService<T>
         isFileUpload
       );
       updatedModel = await resource.save();
-      await this.fileManager?.deleteFiles(
-        this.fileProps(),
-        currentResource,
-        updatedModel
-      );
+      await this.fileManager?.deleteFiles(this.fileProps(), currentResource, updatedModel);
     } catch (e) {
       this.logger.debug(e);
       await this.fileManager?.deleteFileArray(storedFiles);
@@ -242,32 +232,20 @@ export abstract class MongoResourceService<T>
     return reasons.length > 0 ? reasons : 'Invalid data provided';
   }
 
-  private async populateModel(
-    model: T & Document,
-    modelName?: string
-  ): Promise<T & Document> {
+  private async populateModel(model: T & Document, modelName?: string): Promise<T & Document> {
     return model.populate(this.makePopulationArray(modelName, 1));
   }
 
-  private async populateModelDeep(
-    model: T & Document,
-    modelName?: string
-  ): Promise<T & Document> {
+  private async populateModelDeep(model: T & Document, modelName?: string): Promise<T & Document> {
     const populations = this.makePopulationArray(modelName);
     return model.populate(populations);
   }
 
-  private makePopulationArray(
-    modelName?: string,
-    depth = 5,
-    level = 0,
-    excludeFields: string[] = []
-  ): any[] {
+  private makePopulationArray(modelName?: string, depth = 5, level = 0, excludeFields: string[] = []): any[] {
     const populations = [];
-    const fields = [
-      ...this.referencedFields(modelName),
-      ...this.virtualFields(modelName)
-    ].filter((f) => !excludeFields.includes(f));
+    const fields = [...this.referencedFields(modelName), ...this.virtualFields(modelName)].filter(
+      (f) => !excludeFields.includes(f)
+    );
 
     const fileFields = this.fileFields(modelName);
     for (const fileField of fileFields) {
@@ -314,10 +292,7 @@ export abstract class MongoResourceService<T>
             if (fieldPath === '__v') {
               continue;
             }
-            if (
-              !projectionFields.includes(fieldPath) &&
-              !this.refProp(fieldPath, fieldProp.ref)?.ref
-            ) {
+            if (!projectionFields.includes(fieldPath) && !this.refProp(fieldPath, fieldProp.ref)?.ref) {
               policySelect.push('-' + fieldPath);
             }
           }
@@ -329,12 +304,11 @@ export abstract class MongoResourceService<T>
         .filter((f) => !this.refProp(f, fieldProp.ref)?.ref)
         .map((f) => '-' + f)
         .concat(policySelect);
-      const newPopulationArray = this.makePopulationArray(
-        fieldProp.ref,
-        depth,
-        level + 1,
-        [...excludeFields, ...exclude, ...[fieldProp.foreignField].filter((f) => !!f)]
-      );
+      const newPopulationArray = this.makePopulationArray(fieldProp.ref, depth, level + 1, [
+        ...excludeFields,
+        ...exclude,
+        ...[fieldProp.foreignField].filter((f) => !!f)
+      ]);
 
       populations.push({
         path: field,
@@ -377,15 +351,9 @@ export abstract class MongoResourceService<T>
 
         if (fieldProp.onDelete === 'cascade') {
           await referencedModel.remove();
-          await this.fileManager?.deleteFiles(
-            this.fileProps(fieldProp.ref),
-            referencedModel
-          );
+          await this.fileManager?.deleteFiles(this.fileProps(fieldProp.ref), referencedModel);
           this.logger.verbose('Cascade delete for %s, %j', fieldProp.ref, logData);
-          const populatedRefModel = await this.populateModel(
-            referencedModel,
-            fieldProp.ref
-          );
+          const populatedRefModel = await this.populateModel(referencedModel, fieldProp.ref);
           await this.cascadeDelete(populatedRefModel);
           continue;
         }
@@ -400,19 +368,9 @@ export abstract class MongoResourceService<T>
               );
             }
             await referencedModel.save();
-            this.logger.verbose(
-              'Cascaded to null value for %s.%s, %j',
-              fieldProp.ref,
-              field.name,
-              logData
-            );
+            this.logger.verbose('Cascaded to null value for %s.%s, %j', fieldProp.ref, field.name, logData);
           } else {
-            this.logger.verbose(
-              'Do nothing on cascade for %s.%s, %j',
-              fieldProp.ref,
-              field.name,
-              logData
-            );
+            this.logger.verbose('Do nothing on cascade for %s.%s, %j', fieldProp.ref, field.name, logData);
           }
         }
       }
@@ -427,11 +385,7 @@ export abstract class MongoResourceService<T>
       async (key, value, keyList) => {
         const modelName = this.modelNameFromFieldList(keyList);
 
-        if (
-          value !== null &&
-          typeof value === 'object' &&
-          this.virtualFields(modelName).includes(key)
-        ) {
+        if (value !== null && typeof value === 'object' && this.virtualFields(modelName).includes(key)) {
           return '_id';
         }
         return key;
@@ -442,20 +396,14 @@ export abstract class MongoResourceService<T>
         if (value !== null && typeof value === 'object') {
           const model = this.model.db.models[this.refProp(key, modelName)?.ref];
 
-          if (
-            model &&
-            !Array.isArray(value) &&
-            this.referencedFields(modelName).includes(key)
-          ) {
+          if (model && !Array.isArray(value) && this.referencedFields(modelName).includes(key)) {
             return await model.distinct('_id', value).exec();
           }
 
           if (model && this.virtualFields(modelName).includes(key)) {
             const query = Array.isArray(value) ? { _id: value } : value;
             const fieldRefs = this.refProps(model.modelName);
-            const refData = Object.entries(fieldRefs).find(
-              ([_, meta]) => (meta as any).ref === modelName
-            );
+            const refData = Object.entries(fieldRefs).find(([_, meta]) => (meta as any).ref === modelName);
             if (refData && refData.length > 1) {
               const refName = refData[0];
               return await model.distinct(refName, query).exec();
@@ -479,13 +427,11 @@ export abstract class MongoResourceService<T>
   }
 
   private referencedFields(modelName?: string): string[] {
-    return MongoResourceService.modelReferences[modelName || this.model.modelName]
-      ?.references;
+    return MongoResourceService.modelReferences[modelName || this.model.modelName]?.references;
   }
 
   private virtualFields(modelName?: string): string[] {
-    return MongoResourceService.modelReferences[modelName || this.model.modelName]
-      ?.virtuals;
+    return MongoResourceService.modelReferences[modelName || this.model.modelName]?.virtuals;
   }
 
   private fileFields(modelName?: string): string[] {
@@ -493,18 +439,15 @@ export abstract class MongoResourceService<T>
   }
 
   private fileProps(modelName?: string): Record<string, FileProps> {
-    return MongoResourceService.modelReferences[modelName || this.model.modelName]
-      ?.fileProps;
+    return MongoResourceService.modelReferences[modelName || this.model.modelName]?.fileProps;
   }
 
   private refProps(modelName?: string): Record<string, any> {
-    return MongoResourceService.modelReferences[modelName || this.model.modelName]
-      ?.fieldProps;
+    return MongoResourceService.modelReferences[modelName || this.model.modelName]?.fieldProps;
   }
 
   private refProp(fieldName: string, modelName?: string): any {
-    return MongoResourceService.modelReferences[modelName || this.model.modelName]
-      ?.fieldProps?.[fieldName];
+    return MongoResourceService.modelReferences[modelName || this.model.modelName]?.fieldProps?.[fieldName];
   }
 
   private modelNameFromFieldList(fieldList: string[]): string {
@@ -550,10 +493,7 @@ export abstract class MongoResourceService<T>
       const fieldData = model?.schema?.obj[fieldName];
       let referenceProperties;
 
-      const props = Reflect.getMetadata(
-        FILE_PROPS_KEY,
-        model.schema['classRef']?.prototype
-      );
+      const props = Reflect.getMetadata(FILE_PROPS_KEY, model.schema['classRef']?.prototype);
       if (props && props[fieldName]) {
         fileProps[fieldName] = props[fieldName];
         files.push(fieldName);

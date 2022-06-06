@@ -7,9 +7,7 @@ import { LOGGER_MODULE_OPTIONS } from './logger.constants';
 export class LoggerService implements NestLoggerService {
   private static logger: winston.Logger;
 
-  constructor(
-    @Inject(LOGGER_MODULE_OPTIONS) private loggerModuleOptions: LoggerModuleOptions
-  ) {
+  constructor(@Inject(LOGGER_MODULE_OPTIONS) private loggerModuleOptions: LoggerModuleOptions) {
     if (LoggerService.logger !== undefined) {
       return;
     }
@@ -17,8 +15,7 @@ export class LoggerService implements NestLoggerService {
     const logLevel = loggerModuleOptions.level || 'info';
     const logPath = loggerModuleOptions.path;
     const appName = loggerModuleOptions.appName || 'Ivy Backend';
-    const colorize =
-      loggerModuleOptions.colorize === undefined ? true : loggerModuleOptions.colorize;
+    const colorize = loggerModuleOptions.colorize === undefined ? true : loggerModuleOptions.colorize;
 
     LoggerService.logger = winston.createLogger({
       level: logLevel,

@@ -85,36 +85,28 @@ function OperatorInputType<T>(classRef: Type<T>): any {
     let type = metadata[key].type?.();
     type = Array.isArray(type) && type.length > 0 ? type[0] : type;
     if (type?.name === 'File') {
-      ApiProperty({ type: () => FileFilter, required: false })(
-        OperatorValueClass.prototype,
-        key
-      );
+      ApiProperty({ type: () => FileFilter, required: false })(OperatorValueClass.prototype, key);
     } else if (!!type?._OPENAPI_METADATA_FACTORY) {
-      ApiProperty({ type: () => type._OPENAPI_QUERY_FILTER_FACTORY?.() })(
-        OperatorValueClass.prototype,
-        key
-      );
+      ApiProperty({ type: () => type._OPENAPI_QUERY_FILTER_FACTORY?.() })(OperatorValueClass.prototype, key);
     } else if (key === '_id') {
       ApiProperty({ type: () => FilterOperator, required: false, name: 'id' })(
         OperatorValueClass.prototype,
         key
       );
     } else {
-      ApiProperty({ type: () => FilterOperator, required: false })(
-        OperatorValueClass.prototype,
-        key
-      );
+      ApiProperty({ type: () => FilterOperator, required: false })(OperatorValueClass.prototype, key);
     }
   }
 
   return OperatorValueClass;
 }
 
-export function ResourceController<
-  T extends Type<unknown>,
-  C extends Type<unknown>,
-  U extends Type<unknown>
->(resourceRef: T, createDtoRef: C, updateDtoRef: U, config?: ResourceConfig): any {
+export function ResourceController<T extends Type<unknown>, C extends Type<unknown>, U extends Type<unknown>>(
+  resourceRef: T,
+  createDtoRef: C,
+  updateDtoRef: U,
+  config?: ResourceConfig
+): any {
   const pluralName = pluralize(resourceRef.name);
 
   const updateDtoProxy = {
@@ -284,16 +276,10 @@ export function ResourceController<
     @UseInterceptors(FileFieldsInterceptor(fileTypesMulterArray))
     @HttpCode(201)
     @Post('/:id/files')
-    async upload(
-      @Param('id') id: string,
-      @UploadedFiles() files: Record<string, Express.Multer.File[]>
-    ) {
+    async upload(@Param('id') id: string, @UploadedFiles() files: Record<string, Express.Multer.File[]>) {
       try {
         const updateDto = FilesUtil.createFilesUpdateDto(files, filePropsMap);
-        const instance = await RequestUtil.deserializeAndValidate(
-          updateDtoRef,
-          updateDto
-        );
+        const instance = await RequestUtil.deserializeAndValidate(updateDtoRef, updateDto);
         const updated = await this.service.update(id, instance, true);
         return FilesUtil.createFilesResponseDto(files, updated);
       } catch (e) {
@@ -305,10 +291,7 @@ export function ResourceController<
   }
 
   if (fileTypesMulterArray.length === 0) {
-    const descriptor = Object.getOwnPropertyDescriptor(
-      ResourceController.prototype,
-      'upload'
-    );
+    const descriptor = Object.getOwnPropertyDescriptor(ResourceController.prototype, 'upload');
     Reflect.deleteMetadata('path', descriptor.value);
   }
 

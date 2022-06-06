@@ -17,16 +17,9 @@ export class FacebookController {
     private facebookService: FacebookService
   ) {
     const currentPath = Reflect.getMetadata('path', FacebookController);
-    Reflect.defineMetadata(
-      'path',
-      `${authModuleOptions.route || 'auth'}/${currentPath}`,
-      FacebookController
-    );
+    Reflect.defineMetadata('path', `${authModuleOptions.route || 'auth'}/${currentPath}`, FacebookController);
     if (authModuleOptions.facebook?.enabled === false) {
-      const descriptor = Object.getOwnPropertyDescriptor(
-        FacebookController.prototype,
-        'authorize'
-      );
+      const descriptor = Object.getOwnPropertyDescriptor(FacebookController.prototype, 'authorize');
       Reflect.deleteMetadata('path', descriptor.value);
     }
   }

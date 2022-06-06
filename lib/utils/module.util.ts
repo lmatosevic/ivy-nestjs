@@ -26,14 +26,11 @@ export class ModuleUtil {
         inject: options.inject || []
       });
     } else if (options.useExisting || options.useClass) {
-      const inject = [
-        (options.useClass || options.useExisting) as Type<ModuleOptionsFactory<T>>
-      ];
+      const inject = [(options.useClass || options.useExisting) as Type<ModuleOptionsFactory<T>>];
 
       providers.push({
         provide: optionsKey,
-        useFactory: async (optionsFactory: ModuleOptionsFactory<T>) =>
-          await optionsFactory.createOptions(),
+        useFactory: async (optionsFactory: ModuleOptionsFactory<T>) => await optionsFactory.createOptions(),
         inject
       });
 

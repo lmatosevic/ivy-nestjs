@@ -25,10 +25,7 @@ export class LoggerModule {
   }
 
   static forRootAsync(options: ModuleAsyncOptions<LoggerModuleOptions>): DynamicModule {
-    const { providers, imports } = ModuleUtil.makeAsyncImportsAndProviders(
-      options,
-      LOGGER_MODULE_OPTIONS
-    );
+    const { providers, imports } = ModuleUtil.makeAsyncImportsAndProviders(options, LOGGER_MODULE_OPTIONS);
     return this.createModule(providers, imports);
   }
 

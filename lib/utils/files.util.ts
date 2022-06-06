@@ -19,9 +19,7 @@ export class FilesUtil {
     return uuidValidate(suffix);
   }
 
-  static async removeTemporaryFiles(
-    files: Record<string, Express.Multer.File[]>
-  ): Promise<void> {
+  static async removeTemporaryFiles(files: Record<string, Express.Multer.File[]>): Promise<void> {
     for (let fileObjects of Object.values(files || {})) {
       if (!Array.isArray(fileObjects)) {
         fileObjects = [fileObjects];
@@ -46,9 +44,7 @@ export class FilesUtil {
     fileProps: FileProps
   ): ValidationError[] {
     if (!file) {
-      return [
-        { value: null, property: field, constraints: { required: 'File is required' } }
-      ];
+      return [{ value: null, property: field, constraints: { required: 'File is required' } }];
     }
 
     let mimetype: string = file['mimetype'];

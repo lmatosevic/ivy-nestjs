@@ -1,12 +1,5 @@
 import { AuthType, DeliveryMethod, Operation, Role } from '../../enums';
-import {
-  AUTH_KEY,
-  Authorized,
-  ReCaptcha,
-  RECAPTCHA_KEY,
-  Roles,
-  ROLES_KEY
-} from '../../auth';
+import { AUTH_KEY, Authorized, ReCaptcha, RECAPTCHA_KEY, Roles, ROLES_KEY } from '../../auth';
 
 export type ResourceConfig = Partial<Record<keyof typeof Operation, OperationConfig>>;
 
@@ -82,8 +75,7 @@ function authorizedOperation(target: Function, operation: string, conf: Operatio
     return;
   }
 
-  const currentAuths =
-    Reflect.getMetadata(AUTH_KEY, descriptor ? descriptor.value : '') || [];
+  const currentAuths = Reflect.getMetadata(AUTH_KEY, descriptor ? descriptor.value : '') || [];
   let authorize = Authorized(...currentAuths);
   if (conf.auth && Array.isArray(conf.auth)) {
     authorize = Authorized(...currentAuths, ...conf.auth);

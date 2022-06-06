@@ -15,19 +15,14 @@ export class FacebookResolver {
     private facebookService: FacebookService
   ) {
     if (authModuleOptions.facebook.enabled === false) {
-      const descriptor = Object.getOwnPropertyDescriptor(
-        FacebookResolver.prototype,
-        'authorizeFacebook'
-      );
+      const descriptor = Object.getOwnPropertyDescriptor(FacebookResolver.prototype, 'authorizeFacebook');
       Reflect.deleteMetadata('graphql:resolver_type', descriptor.value);
     }
   }
 
   @Public()
   @Mutation(() => JwtToken)
-  async authorizeFacebook(
-    @Args('data', { type: () => FacebookAuth }) data: any
-  ): Promise<JwtToken> {
+  async authorizeFacebook(@Args('data', { type: () => FacebookAuth }) data: any): Promise<JwtToken> {
     const instance = await RequestUtil.deserializeAndValidate(FacebookAuth, data);
     return await this.facebookService.authorize(instance);
   }

@@ -27,11 +27,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new AuthorizationError('Unauthorized', 401);
     }
 
-    if (
-      !user ||
-      !user.enabled ||
-      (user.logoutAt && user.logoutAt.getTime() > payload.iat)
-    ) {
+    if (!user || !user.enabled || (user.logoutAt && user.logoutAt.getTime() > payload.iat)) {
       throw new AuthorizationError('Unauthorized', 401);
     }
 

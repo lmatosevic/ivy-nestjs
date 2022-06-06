@@ -6,8 +6,7 @@ import { CONFIG_MODULE_OPTIONS } from './config.constants';
 @Module({
   imports: [
     NestJsConfigModule.forRoot({
-      envFilePath:
-        process.env.NODE_ENV === 'test' ? ['.env.test', '.env'] : ['.env.local', '.env'],
+      envFilePath: process.env.NODE_ENV === 'test' ? ['.env.test', '.env'] : ['.env.local', '.env'],
       load: [configuration],
       isGlobal: true
     })
@@ -27,9 +26,7 @@ export class ConfigModule {
         NestJsConfigModule.forRoot({
           ...options,
           envFilePath: [
-            ...(process.env.NODE_ENV === 'test'
-              ? ['.env.test', '.env']
-              : ['.env.local', '.env']),
+            ...(process.env.NODE_ENV === 'test' ? ['.env.test', '.env'] : ['.env.local', '.env']),
             ...(options.envFilePath || [])
           ],
           load: [configuration, ...(options.load || [])],

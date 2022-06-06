@@ -1,12 +1,4 @@
-import {
-  Controller,
-  Get,
-  HttpCode,
-  Inject,
-  Param,
-  Response,
-  StreamableFile
-} from '@nestjs/common';
+import { Controller, Get, HttpCode, Inject, Param, Response, StreamableFile } from '@nestjs/common';
 import { ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { AuthUser } from '../auth';
 import { CurrentUser, Authorized } from '../auth/decorators';
@@ -28,17 +20,11 @@ export class StorageController {
       Reflect.defineMetadata('path', storageModuleOptions.filesRoute, StorageController);
     }
     if (['public', 'none'].includes(storageModuleOptions.filesAccess)) {
-      const descriptor = Object.getOwnPropertyDescriptor(
-        StorageController.prototype,
-        'protectedFile'
-      );
+      const descriptor = Object.getOwnPropertyDescriptor(StorageController.prototype, 'protectedFile');
       Reflect.deleteMetadata('path', descriptor.value);
     }
     if (['protected', 'none'].includes(storageModuleOptions.filesAccess)) {
-      const descriptor = Object.getOwnPropertyDescriptor(
-        StorageController.prototype,
-        'publicFile'
-      );
+      const descriptor = Object.getOwnPropertyDescriptor(StorageController.prototype, 'publicFile');
       Reflect.deleteMetadata('path', descriptor.value);
     }
     this.cacheDuration = this.storageModuleOptions.cacheDuration ?? 86400;
@@ -68,11 +54,7 @@ export class StorageController {
     return await this.validateAndMakeFileStream(name, res, user);
   }
 
-  private async validateAndMakeFileStream(
-    name: string,
-    res: any,
-    user?: AuthUser
-  ): Promise<StreamableFile> {
+  private async validateAndMakeFileStream(name: string, res: any, user?: AuthUser): Promise<StreamableFile> {
     const { allowed, meta } = await this.fileManager.checkFileAccess(name, user);
     if (!allowed) {
       throw new FileError(`File access forbidden`, 403);

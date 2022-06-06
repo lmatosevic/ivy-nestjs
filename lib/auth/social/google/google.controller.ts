@@ -17,16 +17,9 @@ export class GoogleController {
     private googleService: GoogleService
   ) {
     const currentPath = Reflect.getMetadata('path', GoogleController);
-    Reflect.defineMetadata(
-      'path',
-      `${authModuleOptions.route || 'auth'}/${currentPath}`,
-      GoogleController
-    );
+    Reflect.defineMetadata('path', `${authModuleOptions.route || 'auth'}/${currentPath}`, GoogleController);
     if (authModuleOptions.google.enabled === false) {
-      const descriptor = Object.getOwnPropertyDescriptor(
-        GoogleController.prototype,
-        'authorize'
-      );
+      const descriptor = Object.getOwnPropertyDescriptor(GoogleController.prototype, 'authorize');
       Reflect.deleteMetadata('path', descriptor.value);
     }
   }

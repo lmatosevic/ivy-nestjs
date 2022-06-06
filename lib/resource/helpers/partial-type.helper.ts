@@ -12,14 +12,9 @@ export interface PartialTypeConfig {
   readonly keepRequired?: boolean;
 }
 
-export function PartialType<T extends Type<unknown>>(
-  resourceRef: T,
-  config: PartialTypeConfig = {}
-): any {
+export function PartialType<T extends Type<unknown>>(resourceRef: T, config: PartialTypeConfig = {}): any {
   if (config.pick?.length > 0 && config.omit?.length > 0) {
-    throw new Error(
-      `Cannot use both pick and omit types at the same time for partial schema type`
-    );
+    throw new Error(`Cannot use both pick and omit types at the same time for partial schema type`);
   }
 
   let gqlType;
@@ -35,9 +30,7 @@ export function PartialType<T extends Type<unknown>>(
   }
 
   const classType = config.keepRequired ? gqlType : GqlPartialType(gqlType);
-  const swaggerClassType = config.keepRequired
-    ? swaggerType
-    : SwaggerPartialType(swaggerType);
+  const swaggerClassType = config.keepRequired ? swaggerType : SwaggerPartialType(swaggerType);
 
   classType['_OPENAPI_METADATA_FACTORY'] = swaggerClassType['_OPENAPI_METADATA_FACTORY'];
 

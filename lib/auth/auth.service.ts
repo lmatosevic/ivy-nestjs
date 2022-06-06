@@ -68,10 +68,7 @@ export class AuthService {
     }
   }
 
-  async register(
-    data: any,
-    source: AuthSource = AuthSource.Local
-  ): Promise<AuthUser | null> {
+  async register(data: any, source: AuthSource = AuthSource.Local): Promise<AuthUser | null> {
     if (this.authModuleOptions.registration === false) {
       throw new AuthorizationError('Registration is not supported');
     }
@@ -80,14 +77,9 @@ export class AuthService {
 
   async identifierAvailable(field: string, value: string): Promise<{ result: boolean }> {
     if (!field || !value) {
-      throw new AuthorizationError(
-        'Missing required query parameters "field" and/or "value'
-      );
+      throw new AuthorizationError('Missing required query parameters "field" and/or "value');
     }
-    const result = await this.authModuleOptions.userDetailsService.identifierAvailable(
-      field,
-      value
-    );
+    const result = await this.authModuleOptions.userDetailsService.identifierAvailable(field, value);
     return { result };
   }
 }

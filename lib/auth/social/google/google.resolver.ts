@@ -15,19 +15,14 @@ export class GoogleResolver {
     private googleService: GoogleService
   ) {
     if (authModuleOptions.google.enabled === false) {
-      const descriptor = Object.getOwnPropertyDescriptor(
-        GoogleResolver.prototype,
-        'authorizeGoogle'
-      );
+      const descriptor = Object.getOwnPropertyDescriptor(GoogleResolver.prototype, 'authorizeGoogle');
       Reflect.deleteMetadata('graphql:resolver_type', descriptor.value);
     }
   }
 
   @Public()
   @Mutation(() => JwtToken)
-  async authorizeGoogle(
-    @Args('data', { type: () => GoogleAuth }) data: any
-  ): Promise<JwtToken> {
+  async authorizeGoogle(@Args('data', { type: () => GoogleAuth }) data: any): Promise<JwtToken> {
     const instance = await RequestUtil.deserializeAndValidate(GoogleAuth, data);
     return await this.googleService.authorize(instance);
   }

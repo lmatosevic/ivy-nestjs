@@ -54,12 +54,7 @@ export class FileManager {
       return { allowed: user.getId().equals(resource?.createdBy), meta };
     }
 
-    if (
-      props.access === 'protected' &&
-      user &&
-      props.policy &&
-      props.policy instanceof Function
-    ) {
+    if (props.access === 'protected' && user && props.policy && props.policy instanceof Function) {
       const resource = await this.fileMetaService.filesResource(meta);
       return { allowed: props.policy(user, meta, resource), meta };
     }
@@ -67,11 +62,7 @@ export class FileManager {
     return { allowed: false, meta };
   }
 
-  async storeFile(
-    name: string,
-    data: Buffer,
-    meta?: FileMetadata
-  ): Promise<StoredFile | null> {
+  async storeFile(name: string, data: Buffer, meta?: FileMetadata): Promise<StoredFile | null> {
     const fileName = FilesUtil.generateFileName(name);
     const res = await this.storageService.store(fileName, data, this.dirname);
     if (res) {
@@ -184,11 +175,7 @@ export class FileManager {
     return deleteCount;
   }
 
-  async persistFile(
-    file: File,
-    isUpdate = false,
-    meta?: FileMetadata
-  ): Promise<StoredFile | null> {
+  async persistFile(file: File, isUpdate = false, meta?: FileMetadata): Promise<StoredFile | null> {
     if (!file) {
       return null;
     }
@@ -298,8 +285,7 @@ export class FileManager {
                     value: value.data,
                     property: fileField,
                     constraints: {
-                      invalidName:
-                        'Only file names from this resource and field property can be used'
+                      invalidName: 'Only file names from this resource and field property can be used'
                     }
                   });
                 } else {

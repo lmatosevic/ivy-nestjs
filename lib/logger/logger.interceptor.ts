@@ -1,10 +1,4 @@
-import {
-  Injectable,
-  NestInterceptor,
-  ExecutionContext,
-  CallHandler,
-  Logger
-} from '@nestjs/common';
+import { Injectable, NestInterceptor, ExecutionContext, CallHandler, Logger } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { ContextUtil, StringUtil } from '../utils';
@@ -23,9 +17,7 @@ export class LoggerInterceptor implements NestInterceptor {
       handler?.name,
       request.method,
       request.originalUrl,
-      ContextUtil.isGraphQL(context)
-        ? ' {' + ctx.switchToHttp()['args'][3]?.['fieldName'] + '}'
-        : '',
+      ContextUtil.isGraphQL(context) ? ' {' + ctx.switchToHttp()['args'][3]?.['fieldName'] + '}' : '',
       {
         body: StringUtil.sanitizeData(request.body),
         query: StringUtil.sanitizeData(request.query),

@@ -69,9 +69,7 @@ export class RequestUtil {
 
   static mapIdKeys(filter: any): any {
     return _.transform(filter, (result, value, key) => {
-      result[key === 'id' ? '_id' : key] = _.isObject(value)
-        ? this.mapIdKeys(value)
-        : value;
+      result[key === 'id' ? '_id' : key] = _.isObject(value) ? this.mapIdKeys(value) : value;
     });
   }
 }

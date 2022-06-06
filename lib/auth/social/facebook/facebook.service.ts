@@ -107,10 +107,7 @@ export class FacebookService {
     const jsonData = JSON.parse(data);
 
     const expectedSignature = CryptoUtil.signText(payload, secret);
-    if (
-      jsonData['algorithm'].toUpperCase() === 'HMAC-SHA256' &&
-      expectedSignature === signature
-    ) {
+    if (jsonData['algorithm'].toUpperCase() === 'HMAC-SHA256' && expectedSignature === signature) {
       return jsonData;
     }
     return null;

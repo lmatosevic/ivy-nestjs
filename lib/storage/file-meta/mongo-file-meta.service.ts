@@ -52,10 +52,7 @@ export class MongoFileMetaService implements FileMetaService {
 
     for (const [modelName, model] of Object.entries(this.fileMetaModel?.db?.models)) {
       if (modelName === meta.resource) {
-        const props = Reflect.getMetadata(
-          FILE_PROPS_KEY,
-          model.schema['classRef']?.prototype
-        );
+        const props = Reflect.getMetadata(FILE_PROPS_KEY, model.schema['classRef']?.prototype);
         if (props && props[meta.field]) {
           return { props: props[meta.field], meta };
         }
@@ -70,11 +67,7 @@ export class MongoFileMetaService implements FileMetaService {
     try {
       return await model.findOne({ _id: meta.resourceId }).exec();
     } catch (e) {
-      this.logger.error(
-        'Error finding file\'s resource model "%s", %j',
-        meta.resource,
-        e
-      );
+      this.logger.error('Error finding file\'s resource model "%s", %j', meta.resource, e);
       return null;
     }
   }

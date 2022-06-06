@@ -17,9 +17,7 @@ export const ReCaptcha = (...methods: DeliveryMethod[]) => {
         decorators.push(ApiHeader({ name: 'X-RECAPTCHA-TOKEN', required: false }));
         break;
       case DeliveryMethod.Query:
-        decorators.push(
-          ApiQuery({ name: 'recaptcha_token', type: 'string', required: false })
-        );
+        decorators.push(ApiQuery({ name: 'recaptcha_token', type: 'string', required: false }));
         break;
       case DeliveryMethod.Body:
         break;

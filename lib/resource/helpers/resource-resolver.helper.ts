@@ -35,10 +35,7 @@ function OperatorInputType<T>(classRef: Type<T>): any {
     if (type?.name === 'File') {
       Field(() => FileFilter)(OperatorValueClass.prototype, key);
     } else if (!!type?._GRAPHQL_METADATA_FACTORY) {
-      Field(() => type._GRAPHQL_QUERY_FILTER_FACTORY?.())(
-        OperatorValueClass.prototype,
-        key
-      );
+      Field(() => type._GRAPHQL_QUERY_FILTER_FACTORY?.())(OperatorValueClass.prototype, key);
     } else if (key === '_id') {
       Field(() => FilterOperator, { name: 'id' })(OperatorValueClass.prototype, key);
     } else {
@@ -49,11 +46,12 @@ function OperatorInputType<T>(classRef: Type<T>): any {
   return OperatorValueClass;
 }
 
-export function ResourceResolver<
-  T extends Type<unknown>,
-  C extends Type<unknown>,
-  U extends Type<unknown>
->(resourceRef: T, createDtoRef: C, updateDtoRef: U, config?: ResourceConfig): any {
+export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown>, U extends Type<unknown>>(
+  resourceRef: T,
+  createDtoRef: C,
+  updateDtoRef: U,
+  config?: ResourceConfig
+): any {
   const pluralName = pluralize(resourceRef.name);
 
   @InputType(`${pluralName}Filter`)

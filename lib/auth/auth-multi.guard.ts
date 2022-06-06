@@ -43,9 +43,7 @@ export class AuthMultiGuard implements CanActivate {
     ]);
 
     const enabledAuthTypes = authTypes.filter(
-      (t) =>
-        this.authModuleOptions[t.toLowerCase()] &&
-        this.authModuleOptions[t.toLowerCase()].enabled
+      (t) => this.authModuleOptions[t.toLowerCase()] && this.authModuleOptions[t.toLowerCase()].enabled
     );
 
     if (enabledAuthTypes.length === 0) {
@@ -80,10 +78,7 @@ export class AuthMultiGuard implements CanActivate {
     throw new AuthorizationError('Unauthorized', 401);
   }
 
-  private async checkGuardActivation(
-    guard: CanActivate,
-    context: ExecutionContext
-  ): Promise<boolean> {
+  private async checkGuardActivation(guard: CanActivate, context: ExecutionContext): Promise<boolean> {
     try {
       const call = guard.canActivate(context);
       if (isObservable(call)) {
