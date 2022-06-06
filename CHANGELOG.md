@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.11](https://github.com/Lujo5/ivy-nestjs/compare/v0.0.10...v0.0.11) (2022-06-06)
+
+
+### Features
+
+* add files in package ([25c2fe9](https://github.com/Lujo5/ivy-nestjs/commit/25c2fe974c5691d0e32e8e7792dfe37b76e65657))
+
+
+### Bug Fixes
+
+* fix npmignore ([f3d5b7f](https://github.com/Lujo5/ivy-nestjs/commit/f3d5b7fbf749e0d258b972283c04bfba178789ee))
+
 ### [0.0.10](https://github.com/Lujo5/ivy-nestjs/compare/v0.0.9...v0.0.10) (2022-06-06)
 
 
