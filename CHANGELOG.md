@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.21](https://github.com/Lujo5/ivy-nestjs/compare/v0.0.20...v0.0.21) (2022-06-06)
+
+
+### Features
+
+* update copy script ([f31b314](https://github.com/Lujo5/ivy-nestjs/commit/f31b31498314900dc5b4062e54cba6bb3ab43039))
+
 ### [0.0.20](https://github.com/Lujo5/ivy-nestjs/compare/v0.0.19...v0.0.20) (2022-06-06)
 
 
