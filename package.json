@@ -28,7 +28,8 @@
     "compodoc": "npx compodoc -p tsconfig.json src",
     "test": "jest --no-cache --forceExit --detectOpenHandles --coverage",
     "prerelease": "npm run build",
-    "release": "standard-version"
+    "release": "standard-version",
+    "postrelease": "git push --follow-tags origin main"
   },
   "dependencies": {
     "@casl/ability": "^5.4.3",
