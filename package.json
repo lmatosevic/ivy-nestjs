@@ -39,7 +39,7 @@
     "test": "jest --no-cache --forceExit --detectOpenHandles --coverage",
     "prerelease": "npm run build",
     "release": "standard-version -a",
-    "postrelease": "git commit -am \"chore: update changelog\" && git push --follow-tags origin main"
+    "postrelease": "git commit -am \"chore: update version\" && git push --follow-tags origin main"
   },
   "dependencies": {
     "@casl/ability": "^5.4.3",
