@@ -39,7 +39,7 @@
     "lint": "eslint \"{lib,test}/**/*.ts\" --fix",
     "compodoc": "npx compodoc -p tsconfig.json src",
     "test": "jest --no-cache --forceExit --detectOpenHandles --coverage",
-    "pack": "cd ./dist && npm pack --pack-destination ../build",
+    "pack": "npm run build && cd ./dist && npm pack --pack-destination ../build",
     "prerelease": "npm run build",
     "release": "standard-version -a",
     "postrelease": "git commit -am \"chore: update version\" && git push --follow-tags origin main",
