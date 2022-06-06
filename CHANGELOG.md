@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.20](https://github.com/Lujo5/ivy-nestjs/compare/v0.0.19...v0.0.20) (2022-06-06)
+
+
+### Bug Fixes
+
+* remove tsbuildinfo from dist ([4d16541](https://github.com/Lujo5/ivy-nestjs/commit/4d165410031370e48b32e1f0e7fa91a085362eab))
+
 ### [0.0.19](https://github.com/Lujo5/ivy-nestjs/compare/v0.0.18...v0.0.19) (2022-06-06)
 
 
