@@ -22,7 +22,7 @@
             ".schema.ts",
             ".dto.ts"
           ],
-          "classValidatorShim": false,
+          "classValidatorShim": true,
           "introspectComments": true
         }
       }
