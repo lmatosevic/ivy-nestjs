@@ -33,7 +33,8 @@
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
-    "postbuild": "node ./scripts/copy.js && node ./scripts/prepare.js",
+    "postbuild": "npm run copy-prepare",
+    "copy-prepare": "node ./scripts/copy.js && node ./scripts/prepare.js",
     "format": "prettier --write \"lib/**/*.ts\" \"test/**/*.ts\"",
     "lint": "eslint \"{lib,test}/**/*.ts\" --fix",
     "compodoc": "npx compodoc -p tsconfig.json src",
@@ -41,6 +42,7 @@
     "prerelease": "npm run build",
     "release": "standard-version -a",
     "postrelease": "git commit -am \"chore: update version\" && git push --follow-tags origin main",
+    "prepublish": "npm run copy-prepare",
     "publish": "cd ./dist && npm publish"
   },
   "dependencies": {

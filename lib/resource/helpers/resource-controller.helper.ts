@@ -11,7 +11,7 @@ import {
   UseInterceptors
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
-import pluralize from 'pluralize';
+import * as pluralize from 'pluralize';
 import {
   ApiBadRequestResponse,
   ApiBody,

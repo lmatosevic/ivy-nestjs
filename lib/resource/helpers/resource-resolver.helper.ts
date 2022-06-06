@@ -11,7 +11,7 @@ import {
   Query,
   Resolver
 } from '@nestjs/graphql';
-import pluralize from 'pluralize';
+import * as pluralize from 'pluralize';
 import { RequestUtil } from '../../utils';
 import { FilterOperator } from '../dto';
 import { ResourceService } from '../services';
