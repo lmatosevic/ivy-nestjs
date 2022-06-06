@@ -1,4 +1,5 @@
 import { ExceptionFilter, Catch, ArgumentsHost, Logger, Inject } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Request, Response } from 'express';
 import { MongoError } from 'mongodb';
 import { FiltersModuleOptions } from './filters.module';
@@ -9,8 +10,11 @@ export class MongoExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(MongoExceptionFilter.name);
   private readonly debug: boolean;
 
-  constructor(@Inject(FILTERS_MODULE_OPTIONS) private filtersModuleOptions: FiltersModuleOptions) {
-    this.debug = filtersModuleOptions.debug ?? false;
+  constructor(
+    @Inject(FILTERS_MODULE_OPTIONS) private filtersModuleOptions: FiltersModuleOptions,
+    private configService: ConfigService
+  ) {
+    this.debug = filtersModuleOptions.debug ?? configService.get('app.debug') ?? false;
   }
 
   catch(exception: MongoError, host: ArgumentsHost) {

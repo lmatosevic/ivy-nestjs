@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import { constants, promises as fsp, ReadStream } from 'fs';
 import * as path from 'path';
 import { Inject, Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { StorageService } from './storage.service';
 import { StorageModuleOptions } from '../storage.module';
 import { STORAGE_MODULE_OPTIONS } from '../storage.constants';
@@ -11,8 +12,11 @@ export class FilesystemStorageService implements StorageService {
   private readonly logger = new Logger(FilesystemStorageService.name);
   private readonly rootDir: string;
 
-  constructor(@Inject(STORAGE_MODULE_OPTIONS) private storageModuleOptions: StorageModuleOptions) {
-    this.rootDir = storageModuleOptions.rootDir || './storage';
+  constructor(
+    @Inject(STORAGE_MODULE_OPTIONS) private storageModuleOptions: StorageModuleOptions,
+    private configService: ConfigService
+  ) {
+    this.rootDir = storageModuleOptions.rootDir || configService.get('storage.rootDir') || './storage';
     if (!fs.existsSync(this.rootDir)) {
       fs.mkdirSync(this.rootDir, { recursive: true });
       this.logger.log('Created directory: %s', path.resolve(this.rootDir));

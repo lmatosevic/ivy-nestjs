@@ -15,7 +15,7 @@ export interface LoggerModuleOptions {
 @Global()
 @Module({})
 export class LoggerModule {
-  static forRoot(options: LoggerModuleOptions): DynamicModule {
+  static forRoot(options: LoggerModuleOptions = {}): DynamicModule {
     return this.createModule([
       {
         provide: LOGGER_MODULE_OPTIONS,

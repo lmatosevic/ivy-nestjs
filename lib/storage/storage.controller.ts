@@ -6,6 +6,7 @@ import { FileManager } from './file-manager';
 import { FileError } from './errors';
 import { StorageModuleOptions } from './storage.module';
 import { STORAGE_MODULE_OPTIONS } from './storage.constants';
+import { ConfigService } from '@nestjs/config';
 
 @ApiTags('files')
 @Controller('files')
@@ -14,20 +15,25 @@ export class StorageController {
 
   constructor(
     @Inject(STORAGE_MODULE_OPTIONS) private storageModuleOptions: StorageModuleOptions,
+    private configService: ConfigService,
     private readonly fileManager: FileManager
   ) {
-    if (storageModuleOptions.filesRoute) {
-      Reflect.defineMetadata('path', storageModuleOptions.filesRoute, StorageController);
+    const filesRoute = storageModuleOptions.filesRoute ?? configService.get('storage.filesRoute');
+    const filesAccess = storageModuleOptions.filesAccess ?? configService.get('storage.filesAccess');
+
+    if (filesRoute) {
+      Reflect.defineMetadata('path', filesRoute, StorageController);
     }
-    if (['public', 'none'].includes(storageModuleOptions.filesAccess)) {
+    if (['public', 'none'].includes(filesAccess)) {
       const descriptor = Object.getOwnPropertyDescriptor(StorageController.prototype, 'protectedFile');
       Reflect.deleteMetadata('path', descriptor.value);
     }
-    if (['protected', 'none'].includes(storageModuleOptions.filesAccess)) {
+    if (['protected', 'none'].includes(filesAccess)) {
       const descriptor = Object.getOwnPropertyDescriptor(StorageController.prototype, 'publicFile');
       Reflect.deleteMetadata('path', descriptor.value);
     }
-    this.cacheDuration = this.storageModuleOptions.cacheDuration ?? 86400;
+    this.cacheDuration =
+      this.storageModuleOptions.cacheDuration ?? configService.get('storage.cacheDuration') ?? 86400;
   }
 
   @ApiOkResponse({ description: 'Binary file content' })

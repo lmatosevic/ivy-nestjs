@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import * as path from 'path';
 import {
   DiskHealthIndicator,
@@ -19,14 +20,17 @@ export class HealthService {
 
   constructor(
     @Inject(HEALTH_MODULE_OPTIONS) private healthModuleOptions: HealthModuleOptions,
+    private configService: ConfigService,
     private health: HealthCheckService,
     private db: MongooseHealthIndicator,
     private memory: MemoryHealthIndicator,
     private disk: DiskHealthIndicator
   ) {
-    this.memoryThreshold = healthModuleOptions.memoryThreshold ?? 512;
-    this.diskThreshold = healthModuleOptions.diskThreshold ?? 0.9;
-    this.diskPath = healthModuleOptions.diskPath || '/';
+    this.memoryThreshold =
+      healthModuleOptions.memoryThreshold ?? configService.get('health.memoryThreshold') ?? 512;
+    this.diskThreshold =
+      healthModuleOptions.diskThreshold ?? configService.get('health.diskThreshold') ?? 0.9;
+    this.diskPath = healthModuleOptions.diskPath || configService.get('health.rootDir') || '/';
   }
 
   public async allCheck(): Promise<HealthCheckResult> {

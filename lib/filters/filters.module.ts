@@ -8,12 +8,12 @@ import { AuthorizationExceptionFilter } from './authorization-exception.filter';
 import { FILTERS_MODULE_OPTIONS } from './filters.constants';
 
 export interface FiltersModuleOptions {
-  debug: boolean;
+  debug?: boolean;
 }
 
 @Module({})
 export class FiltersModule {
-  static forRoot(options: FiltersModuleOptions): DynamicModule {
+  static forRoot(options: FiltersModuleOptions = {}): DynamicModule {
     return this.createModule([
       {
         provide: FILTERS_MODULE_OPTIONS,

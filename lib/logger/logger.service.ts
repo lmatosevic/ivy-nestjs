@@ -1,4 +1,5 @@
 import { Inject, Injectable, LoggerService as NestLoggerService } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import * as winston from 'winston';
 import { LoggerModuleOptions } from './logger.module';
 import { LOGGER_MODULE_OPTIONS } from './logger.constants';
@@ -7,15 +8,22 @@ import { LOGGER_MODULE_OPTIONS } from './logger.constants';
 export class LoggerService implements NestLoggerService {
   private static logger: winston.Logger;
 
-  constructor(@Inject(LOGGER_MODULE_OPTIONS) private loggerModuleOptions: LoggerModuleOptions) {
+  constructor(
+    @Inject(LOGGER_MODULE_OPTIONS) private loggerModuleOptions: LoggerModuleOptions,
+    private configService: ConfigService
+  ) {
     if (LoggerService.logger !== undefined) {
       return;
     }
 
-    const logLevel = loggerModuleOptions.level || 'info';
-    const logPath = loggerModuleOptions.path;
-    const appName = loggerModuleOptions.appName || 'Ivy Backend';
-    const colorize = loggerModuleOptions.colorize === undefined ? true : loggerModuleOptions.colorize;
+    const logLevel = loggerModuleOptions.level || configService.get('log.level') || 'info';
+    const logPath = loggerModuleOptions.path || configService.get('log.path');
+    const appName = loggerModuleOptions.appName || configService.get('app.name') || 'API Backend';
+    let colorize =
+      loggerModuleOptions.colorize === undefined
+        ? configService.get('log.colorize')
+        : loggerModuleOptions.colorize;
+    colorize = colorize === undefined ? true : configService.get('log.colorize');
 
     LoggerService.logger = winston.createLogger({
       level: logLevel,

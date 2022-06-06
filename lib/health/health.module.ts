@@ -15,7 +15,7 @@ export interface HealthModuleOptions {
 
 @Module({})
 export class HealthModule {
-  static forRoot(options: HealthModuleOptions): DynamicModule {
+  static forRoot(options: HealthModuleOptions = {}): DynamicModule {
     return this.createModule([
       {
         provide: HEALTH_MODULE_OPTIONS,

@@ -1,4 +1,5 @@
 import { Inject, Injectable, Logger, StreamableFile } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { fromBuffer } from 'file-type';
 import { FilesUtil } from '../utils';
 import { File } from './schema';
@@ -28,11 +29,12 @@ export class FileManager {
 
   constructor(
     @Inject(STORAGE_MODULE_OPTIONS) private storageModuleOptions: StorageModuleOptions,
+    private configService: ConfigService,
     private storageService: FilesystemStorageService,
     private fileMetaService: MongoFileMetaService
   ) {
-    this.dirname = storageModuleOptions.filesDirname || 'files';
-    this.tempDirname = storageModuleOptions.tempDirname || 'temp';
+    this.dirname = storageModuleOptions.filesDirname || configService.get('storage.filesDirname') || 'files';
+    this.tempDirname = storageModuleOptions.tempDirname || configService.get('storage.tempDirname') || 'temp';
   }
 
   async checkFileAccess(name: string, user: AuthUser): Promise<AccessMeta> {
