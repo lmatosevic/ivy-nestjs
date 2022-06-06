@@ -20,13 +20,6 @@
   "publishConfig": {
     "access": "public"
   },
-  "files": [
-    "/dist",
-    "package.json",
-    "README.md",
-    "CHANGELOG.md",
-    "LICENSE"
-  ],
   "keywords": [
     "nestjs",
     "web",
@@ -46,7 +39,9 @@
     "test": "jest --no-cache --forceExit --detectOpenHandles --coverage",
     "prerelease": "npm run build",
     "release": "standard-version -a",
-    "postrelease": "git commit -am \"chore: update version\" && git push --follow-tags origin main"
+    "postrelease": "git commit -am \"chore: update version\" && git push --follow-tags origin main",
+    "prepublish": "node ./scripts/copy.js && node ./scripts/prepare.js",
+    "publish": "cd ./dist && npm publish"
   },
   "dependencies": {
     "@casl/ability": "^5.4.3",
