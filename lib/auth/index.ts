@@ -7,3 +7,4 @@ export * from './strategy/oauth2/oauth2-auth.guard';
 export * from './strategy/apikey/apikey-auth.guard';
 export * from './errors';
 export * from './decorators';
+export * from './services';

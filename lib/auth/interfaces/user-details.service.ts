@@ -14,7 +14,7 @@ export interface UserDetailsService<T extends AuthUser> {
 
   hashPassword(password: string): Promise<string>;
 
-  register(userData: any, source: AuthSource): Promise<T>;
+  register(userData: Partial<T>, source: AuthSource): Promise<T>;
 
   identifierAvailable(field: string, value: any): Promise<boolean>;
 }
