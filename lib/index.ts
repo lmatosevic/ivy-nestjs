@@ -7,4 +7,6 @@ export * from './health';
 export * from './logger';
 export * from './resource';
 export * from './storage';
+export * from './graphql';
+export * from './mongoose';
 export * from './utils';
