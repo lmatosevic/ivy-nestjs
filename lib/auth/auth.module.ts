@@ -1,4 +1,5 @@
 import { DynamicModule, Global, Module, Type } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { PassportModule } from '@nestjs/passport';
 import { HttpModule } from '@nestjs/axios';
@@ -24,7 +25,6 @@ import {
   GoogleService
 } from './social';
 import { AUTH_MODULE_OPTIONS } from './auth.constants';
-import { ConfigService } from '@nestjs/config';
 
 export interface AuthModuleOptions {
   userDetailsService: UserDetailsService<AuthUser>;
