@@ -6,11 +6,11 @@ import { JwtModule } from '@nestjs/jwt';
 import { ModuleAsyncOptions, ModuleUtil } from '../utils';
 import { UserDetailsService } from './interfaces';
 import { AuthController } from './auth.controller';
-import { LocalStrategy, LocalAuthGuard } from './strategy/local';
-import { BasicStrategy, BasicAuthGuard } from './strategy/basic';
-import { JwtStrategy, JwtAuthGuard } from './strategy/jwt';
-import { ApikeyStrategy, ApikeyAuthGuard } from './strategy/apikey';
-import { OAuth2Strategy, OAuth2AuthGuard } from './strategy/oauth2';
+import { LocalAuthGuard, LocalStrategy } from './strategy/local';
+import { BasicAuthGuard, BasicStrategy } from './strategy/basic';
+import { JwtAuthGuard, JwtStrategy } from './strategy/jwt';
+import { ApikeyAuthGuard, ApikeyStrategy } from './strategy/apikey';
+import { OAuth2AuthGuard, OAuth2Strategy } from './strategy/oauth2';
 import { RecaptchaGuard, RecaptchaService } from './recaptcha';
 import { RolesGuard } from './roles.guard';
 import { AuthService } from './auth.service';
@@ -48,7 +48,8 @@ export interface AuthModuleOptions {
   facebook?: { appId: string; appSecret: string; enabled?: boolean };
 }
 
-export interface AuthModuleAsyncOptions extends ModuleAsyncOptions<AuthModuleOptions> {
+export interface AuthModuleAsyncOptions
+  extends ModuleAsyncOptions<Omit<AuthModuleOptions, 'userDetailsClass' | 'userRegisterDtoClass'>> {
   userDetailsClass: Type;
   userRegisterDtoClass: Type;
 }
