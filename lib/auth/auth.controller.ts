@@ -57,7 +57,7 @@ export function AuthController<T extends Type<unknown>>(authUserRef: T, register
       const login = authModuleOptions.login ?? configService.get('auth.login');
 
       if (route) {
-        Reflect.defineMetadata('path', authModuleOptions.route, AuthController);
+        Reflect.defineMetadata('path', route, AuthController);
       }
       if (registration === false) {
         const descriptor = Object.getOwnPropertyDescriptor(AuthController.prototype, 'registration');

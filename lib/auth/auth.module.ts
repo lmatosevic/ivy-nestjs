@@ -4,7 +4,7 @@ import { PassportModule } from '@nestjs/passport';
 import { HttpModule } from '@nestjs/axios';
 import { JwtModule } from '@nestjs/jwt';
 import { ModuleAsyncOptions, ModuleUtil } from '../utils';
-import { UserDetailsService } from './interfaces';
+import { AuthUser, UserDetailsService } from './interfaces';
 import { AuthController } from './auth.controller';
 import { LocalAuthGuard, LocalStrategy } from './strategy/local';
 import { BasicAuthGuard, BasicStrategy } from './strategy/basic';
@@ -27,7 +27,7 @@ import { AUTH_MODULE_OPTIONS } from './auth.constants';
 import { ConfigService } from '@nestjs/config';
 
 export interface AuthModuleOptions {
-  userDetailsService: UserDetailsService<any>;
+  userDetailsService: UserDetailsService<AuthUser>;
   userDetailsClass: Type;
   userRegisterDtoClass: Type;
   route?: string;
