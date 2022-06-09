@@ -46,7 +46,7 @@ export class AuthMultiGuard implements CanActivate {
 
     const enabledAuthTypes = authTypes.filter((t) => {
       return this.authModuleOptions[t.toLowerCase()]?.enabled === undefined
-        ? this.configService.get(`auth.${t.toLowerCase()}`)
+        ? this.configService.get<boolean>(`auth.${t.toLowerCase()}.enabled`)
         : this.authModuleOptions[t.toLowerCase()]?.enabled;
     });
 
