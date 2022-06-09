@@ -15,8 +15,6 @@ import { AUTH_MODULE_OPTIONS } from './auth.constants';
 
 @Injectable()
 export class AuthMultiGuard implements CanActivate {
-  private readonly authOptions: any;
-
   constructor(
     @Inject(AUTH_MODULE_OPTIONS) private authModuleOptions: AuthModuleOptions,
     private configService: ConfigService,
@@ -25,9 +23,7 @@ export class AuthMultiGuard implements CanActivate {
     private jwtGuard: JwtAuthGuard,
     private apikeyGuard: ApikeyAuthGuard,
     private oauth2Guard: OAuth2AuthGuard
-  ) {
-    this.authOptions = authModuleOptions || configService.get('auth');
-  }
+  ) {}
 
   getRequest(context: ExecutionContext) {
     const ctx = ContextUtil.normalizeContext(context);
@@ -48,9 +44,11 @@ export class AuthMultiGuard implements CanActivate {
       context.getClass()
     ]);
 
-    const enabledAuthTypes = authTypes.filter(
-      (t) => this.authOptions[t.toLowerCase()] && this.authOptions[t.toLowerCase()].enabled
-    );
+    const enabledAuthTypes = authTypes.filter((t) => {
+      return this.authModuleOptions[t.toLowerCase()]?.enabled === undefined
+        ? this.configService.get(`auth.${t.toLowerCase()}`)
+        : this.authModuleOptions[t.toLowerCase()]?.enabled;
+    });
 
     if (enabledAuthTypes.length === 0) {
       return true;

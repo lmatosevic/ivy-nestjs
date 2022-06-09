@@ -53,13 +53,13 @@ export default () => ({
       expiresIn: StringUtil.parseInteger(process.env.AUTH_JWT_EXPIRES_IN, 2592000)
     },
     basic: {
-      enabled: StringUtil.parseBool(process.env.AUTH_BASIC_ENABLED, true)
+      enabled: StringUtil.parseBool(process.env.AUTH_BASIC_ENABLED, false)
     },
     oauth2: {
-      enabled: StringUtil.parseBool(process.env.AUTH_OAUTH2_ENABLED, true)
+      enabled: StringUtil.parseBool(process.env.AUTH_OAUTH2_ENABLED, false)
     },
     apikey: {
-      enabled: StringUtil.parseBool(process.env.AUTH_APIKEY_ENABLED, true)
+      enabled: StringUtil.parseBool(process.env.AUTH_APIKEY_ENABLED, false)
     },
     recaptcha: {
       enabled: StringUtil.parseBool(process.env.RECAPTCHA_ENABLED, true),

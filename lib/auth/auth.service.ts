@@ -56,7 +56,7 @@ export class AuthService {
     return {
       access_token: accessToken,
       refresh_token: refreshToken,
-      expires_in: this.authModuleOptions.jwt?.expiresIn || this.configService.get('auth.jwt.expiresIn')
+      expires_in: this.authModuleOptions.jwt?.expiresIn ?? this.configService.get('auth.jwt.expiresIn')
     };
   }
 
