@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { DeliveryMethod } from '../../enums';
@@ -14,14 +15,28 @@ export class RecaptchaService {
 
   constructor(
     @Inject(AUTH_MODULE_OPTIONS) private authModuleOptions: AuthModuleOptions,
+    private configService: ConfigService,
     private httpService: HttpService
   ) {
-    this.enabled = authModuleOptions.recaptcha?.enabled !== false;
-    this.recaptchaSecret = authModuleOptions.recaptcha?.siteSecret;
+    this.enabled =
+      authModuleOptions.recaptcha?.enabled === undefined
+        ? configService.get('auth.recaptcha.enabled')
+        : authModuleOptions.recaptcha?.enabled;
+    this.recaptchaSecret =
+      authModuleOptions.recaptcha?.siteSecret || configService.get('auth.recaptcha.siteSecret');
     this.deliveryMethods = {
-      Header: authModuleOptions.recaptcha?.deliveryHeader || 'X-RECAPTCHA-TOKEN',
-      Query: authModuleOptions.recaptcha?.deliveryQuery || 'recaptcha_token',
-      Body: authModuleOptions.recaptcha?.deliveryBody || 'recaptchaToken'
+      Header:
+        authModuleOptions.recaptcha?.deliveryHeader ||
+        configService.get('auth.recaptcha.deliveryHeader') ||
+        'X-RECAPTCHA-TOKEN',
+      Query:
+        authModuleOptions.recaptcha?.deliveryQuery ||
+        configService.get('auth.recaptcha.deliveryQuery') ||
+        'recaptcha_token',
+      Body:
+        authModuleOptions.recaptcha?.deliveryBody ||
+        configService.get('auth.recaptcha.deliveryBody') ||
+        'recaptchaToken'
     };
   }
 

@@ -1,5 +1,6 @@
 import { Body, Controller, HttpCode, Inject, Post } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiBody, ApiTags } from '@nestjs/swagger';
+import { ConfigService } from '@nestjs/config';
 import { RequestUtil } from '../../../utils';
 import { ErrorResponse } from '../../../resource';
 import { Public } from '../../decorators';
@@ -14,11 +15,18 @@ import { AUTH_MODULE_OPTIONS } from '../../auth.constants';
 export class FacebookController {
   constructor(
     @Inject(AUTH_MODULE_OPTIONS) private authModuleOptions: AuthModuleOptions,
+    private configService: ConfigService,
     private facebookService: FacebookService
   ) {
+    const route = authModuleOptions.route ?? configService.get('auth.route');
+    const enabled =
+      authModuleOptions.facebook?.enabled === undefined
+        ? configService.get('auth.facebook.enabled')
+        : authModuleOptions.facebook?.enabled;
     const currentPath = Reflect.getMetadata('path', FacebookController);
-    Reflect.defineMetadata('path', `${authModuleOptions.route || 'auth'}/${currentPath}`, FacebookController);
-    if (authModuleOptions.facebook?.enabled === false) {
+
+    Reflect.defineMetadata('path', `${route || 'auth'}/${currentPath}`, FacebookController);
+    if (enabled === false) {
       const descriptor = Object.getOwnPropertyDescriptor(FacebookController.prototype, 'authorize');
       Reflect.deleteMetadata('path', descriptor.value);
     }

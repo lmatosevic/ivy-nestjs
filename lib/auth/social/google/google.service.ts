@@ -1,5 +1,6 @@
 import { OAuth2Client } from 'google-auth-library';
 import { Inject, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { AuthModuleOptions, AuthorizationError } from '../../../auth';
 import { AuthService } from '../../auth.service';
 import { AuthSource } from '../../../enums';
@@ -14,9 +15,10 @@ export class GoogleService {
 
   constructor(
     @Inject(AUTH_MODULE_OPTIONS) private authModuleOptions: AuthModuleOptions,
+    private configService: ConfigService,
     private authService: AuthService
   ) {
-    this.clientId = authModuleOptions.google?.clientId;
+    this.clientId = authModuleOptions.google?.clientId || configService.get('auth.google.clientId');
     this.client = new OAuth2Client(this.clientId);
   }
 

@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
 import { AxiosResponse } from 'axios';
 import { HttpService } from '@nestjs/axios';
@@ -20,11 +21,12 @@ export class FacebookService {
 
   constructor(
     @Inject(AUTH_MODULE_OPTIONS) private authModuleOptions: AuthModuleOptions,
+    private configService: ConfigService,
     private authService: AuthService,
     private httpService: HttpService
   ) {
-    this.appId = authModuleOptions.facebook?.appId;
-    this.appSecret = authModuleOptions.facebook?.appSecret;
+    this.appId = authModuleOptions.facebook?.appId || configService.get('auth.facebook.appId');
+    this.appSecret = authModuleOptions.facebook?.appSecret || configService.get('auth.facebook.appSecret');
     if (this.appId && this.appSecret) {
       this.accessToken = `${this.appId}|${this.appSecret}`;
     }

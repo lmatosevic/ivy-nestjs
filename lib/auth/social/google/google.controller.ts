@@ -1,5 +1,6 @@
 import { Body, Controller, HttpCode, Inject, Post } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiBody, ApiTags } from '@nestjs/swagger';
+import { ConfigService } from '@nestjs/config';
 import { RequestUtil } from '../../../utils';
 import { ErrorResponse } from '../../../resource';
 import { Public } from '../../decorators';
@@ -14,11 +15,18 @@ import { AUTH_MODULE_OPTIONS } from '../../auth.constants';
 export class GoogleController {
   constructor(
     @Inject(AUTH_MODULE_OPTIONS) private authModuleOptions: AuthModuleOptions,
+    private configService: ConfigService,
     private googleService: GoogleService
   ) {
+    const route = authModuleOptions.route ?? configService.get('auth.route');
+    const enabled =
+      authModuleOptions.google?.enabled === undefined
+        ? configService.get('auth.google.enabled')
+        : authModuleOptions.google?.enabled;
     const currentPath = Reflect.getMetadata('path', GoogleController);
-    Reflect.defineMetadata('path', `${authModuleOptions.route || 'auth'}/${currentPath}`, GoogleController);
-    if (authModuleOptions.google.enabled === false) {
+
+    Reflect.defineMetadata('path', `${route || 'auth'}/${currentPath}`, GoogleController);
+    if (enabled === false) {
       const descriptor = Object.getOwnPropertyDescriptor(GoogleController.prototype, 'authorize');
       Reflect.deleteMetadata('path', descriptor.value);
     }

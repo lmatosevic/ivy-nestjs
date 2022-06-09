@@ -1,5 +1,6 @@
 import { Args, Mutation, Resolver } from '@nestjs/graphql';
 import { Inject } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Public } from '../../decorators';
 import { JwtToken } from '../../strategy/jwt/jwt.dto';
 import { FacebookService } from './facebook.service';
@@ -12,9 +13,15 @@ import { AUTH_MODULE_OPTIONS } from '../../auth.constants';
 export class FacebookResolver {
   constructor(
     @Inject(AUTH_MODULE_OPTIONS) private authModuleOptions: AuthModuleOptions,
+    private configService: ConfigService,
     private facebookService: FacebookService
   ) {
-    if (authModuleOptions.facebook.enabled === false) {
+    const enabled =
+      authModuleOptions.facebook?.enabled === undefined
+        ? configService.get('auth.facebook.enabled')
+        : authModuleOptions.facebook?.enabled;
+
+    if (enabled === false) {
       const descriptor = Object.getOwnPropertyDescriptor(FacebookResolver.prototype, 'authorizeFacebook');
       Reflect.deleteMetadata('graphql:resolver_type', descriptor.value);
     }

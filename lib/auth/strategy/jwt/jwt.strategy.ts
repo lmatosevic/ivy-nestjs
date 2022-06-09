@@ -1,6 +1,7 @@
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Inject, Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { AuthModuleOptions } from '../../auth.module';
 import { AuthorizationError } from '../../errors';
 import { AUTH_MODULE_OPTIONS } from '../../auth.constants';
@@ -10,11 +11,12 @@ import { JwtPayload } from './jwt.dto';
 export class JwtStrategy extends PassportStrategy(Strategy) {
   private readonly logger = new Logger(JwtStrategy.name);
 
-  constructor(@Inject(AUTH_MODULE_OPTIONS) private authModuleOptions: AuthModuleOptions) {
+  constructor(@Inject(AUTH_MODULE_OPTIONS) private authModuleOptions: AuthModuleOptions,
+              private configService: ConfigService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: authModuleOptions.jwt?.secret
+      secretOrKey: authModuleOptions.jwt?.secret ?? configService.get('auth.jwt.secret')
     });
   }
 

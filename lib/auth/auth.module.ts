@@ -24,6 +24,7 @@ import {
   GoogleService
 } from './social';
 import { AUTH_MODULE_OPTIONS } from './auth.constants';
+import { ConfigService } from '@nestjs/config';
 
 export interface AuthModuleOptions {
   userDetailsService: UserDetailsService<any>;
@@ -56,51 +57,40 @@ export interface AuthModuleAsyncOptions extends ModuleAsyncOptions<AuthModuleOpt
 @Module({})
 export class AuthModule {
   static forRoot(options: AuthModuleOptions): DynamicModule {
-    return this.createModule(
-      options,
-      [
-        JwtModule.register({
-          secret: options.jwt?.secret,
-          signOptions: { expiresIn: (options.jwt?.expiresIn || 2592000) + 's' }
-        })
-      ],
-      [
-        {
-          provide: AUTH_MODULE_OPTIONS,
-          useValue: options
-        }
-      ]
-    );
+    return this.createModule(options, [
+      {
+        provide: AUTH_MODULE_OPTIONS,
+        useValue: options
+      }
+    ]);
   }
 
   static forRootAsync(options: AuthModuleAsyncOptions): DynamicModule {
     const { providers, imports } = ModuleUtil.makeAsyncImportsAndProviders(options, AUTH_MODULE_OPTIONS);
-    return this.createModule(
-      options,
-      [
-        ...imports,
-        JwtModule.registerAsync({
-          inject: [AUTH_MODULE_OPTIONS],
-          useFactory: async (authModuleOptions: AuthModuleOptions) => ({
-            secret: authModuleOptions.jwt?.secret,
-            signOptions: {
-              expiresIn: (authModuleOptions.jwt?.expiresIn || 2592000) + 's'
-            }
-          })
-        })
-      ],
-      providers
-    );
+    return this.createModule(options, providers, imports);
   }
 
   private static createModule(
     options: AuthModuleOptions | AuthModuleAsyncOptions,
-    imports: any[] = [],
-    providers: any[] = []
+    providers: any[] = [],
+    imports: any[] = []
   ): DynamicModule {
     return {
       module: AuthModule,
-      imports: [...imports, PassportModule, HttpModule],
+      imports: [
+        ...imports,
+        JwtModule.registerAsync({
+          inject: [AUTH_MODULE_OPTIONS, ConfigService],
+          useFactory: async (authModuleOptions: AuthModuleOptions, conf: ConfigService) => ({
+            secret: authModuleOptions.jwt?.secret || conf.get('auth.jwt.secret'),
+            signOptions: {
+              expiresIn: (authModuleOptions.jwt?.expiresIn || conf.get('auth.jwt.expiresIn') || 2592000) + 's'
+            }
+          })
+        }),
+        PassportModule,
+        HttpModule
+      ],
       providers: [
         ...providers,
         AuthService,

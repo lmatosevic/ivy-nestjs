@@ -1,5 +1,6 @@
 import { Args, Field, Mutation, ObjectType, Query, Resolver } from '@nestjs/graphql';
 import { Inject, Type } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Authorized, CurrentUser, ReCaptcha } from './decorators';
 import { RequestUtil } from '../utils';
 import { JwtToken } from './strategy/jwt/jwt.dto';
@@ -21,13 +22,17 @@ export function AuthResolver<T extends Type<unknown>>(authUserRef: T, registerUs
   class AuthResolver {
     constructor(
       @Inject(AUTH_MODULE_OPTIONS) private authModuleOptions: AuthModuleOptions,
+      private configService: ConfigService,
       private authService: AuthService
     ) {
-      if (authModuleOptions.registration === false) {
+      const registration = authModuleOptions.registration ?? configService.get('auth.registration');
+      const login = authModuleOptions.login ?? configService.get('auth.login');
+
+      if (registration === false) {
         const descriptor = Object.getOwnPropertyDescriptor(AuthResolver.prototype, 'registration');
         Reflect.deleteMetadata('graphql:resolver_type', descriptor.value);
       }
-      if (authModuleOptions.login === false) {
+      if (login === false) {
         const descriptor = Object.getOwnPropertyDescriptor(AuthResolver.prototype, 'login');
         Reflect.deleteMetadata('graphql:resolver_type', descriptor.value);
       }

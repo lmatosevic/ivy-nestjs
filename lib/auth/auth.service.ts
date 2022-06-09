@@ -1,4 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { AuthSource } from '../enums';
 import { AuthUser } from './interfaces';
@@ -13,6 +14,7 @@ export class AuthService {
 
   constructor(
     @Inject(AUTH_MODULE_OPTIONS) private authModuleOptions: AuthModuleOptions,
+    private configService: ConfigService,
     private jwtService: JwtService
   ) {}
 
@@ -54,7 +56,7 @@ export class AuthService {
     return {
       access_token: accessToken,
       refresh_token: refreshToken,
-      expires_in: this.authModuleOptions.jwt?.expiresIn
+      expires_in: this.authModuleOptions.jwt?.expiresIn || this.configService.get('auth.jwt.expiresIn')
     };
   }
 
@@ -69,7 +71,8 @@ export class AuthService {
   }
 
   async register(data: any, source: AuthSource = AuthSource.Local): Promise<AuthUser | null> {
-    if (this.authModuleOptions.registration === false) {
+    const registration = this.authModuleOptions.registration ?? this.configService.get('auth.registration');
+    if (registration === false) {
       throw new AuthorizationError('Registration is not supported');
     }
     return await this.authModuleOptions.userDetailsService.register(data, source);

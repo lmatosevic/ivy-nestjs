@@ -18,6 +18,7 @@ import {
   ApiProperty,
   ApiTags
 } from '@nestjs/swagger';
+import { ConfigService } from '@nestjs/config';
 import { LocalAuthGuard } from './strategy/local/local-auth.guard';
 import { Authorized, Public, ReCaptcha } from './decorators';
 import { RequestUtil } from '../utils';
@@ -48,16 +49,21 @@ export function AuthController<T extends Type<unknown>>(authUserRef: T, register
   class AuthController {
     constructor(
       @Inject(AUTH_MODULE_OPTIONS) private authModuleOptions: AuthModuleOptions,
+      private configService: ConfigService,
       private authService: AuthService
     ) {
-      if (authModuleOptions.route) {
+      const route = authModuleOptions.route ?? configService.get('auth.route');
+      const registration = authModuleOptions.registration ?? configService.get('auth.registration');
+      const login = authModuleOptions.login ?? configService.get('auth.login');
+
+      if (route) {
         Reflect.defineMetadata('path', authModuleOptions.route, AuthController);
       }
-      if (authModuleOptions.registration === false) {
+      if (registration === false) {
         const descriptor = Object.getOwnPropertyDescriptor(AuthController.prototype, 'registration');
         Reflect.deleteMetadata('path', descriptor.value);
       }
-      if (authModuleOptions.login === false) {
+      if (login === false) {
         const descriptor = Object.getOwnPropertyDescriptor(AuthController.prototype, 'login');
         Reflect.deleteMetadata('path', descriptor.value);
       }
