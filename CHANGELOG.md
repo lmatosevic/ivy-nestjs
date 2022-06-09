@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.25](https://github.com/Lujo5/ivy-nestjs/compare/v0.0.24...v0.0.25) (2022-06-09)
+
+
+### Features
+
+* merged config service with auth settings ([976b096](https://github.com/Lujo5/ivy-nestjs/commit/976b096c7bbe9d619a1510e568fd064d05013da1))
+
+
+### Bug Fixes
+
+* resolve real auth controller route ([0bae2e5](https://github.com/Lujo5/ivy-nestjs/commit/0bae2e50f558d1721218a0fce2c1c7c517bfd4bf))
+
 ### [0.0.24](https://github.com/Lujo5/ivy-nestjs/compare/v0.0.23...v0.0.24) (2022-06-07)
 
 
