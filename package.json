@@ -28,7 +28,8 @@
     "auth",
     "logging",
     "config",
-    "database"
+    "mongoDB",
+    "sql"
   ],
   "scripts": {
     "prebuild": "rimraf dist",
