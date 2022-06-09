@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.26](https://github.com/Lujo5/ivy-nestjs/compare/v0.0.25...v0.0.26) (2022-06-09)
+
+
+### Features
+
+* add graphql and mongoose modules ([9a98725](https://github.com/Lujo5/ivy-nestjs/commit/9a98725c19b1e74eabfba0b131df916e8350dd00))
+
+
+### Bug Fixes
+
+* add enabled option ([0b792bb](https://github.com/Lujo5/ivy-nestjs/commit/0b792bb1e106753826dd20d6e3de7068f6a72dc8))
+* remove enabled generic type ([95d03ec](https://github.com/Lujo5/ivy-nestjs/commit/95d03ecdf42a192bec77ef3994fc3bd4d12a6b8c))
+* update auth type enabling logic ([6d1c5d7](https://github.com/Lujo5/ivy-nestjs/commit/6d1c5d7365e1fa258f3c7da3ad8cecfc103b6601))
+
 ### [0.0.25](https://github.com/Lujo5/ivy-nestjs/compare/v0.0.24...v0.0.25) (2022-06-09)
 
 
