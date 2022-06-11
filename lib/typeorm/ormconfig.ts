@@ -13,7 +13,8 @@ const db = {
   migration: {
     enabled: process.env.DB_MIGRATION_ENABLED === 'true',
     table: process.env.DB_MIGRATION_TABLE || 'migration',
-    dirname: process.env.DB_MIGRATION_DIRNAME || 'migrations'
+    dirname: process.env.DB_MIGRATION_DIRNAME || 'migrations',
+    sourceRoot: process.env.DB_MIGRATION_SOURCE_ROOT || './src'
   }
 };
 
@@ -25,9 +26,9 @@ export default new DataSource({
   password: db.password,
   database: db.name,
   schema: db.schema,
-  entities: [`./src/**/*.entity{.ts,.js}`],
-  subscribers: [`./src/**/*.subscriber{.ts,.js}`],
-  migrations: [`./src/${db.migration.dirname}/**/*{.ts,.js}`],
+  entities: [`${db.migration.sourceRoot}/**/*.entity{.ts,.js}`],
+  subscribers: [`${db.migration.sourceRoot}/**/*.subscriber{.ts,.js}`],
+  migrations: [`${db.migration.sourceRoot}/${db.migration.dirname}/**/*{.ts,.js}`],
   synchronize: db.migration.enabled && process.env.NODE_ENV !== 'production',
   migrationsTableName: db.migration.table
 });

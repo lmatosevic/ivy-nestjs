@@ -38,6 +38,7 @@ export default () => ({
       enabled: StringUtil.parseBool(process.env.DB_MIGRATION_ENABLED, true),
       table: process.env.DB_MIGRATION_TABLE || 'migration',
       dirname: process.env.DB_MIGRATION_DIRNAME || 'migrations',
+      sourceRoot: process.env.DB_MIGRATION_SOURCE_ROOT || './src'
     }
   },
   cors: {
