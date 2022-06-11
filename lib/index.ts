@@ -9,4 +9,5 @@ export * from './resource';
 export * from './storage';
 export * from './graphql';
 export * from './mongoose';
+export * from './typeorm';
 export * from './utils';

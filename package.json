@@ -29,7 +29,8 @@
     "logging",
     "config",
     "mongoDB",
-    "sql"
+    "sql",
+    "typeorm"
   ],
   "scripts": {
     "prebuild": "rimraf dist",
@@ -62,6 +63,7 @@
     "@nestjs/platform-express": "^8.0.0",
     "@nestjs/swagger": "^5.2.1",
     "@nestjs/terminus": "^8.0.0",
+    "@nestjs/typeorm": "^8.1.2",
     "apollo-server-express": "^3.6.7",
     "axios": "^0.26.1",
     "bcrypt": "^5.0.1",
@@ -84,6 +86,7 @@
     "rxjs": "^7.5.5",
     "standard-version": "9.5.0",
     "swagger-ui-express": "^4.3.0",
+    "typeorm": "^0.3.6",
     "uuid": "^8.3.2",
     "winston": "^3.6.0"
   },

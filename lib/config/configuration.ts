@@ -26,13 +26,18 @@ export default () => ({
     cacheDuration: StringUtil.parseInteger(process.env.STORAGE_CACHE_DURATION, 86400)
   },
   db: {
-    type: process.env.DB_TYPE || 'mongodb',
+    type: process.env.DB_TYPE || 'mongoose',
     host: process.env.DB_HOST || '127.0.0.1',
     port: StringUtil.parseInteger(process.env.DB_PORT, 27017),
     name: process.env.DB_NAME || 'ivy',
     authSource: process.env.DB_AUTH_SOURCE || 'admin',
     user: process.env.DB_USER || 'admin',
-    password: process.env.DB_PASSWORD
+    password: process.env.DB_PASSWORD,
+    migration: {
+      enabled: StringUtil.parseBool(process.env.DB_MIGRATION_ENABLED, true),
+      table: process.env.DB_MIGRATION_TABLE || 'migration',
+      dirname: process.env.DB_MIGRATION_DIR || './migrations'
+    }
   },
   cors: {
     enabled: StringUtil.parseBool(process.env.CORS_ENABLED, true),
