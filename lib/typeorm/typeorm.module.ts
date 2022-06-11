@@ -45,14 +45,10 @@ export class TypeOrmModule {
             username: conf.get<string>('db.user'),
             password: conf.get<string>('db.password'),
             database: conf.get<string>('db.name'),
+            schema: conf.get<string>('db.schema'),
             autoLoadEntities: true,
             synchronize:
               !conf.get<string>('db.migration.enabled') && conf.get<string>('env') !== 'production',
-            migrationsTableName: conf.get<string>('db.migration.table'),
-            migrations: [`${conf.get<string>('db.migration.dirname')}/*.js`],
-            cli: {
-              migrationsDir: conf.get<string>('db.migration.dirname')
-            },
             ...(typeOrmModuleOptions as any)
           })
         })

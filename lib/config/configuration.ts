@@ -30,13 +30,14 @@ export default () => ({
     host: process.env.DB_HOST || '127.0.0.1',
     port: StringUtil.parseInteger(process.env.DB_PORT, 27017),
     name: process.env.DB_NAME || 'ivy',
+    schema: process.env.DB_SCHEMA || 'public',
     authSource: process.env.DB_AUTH_SOURCE || 'admin',
     user: process.env.DB_USER || 'admin',
     password: process.env.DB_PASSWORD,
     migration: {
       enabled: StringUtil.parseBool(process.env.DB_MIGRATION_ENABLED, true),
       table: process.env.DB_MIGRATION_TABLE || 'migration',
-      dirname: process.env.DB_MIGRATION_DIR || './migrations'
+      dirname: process.env.DB_MIGRATION_DIRNAME || 'migrations',
     }
   },
   cors: {
