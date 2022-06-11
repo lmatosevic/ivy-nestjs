@@ -83,7 +83,10 @@ export class AuthModule {
         JwtModule.registerAsync({
           inject: [AUTH_MODULE_OPTIONS, ConfigService],
           useFactory: async (authModuleOptions: AuthModuleOptions, conf: ConfigService) => ({
-            secret: authModuleOptions.jwt?.secret ?? conf.get('auth.jwt.secret'),
+            secret:
+              authModuleOptions.jwt?.secret ?? conf.get('auth.jwt.secret') ?? !conf.get('auth.jwt.enabled')
+                ? 'secret'
+                : undefined,
             signOptions: {
               expiresIn: (authModuleOptions.jwt?.expiresIn ?? conf.get('auth.jwt.expiresIn')) + 's'
             }
