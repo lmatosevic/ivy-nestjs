@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.27](https://github.com/Lujo5/ivy-nestjs/compare/v0.0.26...v0.0.27) (2022-06-11)
+
+
+### Features
+
+* add ormconfig file ([49b53e4](https://github.com/Lujo5/ivy-nestjs/commit/49b53e469330df804b975391a9e99015c643e653))
+* add source root to database config ([8315b68](https://github.com/Lujo5/ivy-nestjs/commit/8315b685b56709677a7d9e80f3fda7dec565d797))
+* add typeorm module support ([3185150](https://github.com/Lujo5/ivy-nestjs/commit/318515062aa81c8220bc7e9fdc48ee2ecdba6e9b))
+
 ### [0.0.26](https://github.com/Lujo5/ivy-nestjs/compare/v0.0.25...v0.0.26) (2022-06-09)
 
 
