@@ -3,7 +3,7 @@ import { FileProps } from '../../storage';
 export type FileMetadata = {
   field: string;
   resource: string;
-  resourceId: string;
+  resourceId: string | number;
   name?: string;
   mimeType?: string;
   size?: number;

@@ -10,6 +10,7 @@
         "options": {
           "typeFileNameSuffix": [
             ".schema.ts",
+            ".entity.ts",
             ".dto.ts"
           ],
           "introspectComments": true
@@ -20,6 +21,7 @@
         "options": {
           "dtoFileNameSuffix": [
             ".schema.ts",
+            ".entity.ts",
             ".dto.ts"
           ],
           "classValidatorShim": true,

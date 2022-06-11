@@ -2,7 +2,7 @@ import { AuthSource } from '../../enums';
 import { AuthUser } from './auth-user';
 
 export interface UserDetailsService<T extends AuthUser> {
-  find(id: string): Promise<T>;
+  find(id: string | number): Promise<T>;
 
   findByUsername(username: string): Promise<T>;
 
