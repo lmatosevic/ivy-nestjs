@@ -29,6 +29,6 @@ export default new DataSource({
   entities: [`${db.migration.sourceRoot}/**/*.entity{.ts,.js}`],
   subscribers: [`${db.migration.sourceRoot}/**/*.subscriber{.ts,.js}`],
   migrations: [`${db.migration.sourceRoot}/${db.migration.dirname}/**/*{.ts,.js}`],
-  synchronize: db.migration.enabled && process.env.NODE_ENV !== 'production',
-  migrationsTableName: db.migration.table
+  migrationsTableName: db.migration.table,
+  synchronize: db.migration.enabled && process.env.NODE_ENV !== 'production'
 });
