@@ -50,6 +50,7 @@ export class TypeOrmModule {
             subscribers: [`${conf.get<string>('migration.sourceRoot')}/**/*.subscriber{.ts,.js}`],
             migrations: [`${conf.get<string>('migration.sourceRoot')}/${conf.get<string>('migration.dirname')}/**/*{.ts,.js}`],
             migrationsTableName: conf.get<string>('migration.table'),
+            autoLoadEntities: true,
             synchronize:
               !conf.get<string>('db.migration.enabled') && conf.get<string>('env') !== 'production',
             ...(typeOrmModuleOptions as any)
