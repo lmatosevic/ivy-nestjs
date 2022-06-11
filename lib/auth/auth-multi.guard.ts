@@ -1,4 +1,4 @@
-import { CanActivate, ExecutionContext, Inject, Injectable } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Inject, Injectable, Optional } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom, isObservable } from 'rxjs';
@@ -16,13 +16,13 @@ import { AUTH_MODULE_OPTIONS } from './auth.constants';
 @Injectable()
 export class AuthMultiGuard implements CanActivate {
   constructor(
-    @Inject(AUTH_MODULE_OPTIONS) private authModuleOptions: AuthModuleOptions,
+    @Optional() @Inject(AUTH_MODULE_OPTIONS) private authModuleOptions: AuthModuleOptions,
     private configService: ConfigService,
     private reflector: Reflector,
-    private basicGuard: BasicAuthGuard,
-    private jwtGuard: JwtAuthGuard,
-    private apikeyGuard: ApikeyAuthGuard,
-    private oauth2Guard: OAuth2AuthGuard
+    @Optional() private basicGuard: BasicAuthGuard,
+    @Optional() private jwtGuard: JwtAuthGuard,
+    @Optional() private apikeyGuard: ApikeyAuthGuard,
+    @Optional() private oauth2Guard: OAuth2AuthGuard
   ) {}
 
   getRequest(context: ExecutionContext) {
@@ -43,6 +43,10 @@ export class AuthMultiGuard implements CanActivate {
       context.getHandler(),
       context.getClass()
     ]);
+
+    if (!this.authModuleOptions) {
+      return true;
+    }
 
     const enabledAuthTypes = authTypes.filter((t) => {
       return this.authModuleOptions[t.toLowerCase()]?.enabled === undefined

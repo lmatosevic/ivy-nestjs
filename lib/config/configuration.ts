@@ -69,18 +69,18 @@ export default () => ({
       enabled: StringUtil.parseBool(process.env.AUTH_APIKEY_ENABLED, false)
     },
     recaptcha: {
-      enabled: StringUtil.parseBool(process.env.RECAPTCHA_ENABLED, true),
+      enabled: StringUtil.parseBool(process.env.RECAPTCHA_ENABLED, false),
       siteSecret: process.env.RECAPTCHA_SITE_SECRET,
       deliveryHeader: process.env.RECAPTCHA_DELIVERY_HEADER || 'X-RECAPTCHA-TOKEN',
       deliveryQuery: process.env.RECAPTCHA_DELIVERY_QUERY || 'recaptcha_token',
       deliveryBody: process.env.RECAPTCHA_DELIVERY_BODY || 'recaptchaToken'
     },
     google: {
-      enabled: StringUtil.parseBool(process.env.GOOGLE_ENABLED, true),
+      enabled: StringUtil.parseBool(process.env.GOOGLE_ENABLED, false),
       clientId: process.env.GOOGLE_CLIENT_ID
     },
     facebook: {
-      enabled: StringUtil.parseBool(process.env.FACEBOOK_ENABLED, true),
+      enabled: StringUtil.parseBool(process.env.FACEBOOK_ENABLED, false),
       appId: process.env.FACEBOOK_APP_ID,
       appSecret: process.env.FACEBOOK_APP_SECRET
     }
