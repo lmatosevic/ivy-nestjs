@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.1.0](https://github.com/Lujo5/ivy-nestjs/compare/v0.0.27...v0.1.0) (2022-06-12)
+
+
+### ⚠ BREAKING CHANGES
+
+* add typeorm services
+* rename register user method
+* add automatic admin creation logic
+
+### Features
+
+* add automatic admin creation logic ([79aaf0c](https://github.com/Lujo5/ivy-nestjs/commit/79aaf0ca67421b3267eaebf47ffd8524de98e1fa))
+* add custom typeorm logger and logging options ([f85cb4a](https://github.com/Lujo5/ivy-nestjs/commit/f85cb4adc15f25679303660b04b8079351c89f55))
+* add typeorm services ([c8f3a42](https://github.com/Lujo5/ivy-nestjs/commit/c8f3a42b7b23354e84cd1928c20c2fdac55432ad))
+* implement disable graphql option ([7a421c4](https://github.com/Lujo5/ivy-nestjs/commit/7a421c4788ff1141c9dae61b845ba736fee45181))
+* optional auth module injections ([3656716](https://github.com/Lujo5/ivy-nestjs/commit/365671607b2d9fc36bcea14c8563246719aee680))
+* rename register user method ([93a3134](https://github.com/Lujo5/ivy-nestjs/commit/93a31347b4239e081c06a4995b120119cf5185ae))
+
+
+### Bug Fixes
+
+* add default params as empty array ([b225698](https://github.com/Lujo5/ivy-nestjs/commit/b225698462e65f860bda67123074231f89378fdb))
+* change graphql id type to ID ([0313f7b](https://github.com/Lujo5/ivy-nestjs/commit/0313f7b66c0339328a1dd6c32f643d3a684517de))
+* disabled jwt option with default secret ([4d4e3a6](https://github.com/Lujo5/ivy-nestjs/commit/4d4e3a6db48bfaf89f8ceb2c778ba30b946363bc))
+* enable autoload of typeorm entities ([efc187e](https://github.com/Lujo5/ivy-nestjs/commit/efc187e965cd95967a2dad9d1854e6a882c45116))
+* enable default graphql ([5cb6e38](https://github.com/Lujo5/ivy-nestjs/commit/5cb6e38ba5bd61fa7deda5005de442cceae195a9))
+* support for both mongoose and typeorm health check ([0173dbb](https://github.com/Lujo5/ivy-nestjs/commit/0173dbbbc9ca3df25eec181157fffb6e24dbb4de))
+
 ### [0.0.27](https://github.com/Lujo5/ivy-nestjs/compare/v0.0.26...v0.0.27) (2022-06-11)
 
 
