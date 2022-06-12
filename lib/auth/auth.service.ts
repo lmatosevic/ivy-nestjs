@@ -82,7 +82,7 @@ export class AuthService implements OnApplicationBootstrap {
     if (registration === false) {
       throw new AuthorizationError('Registration is not supported');
     }
-    return await this.authModuleOptions.userDetailsService.register(data, source);
+    return await this.authModuleOptions.userDetailsService.registerUser(data, source);
   }
 
   async identifierAvailable(field: string, value: string): Promise<{ result: boolean }> {

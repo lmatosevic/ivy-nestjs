@@ -14,7 +14,7 @@ export interface UserDetailsService<T extends AuthUser> {
 
   hashPassword(password: string): Promise<string>;
 
-  register(userData: Partial<T>, source: AuthSource): Promise<T>;
+  registerUser(userData: Partial<T>, source: AuthSource): Promise<T>;
 
   createAdmin(username: string, password: string): Promise<T>;
 

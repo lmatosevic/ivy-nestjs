@@ -52,7 +52,7 @@ export abstract class MongoUserDetailsService<T extends AuthUser, C, U>
     return await bcrypt.hash(password, salt);
   }
 
-  async register(userData: C, source: AuthSource = AuthSource.Local): Promise<T> {
+  async registerUser(userData: C, source: AuthSource = AuthSource.Local): Promise<T> {
     userData['authSource'] = source;
     userData['roles'] = [Role.User];
     userData['role'] = Role.User;
