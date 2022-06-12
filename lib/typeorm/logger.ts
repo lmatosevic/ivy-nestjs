@@ -20,20 +20,20 @@ export class TypeOrmLogger implements Logger {
 
   logQuery(query: string, parameters?: any[], queryRunner?: QueryRunner): any {
     if (this.shouldLog('info', 'query')) {
-      TypeOrmLogger.logger.debug?.(query + '; parameters: %j', parameters);
+      TypeOrmLogger.logger.debug?.(query + '; parameters: %j', parameters || []);
     }
   }
 
   logQueryError(error: string | Error, query: string, parameters?: any[], queryRunner?: QueryRunner): any {
     if (this.shouldLog('error', 'query')) {
-      TypeOrmLogger.logger.debug?.(query + '; parameters: %j', parameters);
+      TypeOrmLogger.logger.debug?.(query + '; parameters: %j', parameters || []);
       TypeOrmLogger.logger.error?.(error);
     }
   }
 
   logQuerySlow(time: number, query: string, parameters?: any[], queryRunner?: QueryRunner): any {
     if (this.shouldLog('warn', 'query')) {
-      TypeOrmLogger.logger.warn?.('SLOW QUERY: ' + query + '; parameters: %j; time: %d', parameters, time);
+      TypeOrmLogger.logger.warn?.('SLOW QUERY: ' + query + '; parameters: %j; time: %d', parameters || [], time);
     }
   }
 
