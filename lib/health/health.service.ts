@@ -1,4 +1,5 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
+import { ContextIdFactory, ModuleRef } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import * as path from 'path';
 import {
@@ -7,22 +8,25 @@ import {
   HealthCheckService,
   HealthIndicatorResult,
   MemoryHealthIndicator,
-  MongooseHealthIndicator
+  MongooseHealthIndicator,
+  TypeOrmHealthIndicator
 } from '@nestjs/terminus';
 import { HealthModuleOptions } from './health.module';
 import { HEALTH_MODULE_OPTIONS } from './health.constants';
 
 @Injectable()
-export class HealthService {
+export class HealthService implements OnModuleInit {
   public readonly memoryThreshold: number;
   public readonly diskThreshold: number;
   public readonly diskPath: string;
 
+  private dbIndicator: any;
+
   constructor(
     @Inject(HEALTH_MODULE_OPTIONS) private healthModuleOptions: HealthModuleOptions,
     private configService: ConfigService,
+    private moduleRef: ModuleRef,
     private health: HealthCheckService,
-    private db: MongooseHealthIndicator,
     private memory: MemoryHealthIndicator,
     private disk: DiskHealthIndicator
   ) {
@@ -31,6 +35,15 @@ export class HealthService {
     this.diskThreshold =
       healthModuleOptions.diskThreshold ?? configService.get('health.diskThreshold') ?? 0.9;
     this.diskPath = healthModuleOptions.diskPath || configService.get('health.rootDir') || '/';
+  }
+
+  async onModuleInit(): Promise<void> {
+    const contextId = ContextIdFactory.create();
+    if (this.configService.get('db.type') === 'mongoose') {
+      this.dbIndicator = await this.moduleRef.resolve(MongooseHealthIndicator, contextId, { strict: false });
+    } else {
+      this.dbIndicator = await this.moduleRef.resolve(TypeOrmHealthIndicator, contextId, { strict: false });
+    }
   }
 
   public async allCheck(): Promise<HealthCheckResult> {
@@ -42,7 +55,7 @@ export class HealthService {
   }
 
   public async databaseCheck(): Promise<HealthIndicatorResult> {
-    return this.db.pingCheck('database');
+    return this.dbIndicator.pingCheck('database');
   }
 
   public async memoryCheck(): Promise<HealthIndicatorResult> {
