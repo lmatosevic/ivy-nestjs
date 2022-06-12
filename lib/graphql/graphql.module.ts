@@ -1,10 +1,10 @@
 import { DynamicModule, Global, Module } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { GraphQLModule as NestjsGraphQLModule, GqlModuleOptions } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import { GRAPHQL_MODULE_OPTIONS } from './graphql.constant';
 import { ModuleAsyncOptions, ModuleUtil } from '../utils';
 import { MONGOOSE_MODULE_OPTIONS } from '../mongoose/mongoose.constant';
-import { ConfigService } from '@nestjs/config';
+import { GRAPHQL_MODULE_OPTIONS } from './graphql.constant';
 
 @Global()
 @Module({})
