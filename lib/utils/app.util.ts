@@ -1,10 +1,10 @@
 import { INestApplication, Logger, ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ResolverTypeMetadata } from '@nestjs/graphql/dist/schema-builder/metadata';
 import { TypeMetadataStorage } from '@nestjs/graphql';
-import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
-import { LoggerService } from '../logger';
+import { LoggerService } from '../logger/logger.service';
 
 export class AppUtil {
   static initialize(app: INestApplication): { port: number; host: string; address: string } {
@@ -83,6 +83,15 @@ export class AppUtil {
       const document = SwaggerModule.createDocument(app, config);
       SwaggerModule.setup('api-docs', app, document);
       logger.log(`Swagger docs available on: ${address}/api-docs`);
+    }
+
+    if (!configService.get('rest.enabled')) {
+      app.use((req, res, next) => {
+        if (req.path === '/graphql' || req.path.split('.').length > 1) {
+          return next();
+        }
+        res.sendStatus(404);
+      });
     }
 
     if (configService.get('graphql.enabled') && configService.get('graphql.playground')) {

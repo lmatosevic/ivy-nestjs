@@ -2,7 +2,7 @@ import { Type, UseInterceptors } from '@nestjs/common';
 import {
   Args,
   ArgsType,
-  Field,
+  Field, ID,
   InputType,
   Int,
   Mutation,
@@ -36,7 +36,7 @@ function OperatorInputType<T>(classRef: Type<T>): any {
       Field(() => FileFilter)(OperatorValueClass.prototype, key);
     } else if (!!type?._GRAPHQL_METADATA_FACTORY) {
       Field(() => type._GRAPHQL_QUERY_FILTER_FACTORY?.())(OperatorValueClass.prototype, key);
-    } else if (key === '_id') {
+    } else if (key === '_id' || key === 'id') {
       Field(() => FilterOperator, { name: 'id' })(OperatorValueClass.prototype, key);
     } else {
       Field(() => FilterOperator)(OperatorValueClass.prototype, key);
@@ -108,7 +108,7 @@ export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown
     }
 
     @Query(() => resourceRef, { name: `${resourceRef.name.toLowerCase()}` })
-    async find(@Args('id') id: string): Promise<T> {
+    async find(@Args('id', { type: () => ID }) id: string | number): Promise<T> {
       return this.service.find(id);
     }
 
@@ -130,7 +130,7 @@ export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown
 
     @Mutation(() => resourceRef, { name: `update${resourceRef.name}` })
     async update(
-      @Args('id') id: string,
+      @Args('id', { type: () => ID }) id: string | number,
       @Args('data', { type: () => updateDtoRef }) updateDto: U
     ): Promise<T> {
       const instance = await RequestUtil.deserializeAndValidate(updateDtoRef, updateDto);
@@ -138,7 +138,7 @@ export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown
     }
 
     @Mutation(() => resourceRef, { name: `delete${resourceRef.name}` })
-    async delete(@Args('id') id: string): Promise<T> {
+    async delete(@Args('id', { type: () => ID }) id: string | number): Promise<T> {
       return this.service.delete(id);
     }
   }

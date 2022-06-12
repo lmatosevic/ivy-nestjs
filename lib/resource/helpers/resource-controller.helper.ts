@@ -88,7 +88,7 @@ function OperatorInputType<T>(classRef: Type<T>): any {
       ApiProperty({ type: () => FileFilter, required: false })(OperatorValueClass.prototype, key);
     } else if (!!type?._OPENAPI_METADATA_FACTORY) {
       ApiProperty({ type: () => type._OPENAPI_QUERY_FILTER_FACTORY?.() })(OperatorValueClass.prototype, key);
-    } else if (key === '_id') {
+    } else if (key === '_id' || key === 'id') {
       ApiProperty({ type: () => FilterOperator, required: false, name: 'id' })(
         OperatorValueClass.prototype,
         key
