@@ -106,7 +106,7 @@ export default () => ({
     swagger: StringUtil.parseBool(process.env.REST_SWAGGER_ENABLED, true)
   },
   graphql: {
-    enabled: StringUtil.parseBool(process.env.GRAPHQL_ENABLED, false),
+    enabled: StringUtil.parseBool(process.env.GRAPHQL_ENABLED, true),
     playground: StringUtil.parseBool(process.env.GRAPHQL_PLAYGROUND_ENABLED, true)
   }
 });
