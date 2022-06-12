@@ -2,7 +2,8 @@ import { Type, UseInterceptors } from '@nestjs/common';
 import {
   Args,
   ArgsType,
-  Field, ID,
+  Field,
+  ID,
   InputType,
   Int,
   Mutation,

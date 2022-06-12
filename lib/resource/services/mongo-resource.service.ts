@@ -29,30 +29,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
   }
 
   async find(id: string): Promise<T> {
-    let result;
-    try {
-      const policyFilter = await this.resolveFilterSubReferences(this.policyFilter());
-      result = await this.model
-        .findOne({ $and: [{ _id: id }, policyFilter] } as any, this.policyProjection())
-        .populate(this.makePopulationArray())
-        .exec();
-    } catch (e) {
-      this.logger.debug(e);
-      throw new ResourceError(this.model.modelName, {
-        message: 'Bad request',
-        reason: e.message,
-        status: 400
-      });
-    }
-
-    if (!result) {
-      throw new ResourceError(this.model.modelName, {
-        message: 'Not Found',
-        status: 404
-      });
-    }
-
-    return result;
+    return this.findResource(id, true);
   }
 
   async query(queryDto: QueryRequest<T>): Promise<QueryResponse<T>> {
@@ -182,14 +159,19 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     return populatedModel;
   }
 
-  private async findResource(id: string): Promise<T & Document> {
+  private async findResource(id: string, populate: boolean = false): Promise<T & Document> {
     let resource;
 
     try {
       const policyFilter = await this.resolveFilterSubReferences(this.policyFilter());
-      resource = await this.model
-        .findOne({ $and: [{ _id: id }, policyFilter] } as any, this.policyProjection())
-        .exec();
+      const resourceFind = this.model.findOne(
+        { $and: [{ _id: id }, policyFilter] } as any,
+        this.policyProjection()
+      );
+      if (populate) {
+        resourceFind.populate(this.makePopulationArray());
+      }
+      resource = resourceFind.exec();
     } catch (e) {
       this.logger.debug(e);
       throw new ResourceError(this.model.modelName, {
@@ -318,7 +300,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     }
 
     if (level === 0) {
-      this.logger.verbose('Populated objects: %j', populations);
+      this.logger.debug('Populated objects: %j', populations);
     }
 
     return populations;
@@ -378,7 +360,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
   }
 
   private async resolveFilterSubReferences(filter: any): Promise<any> {
-    this.logger.verbose('Before filter resolve: %j', filter);
+    this.logger.debug('Before filter resolve: %j', filter);
 
     const resolvedFilter = await ObjectUtil.transfromKeysAndValuesAsync(
       filter,
@@ -421,7 +403,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
       }
     );
 
-    this.logger.verbose('After filter resolve: %j', resolvedFilter);
+    this.logger.debug('After filter resolve: %j', resolvedFilter);
 
     return resolvedFilter;
   }
@@ -519,9 +501,9 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
       }
     }
 
-    this.logger.verbose('%s file fields: %j', model.modelName, files);
-    this.logger.verbose('%s referenced fields: %j', model.modelName, references);
-    this.logger.verbose('%s virtual fields: %j', model.modelName, virtuals);
+    this.logger.debug('%s file fields: %j', model.modelName, files);
+    this.logger.debug('%s referenced fields: %j', model.modelName, references);
+    this.logger.debug('%s virtual fields: %j', model.modelName, virtuals);
 
     return { references, virtuals, files, fileProps, fieldProps };
   }
