@@ -55,7 +55,20 @@ export abstract class MongoUserDetailsService<T extends AuthUser, C, U>
   async register(userData: C, source: AuthSource = AuthSource.Local): Promise<T> {
     userData['authSource'] = source;
     userData['roles'] = [Role.User];
+    userData['role'] = Role.User;
     return await this.create(userData);
+  }
+
+  async createAdmin(username: string, password: string): Promise<T> {
+    return this.create({
+      firstName: 'Admin',
+      lastName: 'Admin',
+      email: username,
+      password: password,
+      authSource: AuthSource.Local,
+      roles: [Role.Admin],
+      role: Role.Admin
+    } as any);
   }
 
   async identifierAvailable(field: string, value: any): Promise<boolean> {

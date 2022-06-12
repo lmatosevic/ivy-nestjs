@@ -16,5 +16,7 @@ export interface UserDetailsService<T extends AuthUser> {
 
   register(userData: Partial<T>, source: AuthSource): Promise<T>;
 
+  createAdmin(username: string, password: string): Promise<T>;
+
   identifierAvailable(field: string, value: any): Promise<boolean>;
 }

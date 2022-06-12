@@ -1,7 +1,8 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { AuthSource } from '../enums';
+import { StringUtil } from '../utils';
 import { AuthUser } from './interfaces';
 import { AuthModuleOptions } from './auth.module';
 import { JwtPayload, JwtToken } from './strategy/jwt/jwt.dto';
@@ -9,7 +10,7 @@ import { AuthorizationError } from './errors';
 import { AUTH_MODULE_OPTIONS } from './auth.constants';
 
 @Injectable()
-export class AuthService {
+export class AuthService implements OnApplicationBootstrap {
   private readonly logger = new Logger(AuthService.name);
 
   constructor(
@@ -17,6 +18,12 @@ export class AuthService {
     private configService: ConfigService,
     private jwtService: JwtService
   ) {}
+
+  async onApplicationBootstrap(): Promise<void> {
+    if (this.authModuleOptions.admin?.create ?? this.configService.get('auth.admin.create')) {
+      await this.createAdminUser();
+    }
+  }
 
   async findUser(username: string): Promise<AuthUser> {
     return await this.authModuleOptions.userDetailsService.findByUsername(username);
@@ -84,5 +91,23 @@ export class AuthService {
     }
     const result = await this.authModuleOptions.userDetailsService.identifierAvailable(field, value);
     return { result };
+  }
+
+  private async createAdminUser(): Promise<void> {
+    const username = this.authModuleOptions.admin?.username ?? this.configService.get('auth.admin.username');
+    let password = this.authModuleOptions.admin?.password ?? this.configService.get('auth.admin.password');
+
+    let adminUser = await this.authModuleOptions.userDetailsService.findByUsername(username);
+
+    if (!adminUser) {
+      if (!password) {
+        password = StringUtil.randomString(12);
+        this.logger.log('Generated admin user password: ' + password);
+      }
+      adminUser = await this.authModuleOptions.userDetailsService.createAdmin(username, password);
+      this.logger.log('Created admin user with ID: ' + adminUser['id']);
+    } else {
+      this.logger.log('Admin user ID: ' + adminUser['id']);
+    }
   }
 }

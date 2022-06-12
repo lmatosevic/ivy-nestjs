@@ -24,7 +24,7 @@ export class LoggerInterceptor implements NestInterceptor {
         params: StringUtil.sanitizeData(request.params),
         headers: StringUtil.sanitizeData(request.headers),
         userId: request.user?.id,
-        userRoles: request.user?.roles
+        userRoles: Array.isArray(request.user?.roles) ? request.user?.roles : request.user?.role
       }
     );
 

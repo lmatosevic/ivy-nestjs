@@ -54,6 +54,11 @@ export default () => ({
     route: process.env.AUTH_ROUTE || 'auth',
     login: StringUtil.parseBool(process.env.AUTH_LOGIN_ENABLED, true),
     registration: StringUtil.parseBool(process.env.AUTH_REGISTRATION_ENABLED, true),
+    admin: {
+      create: StringUtil.parseBool(process.env.AUTH_ADMIN_CREATE, false),
+      username: process.env.AUTH_ADMIN_USERNAME || 'admin@ivy',
+      password: process.env.AUTH_ADMIN_PASSWORD,
+    },
     jwt: {
       enabled: StringUtil.parseBool(process.env.AUTH_JWT_ENABLED, true),
       secret: process.env.AUTH_JWT_SECRET,
