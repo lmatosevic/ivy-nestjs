@@ -1,10 +1,11 @@
 import { DynamicModule, Global, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule as NestjsTypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { DataSource, DataSourceOptions } from 'typeorm';
+import { DataSource, DataSourceOptions, LoggerOptions } from 'typeorm';
 import { ModuleAsyncOptions, ModuleUtil } from '../utils';
 import { EntityClassOrSchema } from '@nestjs/typeorm/dist/interfaces/entity-class-or-schema.type';
 import { DEFAULT_DATA_SOURCE_NAME } from '@nestjs/typeorm/dist/typeorm.constants';
+import { TypeOrmLogger } from './logger';
 import { TYPEORM_MODULE_OPTIONS } from './typeorm.constant';
 
 @Global()
@@ -51,6 +52,8 @@ export class TypeOrmModule {
             migrations: [`${conf.get<string>('migration.sourceRoot')}/${conf.get<string>('migration.dirname')}/**/*{.ts,.js}`],
             migrationsTableName: conf.get<string>('migration.table'),
             autoLoadEntities: true,
+            logging: conf.get<LoggerOptions>('db.logging'),
+            logger: new TypeOrmLogger(conf.get<LoggerOptions>('db.logging')),
             synchronize:
               !conf.get<string>('db.migration.enabled') && conf.get<string>('env') !== 'production',
             ...(typeOrmModuleOptions as any)

@@ -34,6 +34,12 @@ export default () => ({
     authSource: process.env.DB_AUTH_SOURCE || 'admin',
     user: process.env.DB_USER || 'admin',
     password: process.env.DB_PASSWORD,
+    logging:
+      process.env.DB_LOGGING !== 'false'
+        ? process.env.DB_LOGGING !== 'all'
+          ? StringUtil.parseArray(process.env.DB_LOGGING, 'all')
+          : 'all'
+        : false,
     migration: {
       enabled: StringUtil.parseBool(process.env.DB_MIGRATION_ENABLED, true),
       table: process.env.DB_MIGRATION_TABLE || 'migration',
@@ -57,12 +63,12 @@ export default () => ({
     admin: {
       create: StringUtil.parseBool(process.env.AUTH_ADMIN_CREATE, false),
       username: process.env.AUTH_ADMIN_USERNAME || 'admin@ivy',
-      password: process.env.AUTH_ADMIN_PASSWORD,
+      password: process.env.AUTH_ADMIN_PASSWORD
     },
     jwt: {
       enabled: StringUtil.parseBool(process.env.AUTH_JWT_ENABLED, true),
-      secret: process.env.AUTH_JWT_SECRET,
-      expiresIn: StringUtil.parseInteger(process.env.AUTH_JWT_EXPIRES_IN, 2592000)
+      expiresIn: StringUtil.parseInteger(process.env.AUTH_JWT_EXPIRES_IN, 2592000),
+      secret: process.env.AUTH_JWT_SECRET
     },
     basic: {
       enabled: StringUtil.parseBool(process.env.AUTH_BASIC_ENABLED, false)
