@@ -25,13 +25,14 @@ export const ormconfig = {
   password: db.password,
   database: db.name,
   schema: db.schema,
-  entities: [`${db.migration.sourceRoot}/**/*.entity{.ts,.js}`, './node_modules/ivy-nestjs/**/*.entity{.ts,.js}'],
+  entities: [
+    `${db.migration.sourceRoot}/**/*.entity{.ts,.js}`,
+    './node_modules/ivy-nestjs/**/*.entity{.ts,.js}'
+  ],
   subscribers: [`${db.migration.sourceRoot}/**/*.subscriber{.ts,.js}`],
   migrations: [`${db.migration.sourceRoot}/${db.migration.dirname}/**/*{.ts,.js}`],
   migrationsTableName: db.migration.table,
   synchronize: db.migration.enabled && process.env.NODE_ENV !== 'production'
 };
 
-export default new DataSource({
-  ...ormconfig
-});
+export default new DataSource(ormconfig)
