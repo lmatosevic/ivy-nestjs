@@ -2,7 +2,7 @@ import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateCol
 import { HideField, ObjectType } from '@nestjs/graphql';
 import { Exclude } from 'class-transformer';
 import { ApiHideProperty } from '@nestjs/swagger';
-import { ResourceEntity } from '../../resource';
+import { ResourceEntity } from '../../resource/entity';
 
 @ObjectType()
 @Entity({ name: '_file_meta' })
