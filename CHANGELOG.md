@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.2](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.1...v0.1.2) (2022-06-14)
+
+
+### Features
+
+* extended FileMeta entity with ResourceEntity class ([c2a8ac0](https://github.com/Lujo5/ivy-nestjs/commit/c2a8ac0e30093e8f88f5964dd7847eb1c64767a3))
+
+
+### Bug Fixes
+
+* resolve imports ([1d13f19](https://github.com/Lujo5/ivy-nestjs/commit/1d13f19a35e862e3932a9f532a8fadffbf6b1019))
+
 ### [0.1.1](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.0...v0.1.1) (2022-06-14)
 
 
