@@ -2,10 +2,11 @@ import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateCol
 import { HideField, ObjectType } from '@nestjs/graphql';
 import { Exclude } from 'class-transformer';
 import { ApiHideProperty } from '@nestjs/swagger';
+import { ResourceEntity } from '../../resource';
 
 @ObjectType()
 @Entity({ name: '_file_meta' })
-export class FileMeta {
+export class FileMeta extends ResourceEntity {
   @ApiHideProperty()
   @HideField()
   @Exclude()
