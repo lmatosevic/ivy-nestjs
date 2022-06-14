@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.1](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.0...v0.1.1) (2022-06-14)
+
+
+### Features
+
+* implement file storage for typeorm ([8a305d3](https://github.com/Lujo5/ivy-nestjs/commit/8a305d3dd09d4310df2fbddf0fc7ef5cb9b9173e))
+
 ## [0.1.0](https://github.com/Lujo5/ivy-nestjs/compare/v0.0.27...v0.1.0) (2022-06-12)
 
 
