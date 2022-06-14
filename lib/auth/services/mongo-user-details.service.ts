@@ -2,8 +2,8 @@ import * as bcrypt from 'bcrypt';
 import { Document, Model } from 'mongoose';
 import { AuthUser, UserDetailsService } from '../interfaces';
 import { AuthSource, Role } from '../../enums';
-import { MongoResourceService } from '../../resource';
-import { FileManager } from '../../storage';
+import { MongoResourceService } from '../../resource/services';
+import { FileManager } from '../../storage/file-manager';
 
 export abstract class MongoUserDetailsService<T extends AuthUser, C, U>
   extends MongoResourceService<T>

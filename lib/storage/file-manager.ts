@@ -4,12 +4,12 @@ import { fromBuffer } from 'file-type';
 import { FilesUtil } from '../utils';
 import { File } from './schema';
 import { FileError } from './errors';
-import { FilesystemStorageService } from './services';
+import { StorageService } from './services';
 import { StorageModuleOptions } from './storage.module';
 import { FileProps } from './decorators';
-import { MongoFileMetaService, FileMetadata } from './file-meta';
+import { FileMetadata, FileMetaService } from './file-meta';
 import { AuthUser } from '../auth';
-import { STORAGE_MODULE_OPTIONS } from './storage.constants';
+import { FILE_META_SERVICE, STORAGE_MODULE_OPTIONS, STORAGE_SERVICE } from './storage.constants';
 
 export type AccessMeta = {
   allowed: boolean;
@@ -18,7 +18,7 @@ export type AccessMeta = {
 
 type StoredFile = {
   fileName: string;
-  metaId?: string;
+  metaId?: string | number;
 };
 
 @Injectable()
@@ -29,9 +29,9 @@ export class FileManager {
 
   constructor(
     @Inject(STORAGE_MODULE_OPTIONS) private storageModuleOptions: StorageModuleOptions,
-    private configService: ConfigService,
-    private storageService: FilesystemStorageService,
-    private fileMetaService: MongoFileMetaService
+    @Inject(FILE_META_SERVICE) private fileMetaService: FileMetaService,
+    @Inject(STORAGE_SERVICE) private storageService: StorageService,
+    private configService: ConfigService
   ) {
     this.dirname = storageModuleOptions.filesDirname || configService.get('storage.filesDirname') || 'files';
     this.tempDirname = storageModuleOptions.tempDirname || configService.get('storage.tempDirname') || 'temp';
@@ -107,6 +107,22 @@ export class FileManager {
       metaId = await this.fileMetaService.save({ name, ...meta });
     }
     return result ? { fileName: name, metaId } : null;
+  }
+
+  async updateFilesMetaResourceIds(fileNames: string[], id: string | number): Promise<boolean> {
+    let success = true;
+
+    if (!fileNames || fileNames.length === 0) {
+      return success;
+    }
+
+    for (const fileName of fileNames) {
+      const result = await this.fileMetaService.update(fileName, { resourceId: id });
+      if (!result) {
+        success = false;
+      }
+    }
+    return success;
   }
 
   async deleteFileArray(fileFields: string[]): Promise<number> {

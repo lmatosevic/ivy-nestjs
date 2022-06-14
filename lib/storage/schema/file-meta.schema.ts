@@ -4,7 +4,7 @@ import { ApiHideProperty } from '@nestjs/swagger';
 import { HideField, ObjectType } from '@nestjs/graphql';
 import { MongooseSchemaFactory } from '../../resource/schema';
 
-@ObjectType()
+@ObjectType('FileMetaSchema')
 @Schema({ timestamps: true })
 export class FileMeta extends Document {
   @ApiHideProperty()
@@ -25,7 +25,7 @@ export class FileMeta extends Document {
   @ApiHideProperty()
   @HideField()
   @Prop({ type: MongooseSchema.Types.ObjectId, toJSON: false })
-  resourceId: string;
+  resourceId?: string;
 
   @ApiHideProperty()
   @HideField()

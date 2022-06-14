@@ -1,12 +1,12 @@
 import { Controller, Get, HttpCode, Inject, Param, Response, StreamableFile } from '@nestjs/common';
 import { ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ConfigService } from '@nestjs/config';
 import { AuthUser } from '../auth';
 import { CurrentUser, Authorized } from '../auth/decorators';
 import { FileManager } from './file-manager';
 import { FileError } from './errors';
 import { StorageModuleOptions } from './storage.module';
 import { STORAGE_MODULE_OPTIONS } from './storage.constants';
-import { ConfigService } from '@nestjs/config';
 
 @ApiTags('files')
 @Controller('files')

@@ -5,7 +5,7 @@ import { HideField, ObjectType } from '@nestjs/graphql';
 import { MongooseSchemaFactory } from '../../resource/schema';
 import { FileMeta } from './file-meta.schema';
 
-@ObjectType()
+@ObjectType('FileSchema')
 @Schema({ timestamps: false })
 export class File extends Document {
   @ApiHideProperty()
@@ -16,7 +16,7 @@ export class File extends Document {
   @Prop()
   data: string;
 
-  @Prop()
+  @Prop({ default: null })
   originalName?: string;
 
   @Prop({ default: null })

@@ -1,16 +1,23 @@
 import { Logger } from '@nestjs/common';
 import { ObjectLiteral, Repository } from 'typeorm';
 import { ResourceError } from '../../resource/errors';
-import { FileManager } from '../../storage';
+import { FILE_PROPS_KEY, FileError, FileManager, FileProps } from '../../storage';
 import { QueryRequest, QueryResponse } from '../dto';
 import { ResourceService } from './resource.service';
 import { ResourceEntity } from '../entity';
 import { ResourcePolicyService } from '../policy';
+import * as _ from 'lodash';
+
+type ModelReferences = {
+  files: string[];
+  fileProps: Record<string, FileProps>;
+};
 
 export abstract class TypeOrmResourceService<T extends ObjectLiteral>
   extends ResourcePolicyService
   implements ResourceService<T>
 {
+  private static modelReferences: Record<string, ModelReferences>;
   private readonly logger = new Logger(TypeOrmResourceService.name);
 
   protected constructor(
@@ -18,10 +25,15 @@ export abstract class TypeOrmResourceService<T extends ObjectLiteral>
     protected fileManager?: FileManager
   ) {
     super();
+
+    if (!TypeOrmResourceService.modelReferences) {
+      TypeOrmResourceService.modelReferences = this.fetchAllReferences();
+    }
   }
 
   async find(id: number): Promise<T> {
     let result;
+
     try {
       result = await this.repository.findOneBy({ id });
     } catch (e) {
@@ -45,9 +57,9 @@ export abstract class TypeOrmResourceService<T extends ObjectLiteral>
 
   async query(queryDto: QueryRequest<T>): Promise<QueryResponse<T>> {
     let { filter, ...options } = queryDto;
-
     let results;
     let totalCount;
+
     try {
       results = await this.repository.find({
         skip: options.skip,
@@ -73,12 +85,20 @@ export abstract class TypeOrmResourceService<T extends ObjectLiteral>
   }
 
   async create(createDto: any): Promise<T> {
-    let entity;
+    let model;
+    let storedFiles;
+
     try {
       const createdEntity = this.repository.create(createDto) as any;
-      entity = await this.repository.save(createdEntity);
+      storedFiles = await this.fileManager?.persistFiles(this.fileProps(), createdEntity);
+      model = await this.repository.save(createdEntity);
+      await this.fileManager?.updateFilesMetaResourceIds(storedFiles, model.id);
     } catch (e) {
       this.logger.debug(e);
+      await this.fileManager?.deleteFileArray(storedFiles);
+      if (e instanceof FileError) {
+        throw e;
+      }
       throw new ResourceError(this.repository.metadata.name, {
         message: e.message,
         reason: e.detail,
@@ -86,18 +106,36 @@ export abstract class TypeOrmResourceService<T extends ObjectLiteral>
       });
     }
 
-    return entity;
+    return model;
   }
 
   async update(id: number, updateDto: any, isFileUpload?: boolean): Promise<T> {
-    const result = await this.find(id);
+    let resource = await this.find(id);
+    const currentResource = _.cloneDeep(resource);
 
-    let updatedEntity;
+    resource = _.assign(resource, updateDto) as any;
+
+    if (isFileUpload) {
+      this.mergeFileArrays(currentResource, resource);
+    }
+
+    let updatedModel;
+    let storedFiles;
     try {
-      const entity = this.repository.merge(result, updateDto) as any;
-      updatedEntity = await this.repository.save(entity);
+      storedFiles = await this.fileManager?.persistFiles(
+        this.fileProps(),
+        resource,
+        currentResource,
+        isFileUpload
+      );
+      updatedModel = await this.repository.save(resource);
+      await this.fileManager?.deleteFiles(this.fileProps(), currentResource, updatedModel);
     } catch (e) {
       this.logger.debug(e);
+      await this.fileManager?.deleteFileArray(storedFiles);
+      if (e instanceof FileError) {
+        throw e;
+      }
       throw new ResourceError(this.repository.metadata.name, {
         message: e.message,
         reason: e.detail,
@@ -105,15 +143,16 @@ export abstract class TypeOrmResourceService<T extends ObjectLiteral>
       });
     }
 
-    return updatedEntity;
+    return this.find(updatedModel.id);
   }
 
   async delete(id: number): Promise<T> {
-    const result = await this.find(id);
+    const resource = await this.find(id);
 
-    let deletedEntity;
+    let removedModel;
     try {
-      deletedEntity = await this.repository.remove(result);
+      removedModel = await this.repository.remove(resource);
+      await this.fileManager?.deleteFiles(this.fileProps(), removedModel);
     } catch (e) {
       this.logger.debug(e);
       throw new ResourceError(this.repository.metadata.name, {
@@ -123,6 +162,57 @@ export abstract class TypeOrmResourceService<T extends ObjectLiteral>
       });
     }
 
-    return deletedEntity;
+    return removedModel;
+  }
+
+  private mergeFileArrays(currentResource: any, resource: any): void {
+    for (const fileField of this.fileFields()) {
+      const fileValue = currentResource[fileField];
+      if (Array.isArray(fileValue) && fileValue.length > 0) {
+        resource[fileField] = [...fileValue, ...resource[fileField]];
+      }
+    }
+  }
+
+  private fileFields(modelName?: string): string[] {
+    const name = modelName || this.repository.metadata.name;
+    return TypeOrmResourceService.modelReferences[name]?.files;
+  }
+
+  private fileProps(modelName?: string): Record<string, FileProps> {
+    const name = modelName || this.repository.metadata.name;
+    return TypeOrmResourceService.modelReferences[name]?.fileProps;
+  }
+
+  private fetchAllReferences(): Record<string, ModelReferences> {
+    const referencesMap: Record<string, ModelReferences> = {};
+
+    const repositories = this.repository?.manager?.['repositories'];
+    if (!repositories) {
+      return referencesMap;
+    }
+
+    for (const repo of repositories) {
+      referencesMap[repo.metadata.name] = this.fetchReferences(repo);
+    }
+
+    return referencesMap;
+  }
+
+  private fetchReferences(repository: Repository<any>): ModelReferences {
+    const files: string[] = [];
+    let fileProps: Record<string, FileProps> = {};
+
+    for (const field of Object.keys(repository.metadata?.propertiesMap || {})) {
+      const props = Reflect.getMetadata(FILE_PROPS_KEY, repository.metadata.target?.['prototype']);
+      if (props && props[field]) {
+        fileProps[field] = props[field];
+        files.push(field);
+      }
+    }
+
+    this.logger.debug('%s file fields: %j', repository.metadata.name, files);
+
+    return { files, fileProps };
   }
 }

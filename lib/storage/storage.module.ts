@@ -1,15 +1,17 @@
 import { DynamicModule, Global, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { MulterModule } from '@nestjs/platform-express';
 import { ConfigService } from '@nestjs/config';
 import { FilesUtil, ModuleAsyncOptions, ModuleUtil } from '../utils';
 import { diskStorage } from 'multer';
 import { FilesystemStorageService } from './services';
 import { FileMeta, FileMetaSchema } from './schema';
+import { File, FileMeta as FileMetaEntity } from './entity';
 import { StorageController } from './storage.controller';
 import { FileManager } from './file-manager';
-import { MongoFileMetaService } from './file-meta';
-import { STORAGE_MODULE_OPTIONS } from './storage.constants';
+import { MongoFileMetaService, TypeOrmFileMetaService } from './file-meta';
+import { FILE_META_SERVICE, STORAGE_MODULE_OPTIONS, STORAGE_SERVICE } from './storage.constants';
 
 export interface StorageModuleOptions {
   rootDir?: string;
@@ -38,6 +40,23 @@ export class StorageModule {
   }
 
   static createModule(providers: any[] = [], imports: any[] = []): DynamicModule {
+    let databaseModule;
+    let databaseFileMetaService;
+
+    if (!process.env.DB_TYPE || process.env.DB_TYPE === 'mongoose') {
+      databaseModule = MongooseModule.forFeature([
+        {
+          name: FileMeta.name,
+          schema: FileMetaSchema,
+          collection: '_files'
+        }
+      ]);
+      databaseFileMetaService = MongoFileMetaService;
+    } else {
+      databaseModule = TypeOrmModule.forFeature([File, FileMetaEntity]);
+      databaseFileMetaService = TypeOrmFileMetaService;
+    }
+
     return {
       module: StorageModule,
       imports: [
@@ -59,9 +78,20 @@ export class StorageModule {
             })
           })
         }),
-        MongooseModule.forFeature([{ name: FileMeta.name, schema: FileMetaSchema, collection: '_files' }])
+        databaseModule
       ],
-      providers: [...providers, FileManager, FilesystemStorageService, MongoFileMetaService],
+      providers: [
+        ...providers,
+        FileManager,
+        {
+          provide: STORAGE_SERVICE,
+          useClass: FilesystemStorageService
+        },
+        {
+          provide: FILE_META_SERVICE,
+          useClass: databaseFileMetaService
+        }
+      ],
       controllers: [StorageController],
       exports: [STORAGE_MODULE_OPTIONS, MulterModule, FileManager]
     };

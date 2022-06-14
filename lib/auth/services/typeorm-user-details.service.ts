@@ -2,8 +2,9 @@ import * as bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
 import { AuthUser, UserDetailsService } from '../interfaces';
 import { AuthSource, Role } from '../../enums';
-import { ResourceEntity, TypeOrmResourceService } from '../../resource';
-import { FileManager } from '../../storage';
+import { ResourceEntity } from '../../resource';
+import { TypeOrmResourceService } from '../../resource/services';
+import { FileManager } from '../../storage/file-manager';
 
 export abstract class TypeOrmUserDetailsService<T extends AuthUser, C, U>
   extends TypeOrmResourceService<T>
@@ -57,6 +58,7 @@ export abstract class TypeOrmUserDetailsService<T extends AuthUser, C, U>
 
   async registerUser(userData: C, source: AuthSource = AuthSource.Local): Promise<T> {
     userData['authSource'] = source;
+    userData['roles'] = [Role.User];
     userData['role'] = Role.User;
     return await this.create(userData);
   }
@@ -68,6 +70,7 @@ export abstract class TypeOrmUserDetailsService<T extends AuthUser, C, U>
       email: username,
       password: password,
       authSource: AuthSource.Local,
+      roles: [Role.Admin],
       role: Role.Admin
     } as any);
   }

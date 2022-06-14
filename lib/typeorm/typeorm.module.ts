@@ -47,7 +47,7 @@ export class TypeOrmModule {
             password: conf.get<string>('db.password'),
             database: conf.get<string>('db.name'),
             schema: conf.get<string>('db.schema'),
-            entities: [`${conf.get<string>('migration.sourceRoot')}/**/*.entity{.ts,.js}`],
+            entities: [`${conf.get<string>('migration.sourceRoot')}/**/*.entity{.ts,.js}`, './node_modules/ivy-nestjs/**/*.entity{.ts,.js}'],
             subscribers: [`${conf.get<string>('migration.sourceRoot')}/**/*.subscriber{.ts,.js}`],
             migrations: [`${conf.get<string>('migration.sourceRoot')}/${conf.get<string>('migration.dirname')}/**/*{.ts,.js}`],
             migrationsTableName: conf.get<string>('migration.table'),

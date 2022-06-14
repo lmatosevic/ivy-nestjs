@@ -32,6 +32,19 @@ export class MongoFileMetaService implements FileMetaService {
     }
   }
 
+  async update(name: string, metadata: Partial<FileMetadata>): Promise<boolean> {
+    const meta = await this.find(name) as FileMeta;
+
+    try {
+      meta.set(metadata);
+      await meta.save();
+      return true;
+    } catch (e) {
+      this.logger.error('Error updating file metadata "%s", %j', meta.name, e);
+      throw e;
+    }
+  }
+
   async delete(name: string): Promise<boolean> {
     try {
       const metadata = await this.fileMetaModel.findOne({ name }).exec();

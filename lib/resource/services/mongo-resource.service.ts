@@ -1,7 +1,8 @@
 import { Logger } from '@nestjs/common';
 import { Document, Model } from 'mongoose';
 import { ResourceError } from '../../resource/errors';
-import { FILE_PROPS_KEY, FileError, FileManager, FileProps } from '../../storage';
+import { FILE_PROPS_KEY, FileProps } from '../../storage/decorators';
+import { FileError, FileManager } from '../../storage';
 import { ObjectUtil } from '../../utils';
 import { QueryRequest, QueryResponse, ValidationError } from '../dto';
 import { ResourceService } from './resource.service';
@@ -88,7 +89,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     return this.populateModelDeep(createdModel);
   }
 
-  async update(id: string, updateDto: any, isFileUpload = false): Promise<T> {
+  async update(id: string, updateDto: any, isFileUpload?: boolean): Promise<T> {
     const intersectedDto = this.intersectFields(updateDto);
 
     const resource = await this.findResource(id);
@@ -409,27 +410,33 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
   }
 
   private referencedFields(modelName?: string): string[] {
-    return MongoResourceService.modelReferences[modelName || this.model.modelName]?.references;
+    const name = modelName || this.model.modelName;
+    return MongoResourceService.modelReferences[name]?.references;
   }
 
   private virtualFields(modelName?: string): string[] {
-    return MongoResourceService.modelReferences[modelName || this.model.modelName]?.virtuals;
+    const name = modelName || this.model.modelName;
+    return MongoResourceService.modelReferences[name]?.virtuals;
   }
 
   private fileFields(modelName?: string): string[] {
-    return MongoResourceService.modelReferences[modelName || this.model.modelName]?.files;
+    const name = modelName || this.model.modelName;
+    return MongoResourceService.modelReferences[name]?.files;
   }
 
   private fileProps(modelName?: string): Record<string, FileProps> {
-    return MongoResourceService.modelReferences[modelName || this.model.modelName]?.fileProps;
+    const name = modelName || this.model.modelName;
+    return MongoResourceService.modelReferences[name]?.fileProps;
   }
 
   private refProps(modelName?: string): Record<string, any> {
-    return MongoResourceService.modelReferences[modelName || this.model.modelName]?.fieldProps;
+    const name = modelName || this.model.modelName;
+    return MongoResourceService.modelReferences[name]?.fieldProps;
   }
 
   private refProp(fieldName: string, modelName?: string): any {
-    return MongoResourceService.modelReferences[modelName || this.model.modelName]?.fieldProps?.[fieldName];
+    const name = modelName || this.model.modelName;
+    return MongoResourceService.modelReferences[name]?.fieldProps?.[fieldName];
   }
 
   private modelNameFromFieldList(fieldList: string[]): string {
