@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.5](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.4...v0.1.5) (2022-06-15)
+
+
+### Features
+
+* add app hostname variable ([5942453](https://github.com/Lujo5/ivy-nestjs/commit/594245380d382d3c713da77a1d13629c30b31e98))
+
 ### [0.1.4](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.3...v0.1.4) (2022-06-15)
 
 
