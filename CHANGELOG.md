@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.4](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.3...v0.1.4) (2022-06-15)
+
+
+### Features
+
+* add typeorm migration autorun service ([9fc4caa](https://github.com/Lujo5/ivy-nestjs/commit/9fc4caa47b36424b42d031dc09b5e9b81eb9dae5))
+
 ### [0.1.3](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.2...v0.1.3) (2022-06-14)
 
 
