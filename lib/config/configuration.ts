@@ -8,6 +8,7 @@ export default () => ({
     debug: StringUtil.parseBool(process.env.APP_DEBUG, false),
     version: process.env.npm_package_version || 'unknown',
     host: process.env.APP_HOST || '0.0.0.0',
+    hostname: process.env.APP_HOSTNAME || '127.0.0.1',
     port: StringUtil.parseInteger(process.env.APP_PORT, 80),
     shutdownHooks: StringUtil.parseBool(process.env.APP_USE_SHUTDOWN_HOOKS, false),
     helmet: StringUtil.parseBool(process.env.APP_USE_HELMET, true)

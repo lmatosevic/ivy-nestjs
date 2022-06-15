@@ -20,12 +20,9 @@ export class AppUtil {
 
     const port = configService.get('app.port');
     let host = configService.get('app.host');
+    let hostname = configService.get('app.hostname');
 
-    if (env !== 'production' && host === '0.0.0.0') {
-      host = host.replace('0.0.0.0', '127.0.0.1');
-    }
-
-    const address = `http://${host}:${port}`;
+    const address = `http://${hostname}:${port}`;
 
     if (configService.get('app.shutdownHooks')) {
       app.enableShutdownHooks();
