@@ -15,10 +15,16 @@ export class AppUtil {
 
     const configService = app.get(ConfigService);
 
-    logger.log('App running in %s', configService.get('env'));
+    const env = configService.get('env');
+    logger.log('App running in %s', env);
 
     const port = configService.get('app.port');
-    const host = configService.get('app.host');
+    let host = configService.get('app.host');
+
+    if (env !== 'production' && host === '0.0.0.0') {
+      host = host.replace('0.0.0.0', '127.0.0.1');
+    }
+
     const address = `http://${host}:${port}`;
 
     if (configService.get('app.shutdownHooks')) {

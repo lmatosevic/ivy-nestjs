@@ -7,7 +7,7 @@ export default () => ({
     description: process.env.APP_DESCRIPTION || 'Ivy backend API service',
     debug: StringUtil.parseBool(process.env.APP_DEBUG, false),
     version: process.env.npm_package_version || 'unknown',
-    host: process.env.APP_HOST || '127.0.0.1',
+    host: process.env.APP_HOST || '0.0.0.0',
     port: StringUtil.parseInteger(process.env.APP_PORT, 80),
     shutdownHooks: StringUtil.parseBool(process.env.APP_USE_SHUTDOWN_HOOKS, false),
     helmet: StringUtil.parseBool(process.env.APP_USE_HELMET, true)
@@ -42,9 +42,11 @@ export default () => ({
         : false,
     migration: {
       enabled: StringUtil.parseBool(process.env.DB_MIGRATION_ENABLED, true),
+      autoRun: StringUtil.parseBool(process.env.DB_MIGRATION_AUTORUN, true),
       table: process.env.DB_MIGRATION_TABLE || 'migration',
       dirname: process.env.DB_MIGRATION_DIRNAME || 'migrations',
-      sourceRoot: process.env.DB_MIGRATION_SOURCE_ROOT || './src'
+      sourceRoot: process.env.DB_MIGRATION_SOURCE_ROOT || './src',
+      distRoot: process.env.DB_MIGRATION_DIST_ROOT || './dist',
     }
   },
   cors: {

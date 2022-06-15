@@ -7,6 +7,7 @@ import { EntityClassOrSchema } from '@nestjs/typeorm/dist/interfaces/entity-clas
 import { DEFAULT_DATA_SOURCE_NAME } from '@nestjs/typeorm/dist/typeorm.constants';
 import { TypeOrmLogger } from './logger';
 import { TYPEORM_MODULE_OPTIONS } from './typeorm.constant';
+import { MigrationService } from './migration.service';
 
 @Global()
 @Module({})
@@ -47,10 +48,15 @@ export class TypeOrmModule {
             password: conf.get<string>('db.password'),
             database: conf.get<string>('db.name'),
             schema: conf.get<string>('db.schema'),
-            entities: [`${conf.get<string>('migration.sourceRoot')}/**/*.entity{.ts,.js}`, './node_modules/ivy-nestjs/**/*.entity{.ts,.js}'],
-            subscribers: [`${conf.get<string>('migration.sourceRoot')}/**/*.subscriber{.ts,.js}`],
-            migrations: [`${conf.get<string>('migration.sourceRoot')}/${conf.get<string>('migration.dirname')}/**/*{.ts,.js}`],
-            migrationsTableName: conf.get<string>('migration.table'),
+            entities: [
+              `${conf.get('db.migration.distRoot')}/**/*.entity{.ts,.js}`,
+              './node_modules/ivy-nestjs/**/*.entity.js'
+            ],
+            subscribers: [`${conf.get('db.migration.distRoot')}/**/*.subscriber{.ts,.js}`],
+            migrations: [
+              `${conf.get('db.migration.distRoot')}/${conf.get('db.migration.dirname')}/**/*{.ts,.js}`
+            ],
+            migrationsTableName: conf.get<string>('db.migration.table'),
             autoLoadEntities: true,
             logging: conf.get<LoggerOptions>('db.logging'),
             logger: new TypeOrmLogger(conf.get<LoggerOptions>('db.logging')),
@@ -60,7 +66,7 @@ export class TypeOrmModule {
           })
         })
       ],
-      providers: [...providers],
+      providers: [...providers, MigrationService],
       exports: [TYPEORM_MODULE_OPTIONS, NestjsTypeOrmModule]
     };
   }
