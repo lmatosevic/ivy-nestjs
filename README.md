@@ -13,14 +13,17 @@
 ## Installation
 
 ```bash
-$ npm install
+$ npm install ivy-nestjs
 ```
 
-## Test
+## Usage
 
-```bash
-# unit tests
-$ npm run test
+In _./sample_ directory of ivy-nestjs package you can find two examples of applications built using this library.
+
+Import modules and classes to build your [NestJs](https://nestjs.com) application.
+
+```ts
+import { ConfigModule } from 'ivy-nestjs/config';
 ```
 
 ## License
