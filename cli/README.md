@@ -5,14 +5,14 @@
 Script for creating new resource modules and adding it to the imports of main app module.
 
 ```shell
-create-resource.js [name] [type]
+create-resource.js [type] [name] 
 
 create new resource files
 
 Positionals:
-  name  the name of new resource in singular e.g. article               [string]
   type  the type of database library used
                                        [string] [choices: "typeorm", "mongoose"]
+  name  the name of new resource in singular e.g. article               [string]
 
 Options:
       --help            Show help                                      [boolean]
