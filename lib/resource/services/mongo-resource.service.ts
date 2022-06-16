@@ -3,7 +3,7 @@ import { Document, Model } from 'mongoose';
 import { ResourceError } from '../../resource/errors';
 import { FILE_PROPS_KEY, FileProps } from '../../storage/decorators';
 import { FileError, FileManager } from '../../storage';
-import { ObjectUtil } from '../../utils';
+import { ObjectUtil, RequestUtil } from '../../utils';
 import { QueryRequest, QueryResponse, ValidationError } from '../dto';
 import { ResourceService } from './resource.service';
 import { ResourcePolicyService } from '../policy';
@@ -36,6 +36,10 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
   async query(queryDto: QueryRequest<T>): Promise<QueryResponse<T>> {
     let { filter, ...options } = queryDto;
     filter = _.merge(filter || {}, this.policyFilter());
+
+    if (options?.sort) {
+      options.sort = RequestUtil.normalizeSort(options.sort);
+    }
 
     let results;
     let totalCount;

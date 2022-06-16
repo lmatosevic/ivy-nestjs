@@ -34,12 +34,6 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
-input FacebookAuth {
-  accessToken: String!
-  signedRequest: String!
-  userID: String!
-}
-
 type File {
   data: String!
   description: String
@@ -92,10 +86,6 @@ input FilterOperator {
   _where: String
 }
 
-input GoogleAuth {
-  idToken: String!
-}
-
 type HealthDto {
   details: HealthStatusDto!
   error: HealthStatusDto!
@@ -116,8 +106,6 @@ type JwtToken {
 }
 
 type Mutation {
-  authorizeFacebook(data: FacebookAuth!): JwtToken!
-  authorizeGoogle(data: GoogleAuth!): JwtToken!
   createProduct(data: CreateProductDto!): Product!
   createUser(data: CreateUserDto!): User!
   deleteProduct(id: ID!): Product!

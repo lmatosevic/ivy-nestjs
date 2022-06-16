@@ -3,6 +3,7 @@ import { ObjectLiteral, Repository } from 'typeorm';
 import { ResourceError } from '../../resource/errors';
 import { FILE_PROPS_KEY, FileError, FileManager, FileProps } from '../../storage';
 import { QueryRequest, QueryResponse } from '../dto';
+import { RequestUtil } from '../../utils';
 import { ResourceService } from './resource.service';
 import { ResourceEntity } from '../entity';
 import { ResourcePolicyService } from '../policy';
@@ -59,6 +60,10 @@ export abstract class TypeOrmResourceService<T extends ObjectLiteral>
     let { filter, ...options } = queryDto;
     let results;
     let totalCount;
+
+    if (options?.sort) {
+      options.sort = RequestUtil.normalizeSort(options.sort);
+    }
 
     try {
       results = await this.repository.find({

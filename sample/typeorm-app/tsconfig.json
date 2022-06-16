@@ -37,5 +37,10 @@
         "../../lib/*"
       ]
     }
+  },
+  "ts-node": {
+    "require": [
+      "tsconfig-paths/register"
+    ]
   }
 }

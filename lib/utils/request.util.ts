@@ -72,4 +72,19 @@ export class RequestUtil {
       result[key === 'id' ? '_id' : key] = _.isObject(value) ? this.mapIdKeys(value) : value;
     });
   }
+
+  static normalizeSort(sort: any): any {
+    const sortMap = {};
+    if (!sort || typeof sort !== 'string') {
+      return sort;
+    }
+    const parts = sort.split(',');
+    for (const part of parts) {
+      let value = part.trim();
+      const order = value.charAt(0) === '-' ? 'desc' : 'asc';
+      value = value.charAt(0) === '-' || value.charAt(0) === '+' ? value.substring(1) : value;
+      sortMap[value] = order;
+    }
+    return sortMap;
+  }
 }

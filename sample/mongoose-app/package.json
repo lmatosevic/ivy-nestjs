@@ -18,10 +18,6 @@
     "test:e2e": "jest --no-cache --forceExit --config ./test/e2e/jest-e2e.json",
     "create-resource": "node ../../cli/create-resource.js mongoose"
   },
-  "dependencies": {
-  },
-  "devDependencies": {
-  },
   "jest": {
     "moduleFileExtensions": [
       "js",
