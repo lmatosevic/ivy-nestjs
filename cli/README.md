@@ -2,7 +2,7 @@
 > Scripts for generating common application resources and modules.
 
 ## Create resource
-Script for creating new resource modules adding it to the imports of main app module.
+Script for creating new resource modules and adding it to the imports of main app module.
 
 ```shell
 create-resource.js [name] [type]
