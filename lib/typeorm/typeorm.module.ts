@@ -54,7 +54,7 @@ export class TypeOrmModule {
             ],
             subscribers: [`${conf.get('db.migration.distRoot')}/**/*.subscriber{.ts,.js}`],
             migrations: [
-              `${conf.get('db.migration.distRoot')}/${conf.get('db.migration.dirname')}/**/*{.ts,.js}`
+              `${conf.get('db.migration.distRoot')}/**/${conf.get('db.migration.dirname')}/**/*{.ts,.js}`
             ],
             migrationsTableName: conf.get<string>('db.migration.table'),
             autoLoadEntities: true,
