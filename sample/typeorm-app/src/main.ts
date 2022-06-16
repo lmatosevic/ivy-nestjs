@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { Logger } from '@nestjs/common';
-import { AppUtil } from 'ivy-nestjs';
 import { AppModule } from './app.module';
+import { AppUtil } from 'ivy-nestjs/utils';
 
 const logger = new Logger('Bootstrap');
 

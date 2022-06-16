@@ -13,8 +13,6 @@ import { FileManager } from './file-manager';
 import { MongoFileMetaService, TypeOrmFileMetaService } from './file-meta';
 import { FILE_META_SERVICE, STORAGE_MODULE_OPTIONS, STORAGE_SERVICE } from './storage.constants';
 
-import 'dotenv/config';
-
 export interface StorageModuleOptions {
   rootDir?: string;
   filesDirname?: string;
@@ -42,7 +40,8 @@ export class StorageModule {
   }
 
   static createModule(providers: any[] = [], imports: any[] = []): DynamicModule {
-    const dbType = process.env.DB_TYPE || 'mongoose';
+    const env = ModuleUtil.getCurrentEnv();
+    const dbType = env.DB_TYPE || 'mongoose';
     let databaseModule;
     let databaseFileMetaService;
 

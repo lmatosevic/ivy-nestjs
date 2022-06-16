@@ -11,6 +11,8 @@ export interface AuthUser {
 
   getId(): string | any;
 
+  getEmail(): string;
+
   getUsername(): string;
 
   setUsername(name: string): void;

@@ -67,6 +67,10 @@ export class User extends ResourceEntity implements AuthUser {
     return this.id;
   }
 
+  getEmail(): string {
+    return this.email;
+  }
+
   getUsername(): string {
     return this.email;
   }

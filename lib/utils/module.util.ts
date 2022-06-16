@@ -1,5 +1,6 @@
 import { ModuleMetadata } from '@nestjs/common/interfaces';
 import { Type } from '@nestjs/common';
+import { FilesUtil } from './files.util';
 
 export interface ModuleAsyncOptions<T> extends Pick<ModuleMetadata, 'imports'> {
   useExisting?: Type<ModuleOptionsFactory<T>>;
@@ -13,6 +14,10 @@ export interface ModuleOptionsFactory<T> {
 }
 
 export class ModuleUtil {
+  private static envFiles: string[] =
+    process.env.NODE_ENV === 'test' ? ['.env.test', '.env'] : ['.env.local', '.env'];
+  private static currentEnv: Record<string, any>;
+
   static makeAsyncImportsAndProviders<T = any>(
     options: ModuleAsyncOptions<T>,
     optionsKey: string
@@ -46,5 +51,17 @@ export class ModuleUtil {
     const imports = options.imports || [];
 
     return { imports, providers };
+  }
+
+  static getEnvFiles(): string[] {
+    return this.envFiles;
+  }
+
+  static getCurrentEnv(): Record<string, any> {
+    if (this.currentEnv) {
+      return this.currentEnv;
+    }
+    this.currentEnv = FilesUtil.parseEnvFiles(this.envFiles);
+    return this.currentEnv;
   }
 }

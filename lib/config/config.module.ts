@@ -2,11 +2,12 @@ import { DynamicModule, Module } from '@nestjs/common';
 import { ConfigModule as NestjsConfigModule, ConfigModuleOptions } from '@nestjs/config';
 import configuration from './configuration';
 import { CONFIG_MODULE_OPTIONS } from './config.constants';
+import { ModuleUtil } from '../utils';
 
 @Module({
   imports: [
     NestjsConfigModule.forRoot({
-      envFilePath: process.env.NODE_ENV === 'test' ? ['.env.test', '.env'] : ['.env.local', '.env'],
+      envFilePath: ModuleUtil.getEnvFiles(),
       load: [configuration],
       isGlobal: true
     })
@@ -26,7 +27,7 @@ export class ConfigModule {
         NestjsConfigModule.forRoot({
           ...options,
           envFilePath: [
-            ...(process.env.NODE_ENV === 'test' ? ['.env.test', '.env'] : ['.env.local', '.env']),
+            ...(ModuleUtil.getEnvFiles()),
             ...(options.envFilePath || [])
           ],
           load: [configuration, ...(options.load || [])],

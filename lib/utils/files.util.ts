@@ -1,8 +1,11 @@
 import { v4 as uuidv4, validate as uuidValidate } from 'uuid';
 import { promises as fsp } from 'fs';
+import * as fs from 'fs';
+import * as dotenv from 'dotenv';
 import { FileDto, FileError, FileProps } from '../storage';
 import { ValidationError } from '../resource';
 import { StringUtil } from './string.util';
+import * as _ from 'lodash';
 
 export class FilesUtil {
   static generateFileName(originalName: string): string {
@@ -148,5 +151,26 @@ export class FilesUtil {
       }
     }
     return filesResponseDto;
+  }
+
+  static fileBuffer(filePath: string): Buffer {
+    if (!fs.existsSync(filePath)) {
+      return Buffer.from('');
+    }
+    return fs.readFileSync(filePath);
+  }
+
+  static parseEnvFile(envFilePath: string): Record<string, any> {
+    const fb = this.fileBuffer(envFilePath);
+    return dotenv.parse(fb);
+  }
+
+  static parseEnvFiles(envFilePaths: string[]): Record<string, any> {
+    let config = {};
+    for (const envFilePath of envFilePaths) {
+      const env = this.parseEnvFile(envFilePath);
+      config = _.defaults(config, env);
+    }
+    return config;
   }
 }

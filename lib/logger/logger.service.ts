@@ -17,9 +17,9 @@ export class LoggerService implements NestLoggerService {
       return;
     }
 
-    const logLevel = loggerModuleOptions.level || configService.get('log.level') || 'info';
+    const logLevel = loggerModuleOptions.level || configService.get('log.level');
     const logPath = loggerModuleOptions.path || configService.get('log.path');
-    const appName = loggerModuleOptions.appName || configService.get('app.name') || 'API Backend';
+    const appName = loggerModuleOptions.appName || configService.get('app.name');
     const rotate = loggerModuleOptions.rotate || configService.get('log.rotate');
 
     const logFileName = appName.replace(' ', '-').toLowerCase() + '.log';
@@ -51,6 +51,7 @@ export class LoggerService implements NestLoggerService {
 
     LoggerService.logger = winston.createLogger({
       level: logLevel,
+      silent: logLevel === 'silent',
       format: winston.format.combine(
         winston.format.timestamp({
           format: 'YYYY-MM-DD HH:mm:ss.SSS'

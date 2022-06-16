@@ -86,6 +86,10 @@ export class User extends Document implements AuthUser {
     return this._id;
   }
 
+  getEmail(): string {
+    return this.email;
+  }
+
   getUsername(): string {
     return this.email;
   }
