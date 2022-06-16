@@ -26,6 +26,38 @@ Import modules and classes to build your [NestJs](https://nestjs.com) applicatio
 import { ConfigModule } from 'ivy-nestjs/config';
 ```
 
+## Command-line interface
+
+### Create resource
+
+Script for creating new resource modules with all of it's required files. There are two types of this command:
+
+- **typeorm** - generates models using typeorm entity
+- **mongoose** - generates models using mongoose schema
+
+```shell
+create-resource [name] [type]
+
+create new resource files
+
+Positionals:
+  name  the name of new resource in singular e.g. article               [string]
+  type  the type of database library used
+                                       [string] [choices: "typeorm", "mongoose"]
+
+Options:
+      --help            Show help                                      [boolean]
+      --version         Show version number                            [boolean]
+  -d, --outDir          output directory for generated resource files
+                                           [string] [default: "./src/resources"]
+  -m, --moduleFile      main module file where to add new resource as import
+                                       [string] [default: "./src/app.module.ts"]
+  -r, --disableRest     disable REST API              [boolean] [default: false]
+  -g, --disableGraphql  disable GraphQL endpoint      [boolean] [default: false]
+  -o, --overwrite       overwrite existing resource files
+                                                      [boolean] [default: false]
+```
+
 ## License
 
 Nest is [MIT licensed](LICENSE).
