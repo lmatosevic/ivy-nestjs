@@ -1,7 +1,7 @@
 import { Inject, Injectable, LoggerService as NestLoggerService } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as winston from 'winston';
-import DailyRotateFile from 'winston-daily-rotate-file';
+import * as DailyRotateFile from 'winston-daily-rotate-file';
 import { LoggerModuleOptions } from './logger.module';
 import { LOGGER_MODULE_OPTIONS } from './logger.constants';
 
@@ -25,10 +25,8 @@ export class LoggerService implements NestLoggerService {
     const logFileName = appName.replace(' ', '-').toLowerCase() + '.log';
 
     let fileTransport;
-    let fileTransportParams;
-    if (rotate && rotate.enabled) {
-      fileTransport = DailyRotateFile;
-      fileTransportParams = {
+    if (logPath && rotate && rotate.enabled) {
+      fileTransport = new DailyRotateFile({
         filename: logFileName.replace('.log', '_%DATE%.log'),
         dirname: logPath,
         datePattern: rotate.pattern,
@@ -36,14 +34,13 @@ export class LoggerService implements NestLoggerService {
         maxFiles: rotate.maxFiles,
         zippedArchive: rotate.zipArchive,
         silent: logLevel === 'silent'
-      };
-    } else {
-      fileTransport = winston.transports.File;
-      fileTransportParams = {
+      });
+    } else if (logPath) {
+      fileTransport = new winston.transports.File({
         filename: logFileName,
         dirname: logPath,
         silent: logLevel === 'silent'
-      };
+      });
     }
 
     let colorize =
@@ -66,7 +63,7 @@ export class LoggerService implements NestLoggerService {
       handleExceptions: true,
       transports: [
         // File logger
-        ...(logPath ? [new fileTransport(fileTransportParams)] : []),
+        ...(logPath ? [fileTransport] : []),
 
         // Console logger
         new winston.transports.Console({
