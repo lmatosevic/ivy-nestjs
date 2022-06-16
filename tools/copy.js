@@ -26,6 +26,10 @@ file = fs.readFileSync('.npmignore').toString();
 fs.writeFileSync('./dist/.npmignore', file);
 
 function copyRecursiveSync(src, dest) {
+  if (fs.existsSync(dest)) {
+    // remove dist first to ensure directory content full synchronization
+    fs.rmSync(dest, { recursive: true, force: true });
+  }
   let exists = fs.existsSync(src);
   let stats = exists && fs.statSync(src);
   let isDirectory = exists && stats.isDirectory();
