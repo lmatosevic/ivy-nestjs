@@ -11,7 +11,6 @@ import {
   UseInterceptors
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
-import * as pluralize from 'pluralize';
 import {
   ApiBadRequestResponse,
   ApiBody,
@@ -26,7 +25,7 @@ import {
   getSchemaPath,
   PartialType
 } from '@nestjs/swagger';
-import { FilesUtil, RequestUtil } from '../../utils';
+import { FilesUtil, RequestUtil, StringUtil } from '../../utils';
 import { FILE_PROPS_KEY, FileDto, FileFilter, FileProps } from '../../storage';
 import { ErrorResponse, FilterOperator, QueryRequest, QueryResponse } from '../dto';
 import { ResourceService } from '../services';
@@ -107,7 +106,7 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
   updateDtoRef: U,
   config?: ResourceConfig
 ): any {
-  const pluralName = pluralize(resourceRef.name);
+  const pluralName = StringUtil.pluralize(resourceRef.name);
 
   const updateDtoProxy = {
     [updateDtoRef.name]: updateDtoRef

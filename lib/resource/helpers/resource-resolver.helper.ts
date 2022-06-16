@@ -12,8 +12,7 @@ import {
   Query,
   Resolver
 } from '@nestjs/graphql';
-import * as pluralize from 'pluralize';
-import { RequestUtil } from '../../utils';
+import { RequestUtil, StringUtil } from '../../utils';
 import { FilterOperator } from '../dto';
 import { ResourceService } from '../services';
 import { Resource, ResourceConfig } from '../decorators';
@@ -53,7 +52,7 @@ export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown
   updateDtoRef: U,
   config?: ResourceConfig
 ): any {
-  const pluralName = pluralize(resourceRef.name);
+  const pluralName = StringUtil.pluralize(resourceRef.name);
 
   @InputType(`${pluralName}Filter`)
   class QueryFilter extends PartialType(OperatorInputType(resourceRef), InputType) {

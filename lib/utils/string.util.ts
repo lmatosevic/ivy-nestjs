@@ -1,3 +1,4 @@
+import * as pluralize from 'pluralize';
 import { ObjectUtil } from './object.util';
 
 export class StringUtil {
@@ -144,5 +145,9 @@ export class StringUtil {
       result += chars[Math.floor(Math.random() * chars.length)];
     }
     return result;
+  }
+
+  static pluralize(name: string): string {
+    return pluralize && typeof pluralize === 'function' ? pluralize(name) : name + 's';
   }
 }
