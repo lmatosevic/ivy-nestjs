@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.7](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.6...v0.1.7) (2022-06-16)
+
+
+### Bug Fixes
+
+* update winston daily logger import ([b2276e9](https://github.com/Lujo5/ivy-nestjs/commit/b2276e9b669f53ffbdae11b3df19ed2321d65805))
+
 ### [0.1.6](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.5...v0.1.6) (2022-06-16)
 
 
