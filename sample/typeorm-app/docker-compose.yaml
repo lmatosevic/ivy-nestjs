@@ -15,8 +15,8 @@ services:
       POSTGRES_PASSWORD: "${DB_PASSWORD:-Password1!}"
 
   backend:
-    image: ivy-backend
-    container_name: ivy-backend
+    image: ivy-typeorm-backend
+    container_name: ivy-typeorm-backend
     restart: unless-stopped
     build:
       context: ./

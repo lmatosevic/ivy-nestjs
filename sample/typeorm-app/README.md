@@ -15,8 +15,8 @@ Project requirements:
 Create _.env_ file in project root directory and add variables for database connection `DB_*` and jwt
 authorization `AUTH_JWT_SECRET=...`. Examples are available in _.env.example_.
 
-It is recommended to add default admin user with `AUTH_ADMIN_CREATE=true` and `AUTH_ADMIN_USERNAME=admin@ivy`.
-If you don't specify `AUTH_ADMIN_PASSWORD` it will be generated on the first application run and logged into console.
+It is recommended to add default admin user with `AUTH_ADMIN_CREATE=true`. If you don't specify `AUTH_ADMIN_PASSWORD`
+it will be generated on the first application run and logged into console.
 
 Create a new database with name and credentials matching those specified in _.env_ file.
 
@@ -32,8 +32,13 @@ $ npm run start:dev
 
 Database migrations will be performed automatically on application bootstrap.
 
-Swager documentation link is displayed in console: `http://{APP_HOST}:{APP_PORT}/api-docs`
+Swager documentation is available on: `http://{APP_HOST}:{APP_PORT}/api-docs`
+
+GraphQL playground is available on: `http://{APP_HOST}:{APP_PORT}/graphql`
 
 ## Docker
 
+Start backend application and PostgresSQL database docker images: `docker-compose up -d`, or if you don't need database
+then run `docker-compose up -d backend`.
 
+Manually build docker image: `docker image build --rm -t ivy-typeorm-backend .`

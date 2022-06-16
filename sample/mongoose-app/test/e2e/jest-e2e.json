@@ -20,6 +20,7 @@
   },
   "moduleNameMapper": {
     "^@resources(|/.*)$": "<rootDir>/src/resources/$1",
-    "^@modules(|/.*)$": "<rootDir>/src/modules/$1"
+    "^@modules(|/.*)$": "<rootDir>/src/modules/$1",
+    "^ivy-nestjs(|/.*)$": "<rootDir>/../../lib/$1"
   }
 }
