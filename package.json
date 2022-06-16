@@ -6,6 +6,9 @@
   "license": "MIT",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "bin": {
+    "create-resource": "./cli/create-resource.js"
+  },
   "maintainers": [
     {
       "name": "Luka Matosevic",
@@ -36,12 +39,13 @@
     "prebuild": "rimraf dist",
     "build": "nest build",
     "postbuild": "npm run copy-prepare",
-    "copy-prepare": "node ./scripts/copy.js && node ./scripts/prepare.js",
+    "copy-prepare": "node ./tools/copy.js && node ./tools/prepare.js",
     "format": "prettier --write \"lib/**/*.ts\" \"test/**/*.ts\"",
     "lint": "eslint \"{lib,test}/**/*.ts\" --fix",
     "compodoc": "npx compodoc -p tsconfig.json src",
     "test": "jest --no-cache --forceExit --detectOpenHandles --coverage",
-    "pack": "npm run build && cd ./dist && npm pack --pack-destination ../build",
+    "prepack": "npm run build",
+    "pack": "cd ./dist && npm pack --pack-destination ../build",
     "prerelease": "npm run build",
     "release": "standard-version -a",
     "postrelease": "git commit -am \"chore: update version\" && git push --follow-tags origin main",
@@ -89,7 +93,8 @@
     "swagger-ui-express": "^4.3.0",
     "typeorm": "^0.3.6",
     "uuid": "^8.3.2",
-    "winston": "^3.6.0"
+    "winston": "^3.6.0",
+    "winston-daily-rotate-file": "4.7.1"
   },
   "devDependencies": {
     "@compodoc/compodoc": "1.1.19",

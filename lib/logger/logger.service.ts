@@ -1,6 +1,7 @@
 import { Inject, Injectable, LoggerService as NestLoggerService } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as winston from 'winston';
+import DailyRotateFile from 'winston-daily-rotate-file';
 import { LoggerModuleOptions } from './logger.module';
 import { LOGGER_MODULE_OPTIONS } from './logger.constants';
 
@@ -19,6 +20,32 @@ export class LoggerService implements NestLoggerService {
     const logLevel = loggerModuleOptions.level || configService.get('log.level') || 'info';
     const logPath = loggerModuleOptions.path || configService.get('log.path');
     const appName = loggerModuleOptions.appName || configService.get('app.name') || 'API Backend';
+    const rotate = loggerModuleOptions.rotate || configService.get('log.rotate');
+
+    const logFileName = appName.replace(' ', '-').toLowerCase() + '.log';
+
+    let fileTransport;
+    let fileTransportParams;
+    if (rotate && rotate.enabled) {
+      fileTransport = DailyRotateFile;
+      fileTransportParams = {
+        filename: logFileName.replace('.log', '_%DATE%.log'),
+        dirname: logPath,
+        datePattern: rotate.pattern,
+        maxSize: rotate.maxSize,
+        maxFiles: rotate.maxFiles,
+        zippedArchive: rotate.zipArchive,
+        silent: logLevel === 'silent'
+      };
+    } else {
+      fileTransport = winston.transports.File;
+      fileTransportParams = {
+        filename: logFileName,
+        dirname: logPath,
+        silent: logLevel === 'silent'
+      };
+    }
+
     let colorize =
       loggerModuleOptions.colorize === undefined
         ? configService.get('log.colorize')
@@ -39,14 +66,7 @@ export class LoggerService implements NestLoggerService {
       handleExceptions: true,
       transports: [
         // File logger
-        ...(logPath
-          ? [
-              new winston.transports.File({
-                filename: logPath ? `${logPath}/ivy-backend.log` : undefined,
-                silent: logLevel === 'silent'
-              })
-            ]
-          : []),
+        ...(logPath ? [new fileTransport(fileTransportParams)] : []),
 
         // Console logger
         new winston.transports.Console({

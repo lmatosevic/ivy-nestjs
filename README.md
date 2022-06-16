@@ -2,6 +2,8 @@
 
 > A library of useful building components for NestJS web application.
 
+**! In active development !**
+
 ## Installation
 
 ```bash

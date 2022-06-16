@@ -16,7 +16,14 @@ export default () => ({
   log: {
     level: process.env.LOG_LEVEL || 'info',
     path: process.env.LOG_PATH === 'false' ? undefined : process.env.LOG_PATH || './logs',
-    colorize: StringUtil.parseBool(process.env.LOG_COLORIZE, true)
+    colorize: StringUtil.parseBool(process.env.LOG_COLORIZE, true),
+    rotate: {
+      enabled: StringUtil.parseBool(process.env.LOG_ROTATE_ENABLED, true),
+      pattern: process.env.LOG_ROTATE_PATTERN || 'YYYY-MM-DD',
+      maxSize: process.env.LOG_ROTATE_MAX_SIZE,
+      maxFiles: process.env.LOG_ROTATE_MAX_FILES,
+      zipArchive: StringUtil.parseBool(process.env.LOG_ROTATE_ZIP_ARCHIVE, false),
+    }
   },
   storage: {
     rootDir: process.env.STORAGE_ROOT_DIR || './storage',
