@@ -1,0 +1,40 @@
+version: "3"
+
+services:
+  pgsql:
+    image: postgres:14.3
+    restart: always
+    container_name: ivy-pgsql
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgsql-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: "${DB_NAME:-ivy}"
+      POSTGRES_USER: "${DB_USER:-ivy}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD:-Password1!}"
+
+  backend:
+    image: ivy-backend
+    container_name: ivy-backend
+    restart: unless-stopped
+    build:
+      context: ./
+    depends_on:
+      - pgsql
+    volumes:
+      - storage-data:/usr/app/storage
+      - backend-logs:/usr/app/logs
+    ports:
+      - "5000:${APP_PORT:-80}"
+    env_file:
+      - .env
+    environment:
+      DB_HOST: ivy-pgsql
+      DB_USER: "${DB_USER:-ivy}"
+      DB_PASSWORD: "${DB_PASSWORD:-Password1!}"
+
+volumes:
+  pgsql-data:
+  storage-data:
+  backend-logs:

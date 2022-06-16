@@ -1,0 +1,25 @@
+{
+  "moduleFileExtensions": [
+    "js",
+    "json",
+    "ts"
+  ],
+  "rootDir": "../..",
+  "testEnvironment": "node",
+  "testRegex": ".e2e-(spec|test).ts$",
+  "transform": {
+    "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "globals": {
+    "ts-jest": {
+      "astTransformers": {
+        "before": ["<rootDir>/test/e2e/gql-plugin-e2e.ts"]
+      },
+      "tsconfig": "tsconfig.build.json"
+    }
+  },
+  "moduleNameMapper": {
+    "^@resources(|/.*)$": "<rootDir>/src/resources/$1",
+    "^@modules(|/.*)$": "<rootDir>/src/modules/$1"
+  }
+}

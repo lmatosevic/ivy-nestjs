@@ -1,0 +1,32 @@
+{
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "src",
+  "compilerOptions": {
+    "webpack": false,
+    "plugins": [
+      {
+        "name": "@nestjs/graphql",
+        "options": {
+          "typeFileNameSuffix": [
+            ".schema.ts",
+            ".entity.ts",
+            ".dto.ts"
+          ],
+          "introspectComments": true
+        }
+      },
+      {
+        "name": "@nestjs/swagger",
+        "options": {
+          "dtoFileNameSuffix": [
+            ".schema.ts",
+            ".entity.ts",
+            ".dto.ts"
+          ],
+          "classValidatorShim": true,
+          "introspectComments": true
+        }
+      }
+    ]
+  }
+}

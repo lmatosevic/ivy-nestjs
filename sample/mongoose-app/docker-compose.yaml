@@ -1,0 +1,40 @@
+version: "3.8"
+
+services:
+  mongodb:
+    image: mongo:5.0.3
+    container_name: ivy-mongodb
+    restart: unless-stopped
+    volumes:
+      - mongodb-data:/data/db
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: "${DB_USER:-admin}"
+      MONGO_INITDB_ROOT_PASSWORD: "${DB_PASSWORD:-Password1!}"
+
+  backend:
+    image: ivy-backend
+    container_name: ivy-backend
+    restart: unless-stopped
+    build:
+      context: ./
+    depends_on:
+      - mongodb
+    volumes:
+      - storage-data:/usr/app/storage
+      - backend-logs:/usr/app/logs
+    ports:
+      - "4000:${APP_PORT:-80}"
+    env_file:
+      - .env
+    environment:
+      APP_HOST: '0.0.0.0'
+      DB_HOST: ivy-mongodb
+      DB_USER: "${DB_USER:-admin}"
+      DB_PASSWORD: "${DB_PASSWORD:-Password1!}"
+
+volumes:
+  mongodb-data:
+  storage-data:
+  backend-logs:

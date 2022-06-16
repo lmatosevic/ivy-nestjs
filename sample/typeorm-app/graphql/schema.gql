@@ -1,0 +1,243 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+enum AuthSource {
+  Facebook
+  Google
+  Local
+}
+
+input CreateProductDto {
+  description: String!
+  enabled: Boolean
+  name: String!
+  pictures: [FileDto!]
+  price: Float!
+}
+
+input CreateUserDto {
+  authType: AuthSource
+  avatar: FileDto
+  consent: Boolean
+  email: String!
+  enabled: Boolean
+  firstName: String!
+  lastName: String!
+  password: String!
+  role: Role
+  verified: Boolean
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type File {
+  data: String!
+  description: String
+  meta: FileMeta
+  originalName: String
+  title: String
+}
+
+input FileDto {
+  data: String!
+  description: String
+  originalName: String
+  title: String
+}
+
+input FileFilter {
+  data: FilterOperator
+  description: FilterOperator
+  originalName: FilterOperator
+  title: FilterOperator
+}
+
+type FileMeta {
+  createdAt: DateTime
+  mimeType: String
+  size: Float
+}
+
+type FileMetaSchema {
+  createdAt: DateTime
+  mimeType: String
+  size: Float
+}
+
+input FilterOperator {
+  _all: [String!]
+  _elemMatch: FilterOperator
+  _eq: String
+  _exists: Boolean
+  _gt: String
+  _gte: String
+  _in: [String!]
+  _lt: String
+  _lte: String
+  _ne: String
+  _nin: [String!]
+  _not: FilterOperator
+  _regex: String
+  _size: Int
+  _where: String
+}
+
+type HealthDto {
+  details: HealthStatusDto!
+  error: HealthStatusDto!
+  info: HealthStatusDto!
+  status: String!
+}
+
+type HealthStatusDto {
+  database: StatusDto!
+  memory: StatusDto!
+  storage: StatusDto!
+}
+
+type JwtToken {
+  access_token: String!
+  expires_in: Float!
+  refresh_token: String!
+}
+
+type Mutation {
+  createProduct(data: CreateProductDto!): Product!
+  createUser(data: CreateUserDto!): User!
+  deleteProduct(id: ID!): Product!
+  deleteUser(id: ID!): User!
+  login(password: String!, username: String!): JwtToken!
+  logout: SuccessResponse!
+  refresh: JwtToken!
+  registration(data: RegisterUserDto!): User!
+  updateProduct(data: UpdateProductDto!, id: ID!): Product!
+  updateUser(data: UpdateUserDto!, id: ID!): User!
+}
+
+type Product {
+  createdAt: DateTime
+  description: String
+  enabled: Boolean!
+  id: ID!
+  name: String!
+  pictures: [File!]
+  price: Float!
+  updatedAt: DateTime
+}
+
+input ProductsFilter {
+  _and: ProductsFilter
+  _nor: ProductsFilter
+  _or: ProductsFilter
+  createdAt: FilterOperator
+  description: FilterOperator
+  enabled: FilterOperator
+  id: FilterOperator
+  name: FilterOperator
+  pictures: FileFilter
+  price: FilterOperator
+  updatedAt: FilterOperator
+}
+
+type ProductsResponse {
+  items: [Product!]!
+  resultCount: Int!
+  totalCount: Int!
+}
+
+type Query {
+  authUser: User!
+  health: HealthDto!
+  identifierAvailable(field: String!, value: String!): SuccessResponse!
+  product(id: ID!): Product!
+  products(filter: ProductsFilter, limit: Int, skip: Int, sort: String): ProductsResponse!
+  user(id: ID!): User!
+  users(filter: UsersFilter, limit: Int, skip: Int, sort: String): UsersResponse!
+}
+
+input RegisterUserDto {
+  avatar: FileDto
+  consent: Boolean!
+  email: String!
+  firstName: String!
+  lastName: String!
+  password: String!
+}
+
+enum Role {
+  Admin
+  User
+}
+
+type StatusDto {
+  status: String!
+}
+
+type SuccessResponse {
+  result: Boolean!
+}
+
+input UpdateProductDto {
+  description: String
+  enabled: Boolean
+  name: String
+  pictures: [FileDto!]
+  price: Float
+}
+
+input UpdateUserDto {
+  authType: AuthSource
+  avatar: FileDto
+  email: String
+  enabled: Boolean
+  firstName: String
+  lastName: String
+  password: String
+  role: Role
+  verified: Boolean
+}
+
+type User {
+  avatar: File
+  consent: Boolean!
+  createdAt: DateTime
+  email: String!
+  enabled: Boolean!
+  firstName: String!
+  id: ID!
+  lastName: String!
+  loginAt: DateTime
+  logoutAt: DateTime
+  role: Role!
+  updatedAt: DateTime
+  verified: Boolean!
+}
+
+input UsersFilter {
+  _and: UsersFilter
+  _nor: UsersFilter
+  _or: UsersFilter
+  avatar: FileFilter
+  consent: FilterOperator
+  createdAt: FilterOperator
+  email: FilterOperator
+  enabled: FilterOperator
+  firstName: FilterOperator
+  id: FilterOperator
+  lastName: FilterOperator
+  loginAt: FilterOperator
+  logoutAt: FilterOperator
+  role: FilterOperator
+  updatedAt: FilterOperator
+  verified: FilterOperator
+}
+
+type UsersResponse {
+  items: [User!]!
+  resultCount: Int!
+  totalCount: Int!
+}

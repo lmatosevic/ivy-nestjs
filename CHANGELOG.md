@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.6](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.5...v0.1.6) (2022-06-16)
+
+
+### Features
+
+* add create-resource script ([7c55919](https://github.com/Lujo5/ivy-nestjs/commit/7c559197c8b37dec82f906e8ebabbc6948bbeb63))
+
+
+### Bug Fixes
+
+* separate pluralize function to string utils ([d2901cb](https://github.com/Lujo5/ivy-nestjs/commit/d2901cb05ddfd3e79f6588902ca1a2baabe639aa))
+
 ### [0.1.5](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.4...v0.1.5) (2022-06-15)
 
 
