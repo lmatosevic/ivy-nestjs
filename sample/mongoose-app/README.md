@@ -23,7 +23,7 @@ Create a new database with name and credentials matching those specified in _.en
 Start the server by running following commands in order:
 
 ```bash
-# Install node packages
+# Install node packages (also in the root of this project)
 $ npm install
 
 # Start development server
