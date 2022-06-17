@@ -36,12 +36,12 @@ Script for creating new resource modules with all of it's required files. There 
 - **mongoose** - generates models using mongoose schema
 
 ```shell
-create-resource [type] [name] 
+create-resource.js [type] [name]
 
 create new resource files
 
 Positionals:
-  type  the type of database library used
+  type  the type of database library used in project
                                        [string] [choices: "typeorm", "mongoose"]
   name  the name of new resource in singular e.g. article               [string]
 
@@ -52,8 +52,8 @@ Options:
                                            [string] [default: "./src/resources"]
   -m, --moduleFile      main module file where to add new resource as import
                                        [string] [default: "./src/app.module.ts"]
-  -r, --disableRest     disable REST API              [boolean] [default: false]
-  -g, --disableGraphql  disable GraphQL endpoint      [boolean] [default: false]
+      --disableRest     disable REST API              [boolean] [default: false]
+      --disableGraphql  disable GraphQL endpoint      [boolean] [default: false]
   -o, --overwrite       overwrite existing resource files
                                                       [boolean] [default: false]
 ```

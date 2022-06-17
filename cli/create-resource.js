@@ -59,13 +59,11 @@ yargs(helper.hideBin(process.argv))
   })
   .option('disableRest', {
     describe: 'disable REST API',
-    alias: 'r',
     default: false,
     type: 'boolean'
   })
   .option('disableGraphql', {
     describe: 'disable GraphQL endpoint',
-    alias: 'g',
     default: false,
     type: 'boolean'
   })
