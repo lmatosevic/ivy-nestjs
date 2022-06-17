@@ -41,6 +41,7 @@ yargs(helper.hideBin(process.argv))
         argv.moduleFile,
         argv.disableRest,
         argv.disableGraphql,
+        argv.disableAll,
         argv.overwrite
       );
     }
@@ -67,6 +68,11 @@ yargs(helper.hideBin(process.argv))
     default: false,
     type: 'boolean'
   })
+  .option('disableAll', {
+    describe: 'disable both REST and GraphQL endpoints',
+    default: false,
+    type: 'boolean'
+  })
   .option('overwrite', {
     describe: 'overwrite existing resource files',
     alias: 'o',
@@ -84,6 +90,7 @@ function createResource(
   moduleFile = './src/app.module.ts',
   disableRest = false,
   disableGrahpql = false,
+  disableAll = false,
   overwrite = false
 ) {
   const modelName = `${name.charAt(0).toUpperCase()}${name.substring(1)}`;
@@ -121,19 +128,19 @@ function createResource(
       return;
     }
 
-    if (disableRest && templateFileName === 'resources.controller.ts.tpl') {
+    if ((disableAll || disableRest) && templateFileName === 'resources.controller.ts.tpl') {
       console.log('SKIP REST controller file');
       return;
     }
 
-    if (disableGrahpql && templateFileName === 'resources.resolver.ts.tpl') {
+    if ((disableAll || disableGrahpql) && templateFileName === 'resources.resolver.ts.tpl') {
       console.log('SKIP GraphQL resolver file');
       return;
     }
 
     let templateContent = fs.readFileSync(template.path, 'utf-8');
 
-    if (disableRest && templateFileName === 'resources.module.ts.tpl') {
+    if ((disableAll || disableRest) && templateFileName === 'resources.module.ts.tpl') {
       templateContent = templateContent
         .replace(
           "import { {{resourceControllerName}} } from './{{resourceNamePlural}}.controller';" + os.EOL,
@@ -142,7 +149,7 @@ function createResource(
         .replace('{{resourceControllerName}}', '');
     }
 
-    if (disableGrahpql && templateFileName === 'resources.module.ts.tpl') {
+    if ((disableAll || disableGrahpql) && templateFileName === 'resources.module.ts.tpl') {
       templateContent = templateContent
         .replace("import { {{resourceResolverName}} } from './{{resourceNamePlural}}.resolver';" + os.EOL, '')
         .replace(' {{resourceResolverName}},', '');
