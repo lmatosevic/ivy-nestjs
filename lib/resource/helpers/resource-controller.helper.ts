@@ -155,6 +155,7 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
   Object.defineProperty(queryFilter, '_nor', {});
   field(queryFilter.prototype, '_nor');
 
+  // Required for dynamic QueryFilter type resolution in OperatorInputType function
   resourceRef['_OPENAPI_QUERY_FILTER_FACTORY'] = () => queryFilter;
 
   @ApiInternalServerErrorResponse({

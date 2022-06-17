@@ -7,21 +7,23 @@ import { FilesUtil, ObjectUtil, RequestUtil } from '../../utils';
 import { QueryRequest, QueryResponse, ValidationError } from '../dto';
 import { ResourceService } from './resource.service';
 import { ResourcePolicyService } from '../policy';
+import { ResourceSchema } from '../schema';
 import * as _ from 'lodash';
 
 type ModelReferences = {
+  fields: string[];
   references: string[];
   virtuals: string[];
   files: string[];
   fileProps: Record<string, FileProps>;
-  fieldProps: Record<string, any>;
+  refProps: Record<string, any>;
 };
 
 export abstract class MongoResourceService<T> extends ResourcePolicyService implements ResourceService<T> {
   private static modelReferences: Record<string, ModelReferences>;
   private readonly logger = new Logger(MongoResourceService.name);
 
-  protected constructor(protected model: Model<T & Document>, protected fileManager?: FileManager) {
+  protected constructor(protected model: Model<T & ResourceSchema>, protected fileManager?: FileManager) {
     super();
 
     if (!MongoResourceService.modelReferences) {
@@ -70,7 +72,9 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     const intersectedDto = this.intersectFields(createDto);
 
     const model = new this.model(intersectedDto);
-    model['createdBy'] = this.getAuthUser()?.getId();
+    if (!model.createdBy && this.fields().includes('createdBy')) {
+      model.createdBy = this.getAuthUser()?.getId();
+    }
 
     let createdModel;
     let storedFiles;
@@ -404,6 +408,11 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     return resolvedFilter;
   }
 
+  private fields(modelName?: string): string[] {
+    const name = modelName || this.model.modelName;
+    return MongoResourceService.modelReferences[name]?.fields;
+  }
+
   private referencedFields(modelName?: string): string[] {
     const name = modelName || this.model.modelName;
     return MongoResourceService.modelReferences[name]?.references;
@@ -426,12 +435,12 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
 
   private refProps(modelName?: string): Record<string, any> {
     const name = modelName || this.model.modelName;
-    return MongoResourceService.modelReferences[name]?.fieldProps;
+    return MongoResourceService.modelReferences[name]?.refProps;
   }
 
   private refProp(fieldName: string, modelName?: string): any {
     const name = modelName || this.model.modelName;
-    return MongoResourceService.modelReferences[name]?.fieldProps?.[fieldName];
+    return MongoResourceService.modelReferences[name]?.refProps?.[fieldName];
   }
 
   private modelNameFromFieldList(fieldList: string[]): string {
@@ -470,12 +479,15 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     const references: string[] = [];
     const virtuals: string[] = [];
     const files: string[] = [];
+    const fields: string[] = [];
     const fileProps: Record<string, FileProps> = {};
-    const fieldProps: Record<string, any> = [];
+    const refProps: Record<string, any> = [];
 
     for (const fieldName of Object.keys(model?.schema?.obj)) {
       const fieldData = model?.schema?.obj[fieldName];
       let referenceProperties;
+
+      fields.push(fieldName);
 
       const props = Reflect.getMetadata(FILE_PROPS_KEY, model.schema['classRef']?.prototype);
       if (props && props[fieldName]) {
@@ -491,7 +503,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
 
       if (referenceProperties) {
         references.push(fieldName);
-        fieldProps[fieldName] = referenceProperties;
+        refProps[fieldName] = referenceProperties;
       }
     }
 
@@ -499,7 +511,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
       const value = model?.schema?.virtuals[virtualModelName];
       if (value?.options && virtualModelName !== 'id') {
         virtuals.push(virtualModelName);
-        fieldProps[virtualModelName] = value?.options;
+        refProps[virtualModelName] = value?.options;
       }
     }
 
@@ -507,6 +519,6 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     this.logger.debug('%s referenced fields: %j', model.modelName, references);
     this.logger.debug('%s virtual fields: %j', model.modelName, virtuals);
 
-    return { references, virtuals, files, fileProps, fieldProps };
+    return { fields, references, virtuals, files, fileProps, refProps };
   }
 }

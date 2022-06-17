@@ -10,6 +10,7 @@ import { ResourcePolicyService } from '../policy';
 import * as _ from 'lodash';
 
 type ModelReferences = {
+  fields: string[];
   files: string[];
   fileProps: Record<string, FileProps>;
 };
@@ -90,14 +91,18 @@ export abstract class TypeOrmResourceService<T extends ObjectLiteral>
   }
 
   async create(createDto: any): Promise<T> {
-    let model;
+    let createdModel;
     let storedFiles;
 
+    const model = this.repository.create(createDto) as any;
+    if (!model.createdBy && this.fields().includes('createdBy')) {
+      model.createdBy = this.getAuthUser()?.getId();
+    }
+
     try {
-      const createdEntity = this.repository.create(createDto) as any;
-      storedFiles = await this.fileManager?.persistFiles(this.fileProps(), createdEntity);
-      model = await this.repository.save(createdEntity);
-      await this.fileManager?.updateFilesMetaResourceIds(storedFiles, model.id);
+      storedFiles = await this.fileManager?.persistFiles(this.fileProps(), model);
+      createdModel = await this.repository.save(model);
+      await this.fileManager?.updateFilesMetaResourceIds(storedFiles, createdModel.id);
     } catch (e) {
       this.logger.debug(e);
       await this.fileManager?.deleteFileArray(storedFiles);
@@ -111,7 +116,7 @@ export abstract class TypeOrmResourceService<T extends ObjectLiteral>
       });
     }
 
-    return model;
+    return createdModel;
   }
 
   async update(id: number, updateDto: any, isFileUpload?: boolean): Promise<T> {
@@ -170,6 +175,11 @@ export abstract class TypeOrmResourceService<T extends ObjectLiteral>
     return removedModel;
   }
 
+  private fields(modelName?: string): string[] {
+    const name = modelName || this.repository.metadata.name;
+    return TypeOrmResourceService.modelReferences[name]?.fields;
+  }
+
   private fileFields(modelName?: string): string[] {
     const name = modelName || this.repository.metadata.name;
     return TypeOrmResourceService.modelReferences[name]?.files;
@@ -196,11 +206,15 @@ export abstract class TypeOrmResourceService<T extends ObjectLiteral>
   }
 
   private fetchReferences(repository: Repository<any>): ModelReferences {
+    const fields: string[] = [];
     const files: string[] = [];
     let fileProps: Record<string, FileProps> = {};
 
     for (const field of Object.keys(repository.metadata?.propertiesMap || {})) {
       const props = Reflect.getMetadata(FILE_PROPS_KEY, repository.metadata.target?.['prototype']);
+
+      fields.push(field);
+
       if (props && props[field]) {
         fileProps[field] = props[field];
         files.push(field);
@@ -209,6 +223,6 @@ export abstract class TypeOrmResourceService<T extends ObjectLiteral>
 
     this.logger.debug('%s file fields: %j', repository.metadata.name, files);
 
-    return { files, fileProps };
+    return { fields, files, fileProps };
   }
 }

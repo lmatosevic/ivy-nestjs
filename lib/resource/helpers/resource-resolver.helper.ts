@@ -93,6 +93,7 @@ export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown
     filter?: QueryFilter;
   }
 
+  // Required for dynamic QueryFilter type resolution in OperatorInputType function
   resourceRef['_GRAPHQL_QUERY_FILTER_FACTORY'] = () => QueryFilter;
 
   @Resource(config)

@@ -1,7 +1,8 @@
 import * as bcrypt from 'bcrypt';
-import { Document, Model } from 'mongoose';
+import { Model } from 'mongoose';
 import { AuthUser, UserDetailsService } from '../interfaces';
 import { AuthSource, Role } from '../../enums';
+import { ResourceSchema } from '../../resource';
 import { MongoResourceService } from '../../resource/services';
 import { FileManager } from '../../storage/file-manager';
 
@@ -9,7 +10,7 @@ export abstract class MongoUserDetailsService<T extends AuthUser, C, U>
   extends MongoResourceService<T>
   implements UserDetailsService<T>
 {
-  protected constructor(protected model: Model<T & Document>, protected fileManager?: FileManager) {
+  protected constructor(protected model: Model<T & ResourceSchema>, protected fileManager?: FileManager) {
     super(model, fileManager);
   }
 

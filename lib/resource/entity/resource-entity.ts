@@ -1,7 +1,10 @@
 import { classToPlain } from 'class-transformer';
+import { AuthUser } from '../../auth/interfaces';
 
 export abstract class ResourceEntity {
   id: number;
+
+  createdBy?: number | AuthUser;
 
   createdAt?: Date;
 
