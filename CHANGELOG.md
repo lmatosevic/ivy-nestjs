@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.11](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.10...v0.1.11) (2022-06-17)
+
+
+### Features
+
+* update typeorm config with additional extra resources paths ([b1ebeb3](https://github.com/Lujo5/ivy-nestjs/commit/b1ebeb3c6fe13940e7003ff2175b83a85f70ea2a))
+
 ### [0.1.10](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.9...v0.1.10) (2022-06-16)
 
 
