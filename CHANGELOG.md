@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.12](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.11...v0.1.12) (2022-06-17)
+
+
+### Features
+
+* add creator column and prop decorators ([ace1d66](https://github.com/Lujo5/ivy-nestjs/commit/ace1d666652b7dde7e1455daf54bc56e522f06ee))
+* **cli:** add option to disable all endpoints ([1b3e75f](https://github.com/Lujo5/ivy-nestjs/commit/1b3e75f90b9044240161ed8ae0e4237f57a5436a))
+* **resource:** add resource schema abstract class ([4a991e0](https://github.com/Lujo5/ivy-nestjs/commit/4a991e0c432e46d14831d960db51445f07f61dac))
+* update cli commands ([ed8b867](https://github.com/Lujo5/ivy-nestjs/commit/ed8b867100917eb3868afcbff8b39713c899b979))
+* update cli schemas ([20d91f7](https://github.com/Lujo5/ivy-nestjs/commit/20d91f786715115e61e80533e37780cec09ab017))
+
+
+### Bug Fixes
+
+* **typeorm:** resolve repository type for service ([872ed9c](https://github.com/Lujo5/ivy-nestjs/commit/872ed9ce6255c30ea6835dddc9dc3d28e66fbe46))
+
 ### [0.1.11](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.10...v0.1.11) (2022-06-17)
 
 
