@@ -55,6 +55,9 @@ export default () => ({
       dirname: process.env.DB_MIGRATION_DIRNAME || 'migrations',
       sourceRoot: process.env.DB_MIGRATION_SOURCE_ROOT || './src',
       distRoot: process.env.DB_MIGRATION_DIST_ROOT || './dist',
+      extraEntities: StringUtil.parseArray(process.env.DB_MIGRATION_EXTRA_ENTITIES, [], ';'),
+      extraSubscribers: StringUtil.parseArray(process.env.DB_MIGRATION_EXTRA_SUBSCRIBERS, [], ';'),
+      extraMigrations: StringUtil.parseArray(process.env.DB_MIGRATION_EXTRA_MIGRATIONS, [], ';'),
     }
   },
   cors: {

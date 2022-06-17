@@ -3,7 +3,7 @@ import { Document, Model } from 'mongoose';
 import { ResourceError } from '../../resource/errors';
 import { FILE_PROPS_KEY, FileProps } from '../../storage/decorators';
 import { FileError, FileManager } from '../../storage';
-import { ObjectUtil, RequestUtil } from '../../utils';
+import { FilesUtil, ObjectUtil, RequestUtil } from '../../utils';
 import { QueryRequest, QueryResponse, ValidationError } from '../dto';
 import { ResourceService } from './resource.service';
 import { ResourcePolicyService } from '../policy';
@@ -102,7 +102,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     resource.set(intersectedDto);
 
     if (isFileUpload) {
-      this.mergeFileArrays(currentResource, resource);
+      FilesUtil.mergeFileArrays(currentResource, resource, this.fileFields());
     }
 
     let updatedModel;
@@ -194,15 +194,6 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     }
 
     return resource;
-  }
-
-  private mergeFileArrays(currentResource: any, resource: any): void {
-    for (const fileField of this.fileFields()) {
-      const fileValue = currentResource[fileField];
-      if (Array.isArray(fileValue) && fileValue.length > 0) {
-        resource[fileField] = [...fileValue, ...resource[fileField]];
-      }
-    }
   }
 
   private errorReasonsList(error: any): ValidationError[] | string {

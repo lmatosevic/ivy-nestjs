@@ -25,11 +25,11 @@ export class StringUtil {
     return value.toLowerCase() === 'true';
   }
 
-  static parseArray(value: string, defaultVal: any = []): string[] {
+  static parseArray(value: string, defaultVal: any = [], delimiter: string = ','): string[] {
     if (!value) {
       return defaultVal;
     }
-    return value.split(',');
+    return value.split(delimiter);
   }
 
   static replaceRegexes(

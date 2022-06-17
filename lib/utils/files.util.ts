@@ -153,6 +153,15 @@ export class FilesUtil {
     return filesResponseDto;
   }
 
+  static mergeFileArrays(currentResource: any, resource: any, fileFields: string[]): void {
+    for (const fileField of fileFields) {
+      const fileValue = currentResource[fileField];
+      if (Array.isArray(fileValue) && fileValue.length > 0) {
+        resource[fileField] = [...fileValue, ...resource[fileField]];
+      }
+    }
+  }
+
   static fileBuffer(filePath: string): Buffer {
     if (!fs.existsSync(filePath)) {
       return Buffer.from('');

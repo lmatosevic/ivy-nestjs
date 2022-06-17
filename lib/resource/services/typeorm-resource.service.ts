@@ -3,7 +3,7 @@ import { ObjectLiteral, Repository } from 'typeorm';
 import { ResourceError } from '../../resource/errors';
 import { FILE_PROPS_KEY, FileError, FileManager, FileProps } from '../../storage';
 import { QueryRequest, QueryResponse } from '../dto';
-import { RequestUtil } from '../../utils';
+import { FilesUtil, RequestUtil } from '../../utils';
 import { ResourceService } from './resource.service';
 import { ResourceEntity } from '../entity';
 import { ResourcePolicyService } from '../policy';
@@ -121,7 +121,7 @@ export abstract class TypeOrmResourceService<T extends ObjectLiteral>
     resource = _.assign(resource, updateDto) as any;
 
     if (isFileUpload) {
-      this.mergeFileArrays(currentResource, resource);
+      FilesUtil.mergeFileArrays(currentResource, resource, this.fileFields());
     }
 
     let updatedModel;
@@ -168,15 +168,6 @@ export abstract class TypeOrmResourceService<T extends ObjectLiteral>
     }
 
     return removedModel;
-  }
-
-  private mergeFileArrays(currentResource: any, resource: any): void {
-    for (const fileField of this.fileFields()) {
-      const fileValue = currentResource[fileField];
-      if (Array.isArray(fileValue) && fileValue.length > 0) {
-        resource[fileField] = [...fileValue, ...resource[fileField]];
-      }
-    }
   }
 
   private fileFields(modelName?: string): string[] {
