@@ -1,5 +1,5 @@
 import { CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
-import { Field, ObjectType, ID } from '@nestjs/graphql';
+import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { ResourceEntity } from 'ivy-nestjs/resource';
 
 @ObjectType()

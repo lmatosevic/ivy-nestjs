@@ -1,7 +1,7 @@
 import { Document } from 'mongoose';
 import { Prop, Schema } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { Field, ObjectType, ID } from '@nestjs/graphql';
+import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { MongooseSchemaFactory } from 'ivy-nestjs/resource';
 
 @ObjectType()
