@@ -37,7 +37,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     let result;
 
     try {
-      result = await this.repository.findOneBy({ id } as any);
+      result = await this.repository.findOne({ where: { id }, relations: [] } as any);
     } catch (e) {
       this.logger.debug(e);
       throw new ResourceError(this.repository.metadata.name, {
@@ -71,7 +71,8 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
         skip: options.skip,
         take: options.limit,
         order: options.sort as any,
-        where: filter
+        where: filter,
+        relations: []
       });
       totalCount = await this.repository.count({ where: filter });
     } catch (e) {
@@ -172,7 +173,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
       });
     }
 
-    return removedModel;
+    return this.find(removedModel.id);
   }
 
   private fields(modelName?: string): string[] {

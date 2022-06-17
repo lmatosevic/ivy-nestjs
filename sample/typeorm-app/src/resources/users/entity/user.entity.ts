@@ -4,21 +4,21 @@ import {
   Entity,
   JoinTable,
   ManyToMany,
-  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  RelationId,
   UpdateDateColumn
 } from 'typeorm';
 import { Field, HideField, ID, ObjectType } from '@nestjs/graphql';
-import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
-import { Exclude } from 'class-transformer';
 import { AuthUser } from 'ivy-nestjs/auth';
 import { AuthSource, Role } from 'ivy-nestjs/enums';
-import { ResourceEntity } from 'ivy-nestjs/resource';
+import { CreatorColumn, ResourceEntity } from 'ivy-nestjs/resource';
 import { FileColumn } from 'ivy-nestjs/storage';
 import { File } from 'ivy-nestjs/storage/entity';
 import { Project } from '@resources/projects/entity';
 import { Application } from '@resources/applications/entity';
+import { Exclude } from 'class-transformer';
+import { ApiHideProperty } from '@nestjs/swagger';
 
 @ObjectType()
 @Entity()
@@ -72,14 +72,21 @@ export class User extends ResourceEntity implements AuthUser {
   @OneToMany(() => Project, (project) => project.owner)
   projects?: Project[];
 
+  @RelationId((user: User) => user.projects)
+  projectIds?: number[];
+
   @ManyToMany(() => Application, (application) => application.reviewers)
   @JoinTable()
   reviewedApps?: Application[];
 
-  @Field(() => User)
-  @ApiProperty({ type: () => User })
-  @ManyToOne(() => User, { nullable: true })
-  createdBy?: AuthUser;
+  @RelationId((user: User) => user.reviewedApps)
+  reviewedAppIds?: number[];
+
+  @ApiHideProperty()
+  @HideField()
+  @Exclude()
+  @CreatorColumn({ type: () => User })
+  createdBy?: User;
 
   @CreateDateColumn()
   createdAt?: Date;

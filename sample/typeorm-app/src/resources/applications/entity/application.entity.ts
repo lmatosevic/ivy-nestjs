@@ -2,17 +2,19 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
+  RelationId,
   UpdateDateColumn
 } from 'typeorm';
-import { Field, ID, ObjectType } from '@nestjs/graphql';
-import { ResourceEntity } from 'ivy-nestjs/resource';
+import { Field, HideField, ID, ObjectType } from '@nestjs/graphql';
+import { CreatorColumn, ResourceEntity } from 'ivy-nestjs/resource';
 import { Project } from '@resources/projects/entity';
 import { User } from '@resources/users/entity';
-import { ApiProperty } from '@nestjs/swagger';
-import { AuthUser } from 'ivy-nestjs';
+import { ApiHideProperty } from '@nestjs/swagger';
+import { Exclude } from 'class-transformer';
 
 @ObjectType()
 @Entity()
@@ -28,15 +30,23 @@ export class Application extends ResourceEntity {
   scheduledAt?: Date;
 
   @ManyToOne(() => Project, (project) => project.applications)
+  @JoinColumn()
   project: Project;
 
-  @ManyToMany(() => User, (user) => user.reviewedApps)
+  @Column()
+  projectId: number;
+
+  @ManyToMany(() => User, (user) => user.reviewedApps, { cascade: ['insert'] })
   reviewers?: User[];
 
-  @Field(() => User)
-  @ApiProperty({ type: () => User })
-  @ManyToOne(() => User)
-  createdBy?: AuthUser;
+  @RelationId((app: Application) => app.reviewers)
+  reviewerIds?: number[];
+
+  @ApiHideProperty()
+  @HideField()
+  @Exclude()
+  @CreatorColumn({ type: () => User })
+  createdBy?: User;
 
   @CreateDateColumn()
   createdAt?: Date;

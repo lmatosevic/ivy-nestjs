@@ -2,18 +2,20 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn
 } from 'typeorm';
-import { Field, ID, ObjectType } from '@nestjs/graphql';
-import { ResourceEntity } from 'ivy-nestjs/resource';
+import { Field, HideField, ID, ObjectType } from '@nestjs/graphql';
+import { CreatorColumn, ResourceEntity } from 'ivy-nestjs/resource';
 import { User } from '@resources/users/entity';
 import { File } from 'ivy-nestjs/storage/schema';
-import { AuthUser, FileColumn, Role } from 'ivy-nestjs';
+import { FileColumn, Role } from 'ivy-nestjs';
 import { Application } from '@resources/applications/entity';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiHideProperty } from '@nestjs/swagger';
+import { Exclude } from 'class-transformer';
 
 @ObjectType()
 @Entity()
@@ -41,15 +43,20 @@ export class Project extends ResourceEntity {
   documents?: File[];
 
   @ManyToOne(() => User, (user) => user.projects)
+  @JoinColumn()
   owner: User;
+
+  @Column()
+  ownerId: number;
 
   @OneToMany(() => Application, (application) => application.project)
   applications?: Application[];
 
-  @Field(() => User)
-  @ApiProperty({ type: () => User })
-  @ManyToOne(() => User, { nullable: true })
-  createdBy?: AuthUser;
+  @ApiHideProperty()
+  @HideField()
+  @Exclude()
+  @CreatorColumn({ type: () => User })
+  createdBy?: User;
 
   @CreateDateColumn()
   createdAt?: Date;

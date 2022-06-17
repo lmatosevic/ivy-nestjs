@@ -4,9 +4,11 @@
 
 type Application {
   createdAt: DateTime
-  createdBy: User
+  createdBy: User!
   id: ID!
   project: Project!
+  projectId: Float!
+  reviewerIds: [Float!]
   reviewers: [User!]
   scheduledAt: DateTime
   title: String!
@@ -18,9 +20,10 @@ input ApplicationsFilter {
   _nor: ApplicationsFilter
   _or: ApplicationsFilter
   createdAt: FilterOperator
-  createdBy: FilterOperator
   id: FilterOperator
   project: ProjectsFilter
+  projectId: FilterOperator
+  reviewerIds: FilterOperator
   reviewers: UsersFilter
   scheduledAt: FilterOperator
   title: FilterOperator
@@ -40,8 +43,8 @@ enum AuthSource {
 }
 
 input CreateApplicationDto {
-  project: Float
-  reviewers: [Float!]
+  projectId: Float
+  reviewerIds: [Relation!]
   scheduledAt: DateTime
   title: String!
 }
@@ -50,7 +53,7 @@ input CreateProjectDto {
   description: String
   documents: [FileDto!]
   name: String!
-  owner: Float!
+  ownerId: Float!
 }
 
 input CreateUserDto {
@@ -169,12 +172,13 @@ type Mutation {
 type Project {
   applications: [Application!]
   createdAt: DateTime
-  createdBy: User
+  createdBy: User!
   description: String
   documents: [FileSchema!]
   id: ID!
   name: String!
   owner: User!
+  ownerId: Float!
   updatedAt: DateTime
 }
 
@@ -184,12 +188,12 @@ input ProjectsFilter {
   _or: ProjectsFilter
   applications: ApplicationsFilter
   createdAt: FilterOperator
-  createdBy: FilterOperator
   description: FilterOperator
   documents: FileFilter
   id: FilterOperator
   name: FilterOperator
   owner: UsersFilter
+  ownerId: FilterOperator
   updatedAt: FilterOperator
 }
 
@@ -220,6 +224,10 @@ input RegisterUserDto {
   password: String!
 }
 
+input Relation {
+  id: ID!
+}
+
 enum Role {
   Admin
   User
@@ -234,8 +242,8 @@ type SuccessResponse {
 }
 
 input UpdateApplicationDto {
-  project: Float
-  reviewers: [Float!]
+  projectId: Float
+  reviewerIds: [Relation!]
   scheduledAt: DateTime
   title: String
 }
@@ -244,7 +252,7 @@ input UpdateProjectDto {
   description: String
   documents: [FileDto!]
   name: String
-  owner: Float
+  ownerId: Float
 }
 
 input UpdateUserDto {
@@ -263,7 +271,7 @@ type User {
   avatar: File
   consent: Boolean!
   createdAt: DateTime
-  createdBy: User
+  createdBy: User!
   email: String!
   enabled: Boolean!
   firstName: String!
@@ -271,7 +279,9 @@ type User {
   lastName: String!
   loginAt: DateTime
   logoutAt: DateTime
+  projectIds: [Float!]
   projects: [Project!]
+  reviewedAppIds: [Float!]
   reviewedApps: [Application!]
   role: Role!
   updatedAt: DateTime
@@ -285,7 +295,6 @@ input UsersFilter {
   avatar: FileFilter
   consent: FilterOperator
   createdAt: FilterOperator
-  createdBy: FilterOperator
   email: FilterOperator
   enabled: FilterOperator
   firstName: FilterOperator
@@ -293,7 +302,9 @@ input UsersFilter {
   lastName: FilterOperator
   loginAt: FilterOperator
   logoutAt: FilterOperator
+  projectIds: FilterOperator
   projects: ProjectsFilter
+  reviewedAppIds: FilterOperator
   reviewedApps: ApplicationsFilter
   role: FilterOperator
   updatedAt: FilterOperator

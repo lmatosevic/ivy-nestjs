@@ -18,7 +18,7 @@ export class CreateProjectDto {
   @Expose()
   @IsOptional()
   @IsInt()
-  readonly owner: number;
+  readonly ownerId: number;
 
   @Expose()
   @IsOptional()

@@ -1,10 +1,10 @@
-import { Schema as MongooseSchema } from 'mongoose';
 import { Prop, Schema } from '@nestjs/mongoose';
 import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 import { Field, HideField, ID, ObjectType } from '@nestjs/graphql';
 import { AuthSource, Role } from 'ivy-nestjs/enums';
 import { AuthUser } from 'ivy-nestjs/auth';
 import {
+  CreatorProp,
   MongooseSchemaFactory,
   ResourceSchema,
   VirtualProp
@@ -77,7 +77,9 @@ export class User extends ResourceSchema implements AuthUser {
   })
   reviewedApps?: Application[];
 
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', default: null })
+  @ApiHideProperty()
+  @HideField()
+  @CreatorProp({ ref: 'User' })
   createdBy?: string;
 
   @Prop()

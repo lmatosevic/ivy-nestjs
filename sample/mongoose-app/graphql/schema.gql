@@ -4,12 +4,11 @@
 
 type Application {
   createdAt: DateTime
-  createdBy: String
   id: ID!
-  project: Project
+  project: Project!
   reviewers: [User!]
   scheduledAt: DateTime
-  title: String
+  title: String!
   updatedAt: DateTime
 }
 
@@ -18,7 +17,6 @@ input ApplicationsFilter {
   _nor: ApplicationsFilter
   _or: ApplicationsFilter
   createdAt: FilterOperator
-  createdBy: FilterOperator
   id: FilterOperator
   project: ProjectsFilter
   reviewers: UsersFilter
@@ -180,11 +178,10 @@ type Mutation {
 type Project {
   applications: [Application!]
   createdAt: DateTime
-  createdBy: String
   description: String
   documents: [FileSchema!]
   id: ID!
-  name: String
+  name: String!
   owner: User
   updatedAt: DateTime
 }
@@ -195,7 +192,6 @@ input ProjectsFilter {
   _or: ProjectsFilter
   applications: ApplicationsFilter
   createdAt: FilterOperator
-  createdBy: FilterOperator
   description: FilterOperator
   documents: FileFilter
   id: FilterOperator
@@ -275,7 +271,6 @@ type User {
   avatar: FileSchema
   consent: Boolean
   createdAt: DateTime
-  createdBy: String
   email: String
   enabled: Boolean
   firstName: String
@@ -284,7 +279,7 @@ type User {
   loginAt: DateTime
   logoutAt: DateTime
   projects: [Project!]
-  reviewdApps: [Application!]
+  reviewedApps: [Application!]
   roles: [Role!]
   updatedAt: DateTime
   verified: Boolean
@@ -297,7 +292,6 @@ input UsersFilter {
   avatar: FileFilter
   consent: FilterOperator
   createdAt: FilterOperator
-  createdBy: FilterOperator
   email: FilterOperator
   enabled: FilterOperator
   firstName: FilterOperator
@@ -306,7 +300,7 @@ input UsersFilter {
   loginAt: FilterOperator
   logoutAt: FilterOperator
   projects: ProjectsFilter
-  reviewdApps: ApplicationsFilter
+  reviewedApps: ApplicationsFilter
   roles: FilterOperator
   updatedAt: FilterOperator
   verified: FilterOperator

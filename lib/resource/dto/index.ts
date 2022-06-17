@@ -4,3 +4,4 @@ export * from './filter-operator.dto';
 export * from './error-response.dto';
 export * from './short-error-response.dto';
 export * from './validation-error.dto';
+export * from './relation.dto';
