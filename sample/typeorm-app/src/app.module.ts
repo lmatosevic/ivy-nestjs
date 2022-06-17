@@ -15,7 +15,8 @@ import { InfoModule } from '@modules/info';
 import { UsersModule, UsersService } from '@resources/users';
 import { User } from '@resources/users/entity';
 import { RegisterUserDto } from '@resources/users/dto';
-import { ProductsModule } from '@resources/products';
+import { ProjectsModule } from '@resources/projects';
+import { ApplicationsModule } from '@resources/applications';
 
 @Module({
   imports: [
@@ -38,7 +39,8 @@ import { ProductsModule } from '@resources/products';
     RequestContextModule,
     InfoModule,
     UsersModule,
-    ProductsModule
+    ProjectsModule,
+    ApplicationsModule
   ],
   providers: [AppService]
 })

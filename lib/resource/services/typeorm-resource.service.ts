@@ -15,7 +15,7 @@ type ModelReferences = {
   fileProps: Record<string, FileProps>;
 };
 
-export abstract class TypeOrmResourceService<T extends ObjectLiteral>
+export abstract class TypeOrmResourceService<T extends ResourceEntity>
   extends ResourcePolicyService
   implements ResourceService<T>
 {
@@ -23,7 +23,7 @@ export abstract class TypeOrmResourceService<T extends ObjectLiteral>
   private readonly logger = new Logger(TypeOrmResourceService.name);
 
   protected constructor(
-    protected repository: Repository<T | ResourceEntity>,
+    protected repository: Repository<T & ResourceEntity>,
     protected fileManager?: FileManager
   ) {
     super();
@@ -37,7 +37,7 @@ export abstract class TypeOrmResourceService<T extends ObjectLiteral>
     let result;
 
     try {
-      result = await this.repository.findOneBy({ id });
+      result = await this.repository.findOneBy({ id } as any);
     } catch (e) {
       this.logger.debug(e);
       throw new ResourceError(this.repository.metadata.name, {

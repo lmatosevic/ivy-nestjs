@@ -1,12 +1,24 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn
+} from 'typeorm';
 import { Field, HideField, ID, ObjectType } from '@nestjs/graphql';
-import { ApiHideProperty } from '@nestjs/swagger';
+import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 import { AuthUser } from 'ivy-nestjs/auth';
 import { AuthSource, Role } from 'ivy-nestjs/enums';
 import { ResourceEntity } from 'ivy-nestjs/resource';
 import { FileColumn } from 'ivy-nestjs/storage';
 import { File } from 'ivy-nestjs/storage/entity';
+import { Project } from '@resources/projects/entity';
+import { Application } from '@resources/applications/entity';
 
 @ObjectType()
 @Entity()
@@ -43,10 +55,10 @@ export class User extends ResourceEntity implements AuthUser {
   enabled: boolean;
 
   @Column({ default: false })
-  consent: boolean;
+  verified: boolean;
 
   @Column({ default: false })
-  verified: boolean;
+  consent: boolean;
 
   @Column({ type: 'timestamptz', nullable: true })
   loginAt?: Date;
@@ -54,14 +66,26 @@ export class User extends ResourceEntity implements AuthUser {
   @Column({ type: 'timestamptz', nullable: true })
   logoutAt?: Date;
 
+  @FileColumn({ mimeType: 'image/(jpg|jpeg|png|gif)', maxSize: '1.23 MB' })
+  avatar?: File;
+
+  @OneToMany(() => Project, (project) => project.owner)
+  projects?: Project[];
+
+  @ManyToMany(() => Application, (application) => application.reviewers)
+  @JoinTable()
+  reviewedApps?: Application[];
+
+  @Field(() => User)
+  @ApiProperty({ type: () => User })
+  @ManyToOne(() => User, { nullable: true })
+  createdBy?: AuthUser;
+
   @CreateDateColumn()
   createdAt?: Date;
 
   @UpdateDateColumn()
   updatedAt?: Date;
-
-  @FileColumn({ mimeType: 'image/(jpg|jpeg|png|gif)', maxSize: '5 MB' })
-  avatar?: File;
 
   getId(): any {
     return this.id;

@@ -3,14 +3,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { FileManager } from 'ivy-nestjs/storage';
 import { TypeOrmResourceService } from 'ivy-nestjs/resource';
-import { Product } from './entity';
+import { Application } from './entity';
 
 @Injectable()
-export class ProductsService extends TypeOrmResourceService<Product> {
+export class ApplicationsService extends TypeOrmResourceService<Application> {
   constructor(
-    @InjectRepository(Product) protected productRepository: Repository<Product>,
+    @InjectRepository(Application) protected applicationRepository: Repository<Application>,
     protected fileManager: FileManager
   ) {
-    super(productRepository, fileManager);
+    super(applicationRepository, fileManager);
   }
 }

@@ -2,6 +2,7 @@ const transformer = require('@nestjs/graphql/plugin');
 
 module.exports.name = 'nestjs-graphql-transformer';
 // you should change the version number anytime you change the configuration below - otherwise, jest will not detect changes
+// Clean jest cache with command: npx jest --clearCache
 module.exports.version = 11;
 
 module.exports.factory = (cs) => {

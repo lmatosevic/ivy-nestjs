@@ -7,22 +7,22 @@ import { TypeOrmResourceService } from '../../resource/services';
 import { FileManager } from '../../storage/file-manager';
 
 export abstract class TypeOrmUserDetailsService<T extends AuthUser, C, U>
-  extends TypeOrmResourceService<T>
+  extends TypeOrmResourceService<T & ResourceEntity>
   implements UserDetailsService<T>
 {
   protected constructor(
-    protected repository: Repository<T | ResourceEntity>,
+    protected repository: Repository<T & ResourceEntity>,
     protected fileManager?: FileManager
   ) {
     super(repository, fileManager);
   }
 
-  async create(createDto: C): Promise<T> {
+  async create(createDto: C): Promise<T & ResourceEntity> {
     const passwordHash = await this.hashPassword(createDto['password']);
     return super.create({ ...createDto, passwordHash });
   }
 
-  async update(id: number, updateDto: U, isFileUpload?: boolean): Promise<T> {
+  async update(id: number, updateDto: U, isFileUpload?: boolean): Promise<T & ResourceEntity> {
     if (updateDto['password']) {
       updateDto['passwordHash'] = await this.hashPassword(updateDto['password']);
       updateDto['logoutAt'] = new Date();

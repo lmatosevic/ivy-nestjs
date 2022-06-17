@@ -1,8 +1,8 @@
-import { Document, Schema as MongooseSchema } from 'mongoose';
+import { Schema as MongooseSchema } from 'mongoose';
 import { Prop, Schema } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Field, ID, ObjectType } from '@nestjs/graphql';
-import { MongooseSchemaFactory, VirtualProp } from 'ivy-nestjs/resource';
+import { MongooseSchemaFactory, ResourceSchema, VirtualProp } from 'ivy-nestjs/resource';
 import { Application } from '@resources/applications/schema';
 import { User } from '@resources/users/schema';
 import { FileProp } from 'ivy-nestjs/storage';
@@ -11,13 +11,13 @@ import { Role } from 'ivy-nestjs/enums';
 
 @ObjectType()
 @Schema({ timestamps: true })
-export class Project extends Document {
+export class Project extends ResourceSchema {
   @ApiProperty({ name: 'id' })
   @Field(() => ID, { name: 'id' })
   _id: string;
 
   @Prop()
-  name?: string;
+  name: string;
 
   @Prop()
   description?: string;
@@ -45,14 +45,14 @@ export class Project extends Document {
   })
   documents?: File[];
 
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', default: null })
+  createdBy?: string;
+
   @Prop()
   createdAt?: Date;
 
   @Prop()
   updatedAt?: Date;
-
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', default: null })
-  createdBy?: string;
 }
 
 export const ProjectSchema = MongooseSchemaFactory.createForClass<Project>(Project);

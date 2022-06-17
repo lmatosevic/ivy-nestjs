@@ -1,10 +1,14 @@
-import { Document, Schema as MongooseSchema } from 'mongoose';
+import { Schema as MongooseSchema } from 'mongoose';
 import { Prop, Schema } from '@nestjs/mongoose';
 import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 import { Field, HideField, ID, ObjectType } from '@nestjs/graphql';
 import { AuthSource, Role } from 'ivy-nestjs/enums';
 import { AuthUser } from 'ivy-nestjs/auth';
-import { MongooseSchemaFactory, VirtualProp } from 'ivy-nestjs/resource';
+import {
+  MongooseSchemaFactory,
+  ResourceSchema,
+  VirtualProp
+} from 'ivy-nestjs/resource';
 import { FileProp } from 'ivy-nestjs/storage';
 import { File } from 'ivy-nestjs/storage/schema';
 import { Project } from '@resources/projects/schema';
@@ -12,7 +16,7 @@ import { Application } from '@resources/applications/schema';
 
 @ObjectType()
 @Schema({ timestamps: true })
-export class User extends Document implements AuthUser {
+export class User extends ResourceSchema implements AuthUser {
   @ApiProperty({ name: 'id' })
   @Field(() => ID, { name: 'id' })
   _id: string;
@@ -49,10 +53,13 @@ export class User extends Document implements AuthUser {
   enabled?: boolean;
 
   @Prop()
-  logoutAt?: Date;
+  loginAt?: Date;
 
   @Prop()
-  loginAt?: Date;
+  logoutAt?: Date;
+
+  @FileProp({ mimeType: 'image/(jpg|jpeg|png|gif)', maxSize: 1235128 })
+  avatar?: File;
 
   @VirtualProp({
     ref: 'Project',
@@ -68,19 +75,16 @@ export class User extends Document implements AuthUser {
     foreignField: 'reviewers',
     populate: true
   })
-  reviewdApps?: Application[];
+  reviewedApps?: Application[];
 
-  @FileProp({ mimeType: 'image/(jpg|jpeg|png|gif)', maxSize: 1235128 })
-  avatar?: File;
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', default: null })
+  createdBy?: string;
 
   @Prop()
   createdAt?: Date;
 
   @Prop()
   updatedAt?: Date;
-
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', default: null })
-  createdBy?: string;
 
   getId(): string {
     return this._id;

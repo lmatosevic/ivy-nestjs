@@ -2,18 +2,55 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type Application {
+  createdAt: DateTime
+  createdBy: User
+  id: ID!
+  project: Project!
+  reviewers: [User!]
+  scheduledAt: DateTime
+  title: String!
+  updatedAt: DateTime
+}
+
+input ApplicationsFilter {
+  _and: ApplicationsFilter
+  _nor: ApplicationsFilter
+  _or: ApplicationsFilter
+  createdAt: FilterOperator
+  createdBy: FilterOperator
+  id: FilterOperator
+  project: ProjectsFilter
+  reviewers: UsersFilter
+  scheduledAt: FilterOperator
+  title: FilterOperator
+  updatedAt: FilterOperator
+}
+
+type ApplicationsResponse {
+  items: [Application!]!
+  resultCount: Int!
+  totalCount: Int!
+}
+
 enum AuthSource {
   Facebook
   Google
   Local
 }
 
-input CreateProductDto {
-  description: String!
-  enabled: Boolean
+input CreateApplicationDto {
+  project: Float
+  reviewers: [Float!]
+  scheduledAt: DateTime
+  title: String!
+}
+
+input CreateProjectDto {
+  description: String
+  documents: [FileDto!]
   name: String!
-  pictures: [FileDto!]
-  price: Float!
+  owner: Float!
 }
 
 input CreateUserDto {
@@ -68,6 +105,14 @@ type FileMetaSchema {
   size: Float
 }
 
+type FileSchema {
+  data: String!
+  description: String
+  meta: FileMetaSchema
+  originalName: String
+  title: String
+}
+
 input FilterOperator {
   _all: [String!]
   _elemMatch: FilterOperator
@@ -106,55 +151,62 @@ type JwtToken {
 }
 
 type Mutation {
-  createProduct(data: CreateProductDto!): Product!
+  createApplication(data: CreateApplicationDto!): Application!
+  createProject(data: CreateProjectDto!): Project!
   createUser(data: CreateUserDto!): User!
-  deleteProduct(id: ID!): Product!
+  deleteApplication(id: ID!): Application!
+  deleteProject(id: ID!): Project!
   deleteUser(id: ID!): User!
   login(password: String!, username: String!): JwtToken!
   logout: SuccessResponse!
   refresh: JwtToken!
   registration(data: RegisterUserDto!): User!
-  updateProduct(data: UpdateProductDto!, id: ID!): Product!
+  updateApplication(data: UpdateApplicationDto!, id: ID!): Application!
+  updateProject(data: UpdateProjectDto!, id: ID!): Project!
   updateUser(data: UpdateUserDto!, id: ID!): User!
 }
 
-type Product {
+type Project {
+  applications: [Application!]
   createdAt: DateTime
+  createdBy: User
   description: String
-  enabled: Boolean!
+  documents: [FileSchema!]
   id: ID!
   name: String!
-  pictures: [File!]
-  price: Float!
+  owner: User!
   updatedAt: DateTime
 }
 
-input ProductsFilter {
-  _and: ProductsFilter
-  _nor: ProductsFilter
-  _or: ProductsFilter
+input ProjectsFilter {
+  _and: ProjectsFilter
+  _nor: ProjectsFilter
+  _or: ProjectsFilter
+  applications: ApplicationsFilter
   createdAt: FilterOperator
+  createdBy: FilterOperator
   description: FilterOperator
-  enabled: FilterOperator
+  documents: FileFilter
   id: FilterOperator
   name: FilterOperator
-  pictures: FileFilter
-  price: FilterOperator
+  owner: UsersFilter
   updatedAt: FilterOperator
 }
 
-type ProductsResponse {
-  items: [Product!]!
+type ProjectsResponse {
+  items: [Project!]!
   resultCount: Int!
   totalCount: Int!
 }
 
 type Query {
+  application(id: ID!): Application!
+  applications(filter: ApplicationsFilter, limit: Int, skip: Int, sort: String): ApplicationsResponse!
   authUser: User!
   health: HealthDto!
   identifierAvailable(field: String!, value: String!): SuccessResponse!
-  product(id: ID!): Product!
-  products(filter: ProductsFilter, limit: Int, skip: Int, sort: String): ProductsResponse!
+  project(id: ID!): Project!
+  projects(filter: ProjectsFilter, limit: Int, skip: Int, sort: String): ProjectsResponse!
   user(id: ID!): User!
   users(filter: UsersFilter, limit: Int, skip: Int, sort: String): UsersResponse!
 }
@@ -181,12 +233,18 @@ type SuccessResponse {
   result: Boolean!
 }
 
-input UpdateProductDto {
+input UpdateApplicationDto {
+  project: Float
+  reviewers: [Float!]
+  scheduledAt: DateTime
+  title: String
+}
+
+input UpdateProjectDto {
   description: String
-  enabled: Boolean
+  documents: [FileDto!]
   name: String
-  pictures: [FileDto!]
-  price: Float
+  owner: Float
 }
 
 input UpdateUserDto {
@@ -205,6 +263,7 @@ type User {
   avatar: File
   consent: Boolean!
   createdAt: DateTime
+  createdBy: User
   email: String!
   enabled: Boolean!
   firstName: String!
@@ -212,6 +271,8 @@ type User {
   lastName: String!
   loginAt: DateTime
   logoutAt: DateTime
+  projects: [Project!]
+  reviewedApps: [Application!]
   role: Role!
   updatedAt: DateTime
   verified: Boolean!
@@ -224,6 +285,7 @@ input UsersFilter {
   avatar: FileFilter
   consent: FilterOperator
   createdAt: FilterOperator
+  createdBy: FilterOperator
   email: FilterOperator
   enabled: FilterOperator
   firstName: FilterOperator
@@ -231,6 +293,8 @@ input UsersFilter {
   lastName: FilterOperator
   loginAt: FilterOperator
   logoutAt: FilterOperator
+  projects: ProjectsFilter
+  reviewedApps: ApplicationsFilter
   role: FilterOperator
   updatedAt: FilterOperator
   verified: FilterOperator

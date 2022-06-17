@@ -8,6 +8,26 @@ import * as _ from 'lodash';
 
 export class RequestUtil {
   static maxQueryLimit = 2000;
+  static filterSpecialKeys = [
+    '_and',
+    '_or',
+    '_nor',
+    '_eq',
+    '_gt',
+    '_gte',
+    '_in',
+    '_lt',
+    '_lte',
+    '_ne',
+    '_nin',
+    '_regex',
+    '_where',
+    '_exists',
+    '_all',
+    '_size',
+    '_elemMatch',
+    '_not'
+  ];
 
   static restrictQueryLimit(options: QueryOptions, max?: number): QueryOptions {
     if (!max) {
@@ -51,7 +71,7 @@ export class RequestUtil {
   static transformFilter(filter: any): any {
     const newFilter = ObjectUtil.transfromKeysAndValues(
       filter,
-      (key) => key.replace('_', '$'),
+      (key) => (this.filterSpecialKeys.includes(key) ? key.replace('_', '$') : key),
       (key, value) => {
         const valueArray = [];
         if (['_and', '_or', '_nor'].indexOf(key) !== -1) {
