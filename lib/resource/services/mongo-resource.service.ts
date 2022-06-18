@@ -56,7 +56,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
       this.logger.debug(e);
       throw new ResourceError(this.model.modelName, {
         message: 'Bad request',
-        reason: e.message,
+        reason: e.reason?.message || e.message,
         status: 400
       });
     }
@@ -180,12 +180,12 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
       if (populate) {
         resourceFind.populate(this.makePopulationArray());
       }
-      resource = resourceFind.exec();
+      resource = await resourceFind.exec();
     } catch (e) {
       this.logger.debug(e);
       throw new ResourceError(this.model.modelName, {
         message: 'Bad request',
-        reason: e.message,
+        reason: e.reason?.message || e.message,
         status: 400
       });
     }
