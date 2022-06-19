@@ -17,7 +17,7 @@ export function VirtualProp(config: VirtualTypeOptions & VirtualRefProps) {
       config.foreignField = target.constructor?.name?.toLowerCase();
     }
     if (config.ref && config.justOne === undefined) {
-      const designType = Reflect.getMetadata("design:type", target, propertyKey);
+      const designType = Reflect.getMetadata('design:type', target, propertyKey);
       config.justOne = designType?.name !== 'Array';
     }
     const virtualData = Reflect.getMetadata(VIRTUAL_PROPS_KEY, target) || {};
