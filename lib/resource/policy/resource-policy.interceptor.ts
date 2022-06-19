@@ -48,6 +48,7 @@ export class ResourcePolicyInterceptor<T extends Ability> implements NestInterce
         break;
       case Operation.Update:
       case Operation.Upload:
+      case Operation.Unlink:
         ({ allowed, rules } = this.checkAbility(ability, Action.Update, sub));
         break;
       case Operation.Delete:

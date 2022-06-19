@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { AuthSource } from '../enums';
 import { StringUtil } from '../utils';
+import { StatusResponse } from '../resource';
 import { AuthUser } from './interfaces';
 import { AuthModuleOptions } from './auth.module';
 import { JwtPayload, JwtToken } from './strategy/jwt/jwt.dto';
@@ -67,10 +68,10 @@ export class AuthService implements OnApplicationBootstrap {
     };
   }
 
-  async logout(user: AuthUser): Promise<{ result: boolean }> {
+  async logout(user: AuthUser): Promise<StatusResponse> {
     try {
-      const result = await this.authModuleOptions.userDetailsService.onLogout(user);
-      return { result };
+      const success = await this.authModuleOptions.userDetailsService.onLogout(user);
+      return { success, message: 'User successfully logged out' };
     } catch (e) {
       this.logger.warn(e);
       throw new AuthorizationError('Unauthorized', 401);
@@ -85,12 +86,12 @@ export class AuthService implements OnApplicationBootstrap {
     return await this.authModuleOptions.userDetailsService.registerUser(data, source);
   }
 
-  async identifierAvailable(field: string, value: string): Promise<{ result: boolean }> {
+  async identifierAvailable(field: string, value: string): Promise<StatusResponse> {
     if (!field || !value) {
       throw new AuthorizationError('Missing required query parameters "field" and/or "value');
     }
-    const result = await this.authModuleOptions.userDetailsService.identifierAvailable(field, value);
-    return { result };
+    const success = await this.authModuleOptions.userDetailsService.identifierAvailable(field, value);
+    return { success, message: `Requested value for "${field}" is ${success ? 'available' : 'unavailable'}` };
   }
 
   private async createAdminUser(): Promise<void> {

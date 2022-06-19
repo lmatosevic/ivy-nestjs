@@ -7,6 +7,7 @@ export enum Operation {
   Find = 'Find',
   Query = 'Query',
   Upload = 'Upload',
+  Unlink = 'Unlink',
   All = 'All'
 }
 

@@ -3,6 +3,7 @@ import { plainToClass } from 'class-transformer';
 import { validateOrReject } from 'class-validator';
 import { QueryOptions } from 'mongoose';
 import { ResourceError } from '../resource';
+import { FileDto } from '../storage';
 import { ObjectUtil } from './object.util';
 import * as _ from 'lodash';
 
@@ -106,5 +107,43 @@ export class RequestUtil {
       sortMap[value] = order;
     }
     return sortMap;
+  }
+
+  static transformDeleteFilesRequest(
+    resource: any,
+    deleteFilesRequest: any
+  ): { dto: Record<string, FileDto | FileDto[]>; count: number } {
+    const deleteFilesDto = {};
+    let deleteCount = 0;
+    for (const [field, fileName] of Object.entries(deleteFilesRequest)) {
+      const currentValue = resource[field];
+      if (fileName && Array.isArray(fileName)) {
+        deleteFilesDto[field] = _.cloneDeep(currentValue as FileDto[]);
+        for (const name of fileName) {
+          const exists = (currentValue as FileDto[]).find((f) => f.data === name) !== undefined;
+          const fileIndex = (deleteFilesDto[field] as FileDto[]).findIndex((f) => f.data === name);
+          if (!exists || fileIndex === -1) {
+            throw new ResourceError(resource.name, {
+              message: 'Bad request',
+              reason: `Invalid file name for "${field}" field array: ${name}`,
+              status: 400
+            });
+          }
+          deleteFilesDto[field].splice(fileIndex, 1);
+          deleteCount++;
+        }
+      } else {
+        if (currentValue.data !== fileName) {
+          throw new ResourceError(resource.name, {
+            message: 'Bad request',
+            reason: `Invalid file name for "${field}" field: ${fileName}`,
+            status: 400
+          });
+        }
+        deleteFilesDto[field] = null;
+        deleteCount++;
+      }
+    }
+    return { dto: deleteFilesDto, count: deleteCount };
   }
 }

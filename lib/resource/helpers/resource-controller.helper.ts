@@ -27,10 +27,12 @@ import {
 } from '@nestjs/swagger';
 import { FilesUtil, RequestUtil, StringUtil } from '../../utils';
 import { FILE_PROPS_KEY, FileDto, FileFilter, FileProps } from '../../storage';
-import { ErrorResponse, FilterOperator, QueryRequest, QueryResponse } from '../dto';
+import { ErrorResponse, FilterOperator, QueryRequest, QueryResponse, StatusResponse } from '../dto';
 import { ResourceService } from '../services';
 import { Resource, ResourceConfig } from '../decorators';
 import { ResourcePolicy, ResourcePolicyInterceptor } from '../policy';
+import { Expose } from 'class-transformer';
+import { IsArray, IsOptional } from 'class-validator';
 
 function extractFileProps<T>(classRef: Type<T>): Record<string, FileProps> {
   const types = {};
@@ -71,6 +73,38 @@ function FilesDtoType<T>(classRef: Type<T>): any {
   }
 
   return FilesDtoClass;
+}
+
+function DeleteFilesDtoType<T>(classRef: Type<T>): any {
+  abstract class DeleteFilesDtoClass {
+    protected constructor() {}
+  }
+
+  const filePropsMap = extractFileProps(classRef);
+  for (const [name, value] of Object.entries(filePropsMap)) {
+    Object.defineProperty(DeleteFilesDtoClass, name, {});
+    ApiProperty(
+      value.isArray
+        ? {
+            type: 'array',
+            required: false,
+            items: {
+              type: 'string'
+            }
+          }
+        : {
+            type: 'string',
+            required: false
+          }
+    )(DeleteFilesDtoClass.prototype, name);
+    Expose()(DeleteFilesDtoClass.prototype, name);
+    IsOptional()(DeleteFilesDtoClass.prototype, name);
+    if (value.isArray) {
+      IsArray()(DeleteFilesDtoClass.prototype, name);
+    }
+  }
+
+  return DeleteFilesDtoClass;
 }
 
 function OperatorInputType<T>(classRef: Type<T>): any {
@@ -135,6 +169,11 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
       acc[curr.key] = curr.value;
       return acc;
     }, {});
+
+  const deleteFilesDtoProxy = {
+    [`${pluralName}DeleteFiles`]: class extends PartialType(DeleteFilesDtoType(resourceRef)) {}
+  };
+  const deleteFilesDto = deleteFilesDtoProxy[`${pluralName}DeleteFiles`];
 
   const queryFilterProxy = {
     [`${pluralName}Filter`]: class extends PartialType(OperatorInputType(resourceRef)) {}
@@ -263,10 +302,14 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
         properties: filesResponseProperties
       }
     })
-    @ApiBody({
-      description: 'Files binary content',
-      type: filesDto
-    })
+    @ApiBody(
+      fileTypesMulterArray.length > 0
+        ? {
+            description: 'Files binary content',
+            type: filesDto
+          }
+        : {}
+    )
     @ApiConsumes('multipart/form-data')
     @ApiNotFoundResponse({
       description: `${resourceRef.name} not found`,
@@ -274,6 +317,7 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
     })
     @ApiBadRequestResponse({ description: 'Bad request', type: ErrorResponse })
     @UseInterceptors(FileFieldsInterceptor(fileTypesMulterArray))
+    @ApiExtraModels(FileDto)
     @HttpCode(201)
     @Post('/:id/files')
     async upload(@Param('id') id: string, @UploadedFiles() files: Record<string, Express.Multer.File[]>) {
@@ -288,11 +332,33 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
         await FilesUtil.removeTemporaryFiles(files);
       }
     }
+
+    @ApiOkResponse({ type: () => StatusResponse })
+    @ApiBody(fileTypesMulterArray.length > 0 ? { type: deleteFilesDto } : {})
+    @ApiBadRequestResponse({ description: 'Bad request', type: ErrorResponse })
+    @ApiExtraModels(StatusResponse)
+    @HttpCode(200)
+    @Post('/:id/delete-files')
+    async unlink(@Param('id') id: string, @Body() deleteDto: any): Promise<StatusResponse> {
+      const deleteFilesInstance = await RequestUtil.deserializeAndValidate(deleteFilesDto, deleteDto);
+      const resource = await this.service.find(id);
+      const deleteFilesRequest = RequestUtil.transformDeleteFilesRequest(resource, deleteFilesInstance);
+      if (deleteFilesRequest.count === 0) {
+        return { success: false, message: 'No files for deletion are provided' };
+      }
+      await this.service.update(id, deleteFilesRequest.dto);
+      return {
+        success: true,
+        message: `Deleted ${deleteFilesRequest.count} file${deleteFilesRequest.count > 1 ? 's' : ''}`
+      };
+    }
   }
 
   if (fileTypesMulterArray.length === 0) {
-    const descriptor = Object.getOwnPropertyDescriptor(ResourceController.prototype, 'upload');
-    Reflect.deleteMetadata('path', descriptor.value);
+    const descriptorUpload = Object.getOwnPropertyDescriptor(ResourceController.prototype, 'upload');
+    Reflect.deleteMetadata('path', descriptorUpload.value);
+    const descriptorUnlink = Object.getOwnPropertyDescriptor(ResourceController.prototype, 'unlink');
+    Reflect.deleteMetadata('path', descriptorUnlink.value);
   }
 
   return ResourceController;

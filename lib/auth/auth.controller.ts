@@ -22,7 +22,7 @@ import { ConfigService } from '@nestjs/config';
 import { LocalAuthGuard } from './strategy/local/local-auth.guard';
 import { Authorized, Public, ReCaptcha } from './decorators';
 import { RequestUtil } from '../utils';
-import { ErrorResponse } from '../resource';
+import { ErrorResponse, StatusResponse } from '../resource';
 import { AuthUser } from './interfaces';
 import { AuthService } from './auth.service';
 import { JwtToken } from './strategy/jwt/jwt.dto';
@@ -31,11 +31,6 @@ import { AUTH_MODULE_OPTIONS } from './auth.constants';
 import { AuthType } from '../enums';
 
 export function AuthController<T extends Type<unknown>>(authUserRef: T, registerUserRef: T): any {
-  class SuccessResponse {
-    @ApiProperty()
-    result: boolean;
-  }
-
   class LoginBody {
     @ApiProperty()
     username: string;
@@ -97,7 +92,7 @@ export function AuthController<T extends Type<unknown>>(authUserRef: T, register
     async identifierAvailable(
       @Query('field') field: string,
       @Query('value') value: string
-    ): Promise<SuccessResponse> {
+    ): Promise<StatusResponse> {
       return await this.authService.identifierAvailable(field, value);
     }
 
@@ -109,10 +104,10 @@ export function AuthController<T extends Type<unknown>>(authUserRef: T, register
     }
 
     @Authorized()
-    @ApiOkResponse({ type: () => SuccessResponse })
+    @ApiOkResponse({ type: () => StatusResponse })
     @HttpCode(200)
     @Post('logout')
-    logout(@Request() req): Promise<SuccessResponse> {
+    logout(@Request() req): Promise<StatusResponse> {
       return this.authService.logout(req.user);
     }
 

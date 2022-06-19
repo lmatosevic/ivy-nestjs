@@ -172,9 +172,11 @@ type Mutation {
   deleteApplication(id: ID!): Application!
   deletePlan(id: ID!): Plan!
   deleteProject(id: ID!): Project!
+  deleteProjectFiles(documents: [String!], id: ID): StatusResponse!
   deleteUser(id: ID!): User!
+  deleteUserFiles(avatar: String, id: ID): StatusResponse!
   login(password: String!, username: String!): JwtToken!
-  logout: SuccessResponse!
+  logout: StatusResponse!
   refresh: JwtToken!
   registration(data: RegisterUserDto!): User!
   updateApplication(data: UpdateApplicationDto!, id: ID!): Application!
@@ -246,7 +248,7 @@ type Query {
   applications(filter: ApplicationsFilter, limit: Int, skip: Int, sort: String): ApplicationsResponse!
   authUser: User!
   health: HealthDto!
-  identifierAvailable(field: String!, value: String!): SuccessResponse!
+  identifierAvailable(field: String!, value: String!): StatusResponse!
   info: InfoDto!
   plan(id: ID!): Plan!
   plans(filter: PlansFilter, limit: Int, skip: Int, sort: String): PlansResponse!
@@ -274,8 +276,9 @@ type StatusDto {
   status: String!
 }
 
-type SuccessResponse {
-  result: Boolean!
+type StatusResponse {
+  message: String
+  success: Boolean!
 }
 
 input UpdateApplicationDto {

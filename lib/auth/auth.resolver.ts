@@ -1,23 +1,18 @@
-import { Args, Field, Mutation, ObjectType, Query, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { Inject, Type } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Authorized, CurrentUser, ReCaptcha } from './decorators';
 import { RequestUtil } from '../utils';
+import { StatusResponse } from '../resource';
+import { AuthSource, AuthType } from '../enums';
 import { JwtToken } from './strategy/jwt/jwt.dto';
 import { AuthService } from './auth.service';
 import { AuthUser } from './interfaces';
 import { AuthorizationError } from './errors';
 import { AUTH_MODULE_OPTIONS } from '../auth/auth.constants';
 import { AuthModuleOptions } from '../auth/auth.module';
-import { AuthSource, AuthType } from '../enums';
 
 export function AuthResolver<T extends Type<unknown>>(authUserRef: T, registerUserRef: T): any {
-  @ObjectType()
-  class SuccessResponse {
-    @Field()
-    result: boolean;
-  }
-
   @Resolver()
   class AuthResolver {
     constructor(
@@ -61,11 +56,11 @@ export function AuthResolver<T extends Type<unknown>>(authUserRef: T, registerUs
     }
 
     @ReCaptcha()
-    @Query(() => SuccessResponse)
+    @Query(() => StatusResponse)
     async identifierAvailable(
       @Args('field', { type: () => String }) field: string,
       @Args('value', { type: () => String }) value: string
-    ): Promise<SuccessResponse> {
+    ): Promise<StatusResponse> {
       return await this.authService.identifierAvailable(field, value);
     }
 
@@ -76,8 +71,8 @@ export function AuthResolver<T extends Type<unknown>>(authUserRef: T, registerUs
     }
 
     @Authorized()
-    @Mutation(() => SuccessResponse)
-    async logout(@CurrentUser() user: AuthUser): Promise<SuccessResponse> {
+    @Mutation(() => StatusResponse)
+    async logout(@CurrentUser() user: AuthUser): Promise<StatusResponse> {
       return await this.authService.logout(user);
     }
 

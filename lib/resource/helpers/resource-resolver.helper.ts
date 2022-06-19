@@ -13,19 +13,56 @@ import {
   Resolver
 } from '@nestjs/graphql';
 import { RequestUtil, StringUtil } from '../../utils';
-import { FilterOperator } from '../dto';
+import { FilterOperator, StatusResponse } from '../dto';
 import { ResourceService } from '../services';
 import { Resource, ResourceConfig } from '../decorators';
-import { FileFilter } from '../../storage';
+import { FILE_PROPS_KEY, FileFilter, FileProps } from '../../storage';
 import { ResourcePolicy, ResourcePolicyInterceptor } from '../policy';
+import { Expose } from 'class-transformer';
+import { IsArray, IsOptional } from 'class-validator';
+
+function extractFileProps<T>(classRef: Type<T>): Record<string, FileProps> {
+  const types = {};
+  const metadata = classRef['_GRAPHQL_METADATA_FACTORY']?.();
+  for (const fileName of Object.keys(metadata || {})) {
+    const fileProps = Reflect.getMetadata(FILE_PROPS_KEY, classRef.prototype);
+    if (fileProps && fileProps[fileName]) {
+      types[fileName] = fileProps[fileName];
+    }
+  }
+  return types;
+}
+
+function DeleteFilesArgsType<T>(classRef: Type<T>): any {
+  abstract class DeleteFilesClass {
+    protected constructor() {}
+  }
+
+  ArgsType()(DeleteFilesClass);
+
+  Object.defineProperty(DeleteFilesClass, 'id', {});
+  Field(() => ID, { name: 'id' })(DeleteFilesClass.prototype, 'id');
+
+  const filePropsMap = extractFileProps(classRef);
+  for (const [name, value] of Object.entries(filePropsMap)) {
+    Object.defineProperty(DeleteFilesClass, name, {});
+    Field(() => (value.isArray ? [String] : String), { nullable: true })(DeleteFilesClass.prototype, name);
+    Expose()(DeleteFilesClass.prototype, name);
+    IsOptional()(DeleteFilesClass.prototype, name);
+    if (value.isArray) {
+      IsArray()(DeleteFilesClass.prototype, name);
+    }
+  }
+
+  return DeleteFilesClass;
+}
 
 function OperatorInputType<T>(classRef: Type<T>): any {
   abstract class OperatorValueClass {
     protected constructor() {}
   }
 
-  const inputType = InputType();
-  inputType(OperatorValueClass);
+  InputType()(OperatorValueClass);
 
   const metadata = classRef['_GRAPHQL_METADATA_FACTORY']?.();
   for (const key of Object.keys(metadata || {})) {
@@ -53,6 +90,7 @@ export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown
   config?: ResourceConfig
 ): any {
   const pluralName = StringUtil.pluralize(resourceRef.name);
+  const fileProps = extractFileProps(resourceRef);
 
   @InputType(`${pluralName}Filter`)
   class QueryFilter extends PartialType(OperatorInputType(resourceRef), InputType) {
@@ -92,6 +130,9 @@ export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown
     @Field(() => QueryFilter, { nullable: true })
     filter?: QueryFilter;
   }
+
+  @ArgsType()
+  class DeleteFilesArgs extends PartialType(DeleteFilesArgsType(resourceRef), ArgsType) {}
 
   // Required for dynamic QueryFilter type resolution in OperatorInputType function
   resourceRef['_GRAPHQL_QUERY_FILTER_FACTORY'] = () => QueryFilter;
@@ -142,6 +183,27 @@ export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown
     async delete(@Args('id', { type: () => ID }) id: string | number): Promise<T> {
       return this.service.delete(id);
     }
+
+    @Mutation(() => StatusResponse, { name: `delete${resourceRef.name}Files` })
+    async unlink(@Args() deleteFiles: DeleteFilesArgs): Promise<StatusResponse> {
+      const deleteFilesInstance = await RequestUtil.deserializeAndValidate(DeleteFilesArgs, deleteFiles);
+      const resource = await this.service.find(deleteFiles['id']);
+      delete deleteFilesInstance['id'];
+      const deleteFilesRequest = RequestUtil.transformDeleteFilesRequest(resource, deleteFilesInstance);
+      if (deleteFilesRequest.count === 0) {
+        return { success: false, message: 'No files for deletion are provided' };
+      }
+      await this.service.update(deleteFiles['id'], deleteFilesRequest.dto);
+      return {
+        success: true,
+        message: `Deleted ${deleteFilesRequest.count} file${deleteFilesRequest.count > 1 ? 's' : ''}`
+      };
+    }
+  }
+
+  if (Object.keys(fileProps).length === 0) {
+    const descriptor = Object.getOwnPropertyDescriptor(ResourceResolver.prototype, 'unlink');
+    Reflect.deleteMetadata('graphql:resolver_type', descriptor.value);
   }
 
   return ResourceResolver;
