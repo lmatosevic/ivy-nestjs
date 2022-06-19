@@ -1,6 +1,14 @@
 import { InputType } from '@nestjs/graphql';
 import { Expose, Type } from 'class-transformer';
-import { IsArray, IsDateString, IsInt, IsNotEmpty, IsOptional, MaxLength, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsDateString,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  MaxLength,
+  ValidateNested
+} from 'class-validator';
 import { Relation } from 'ivy-nestjs/resource';
 
 @InputType()
@@ -23,7 +31,7 @@ export class CreateApplicationDto {
   @Expose()
   @IsOptional()
   @IsArray()
-  @ValidateNested()
+  @ValidateNested({ each: true })
   @Type(() => Relation)
-  readonly reviewerIds?: Relation[];
+  readonly reviewers?: Relation[];
 }

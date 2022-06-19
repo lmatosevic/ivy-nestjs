@@ -3,7 +3,7 @@ import { Expose } from 'class-transformer';
 import { IsNotEmpty, MaxLength } from 'class-validator';
 
 @InputType()
-export class {{createDtoName}} {
+export class CreatePlanDto {
   @Expose()
   @IsNotEmpty()
   @MaxLength(255)

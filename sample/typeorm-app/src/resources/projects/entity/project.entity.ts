@@ -5,6 +5,7 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn
 } from 'typeorm';
@@ -16,6 +17,7 @@ import { FileColumn, Role } from 'ivy-nestjs';
 import { Application } from '@resources/applications/entity';
 import { ApiHideProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
+import { Plan } from '@resources/plans/entity';
 
 @ObjectType()
 @Entity()
@@ -42,12 +44,19 @@ export class Project extends ResourceEntity {
   })
   documents?: File[];
 
+  @Column()
+  ownerId: number;
+
+  @Column()
+  planId: number;
+
   @ManyToOne(() => User, (user) => user.projects)
   @JoinColumn()
   owner: User;
 
-  @Column()
-  ownerId: number;
+  @OneToOne(() => Plan, (plan) => plan.project)
+  @JoinColumn()
+  plan: Plan;
 
   @OneToMany(() => Application, (application) => application.project)
   applications?: Application[];

@@ -44,6 +44,10 @@ input CreateApplicationDto {
   title: String!
 }
 
+input CreatePlanDto {
+  name: String!
+}
+
 input CreateProjectDto {
   description: String
   documents: [FileDto!]
@@ -161,9 +165,11 @@ type Mutation {
   authorizeFacebook(data: FacebookAuth!): JwtToken!
   authorizeGoogle(data: GoogleAuth!): JwtToken!
   createApplication(data: CreateApplicationDto!): Application!
+  createPlan(data: CreatePlanDto!): Plan!
   createProject(data: CreateProjectDto!): Project!
   createUser(data: CreateUserDto!): User!
   deleteApplication(id: ID!): Application!
+  deletePlan(id: ID!): Plan!
   deleteProject(id: ID!): Project!
   deleteUser(id: ID!): User!
   login(password: String!, username: String!): JwtToken!
@@ -171,8 +177,34 @@ type Mutation {
   refresh: JwtToken!
   registration(data: RegisterUserDto!): User!
   updateApplication(data: UpdateApplicationDto!, id: ID!): Application!
+  updatePlan(data: UpdatePlanDto!, id: ID!): Plan!
   updateProject(data: UpdateProjectDto!, id: ID!): Project!
   updateUser(data: UpdateUserDto!, id: ID!): User!
+}
+
+type Plan {
+  createdAt: DateTime
+  id: ID!
+  name: String!
+  project: Project!
+  updatedAt: DateTime
+}
+
+input PlansFilter {
+  _and: PlansFilter
+  _nor: PlansFilter
+  _or: PlansFilter
+  createdAt: FilterOperator
+  id: FilterOperator
+  name: FilterOperator
+  project: ProjectsFilter
+  updatedAt: FilterOperator
+}
+
+type PlansResponse {
+  items: [Plan!]!
+  resultCount: Int!
+  totalCount: Int!
 }
 
 type Project {
@@ -183,6 +215,7 @@ type Project {
   id: ID!
   name: String!
   owner: User
+  plan: Plan!
   updatedAt: DateTime
 }
 
@@ -197,6 +230,7 @@ input ProjectsFilter {
   id: FilterOperator
   name: FilterOperator
   owner: UsersFilter
+  plan: PlansFilter
   updatedAt: FilterOperator
 }
 
@@ -213,6 +247,8 @@ type Query {
   health: HealthDto!
   identifierAvailable(field: String!, value: String!): SuccessResponse!
   info: InfoDto!
+  plan(id: ID!): Plan!
+  plans(filter: PlansFilter, limit: Int, skip: Int, sort: String): PlansResponse!
   project(id: ID!): Project!
   projects(filter: ProjectsFilter, limit: Int, skip: Int, sort: String): ProjectsResponse!
   user(id: ID!): User!
@@ -246,6 +282,10 @@ input UpdateApplicationDto {
   reviewers: [String!]
   scheduledAt: DateTime
   title: String
+}
+
+input UpdatePlanDto {
+  name: String
 }
 
 input UpdateProjectDto {

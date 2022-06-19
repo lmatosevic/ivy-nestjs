@@ -36,7 +36,7 @@ export class Application extends ResourceEntity {
   @Column()
   projectId: number;
 
-  @ManyToMany(() => User, (user) => user.reviewedApps, { cascade: ['insert'] })
+  @ManyToMany(() => User, (user) => user.reviewedApps, { cascade: ['update'] })
   reviewers?: User[];
 
   @RelationId((app: Application) => app.reviewers)

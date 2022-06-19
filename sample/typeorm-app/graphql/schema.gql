@@ -44,16 +44,22 @@ enum AuthSource {
 
 input CreateApplicationDto {
   projectId: Float
-  reviewerIds: [Relation!]
+  reviewers: [Relation!]
   scheduledAt: DateTime
   title: String!
+}
+
+input CreatePlanDto {
+  name: String!
+  projectId: Float
 }
 
 input CreateProjectDto {
   description: String
   documents: [FileDto!]
   name: String!
-  ownerId: Float!
+  ownerId: Float
+  planId: Float!
 }
 
 input CreateUserDto {
@@ -155,9 +161,11 @@ type JwtToken {
 
 type Mutation {
   createApplication(data: CreateApplicationDto!): Application!
+  createPlan(data: CreatePlanDto!): Plan!
   createProject(data: CreateProjectDto!): Project!
   createUser(data: CreateUserDto!): User!
   deleteApplication(id: ID!): Application!
+  deletePlan(id: ID!): Plan!
   deleteProject(id: ID!): Project!
   deleteUser(id: ID!): User!
   login(password: String!, username: String!): JwtToken!
@@ -165,8 +173,34 @@ type Mutation {
   refresh: JwtToken!
   registration(data: RegisterUserDto!): User!
   updateApplication(data: UpdateApplicationDto!, id: ID!): Application!
+  updatePlan(data: UpdatePlanDto!, id: ID!): Plan!
   updateProject(data: UpdateProjectDto!, id: ID!): Project!
   updateUser(data: UpdateUserDto!, id: ID!): User!
+}
+
+type Plan {
+  createdAt: DateTime
+  id: ID!
+  name: String!
+  project: Project
+  updatedAt: DateTime
+}
+
+input PlansFilter {
+  _and: PlansFilter
+  _nor: PlansFilter
+  _or: PlansFilter
+  createdAt: FilterOperator
+  id: FilterOperator
+  name: FilterOperator
+  project: ProjectsFilter
+  updatedAt: FilterOperator
+}
+
+type PlansResponse {
+  items: [Plan!]!
+  resultCount: Int!
+  totalCount: Int!
 }
 
 type Project {
@@ -179,6 +213,8 @@ type Project {
   name: String!
   owner: User!
   ownerId: Float!
+  plan: Plan!
+  planId: Float!
   updatedAt: DateTime
 }
 
@@ -194,6 +230,8 @@ input ProjectsFilter {
   name: FilterOperator
   owner: UsersFilter
   ownerId: FilterOperator
+  plan: PlansFilter
+  planId: FilterOperator
   updatedAt: FilterOperator
 }
 
@@ -209,6 +247,8 @@ type Query {
   authUser: User!
   health: HealthDto!
   identifierAvailable(field: String!, value: String!): SuccessResponse!
+  plan(id: ID!): Plan!
+  plans(filter: PlansFilter, limit: Int, skip: Int, sort: String): PlansResponse!
   project(id: ID!): Project!
   projects(filter: ProjectsFilter, limit: Int, skip: Int, sort: String): ProjectsResponse!
   user(id: ID!): User!
@@ -243,9 +283,14 @@ type SuccessResponse {
 
 input UpdateApplicationDto {
   projectId: Float
-  reviewerIds: [Relation!]
+  reviewers: [Relation!]
   scheduledAt: DateTime
   title: String
+}
+
+input UpdatePlanDto {
+  name: String
+  projectId: Float
 }
 
 input UpdateProjectDto {
@@ -253,6 +298,7 @@ input UpdateProjectDto {
   documents: [FileDto!]
   name: String
   ownerId: Float
+  planId: Float
 }
 
 input UpdateUserDto {

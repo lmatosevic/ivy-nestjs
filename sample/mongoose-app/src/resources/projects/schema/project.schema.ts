@@ -13,6 +13,7 @@ import { User } from '@resources/users/schema';
 import { FileProp } from 'ivy-nestjs/storage';
 import { File } from 'ivy-nestjs/storage/schema';
 import { Role } from 'ivy-nestjs/enums';
+import { Plan } from '@resources/plans/schema';
 
 @ObjectType()
 @Schema({ timestamps: true })
@@ -29,6 +30,9 @@ export class Project extends ResourceSchema {
 
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', populate: true })
   owner?: User;
+
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', populate: true })
+  plan: Plan;
 
   @VirtualProp({
     ref: 'Application',

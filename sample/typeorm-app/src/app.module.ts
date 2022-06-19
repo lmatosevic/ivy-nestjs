@@ -17,6 +17,7 @@ import { User } from '@resources/users/entity';
 import { RegisterUserDto } from '@resources/users/dto';
 import { ProjectsModule } from '@resources/projects';
 import { ApplicationsModule } from '@resources/applications';
+import { PlansModule } from '@resources/plans';
 
 @Module({
   imports: [
@@ -40,7 +41,8 @@ import { ApplicationsModule } from '@resources/applications';
     InfoModule,
     UsersModule,
     ProjectsModule,
-    ApplicationsModule
+    ApplicationsModule,
+    PlansModule
   ],
   providers: [AppService]
 })

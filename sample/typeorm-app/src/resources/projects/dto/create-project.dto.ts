@@ -18,12 +18,17 @@ export class CreateProjectDto {
   @Expose()
   @IsOptional()
   @IsInt()
-  readonly ownerId: number;
+  readonly ownerId?: number;
+
+  @Expose()
+  @IsNotEmpty()
+  @IsInt()
+  readonly planId: number;
 
   @Expose()
   @IsOptional()
   @IsArray()
-  @ValidateNested()
+  @ValidateNested({ each: true })
   @Type(() => FileDto)
   readonly documents?: FileDto[];
 }
