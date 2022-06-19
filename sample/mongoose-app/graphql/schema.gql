@@ -53,6 +53,7 @@ input CreateProjectDto {
   documents: [FileDto!]
   name: String!
   owner: String!
+  plan: String!
 }
 
 input CreateUserDto {
@@ -186,7 +187,7 @@ type Plan {
   createdAt: DateTime
   id: ID!
   name: String!
-  project: Project!
+  project: Project
   updatedAt: DateTime
 }
 
@@ -293,6 +294,7 @@ input UpdateProjectDto {
   documents: [FileDto!]
   name: String
   owner: String
+  plan: String
 }
 
 input UpdateUserDto {

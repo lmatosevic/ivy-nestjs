@@ -15,13 +15,8 @@ export class Plan extends Document {
   @Prop()
   name: string;
 
-  @VirtualProp({
-    ref: 'Project',
-    localField: '_id',
-    foreignField: 'plan',
-    populate: true
-  })
-  project: Project;
+  @VirtualProp({ ref: 'Project', justOne: true, populate: true })
+  project?: Project;
 
   @Prop()
   createdAt?: Date;

@@ -63,7 +63,6 @@ export class User extends ResourceSchema implements AuthUser {
 
   @VirtualProp({
     ref: 'Project',
-    localField: '_id',
     foreignField: 'owner',
     populate: true
   })
@@ -71,7 +70,6 @@ export class User extends ResourceSchema implements AuthUser {
 
   @VirtualProp({
     ref: 'Application',
-    localField: '_id',
     foreignField: 'reviewers',
     populate: true
   })

@@ -1,6 +1,13 @@
 import { InputType } from '@nestjs/graphql';
 import { Expose, Type } from 'class-transformer';
-import { IsHexadecimal, IsNotEmpty, IsOptional, MaxLength, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsHexadecimal,
+  IsNotEmpty,
+  IsOptional,
+  MaxLength,
+  ValidateNested
+} from 'class-validator';
 import { FileDto } from 'ivy-nestjs/storage';
 
 @InputType()
@@ -21,8 +28,14 @@ export class CreateProjectDto {
   readonly owner: string;
 
   @Expose()
+  @IsNotEmpty()
+  @IsHexadecimal()
+  readonly plan: string;
+
+  @Expose()
   @IsOptional()
-  @ValidateNested()
+  @IsArray()
+  @ValidateNested({ each: true })
   @Type(() => FileDto)
   readonly documents?: FileDto[];
 }

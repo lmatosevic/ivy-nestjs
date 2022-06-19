@@ -31,15 +31,10 @@ export class Project extends ResourceSchema {
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', populate: true })
   owner?: User;
 
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', populate: true })
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Plan', populate: true })
   plan: Plan;
 
-  @VirtualProp({
-    ref: 'Application',
-    localField: '_id',
-    foreignField: 'project',
-    populate: true
-  })
+  @VirtualProp({ ref: 'Application', populate: true })
   applications?: Application[];
 
   @FileProp({
