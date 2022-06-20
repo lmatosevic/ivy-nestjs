@@ -44,6 +44,10 @@ input CreateApplicationDto {
   title: String!
 }
 
+input CreateFeatureDto {
+  name: String!
+}
+
 input CreatePlanDto {
   features: [String!]
   name: String!
@@ -98,6 +102,12 @@ input FeaturesFilter {
   name: FilterOperator
   plan: PlansFilter
   updatedAt: FilterOperator
+}
+
+type FeaturesResponse {
+  items: [Feature!]!
+  resultCount: Int!
+  totalCount: Int!
 }
 
 input FileDto {
@@ -186,10 +196,12 @@ type Mutation {
   authorizeFacebook(data: FacebookAuth!): JwtToken!
   authorizeGoogle(data: GoogleAuth!): JwtToken!
   createApplication(data: CreateApplicationDto!): Application!
+  createFeature(data: CreateFeatureDto!): Feature!
   createPlan(data: CreatePlanDto!): Plan!
   createProject(data: CreateProjectDto!): Project!
   createUser(data: CreateUserDto!): User!
   deleteApplication(id: ID!): Application!
+  deleteFeature(id: ID!): Feature!
   deletePlan(id: ID!): Plan!
   deleteProject(id: ID!): Project!
   deleteProjectFiles(documents: [String!], id: ID): StatusResponse!
@@ -200,6 +212,7 @@ type Mutation {
   refresh: JwtToken!
   registration(data: RegisterUserDto!): User!
   updateApplication(data: UpdateApplicationDto!, id: ID!): Application!
+  updateFeature(data: UpdateFeatureDto!, id: ID!): Feature!
   updatePlan(data: UpdatePlanDto!, id: ID!): Plan!
   updateProject(data: UpdateProjectDto!, id: ID!): Project!
   updateUser(data: UpdateUserDto!, id: ID!): User!
@@ -269,6 +282,8 @@ type Query {
   application(id: ID!): Application!
   applications(filter: ApplicationsFilter, limit: Int, skip: Int, sort: String): ApplicationsResponse!
   authUser: User!
+  feature(id: ID!): Feature!
+  features(filter: FeaturesFilter, limit: Int, skip: Int, sort: String): FeaturesResponse!
   health: HealthDto!
   identifierAvailable(field: String!, value: String!): StatusResponse!
   info: InfoDto!
@@ -308,6 +323,10 @@ input UpdateApplicationDto {
   reviewers: [String!]
   scheduledAt: DateTime
   title: String
+}
+
+input UpdateFeatureDto {
+  name: String
 }
 
 input UpdatePlanDto {
