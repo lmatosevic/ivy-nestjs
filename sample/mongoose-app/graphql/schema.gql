@@ -45,6 +45,7 @@ input CreateApplicationDto {
 }
 
 input CreatePlanDto {
+  features: [String!]
   name: String!
 }
 
@@ -78,6 +79,25 @@ input FacebookAuth {
   accessToken: String!
   signedRequest: String!
   userID: String!
+}
+
+type Feature {
+  createdAt: DateTime
+  id: ID!
+  name: String!
+  plan: Plan
+  updatedAt: DateTime
+}
+
+input FeaturesFilter {
+  _and: FeaturesFilter
+  _nor: FeaturesFilter
+  _or: FeaturesFilter
+  createdAt: FilterOperator
+  id: FilterOperator
+  name: FilterOperator
+  plan: PlansFilter
+  updatedAt: FilterOperator
 }
 
 input FileDto {
@@ -187,6 +207,7 @@ type Mutation {
 
 type Plan {
   createdAt: DateTime
+  features: [Feature!]
   id: ID!
   name: String!
   project: Project
@@ -198,6 +219,7 @@ input PlansFilter {
   _nor: PlansFilter
   _or: PlansFilter
   createdAt: FilterOperator
+  features: FeaturesFilter
   id: FilterOperator
   name: FilterOperator
   project: ProjectsFilter
@@ -289,6 +311,7 @@ input UpdateApplicationDto {
 }
 
 input UpdatePlanDto {
+  features: [String!]
   name: String
 }
 

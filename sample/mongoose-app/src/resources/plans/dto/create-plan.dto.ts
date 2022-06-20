@@ -1,6 +1,6 @@
 import { InputType } from '@nestjs/graphql';
 import { Expose } from 'class-transformer';
-import { IsNotEmpty, MaxLength } from 'class-validator';
+import { IsArray, IsNotEmpty, IsOptional, MaxLength } from 'class-validator';
 
 @InputType()
 export class CreatePlanDto {
@@ -8,4 +8,9 @@ export class CreatePlanDto {
   @IsNotEmpty()
   @MaxLength(255)
   readonly name: string;
+
+  @Expose()
+  @IsOptional()
+  @IsArray()
+  readonly features?: string[];
 }

@@ -72,6 +72,9 @@ function OperatorInputType<T>(classRef: Type<T>): any {
     if (type?.name === 'File') {
       Field(() => FileFilter)(OperatorValueClass.prototype, key);
     } else if (!!type?._GRAPHQL_METADATA_FACTORY) {
+      if (!type._GRAPHQL_QUERY_INITIALIZED) {
+        initializeFilterModel(type);
+      }
       Field(() => type._GRAPHQL_QUERY_FILTER_FACTORY?.())(OperatorValueClass.prototype, key);
     } else if (key === '_id' || key === 'id') {
       Field(() => FilterOperator, { name: 'id' })(OperatorValueClass.prototype, key);
@@ -83,6 +86,30 @@ function OperatorInputType<T>(classRef: Type<T>): any {
   return OperatorValueClass;
 }
 
+function initializeFilterModel(classRef: Type<unknown>): any {
+  if (classRef['_GRAPHQL_QUERY_INITIALIZED']) {
+    return classRef['_GRAPHQL_QUERY_FILTER_FACTORY']?.();
+  }
+  classRef['_GRAPHQL_QUERY_INITIALIZED'] = true;
+  const pluralName = StringUtil.pluralize(classRef.name);
+
+  @InputType(`${pluralName}Filter`)
+  class QueryFilter extends PartialType(OperatorInputType(classRef), InputType) {
+    @Field(() => QueryFilter, { nullable: true })
+    _and?: QueryFilter;
+
+    @Field(() => QueryFilter, { nullable: true })
+    _or?: QueryFilter;
+
+    @Field(() => QueryFilter, { nullable: true })
+    _nor?: QueryFilter;
+  }
+
+  // Required for dynamic QueryFilter type resolution in OperatorInputType function
+  classRef['_GRAPHQL_QUERY_FILTER_FACTORY'] = () => QueryFilter;
+  return QueryFilter;
+}
+
 export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown>, U extends Type<unknown>>(
   resourceRef: T,
   createDtoRef: C,
@@ -92,16 +119,21 @@ export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown
   const pluralName = StringUtil.pluralize(resourceRef.name);
   const fileProps = extractFileProps(resourceRef);
 
-  @InputType(`${pluralName}Filter`)
-  class QueryFilter extends PartialType(OperatorInputType(resourceRef), InputType) {
-    @Field(() => QueryFilter, { nullable: true })
-    _and?: QueryFilter;
+  const queryFilter = initializeFilterModel(resourceRef);
 
-    @Field(() => QueryFilter, { nullable: true })
-    _or?: QueryFilter;
+  @ArgsType()
+  class QueryOptions {
+    @Field(() => Int, { nullable: true })
+    skip?: number;
 
-    @Field(() => QueryFilter, { nullable: true })
-    _nor?: QueryFilter;
+    @Field(() => Int, { nullable: true })
+    limit?: number;
+
+    @Field({ nullable: true })
+    sort?: string;
+
+    @Field(() => queryFilter, { nullable: true })
+    filter?: typeof queryFilter;
   }
 
   @ObjectType(`${pluralName}Response`)
@@ -117,25 +149,7 @@ export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown
   }
 
   @ArgsType()
-  class QueryOptions {
-    @Field(() => Int, { nullable: true })
-    skip?: number;
-
-    @Field(() => Int, { nullable: true })
-    limit?: number;
-
-    @Field({ nullable: true })
-    sort?: string;
-
-    @Field(() => QueryFilter, { nullable: true })
-    filter?: QueryFilter;
-  }
-
-  @ArgsType()
   class DeleteFilesArgs extends PartialType(DeleteFilesArgsType(resourceRef), ArgsType) {}
-
-  // Required for dynamic QueryFilter type resolution in OperatorInputType function
-  resourceRef['_GRAPHQL_QUERY_FILTER_FACTORY'] = () => QueryFilter;
 
   @Resource(config)
   @Resolver({ isAbstract: true })

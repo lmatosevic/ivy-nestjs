@@ -120,6 +120,9 @@ function OperatorInputType<T>(classRef: Type<T>): any {
     if (type?.name === 'File') {
       ApiProperty({ type: () => FileFilter, required: false })(OperatorValueClass.prototype, key);
     } else if (!!type?._OPENAPI_METADATA_FACTORY) {
+      if (!type._OPENAPI_QUERY_INITIALIZED) {
+        initializeFilterModel(type);
+      }
       ApiProperty({ type: () => type._OPENAPI_QUERY_FILTER_FACTORY?.() })(OperatorValueClass.prototype, key);
     } else if (key === '_id' || key === 'id') {
       ApiProperty({ type: () => FilterOperator, required: false, name: 'id' })(
@@ -132,6 +135,36 @@ function OperatorInputType<T>(classRef: Type<T>): any {
   }
 
   return OperatorValueClass;
+}
+
+function initializeFilterModel(classRef: Type<unknown>): any {
+  if (classRef['_OPENAPI_QUERY_INITIALIZED']) {
+    return classRef['_OPENAPI_QUERY_FILTER_FACTORY']?.();
+  }
+  classRef['_OPENAPI_QUERY_INITIALIZED'] = true;
+  const pluralName = StringUtil.pluralize(classRef.name);
+  const queryFilterProxy = {
+    [`${pluralName}Filter`]: class extends PartialType(OperatorInputType(classRef)) {}
+  };
+  const queryFilter = queryFilterProxy[`${pluralName}Filter`];
+
+  const field = ApiProperty({
+    type: () => queryFilter,
+    required: false
+  });
+
+  Object.defineProperty(queryFilter, '_and', {});
+  field(queryFilter.prototype, '_and');
+
+  Object.defineProperty(queryFilter, '_or', {});
+  field(queryFilter.prototype, '_or');
+
+  Object.defineProperty(queryFilter, '_nor', {});
+  field(queryFilter.prototype, '_nor');
+
+  // Required for dynamic QueryFilter type resolution in OperatorInputType function
+  classRef['_OPENAPI_QUERY_FILTER_FACTORY'] = () => queryFilter;
+  return queryFilter;
 }
 
 export function ResourceController<T extends Type<unknown>, C extends Type<unknown>, U extends Type<unknown>>(
@@ -175,33 +208,13 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
   };
   const deleteFilesDto = deleteFilesDtoProxy[`${pluralName}DeleteFiles`];
 
-  const queryFilterProxy = {
-    [`${pluralName}Filter`]: class extends PartialType(OperatorInputType(resourceRef)) {}
-  };
-  const queryFilter = queryFilterProxy[`${pluralName}Filter`];
-
-  const field = ApiProperty({
-    type: () => queryFilter,
-    required: false
-  });
-
-  Object.defineProperty(queryFilter, '_and', {});
-  field(queryFilter.prototype, '_and');
-
-  Object.defineProperty(queryFilter, '_or', {});
-  field(queryFilter.prototype, '_or');
-
-  Object.defineProperty(queryFilter, '_nor', {});
-  field(queryFilter.prototype, '_nor');
-
-  // Required for dynamic QueryFilter type resolution in OperatorInputType function
-  resourceRef['_OPENAPI_QUERY_FILTER_FACTORY'] = () => queryFilter;
+  const queryFilter = initializeFilterModel(resourceRef);
 
   @ApiInternalServerErrorResponse({
     description: 'Internal server error',
     type: ErrorResponse
   })
-  @ApiExtraModels(QueryResponse, QueryRequest, resourceRef, queryFilter)
+  @ApiExtraModels(QueryResponse, QueryRequest, queryFilter, resourceRef)
   @ApiTags(pluralName.toLowerCase())
   @Resource(config)
   abstract class ResourceController {
