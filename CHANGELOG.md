@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.13](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.12...v0.1.13) (2022-06-20)
+
+
+### Features
+
+* add mongoose logger and update mongo resource service errors ([1be9d08](https://github.com/Lujo5/ivy-nestjs/commit/1be9d08f8f420f58b56842a18fe5eb9c65f340d5))
+* add virtual prop decorator default values ([7422be6](https://github.com/Lujo5/ivy-nestjs/commit/7422be6165316df323074e3c51dc4267832669b9))
+* **cli:** add create-resource default name property ([e063708](https://github.com/Lujo5/ivy-nestjs/commit/e063708e8288abe7fc37b112246a283cf29008ff))
+* implement automatic resource filter Swagger and GraphQL initialization ([936d87a](https://github.com/Lujo5/ivy-nestjs/commit/936d87ae09e72838b88a822c9442e750d8aaef33))
+* implement delete files resource controller and resolver endpoints ([461527b](https://github.com/Lujo5/ivy-nestjs/commit/461527b27865b4e7bbf816474812df4b22dd32e3))
+
 ### [0.1.12](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.11...v0.1.12) (2022-06-17)
 
 
