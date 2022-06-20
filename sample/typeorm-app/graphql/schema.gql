@@ -50,6 +50,7 @@ input CreateApplicationDto {
 }
 
 input CreatePlanDto {
+  features: [PersistFeatureDto!]
   name: String!
   projectId: Float
 }
@@ -79,6 +80,25 @@ input CreateUserDto {
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
 scalar DateTime
+
+type Feature {
+  createdAt: DateTime
+  id: ID!
+  name: String!
+  plan: Plan
+  updatedAt: DateTime
+}
+
+input FeaturesFilter {
+  _and: FeaturesFilter
+  _nor: FeaturesFilter
+  _or: FeaturesFilter
+  createdAt: FilterOperator
+  id: FilterOperator
+  name: FilterOperator
+  plan: PlansFilter
+  updatedAt: FilterOperator
+}
 
 type File {
   data: String!
@@ -180,8 +200,14 @@ type Mutation {
   updateUser(data: UpdateUserDto!, id: ID!): User!
 }
 
+input PersistFeatureDto {
+  id: Float
+  name: String
+}
+
 type Plan {
   createdAt: DateTime
+  features: [Feature!]
   id: ID!
   name: String!
   project: Project
@@ -193,6 +219,7 @@ input PlansFilter {
   _nor: PlansFilter
   _or: PlansFilter
   createdAt: FilterOperator
+  features: FeaturesFilter
   id: FilterOperator
   name: FilterOperator
   project: ProjectsFilter
@@ -292,6 +319,7 @@ input UpdateApplicationDto {
 }
 
 input UpdatePlanDto {
+  features: [PersistFeatureDto!]
   name: String
   projectId: Float
 }

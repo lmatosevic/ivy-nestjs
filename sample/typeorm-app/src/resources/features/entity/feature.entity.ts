@@ -2,19 +2,18 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  OneToMany,
-  OneToOne,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn
 } from 'typeorm';
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { ResourceEntity } from 'ivy-nestjs/resource';
-import { Project } from '@resources/projects/entity';
-import { Feature } from '@resources/features/entity';
+import { Plan } from '@resources/plans/entity';
 
 @ObjectType()
 @Entity()
-export class Plan extends ResourceEntity {
+export class Feature extends ResourceEntity {
   @PrimaryGeneratedColumn()
   @Field(() => ID)
   id: number;
@@ -22,11 +21,9 @@ export class Plan extends ResourceEntity {
   @Column()
   name: string;
 
-  @OneToOne(() => Project, (project) => project.plan)
-  project?: Project;
-
-  @OneToMany(() => Feature, (feature) => feature.plan, { cascade: true, eager: true })
-  features?: Feature[];
+  @ManyToOne(() => Plan, (plan) => plan.features)
+  @JoinColumn()
+  plan?: Plan;
 
   @CreateDateColumn()
   createdAt?: Date;
