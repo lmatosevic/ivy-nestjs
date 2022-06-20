@@ -1,1 +1,1 @@
-export * from './{{resourceName}}.entity';
+export * from './{{resourceFileName}}.entity';

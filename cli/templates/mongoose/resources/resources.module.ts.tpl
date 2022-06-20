@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { {{resourceControllerName}} } from './{{resourceNamePlural}}.controller';
-import { {{resourceResolverName}} } from './{{resourceNamePlural}}.resolver';
-import { {{resourceServiceName}} } from './{{resourceNamePlural}}.service';
+import { {{resourceControllerName}} } from './{{resourceFileNamePlural}}.controller';
+import { {{resourceResolverName}} } from './{{resourceFileNamePlural}}.resolver';
+import { {{resourceServiceName}} } from './{{resourceFileNamePlural}}.service';
 import { {{resourceModelName}}, {{resourceSchemaName}} } from './schema';
 import { {{resourcePolicyName}} } from './policy';
 

@@ -43,7 +43,7 @@ create new resource files
 Positionals:
   type  the type of database library used in project
                                        [string] [choices: "typeorm", "mongoose"]
-  name  the name of new resource in singular e.g. article               [string]
+  name  the name of new resource in singular e.g. e.g. blog-post        [string]
 
 Options:
       --help            Show help                                      [boolean]

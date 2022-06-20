@@ -1,1 +1,1 @@
-export * from './{{resourceName}}.schema';
+export * from './{{resourceFileName}}.schema';

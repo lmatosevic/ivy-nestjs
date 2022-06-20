@@ -2,7 +2,7 @@ import { Resolver } from '@nestjs/graphql';
 import { ResourceResolver } from 'ivy-nestjs/resource';
 import { {{resourceModelName}} } from './entity';
 import { {{createDtoName}}, {{updateDtoName}} } from './dto';
-import { {{resourceServiceName}} } from './{{resourceNamePlural}}.service';
+import { {{resourceServiceName}} } from './{{resourceFileNamePlural}}.service';
 import { {{resourcePolicyName}} } from './policy';
 
 @Resolver(() => {{resourceModelName}})

@@ -22,7 +22,7 @@ yargs(helper.hideBin(process.argv))
         .positional('name', {
           type: 'string',
           demandOption: true,
-          describe: 'the name of new resource in singular e.g. article'
+          describe: 'the name of new resource in singular e.g. blog-post'
         });
     },
     (argv) => {
@@ -93,14 +93,19 @@ function createResource(
   disableAll = false,
   overwrite = false
 ) {
-  const modelName = `${name.charAt(0).toUpperCase()}${name.substring(1)}`;
+  let modelName = name.replace(/-[a-z]/g, (match) => match.replace('-', '').toUpperCase());
+  modelName = `${modelName.charAt(0).toUpperCase()}${modelName.substring(1)}`;
+  const namePlural = pluralize(name);
   const modelNamePlural = pluralize(modelName);
   const variables = {
-    resourceName: name.toLowerCase(),
-    resourceNamePlural: modelNamePlural.toLowerCase(),
+    resourceName: `${modelName.charAt(0).toLowerCase()}${modelName.substring(1)}`,
+    resourceFileName: name.toLowerCase(),
+    resourceFileNamePlural: namePlural.toLowerCase(),
+    resourceNamePlural: modelNamePlural,
     resourceModelName: modelName,
     createDtoName: `Create${modelName}Dto`,
     updateDtoName: `Update${modelName}Dto`,
+    persistDtoName: `Persist${modelName}Dto`,
     resourceSchemaName: `${modelName}Schema`,
     resourceAbilityName: `${modelName}Ability`,
     resourceServiceName: `${modelNamePlural}Service`,
@@ -116,10 +121,10 @@ function createResource(
   templates.forEach((template) => {
     let templateFileName = path.basename(template.path);
     let filePath = templateFileName
-      .replace('resources', variables['resourceNamePlural'])
-      .replace('resource', variables['resourceName'])
+      .replace('resources', variables['resourceFileNamePlural'])
+      .replace('resource', variables['resourceFileName'])
       .replace('.tpl', '');
-    let dir = `${outDir}/${variables['resourceNamePlural']}/${template.dirTree}`;
+    let dir = `${outDir}/${variables['resourceFileNamePlural']}/${template.dirTree}`;
 
     let outFilePath = `${dir}${filePath}`;
 
@@ -143,7 +148,7 @@ function createResource(
     if ((disableAll || disableRest) && templateFileName === 'resources.module.ts.tpl') {
       templateContent = templateContent
         .replace(
-          "import { {{resourceControllerName}} } from './{{resourceNamePlural}}.controller';" + os.EOL,
+          "import { {{resourceControllerName}} } from './{{resourceFileNamePlural}}.controller';" + os.EOL,
           ''
         )
         .replace('{{resourceControllerName}}', '');
@@ -151,7 +156,10 @@ function createResource(
 
     if ((disableAll || disableGrahpql) && templateFileName === 'resources.module.ts.tpl') {
       templateContent = templateContent
-        .replace("import { {{resourceResolverName}} } from './{{resourceNamePlural}}.resolver';" + os.EOL, '')
+        .replace(
+          "import { {{resourceResolverName}} } from './{{resourceFileNamePlural}}.resolver';" + os.EOL,
+          ''
+        )
         .replace(' {{resourceResolverName}},', '');
     }
 
@@ -185,7 +193,7 @@ function createResource(
     process.exit(0);
   }
 
-  let importStatement = `import { ${variables['resourceModuleName']} } from '@resources/${variables['resourceNamePlural']}';`;
+  let importStatement = `import { ${variables['resourceModuleName']} } from '@resources/${variables['resourceFileNamePlural']}';`;
   if (!moduleContent.includes(importStatement)) {
     moduleContent = moduleContent.replace(
       matchImport.value[1],

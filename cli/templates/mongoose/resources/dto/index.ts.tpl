@@ -1,2 +1,2 @@
-export * from './create-{{resourceName}}.dto';
-export * from './update-{{resourceName}}.dto';
+export * from './create-{{resourceFileName}}.dto';
+export * from './update-{{resourceFileName}}.dto';

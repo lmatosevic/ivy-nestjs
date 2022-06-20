@@ -3,7 +3,7 @@ import { Ability, InferSubjects } from '@casl/ability';
 import { Can, Cannot, ResourcePolicy } from 'ivy-nestjs/resource';
 import { Action } from 'ivy-nestjs/enums';
 import { AuthUser } from 'ivy-nestjs/auth';
-import { {{resourceModelName}} } from '@resources/{{resourceNamePlural}}/schema';
+import { {{resourceModelName}} } from '@resources/{{resourceFileNamePlural}}/schema';
 
 type Subjects = InferSubjects<typeof {{resourceModelName}}.name>;
 

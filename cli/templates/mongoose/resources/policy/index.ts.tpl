@@ -1,1 +1,1 @@
-export * from './{{resourceNamePlural}}.policy';
+export * from './{{resourceFileNamePlural}}.policy';

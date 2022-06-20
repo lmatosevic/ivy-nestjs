@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { {{resourceControllerName}} } from './{{resourceNamePlural}}.controller';
-import { {{resourceResolverName}} } from './{{resourceNamePlural}}.resolver';
-import { {{resourceServiceName}} } from './{{resourceNamePlural}}.service';
+import { {{resourceControllerName}} } from './{{resourceFileNamePlural}}.controller';
+import { {{resourceResolverName}} } from './{{resourceFileNamePlural}}.resolver';
+import { {{resourceServiceName}} } from './{{resourceFileNamePlural}}.service';
 import { {{resourceModelName}} } from './entity';
 import { {{resourcePolicyName}} } from './policy';
 

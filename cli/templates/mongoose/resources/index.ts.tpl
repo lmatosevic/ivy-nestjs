@@ -1,2 +1,2 @@
-export * from './{{resourceNamePlural}}.module';
-export * from './{{resourceNamePlural}}.service';
+export * from './{{resourceFileNamePlural}}.module';
+export * from './{{resourceFileNamePlural}}.service';
