@@ -20,11 +20,65 @@ $ npm install ivy-nestjs
 
 In _./sample_ directory of ivy-nestjs package you can find two examples of applications built using this library.
 
-Import modules and classes to build your [NestJs](https://nestjs.com) application.
+Import modules and classes to build your [NestJs](https://nestjs.com) TypeScript application.
 
 ```ts
 import { ConfigModule } from 'ivy-nestjs/config';
 ```
+
+## Modules
+
+### Auth
+
+User authentication and authorization logic.
+
+### Config
+
+Application global configuration values.
+
+### Context
+
+Application request perisistence.
+
+### Enums
+
+Enumerable values used accross other modules.
+
+### Filters
+
+Exception handling logic.
+
+### GraphQL
+
+Bootstraping logic for GraphQL usage.
+
+### Health
+
+Health monitoring logic and endpoints.
+
+### Logger
+
+Application logging implementation.
+
+### Mongoose
+
+Bootstraping logic for Mongoose library usage with MongoDB.
+
+### Resource
+
+The main logic for resource management, model definition, and endpoints creation.
+
+### Storage
+
+File persistence and access logic.
+
+### Typeorm
+
+Bootstraping logic for Typeorm library usage any SQL relational database.
+
+### Utils
+
+Common utility functions and classes used accross other modules.
 
 ## Command-line interface
 
