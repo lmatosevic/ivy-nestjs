@@ -1,12 +1,15 @@
 import { Document, FilterQuery } from 'mongoose';
+import { Min } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class QueryRequest<T> {
   readonly filter?: FilterQuery<T & Document>;
 
-  skip?: number;
+  @Min(1)
+  page?: number;
 
-  limit?: number;
+  @Min(0)
+  size?: number;
 
   @ApiProperty({
     oneOf: [

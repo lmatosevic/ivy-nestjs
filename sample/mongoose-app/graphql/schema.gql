@@ -280,19 +280,19 @@ type ProjectsResponse {
 
 type Query {
   application(id: ID!): Application!
-  applications(filter: ApplicationsFilter, limit: Int, skip: Int, sort: String): ApplicationsResponse!
+  applications(filter: ApplicationsFilter, page: Int, size: Int, sort: String): ApplicationsResponse!
   authUser: User!
   feature(id: ID!): Feature!
-  features(filter: FeaturesFilter, limit: Int, skip: Int, sort: String): FeaturesResponse!
+  features(filter: FeaturesFilter, page: Int, size: Int, sort: String): FeaturesResponse!
   health: HealthDto!
   identifierAvailable(field: String!, value: String!): StatusResponse!
   info: InfoDto!
   plan(id: ID!): Plan!
-  plans(filter: PlansFilter, limit: Int, skip: Int, sort: String): PlansResponse!
+  plans(filter: PlansFilter, page: Int, size: Int, sort: String): PlansResponse!
   project(id: ID!): Project!
-  projects(filter: ProjectsFilter, limit: Int, skip: Int, sort: String): ProjectsResponse!
+  projects(filter: ProjectsFilter, page: Int, size: Int, sort: String): ProjectsResponse!
   user(id: ID!): User!
-  users(filter: UsersFilter, limit: Int, skip: Int, sort: String): UsersResponse!
+  users(filter: UsersFilter, page: Int, size: Int, sort: String): UsersResponse!
 }
 
 input RegisterUserDto {

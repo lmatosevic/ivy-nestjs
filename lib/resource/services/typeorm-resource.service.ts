@@ -1,5 +1,5 @@
 import { Logger } from '@nestjs/common';
-import { ObjectLiteral, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { ResourceError } from '../../resource/errors';
 import { FILE_PROPS_KEY, FileError, FileManager, FileProps } from '../../storage';
 import { QueryRequest, QueryResponse } from '../dto';
@@ -68,8 +68,8 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
 
     try {
       results = await this.repository.find({
-        skip: options.skip,
-        take: options.limit,
+        skip: (options.page - 1) * options.size || 0,
+        take: options.size,
         order: options.sort as any,
         where: filter,
         relations: []

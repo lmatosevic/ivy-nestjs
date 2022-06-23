@@ -48,7 +48,11 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     try {
       filter = await this.resolveFilterSubReferences(filter);
       results = await this.model
-        .find(filter, this.policyProjection(), options)
+        .find(filter, this.policyProjection(), {
+          skip: (options.page - 1) * options.size,
+          limit: options.size,
+          sort: options.sort
+        })
         .populate(this.makePopulationArray())
         .exec();
       totalCount = await this.model.countDocuments(filter).exec();

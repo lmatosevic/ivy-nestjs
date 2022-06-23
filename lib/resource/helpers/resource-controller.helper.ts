@@ -275,7 +275,7 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
       const query = RequestUtil.transformFilter(filter);
       return this.service.query({
         filter: query,
-        ...RequestUtil.restrictQueryLimit(options)
+        ...RequestUtil.restrictQueryPageSize(options)
       });
     }
 

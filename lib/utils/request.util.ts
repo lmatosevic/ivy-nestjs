@@ -8,7 +8,7 @@ import { ObjectUtil } from './object.util';
 import * as _ from 'lodash';
 
 export class RequestUtil {
-  static maxQueryLimit = 2000;
+  static maxQueryPageSize = 2000;
   static filterSpecialKeys = [
     '_and',
     '_or',
@@ -30,17 +30,17 @@ export class RequestUtil {
     '_not'
   ];
 
-  static restrictQueryLimit(options: QueryOptions, max?: number): QueryOptions {
+  static restrictQueryPageSize(options: QueryOptions, max?: number): QueryOptions {
     if (!max) {
-      max = this.maxQueryLimit;
+      max = this.maxQueryPageSize;
     }
 
-    if (Math.abs(options?.limit) > max || !options?.limit) {
+    if (Math.abs(options?.size) > max || !options?.size) {
       if (!options) {
-        options = { limit: max };
+        options = { size: max };
       } else {
-        const sign = Math.sign(options?.limit);
-        options.limit = sign !== 0 && !isNaN(sign) ? sign * max : max;
+        const sign = Math.sign(options?.size);
+        options.size = sign !== 0 && !isNaN(sign) ? sign * max : max;
       }
     }
     return options;

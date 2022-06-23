@@ -19,7 +19,7 @@ import { Resource, ResourceConfig } from '../decorators';
 import { FILE_PROPS_KEY, FileFilter, FileProps } from '../../storage';
 import { ResourcePolicy, ResourcePolicyInterceptor } from '../policy';
 import { Expose } from 'class-transformer';
-import { IsArray, IsOptional } from 'class-validator';
+import { IsArray, IsOptional, Min } from 'class-validator';
 
 function extractFileProps<T>(classRef: Type<T>): Record<string, FileProps> {
   const types = {};
@@ -123,11 +123,13 @@ export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown
 
   @ArgsType()
   class QueryOptions {
+    @Min(1)
     @Field(() => Int, { nullable: true })
-    skip?: number;
+    page?: number;
 
+    @Min(0)
     @Field(() => Int, { nullable: true })
-    limit?: number;
+    size?: number;
 
     @Field({ nullable: true })
     sort?: string;
@@ -174,7 +176,7 @@ export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown
       const query = RequestUtil.transformFilter(filter);
       return await this.service.query({
         filter: query,
-        ...RequestUtil.restrictQueryLimit(options)
+        ...RequestUtil.restrictQueryPageSize(options)
       });
     }
 
