@@ -28,15 +28,22 @@ export class FiltersModule {
   }
 
   static createModule(providers: any[] = [], imports: any[] = []): DynamicModule {
+    const env = ModuleUtil.getCurrentEnv();
+    const dbType = env.DB_TYPE || 'mongoose';
+
     return {
       module: FiltersModule,
       imports: [...imports],
       providers: [
         ...providers,
-        {
-          provide: APP_FILTER,
-          useClass: MongoExceptionFilter
-        },
+        ...(dbType === 'mongoose'
+          ? [
+              {
+                provide: APP_FILTER,
+                useClass: MongoExceptionFilter
+              }
+            ]
+          : []),
         {
           provide: APP_FILTER,
           useClass: ResourceExceptionFilter
