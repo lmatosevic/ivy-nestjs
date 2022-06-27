@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.15](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.14...v0.1.15) (2022-06-27)
+
+
+### Features
+
+* rename skip and limit to page and size query parameters ([073ee59](https://github.com/Lujo5/ivy-nestjs/commit/073ee59f6c7319f8221841468f6fc25f36e5d3b4))
+
+
+### Bug Fixes
+
+* remove Mongoose filter for typeorm projects ([6830555](https://github.com/Lujo5/ivy-nestjs/commit/6830555d72ca61bdedf45ec09fb81a6ebb3c7603))
+
 ### [0.1.14](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.13...v0.1.14) (2022-06-20)
 
 
