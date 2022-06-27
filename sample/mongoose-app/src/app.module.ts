@@ -1,14 +1,14 @@
 import { Module } from '@nestjs/common';
 import {
-  ConfigModule,
   AuthModule,
-  LoggerModule,
-  StorageModule,
-  GraphQLModule,
-  MongooseModule,
+  ConfigModule,
   FiltersModule,
+  GraphQLModule,
   HealthModule,
-  RequestContextModule
+  LoggerModule,
+  MongooseModule,
+  RequestContextModule,
+  StorageModule
 } from 'ivy-nestjs';
 import { AppService } from './app.service';
 import { InfoModule } from '@modules/info';

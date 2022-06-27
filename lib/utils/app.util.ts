@@ -5,6 +5,7 @@ import { ResolverTypeMetadata } from '@nestjs/graphql/dist/schema-builder/metada
 import { TypeMetadataStorage } from '@nestjs/graphql';
 import helmet from 'helmet';
 import { LoggerService } from '../logger/logger.service';
+import { GRAPHQL_MODULE_OPTIONS } from '../graphql/graphql.constant';
 
 export class AppUtil {
   static initialize(app: INestApplication): { port: number; host: string; address: string } {
@@ -98,7 +99,14 @@ export class AppUtil {
     }
 
     if (configService.get('graphql.enabled') && configService.get('graphql.playground')) {
-      logger.log(`GraphQL playground available on: ${address}/graphql`);
+      app
+        .resolve(GRAPHQL_MODULE_OPTIONS, undefined, { strict: false })
+        .then(() => {
+          logger.log(`GraphQL playground available on: ${address}/graphql`);
+        })
+        .catch(() => {
+          // GraphQL module not imported
+        });
     }
 
     this.upgradeGraphQLSchemaBuilder();
