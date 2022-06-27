@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.16](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.15...v0.1.16) (2022-06-27)
+
+
+### Features
+
+* disabled logging for GraphQL playground if module not imported ([f2ed2b3](https://github.com/Lujo5/ivy-nestjs/commit/f2ed2b375d7e5de1c54499dea5c5f980b52e8bb1))
+
 ### [0.1.15](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.14...v0.1.15) (2022-06-27)
 
 
