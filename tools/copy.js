@@ -6,6 +6,11 @@ if (!fs.existsSync('./dist')) {
   fs.mkdirSync('./dist');
 }
 
+// Create ./build directory if it does not exist
+if (!fs.existsSync('./build')) {
+  fs.mkdirSync('./build');
+}
+
 // Copy ./cli directory recursively to dist
 copyRecursiveSync('./cli', './dist/cli');
 
