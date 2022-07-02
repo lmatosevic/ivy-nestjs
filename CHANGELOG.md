@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.18](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.17...v0.1.18) (2022-07-02)
+
+
+### Features
+
+* enabled string support for typeorm ids ([f5cc5a6](https://github.com/Lujo5/ivy-nestjs/commit/f5cc5a6d39c0a7eff1acd83d3538c4731cb93589))
+
 ### [0.1.17](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.16...v0.1.17) (2022-07-02)
 
 
