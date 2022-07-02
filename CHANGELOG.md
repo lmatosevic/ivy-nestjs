@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.17](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.16...v0.1.17) (2022-07-02)
+
+
+### Features
+
+* upgrade create-resource cli ([153bfa4](https://github.com/Lujo5/ivy-nestjs/commit/153bfa49854207ef77c571780402004b681b6b89))
+
 ### [0.1.16](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.15...v0.1.16) (2022-06-27)
 
 
