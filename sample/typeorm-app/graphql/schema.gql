@@ -44,7 +44,7 @@ enum AuthSource {
 
 input CreateApplicationDto {
   projectId: Float
-  reviewers: [Relation!]
+  reviewers: [UserIdDto!]
   scheduledAt: DateTime
   title: String!
 }
@@ -293,10 +293,6 @@ input RegisterUserDto {
   password: String!
 }
 
-input Relation {
-  id: ID!
-}
-
 enum Role {
   Admin
   User
@@ -313,7 +309,7 @@ type StatusResponse {
 
 input UpdateApplicationDto {
   projectId: Float
-  reviewers: [Relation!]
+  reviewers: [UserIdDto!]
   scheduledAt: DateTime
   title: String
 }
@@ -363,6 +359,10 @@ type User {
   role: Role!
   updatedAt: DateTime
   verified: Boolean!
+}
+
+input UserIdDto {
+  id: Float
 }
 
 input UsersFilter {

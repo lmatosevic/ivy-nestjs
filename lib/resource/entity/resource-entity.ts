@@ -4,7 +4,7 @@ import { AuthUser } from '../../auth/interfaces';
 interface AuthorizedUser extends AuthUser {}
 
 export abstract class ResourceEntity {
-  id: number;
+  id: string | number;
 
   createdBy?: number | AuthorizedUser;
 

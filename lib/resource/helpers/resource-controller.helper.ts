@@ -20,6 +20,7 @@ import {
   ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
+  ApiParam,
   ApiProperty,
   ApiTags,
   getSchemaPath,
@@ -210,6 +211,8 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
 
   const queryFilter = initializeFilterModel(resourceRef);
 
+  const idParamType = () => resourceRef['_OPENAPI_METADATA_FACTORY']?.()?.['id']?.type?.() || String;
+
   @ApiInternalServerErrorResponse({
     description: 'Internal server error',
     type: ErrorResponse
@@ -232,6 +235,7 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
       description: `${resourceRef.name} not found`,
       type: ErrorResponse
     })
+    @ApiParam({ name: 'id', type: () => idParamType() })
     @HttpCode(200)
     @Get('/:id')
     find(@Param('id') id: string): Promise<T> {
@@ -292,6 +296,7 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
     @ApiBody({ type: updateDtoProxy[updateDtoRef.name] })
     @ApiOkResponse({ type: () => resourceRef })
     @ApiBadRequestResponse({ description: 'Bad request', type: ErrorResponse })
+    @ApiParam({ name: 'id', type: () => idParamType() })
     @HttpCode(200)
     @Put('/:id')
     async update(@Param('id') id: string, @Body() updateDto: U): Promise<T> {
@@ -304,6 +309,7 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
       description: `${resourceRef.name} not found`,
       type: ErrorResponse
     })
+    @ApiParam({ name: 'id', type: () => idParamType() })
     @HttpCode(200)
     @Delete('/:id')
     async delete(@Param('id') id: string): Promise<T> {

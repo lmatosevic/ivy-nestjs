@@ -5,4 +5,3 @@ export * from './error-response.dto';
 export * from './short-error-response.dto';
 export * from './validation-error.dto';
 export * from './status-response.dto';
-export * from './relation.dto';

@@ -1,11 +1,11 @@
 import { InputType } from '@nestjs/graphql';
 import { PartialType } from 'ivy-nestjs/resource';
-import { CreateFeatureDto } from './create-feature.dto';
 import { IsInt, IsOptional } from 'class-validator';
 import { Expose } from 'class-transformer';
+import { CreateUserDto } from './create-user.dto';
 
 @InputType()
-export class PersistFeatureDto extends PartialType(CreateFeatureDto) {
+export class PersistUserDto extends PartialType(CreateUserDto) {
   @Expose()
   @IsInt()
   @IsOptional()
@@ -13,4 +13,4 @@ export class PersistFeatureDto extends PartialType(CreateFeatureDto) {
 }
 
 @InputType()
-export class FeatureIdDto extends PartialType(PersistFeatureDto, { pick: ['id'] }) {}
+export class UserIdDto extends PartialType(PersistUserDto, { pick: ['id'] }) {}

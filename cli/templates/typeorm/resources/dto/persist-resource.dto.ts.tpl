@@ -11,3 +11,6 @@ export class {{persistDtoName}} extends PartialType({{createDtoName}}) {
   @IsOptional()
   readonly id?: number;
 }
+
+@InputType()
+export class {{resourceModelName}}IdDto extends PartialType({{persistDtoName}}, { pick: ['id'] }) {}

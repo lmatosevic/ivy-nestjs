@@ -33,7 +33,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     }
   }
 
-  async find(id: number): Promise<T> {
+  async find(id: string | number): Promise<T> {
     let result;
 
     try {
@@ -120,7 +120,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     return createdModel;
   }
 
-  async update(id: number, updateDto: any, isFileUpload?: boolean): Promise<T> {
+  async update(id: string | number, updateDto: any, isFileUpload?: boolean): Promise<T> {
     let resource = await this.find(id);
     const currentResource = _.cloneDeep(resource);
 
@@ -157,7 +157,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     return this.find(updatedModel.id);
   }
 
-  async delete(id: number): Promise<T> {
+  async delete(id: string | number): Promise<T> {
     const resource = await this.find(id);
 
     let removedModel;

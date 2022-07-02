@@ -22,7 +22,7 @@ export abstract class TypeOrmUserDetailsService<T extends AuthUser, C, U>
     return super.create({ ...createDto, passwordHash });
   }
 
-  async update(id: number, updateDto: U, isFileUpload?: boolean): Promise<T & ResourceEntity> {
+  async update(id: number | string, updateDto: U, isFileUpload?: boolean): Promise<T & ResourceEntity> {
     if (updateDto['password']) {
       updateDto['passwordHash'] = await this.hashPassword(updateDto['password']);
       updateDto['logoutAt'] = new Date();
