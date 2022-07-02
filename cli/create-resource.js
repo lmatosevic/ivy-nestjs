@@ -39,9 +39,9 @@ yargs(helper.hideBin(process.argv))
         argv.type,
         argv.outDir,
         argv.moduleFile,
-        argv.disableRest,
-        argv.disableGraphql,
-        argv.disableAll,
+        argv.noEndpoint,
+        argv.rest,
+        argv.graphql,
         argv.overwrite
       );
     }
@@ -58,19 +58,22 @@ yargs(helper.hideBin(process.argv))
     default: './src/app.module.ts',
     type: 'string'
   })
-  .option('disableRest', {
-    describe: 'disable REST API',
+  .option('noEndpoint', {
+    describe: 'do not generate REST controller and/or GraphQL resolver classes',
+    alias: 'n',
     default: false,
     type: 'boolean'
   })
-  .option('disableGraphql', {
-    describe: 'disable GraphQL endpoint',
-    default: false,
+  .option('rest', {
+    describe: 'generate only REST types, models, and a controller class',
+    alias: 'r',
+    default: undefined,
     type: 'boolean'
   })
-  .option('disableAll', {
-    describe: 'disable both REST and GraphQL endpoints',
-    default: false,
+  .option('graphql', {
+    describe: 'generate only GraphQL types, models, and a resolver class',
+    alias: 'g',
+    default: undefined,
     type: 'boolean'
   })
   .option('overwrite', {
@@ -86,12 +89,12 @@ yargs(helper.hideBin(process.argv))
 function createResource(
   name,
   type,
-  outDir = './src/resources',
-  moduleFile = './src/app.module.ts',
-  disableRest = false,
-  disableGrahpql = false,
-  disableAll = false,
-  overwrite = false
+  outDir,
+  moduleFile,
+  noEndpoint,
+  rest,
+  graphql,
+  overwrite
 ) {
   let modelName = name.replace(/-[a-z]/g, (match) => match.replace('-', '').toUpperCase());
   modelName = `${modelName.charAt(0).toUpperCase()}${modelName.substring(1)}`;
@@ -115,6 +118,9 @@ function createResource(
     resourceModuleName: `${modelNamePlural}Module`
   };
 
+  const skipRest = !graphql && !rest ? false : !rest;
+  const skipGraphql = !graphql && !rest ? false : !graphql;
+
   const templates = getAllFiles(`${__dirname}/templates/${type}/resources`);
 
   let count = 0;
@@ -133,19 +139,19 @@ function createResource(
       return;
     }
 
-    if ((disableAll || disableRest) && templateFileName === 'resources.controller.ts.tpl') {
+    if ((noEndpoint || skipRest) && templateFileName === 'resources.controller.ts.tpl') {
       console.log('SKIP REST controller file');
       return;
     }
 
-    if ((disableAll || disableGrahpql) && templateFileName === 'resources.resolver.ts.tpl') {
+    if ((noEndpoint || skipGraphql) && templateFileName === 'resources.resolver.ts.tpl') {
       console.log('SKIP GraphQL resolver file');
       return;
     }
 
     let templateContent = fs.readFileSync(template.path, 'utf-8');
 
-    if ((disableAll || disableRest) && templateFileName === 'resources.module.ts.tpl') {
+    if ((noEndpoint || skipRest) && templateFileName === 'resources.module.ts.tpl') {
       templateContent = templateContent
         .replace(
           "import { {{resourceControllerName}} } from './{{resourceFileNamePlural}}.controller';" + os.EOL,
@@ -154,13 +160,29 @@ function createResource(
         .replace('{{resourceControllerName}}', '');
     }
 
-    if ((disableAll || disableGrahpql) && templateFileName === 'resources.module.ts.tpl') {
+    if ((noEndpoint || skipGraphql) && templateFileName === 'resources.module.ts.tpl') {
       templateContent = templateContent
         .replace(
           "import { {{resourceResolverName}} } from './{{resourceFileNamePlural}}.resolver';" + os.EOL,
           ''
         )
         .replace(' {{resourceResolverName}},', '');
+    }
+
+    if (skipGraphql) {
+      templateContent = templateContent
+        .replace(/import {(.*)} from '@nestjs\/graphql';(\n|\r\n|\r)/g, '')
+        .replace(/@ObjectType\((.*)\)(\n|\r\n|\r)/g, '')
+        .replace(/@InputType\((.*)\)(\n|\r\n|\r)/g, '')
+        .replace(/^(\s)*@Field\((.*)\)(\n|\r\n|\r)/gm, '')
+        .replace(/^(\s)*@HideField\(\)(\n|\r\n|\r)/gm, '')
+    }
+
+    if (skipRest) {
+      templateContent = templateContent
+        .replace(/import {(.*)} from '@nestjs\/swagger';(\n|\r\n|\r)/g, '')
+        .replace(/^(\s)*@ApiProperty\((.*)\)(\n|\r\n|\r)/gm, '')
+        .replace(/^(\s)*@ApiHideProperty\(\)(\n|\r\n|\r)/gm, '')
     }
 
     Object.keys(variables).forEach((variable) => {

@@ -2,7 +2,6 @@
 > Scripts for generating common application modules.
 
 ## Create resource
-Script for creating new resource modules with all of it's required files.
 
 ```shell
 create-resource.js [type] [name]
@@ -15,14 +14,17 @@ Positionals:
   name  the name of new resource in singular e.g. blog-post             [string]
 
 Options:
-      --help            Show help                                      [boolean]
-      --version         Show version number                            [boolean]
-  -d, --outDir          output directory for generated resource files
+      --help        Show help                                          [boolean]
+      --version     Show version number                                [boolean]
+  -d, --outDir      output directory for generated resource files
                                            [string] [default: "./src/resources"]
-  -m, --moduleFile      main module file where to add new resource as import
+  -m, --moduleFile  main module file where to add new resource as import
                                        [string] [default: "./src/app.module.ts"]
-      --disableRest     disable REST API              [boolean] [default: false]
-      --disableGraphql  disable GraphQL endpoint      [boolean] [default: false]
-  -o, --overwrite       overwrite existing resource files
-                                                      [boolean] [default: false]
+  -n, --noEndpoint  do not generate REST controller and/or GraphQL resolver
+                    classes                           [boolean] [default: false]
+  -r, --rest        generate only REST types, models, and a controller class
+                                                                       [boolean]
+  -g, --graphql     generate only GraphQL types, models, and a resolver class
+                                                                       [boolean]
+  -o, --overwrite   overwrite existing resource files [boolean] [default: false]
 ```

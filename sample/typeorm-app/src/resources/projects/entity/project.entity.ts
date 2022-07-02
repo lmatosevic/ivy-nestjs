@@ -51,7 +51,6 @@ export class Project extends ResourceEntity {
   planId: number;
 
   @ManyToOne(() => User, (user) => user.projects)
-  @JoinColumn()
   owner: User;
 
   @OneToOne(() => Plan, (plan) => plan.project)

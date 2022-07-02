@@ -2,7 +2,6 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn
@@ -22,7 +21,6 @@ export class Feature extends ResourceEntity {
   name: string;
 
   @ManyToOne(() => Plan, (plan) => plan.features)
-  @JoinColumn()
   plan?: Plan;
 
   @CreateDateColumn()

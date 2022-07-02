@@ -2,7 +2,6 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
   ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -30,7 +29,6 @@ export class Application extends ResourceEntity {
   scheduledAt?: Date;
 
   @ManyToOne(() => Project, (project) => project.applications)
-  @JoinColumn()
   project: Project;
 
   @Column()
