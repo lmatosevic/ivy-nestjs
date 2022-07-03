@@ -17,16 +17,35 @@ export function PartialType<T extends Type<unknown>>(resourceRef: T, config: Par
     throw new Error(`Cannot use both pick and omit types at the same time for partial schema type`);
   }
 
+  const restEnabled = !!resourceRef['_OPENAPI_METADATA_FACTORY'];
+  const graphqlEnabled = !!resourceRef['_GRAPHQL_METADATA_FACTORY'];
+
   let gqlType;
   let swaggerType;
   if (config.pick?.length > 0) {
-    gqlType = PickType(resourceRef, config.pick as never);
-    swaggerType = SwaggerPickType(resourceRef, config.pick as never);
+    if (graphqlEnabled) {
+      gqlType = PickType(resourceRef, config.pick as never);
+    }
+    if (restEnabled) {
+      swaggerType = SwaggerPickType(resourceRef, config.pick as never);
+    }
   } else if (config.omit?.length > 0) {
-    gqlType = OmitType(resourceRef, config.omit as never);
-    swaggerType = SwaggerOmitType(resourceRef, config.omit as never);
+    if (graphqlEnabled) {
+      gqlType = OmitType(resourceRef, config.omit as never);
+    }
+    if (restEnabled) {
+      swaggerType = SwaggerOmitType(resourceRef, config.omit as never);
+    }
   } else {
     gqlType = swaggerType = resourceRef;
+  }
+
+  if (graphqlEnabled && !restEnabled) {
+    return config.keepRequired ? gqlType : GqlPartialType(gqlType);
+  }
+
+  if (!graphqlEnabled && restEnabled) {
+    return config.keepRequired ? swaggerType : SwaggerPartialType(swaggerType);
   }
 
   const classType = config.keepRequired ? gqlType : GqlPartialType(gqlType);

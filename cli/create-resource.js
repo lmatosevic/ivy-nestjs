@@ -138,12 +138,10 @@ function createResource(name, type, outDir, moduleFile, noEndpoint, rest, graphq
     }
 
     if ((noEndpoint || skipRest) && templateFileName === 'resources.controller.ts.tpl') {
-      console.log('SKIP REST controller file');
       return;
     }
 
     if ((noEndpoint || skipGraphql) && templateFileName === 'resources.resolver.ts.tpl') {
-      console.log('SKIP GraphQL resolver file');
       return;
     }
 
