@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.19](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.18...v0.1.19) (2022-07-03)
+
+
+### Features
+
+* added uuid support for typeorm resources ([a47aaa7](https://github.com/Lujo5/ivy-nestjs/commit/a47aaa717806f545b60a59e1aa96f742a948e646))
+
 ### [0.1.18](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.17...v0.1.18) (2022-07-02)
 
 
