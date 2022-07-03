@@ -62,7 +62,7 @@ input CreateProjectDto {
 }
 
 input CreateUserDto {
-  authType: AuthSource
+  authSource: AuthSource
   avatar: FileDto
   consent: Boolean
   email: String!
@@ -343,7 +343,7 @@ input UpdateProjectDto {
 }
 
 input UpdateUserDto {
-  authType: AuthSource
+  authSource: AuthSource
   avatar: FileDto
   email: String
   enabled: Boolean

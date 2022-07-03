@@ -39,7 +39,7 @@ export class CreateUserDto {
   @Expose()
   @IsOptional()
   @IsEnum(AuthSource)
-  readonly authType?: AuthSource;
+  readonly authSource?: AuthSource;
 
   @Expose()
   @MinLength(6)
