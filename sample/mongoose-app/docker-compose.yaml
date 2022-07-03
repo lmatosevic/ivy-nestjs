@@ -18,7 +18,8 @@ services:
     container_name: ivy-backend
     restart: unless-stopped
     build:
-      context: ./
+      context: ../../
+      dockerfile: ./sample/mongoose-app/Dockerfile
     depends_on:
       - mongodb
     volumes:
@@ -29,7 +30,6 @@ services:
     env_file:
       - .env
     environment:
-      APP_HOST: '0.0.0.0'
       DB_HOST: ivy-mongodb
       DB_USER: "${DB_USER:-admin}"
       DB_PASSWORD: "${DB_PASSWORD:-Password1!}"

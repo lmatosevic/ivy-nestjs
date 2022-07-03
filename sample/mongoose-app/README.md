@@ -39,4 +39,4 @@ GraphQL playground is available on: `http://{APP_HOST}:{APP_PORT}/graphql`
 Start backend application and MongoDB database docker images: `docker-compose up -d`, or if you don't need database
 then run `docker-compose up -d backend`.
 
-Manually build docker image: `docker image build --rm -t ivy-mongoose-backend .`
+Manually build docker image: `docker image build --rm -t ivy-mongoose-backend -f Dockerfile ../../`

@@ -17,7 +17,7 @@
     "start": "nest start --tsc",
     "start:dev": "nest start --watch --tsc",
     "start:debug": "nest start --debug --watch --tsc",
-    "start:prod": "node dist/main",
+    "start:prod": "node dist/sample/typeorm-app/src/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest --no-cache --forceExit --detectOpenHandles --coverage",
     "test:e2e": "jest --no-cache --forceExit --config ./test/e2e/jest-e2e.json",

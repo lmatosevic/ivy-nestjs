@@ -13,7 +13,7 @@
     "start": "nest start --tsc",
     "start:dev": "nest start --watch --tsc",
     "start:debug": "nest start --debug --watch --tsc",
-    "start:prod": "node dist/main.js",
+    "start:prod": "node dist/sample/mongoose-app/src/main.js",
     "test": "jest --no-cache --forceExit --detectOpenHandles --coverage",
     "test:e2e": "jest --no-cache --forceExit --config ./test/e2e/jest-e2e.json",
     "create-resource": "node ../../cli/create-resource.js mongoose"
