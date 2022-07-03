@@ -1,14 +1,15 @@
 version: "3"
 
 services:
-  pgsql:
+  postgresql:
     image: postgres:14.3
     restart: always
-    container_name: ivy-pgsql
+    container_name: ivy-postgresql
     ports:
       - "5432:5432"
     volumes:
-      - pgsql-data:/var/lib/postgresql/data
+      - postgresql-data:/var/lib/postgresql/data
+      - ./sql:/docker-entrypoint-initdb.d
     environment:
       POSTGRES_DB: "${DB_NAME:-ivy}"
       POSTGRES_USER: "${DB_USER:-ivy}"
@@ -21,7 +22,7 @@ services:
     build:
       context: ./
     depends_on:
-      - pgsql
+      - postgresql
     volumes:
       - storage-data:/usr/app/storage
       - backend-logs:/usr/app/logs
@@ -30,11 +31,11 @@ services:
     env_file:
       - .env
     environment:
-      DB_HOST: ivy-pgsql
+      DB_HOST: ivy-postgresql
       DB_USER: "${DB_USER:-ivy}"
       DB_PASSWORD: "${DB_PASSWORD:-Password1!}"
 
 volumes:
-  pgsql-data:
+  postgresql-data:
   storage-data:
   backend-logs:

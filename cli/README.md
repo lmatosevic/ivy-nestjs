@@ -26,5 +26,7 @@ Options:
                                                                        [boolean]
   -g, --graphql     generate only GraphQL types, models, and a resolver class
                                                                        [boolean]
+  -u, --uuid        use UUID v4 as a primary key (typeorm resource only)
+                                                      [boolean] [default: false]
   -o, --overwrite   overwrite existing resource files [boolean] [default: false]
 ```

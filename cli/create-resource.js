@@ -42,6 +42,7 @@ yargs(helper.hideBin(process.argv))
         argv.noEndpoint,
         argv.rest,
         argv.graphql,
+        argv.uuid,
         argv.overwrite
       );
     }
@@ -76,6 +77,12 @@ yargs(helper.hideBin(process.argv))
     default: undefined,
     type: 'boolean'
   })
+  .option('uuid', {
+    describe: 'use UUID v4 as a primary key (typeorm resource only)',
+    alias: 'u',
+    default: false,
+    type: 'boolean'
+  })
   .option('overwrite', {
     describe: 'overwrite existing resource files',
     alias: 'o',
@@ -86,16 +93,7 @@ yargs(helper.hideBin(process.argv))
   .demandCommand(2)
   .parse();
 
-function createResource(
-  name,
-  type,
-  outDir,
-  moduleFile,
-  noEndpoint,
-  rest,
-  graphql,
-  overwrite
-) {
+function createResource(name, type, outDir, moduleFile, noEndpoint, rest, graphql, uuid, overwrite) {
   let modelName = name.replace(/-[a-z]/g, (match) => match.replace('-', '').toUpperCase());
   modelName = `${modelName.charAt(0).toUpperCase()}${modelName.substring(1)}`;
   const namePlural = pluralize(name);
@@ -175,14 +173,24 @@ function createResource(
         .replace(/@ObjectType\((.*)\)(\n|\r\n|\r)/g, '')
         .replace(/@InputType\((.*)\)(\n|\r\n|\r)/g, '')
         .replace(/^(\s)*@Field\((.*)\)(\n|\r\n|\r)/gm, '')
-        .replace(/^(\s)*@HideField\(\)(\n|\r\n|\r)/gm, '')
+        .replace(/^(\s)*@HideField\(\)(\n|\r\n|\r)/gm, '');
     }
 
     if (skipRest) {
       templateContent = templateContent
         .replace(/import {(.*)} from '@nestjs\/swagger';(\n|\r\n|\r)/g, '')
         .replace(/^(\s)*@ApiProperty\((.*)\)(\n|\r\n|\r)/gm, '')
-        .replace(/^(\s)*@ApiHideProperty\(\)(\n|\r\n|\r)/gm, '')
+        .replace(/^(\s)*@ApiHideProperty\(\)(\n|\r\n|\r)/gm, '');
+    }
+
+    if (uuid && type === 'typeorm') {
+      if (templateFileName === 'resource.entity.ts.tpl') {
+        templateContent = templateContent
+          .replace('@PrimaryGeneratedColumn()', "@PrimaryGeneratedColumn('uuid')")
+          .replace('id: number;', 'id: string;');
+      } else if (templateFileName === 'persist-resource.dto.ts.tpl') {
+        templateContent = templateContent.replace('readonly id?: number;', 'readonly id?: string;');
+      }
     }
 
     Object.keys(variables).forEach((variable) => {

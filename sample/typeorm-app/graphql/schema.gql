@@ -42,11 +42,38 @@ enum AuthSource {
   Local
 }
 
+input BabiesFilter {
+  _and: BabiesFilter
+  _nor: BabiesFilter
+  _or: BabiesFilter
+  createdAt: FilterOperator
+  id: FilterOperator
+  name: FilterOperator
+  updatedAt: FilterOperator
+}
+
+type BabiesResponse {
+  items: [Baby!]!
+  resultCount: Int!
+  totalCount: Int!
+}
+
+type Baby {
+  createdAt: DateTime
+  id: ID!
+  name: String!
+  updatedAt: DateTime
+}
+
 input CreateApplicationDto {
   projectId: Float
   reviewers: [UserIdDto!]
   scheduledAt: DateTime
   title: String!
+}
+
+input CreateBabyDto {
+  name: String!
 }
 
 input CreatePlanDto {
@@ -181,10 +208,12 @@ type JwtToken {
 
 type Mutation {
   createApplication(data: CreateApplicationDto!): Application!
+  createBaby(data: CreateBabyDto!): Baby!
   createPlan(data: CreatePlanDto!): Plan!
   createProject(data: CreateProjectDto!): Project!
   createUser(data: CreateUserDto!): User!
   deleteApplication(id: ID!): Application!
+  deleteBaby(id: ID!): Baby!
   deletePlan(id: ID!): Plan!
   deleteProject(id: ID!): Project!
   deleteProjectFiles(documents: [String!], id: ID): StatusResponse!
@@ -195,6 +224,7 @@ type Mutation {
   refresh: JwtToken!
   registration(data: RegisterUserDto!): User!
   updateApplication(data: UpdateApplicationDto!, id: ID!): Application!
+  updateBaby(data: UpdateBabyDto!, id: ID!): Baby!
   updatePlan(data: UpdatePlanDto!, id: ID!): Plan!
   updateProject(data: UpdateProjectDto!, id: ID!): Project!
   updateUser(data: UpdateUserDto!, id: ID!): User!
@@ -274,6 +304,8 @@ type Query {
   application(id: ID!): Application!
   applications(filter: ApplicationsFilter, page: Int, size: Int, sort: String): ApplicationsResponse!
   authUser: User!
+  babies(filter: BabiesFilter, page: Int, size: Int, sort: String): BabiesResponse!
+  baby(id: ID!): Baby!
   health: HealthDto!
   identifierAvailable(field: String!, value: String!): StatusResponse!
   plan(id: ID!): Plan!
@@ -312,6 +344,10 @@ input UpdateApplicationDto {
   reviewers: [UserIdDto!]
   scheduledAt: DateTime
   title: String
+}
+
+input UpdateBabyDto {
+  name: String
 }
 
 input UpdatePlanDto {
