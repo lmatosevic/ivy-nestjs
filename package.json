@@ -20,6 +20,10 @@
     "type": "git",
     "url": "https://github.com/Lujo5/ivy-nestjs.git"
   },
+  "bugs": {
+    "url": "https://github.com/Lujo5/ivy-nestjs/issues"
+  },
+  "homepage": "https://npmjs.com/package/ivy-nestjs",
   "publishConfig": {
     "access": "public"
   },
@@ -80,6 +84,7 @@
     "graphql": "^15.8.0",
     "helmet": "5.0.2",
     "lodash": "^4.17.21",
+    "mongodb": "^3.7.3",
     "mongoose": "^6.2.1",
     "passport": "^0.4.1",
     "passport-http": "^0.3.0",
