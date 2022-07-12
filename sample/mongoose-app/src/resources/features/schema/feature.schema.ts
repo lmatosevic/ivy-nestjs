@@ -15,7 +15,12 @@ export class Feature extends Document {
   @Prop()
   name: string;
 
-  @VirtualProp({ ref: 'Plan', foreignField: 'features', justOne: true, populate: true })
+  @VirtualProp({
+    ref: 'Plan',
+    foreignField: 'features',
+    justOne: true,
+    populate: true
+  })
   plan?: Plan;
 
   @Prop()
@@ -25,4 +30,5 @@ export class Feature extends Document {
   updatedAt?: Date;
 }
 
-export const FeatureSchema = MongooseSchemaFactory.createForClass<Feature>(Feature);
+export const FeatureSchema =
+  MongooseSchemaFactory.createForClass<Feature>(Feature);

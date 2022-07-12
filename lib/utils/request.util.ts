@@ -1,5 +1,5 @@
 import { Type } from '@nestjs/common';
-import { plainToClass } from 'class-transformer';
+import { plainToInstance } from 'class-transformer';
 import { validateOrReject } from 'class-validator';
 import { QueryOptions } from 'mongoose';
 import { ResourceError } from '../resource';
@@ -46,8 +46,8 @@ export class RequestUtil {
     return options;
   }
 
-  static async deserializeAndValidate<T>(type: Type<T>, dataDto: T) {
-    const instance = plainToClass(type, dataDto, {
+  static async deserializeAndValidate<T>(type: Type<T>, dataDto: T): Promise<Partial<T> | any> {
+    const instance = plainToInstance(type, dataDto, {
       excludeExtraneousValues: true,
       exposeUnsetFields: false
     });

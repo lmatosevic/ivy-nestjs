@@ -1,4 +1,4 @@
-import { classToPlain } from 'class-transformer';
+import { instanceToPlain } from 'class-transformer';
 import { AuthUser } from '../../auth/interfaces';
 
 interface AuthorizedUser extends AuthUser {}
@@ -13,6 +13,6 @@ export abstract class ResourceEntity {
   updatedAt?: Date;
 
   toJSON(): Record<string, any> {
-    return classToPlain(this);
+    return instanceToPlain(this);
   }
 }

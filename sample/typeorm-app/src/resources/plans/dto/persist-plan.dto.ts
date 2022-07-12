@@ -11,6 +11,3 @@ export class PersistPlanDto extends PartialType(CreatePlanDto) {
   @IsOptional()
   readonly id?: number;
 }
-
-@InputType()
-export class PlanIdDto extends PartialType(PersistPlanDto, { pick: ['id'] }) {}

@@ -51,7 +51,7 @@ export class TypeOrmFileMetaService implements FileMetaService {
       return !!(await this.fileMetaRepository.remove(model));
     } catch (e) {
       this.logger.error('Error deleting file metadata "%s", %j', name, e);
-      return null;
+      return false;
     }
   }
 

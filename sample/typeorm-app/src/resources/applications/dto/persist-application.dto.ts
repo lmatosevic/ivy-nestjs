@@ -11,6 +11,3 @@ export class PersistApplicationDto extends PartialType(CreateApplicationDto) {
   @IsOptional()
   readonly id?: number;
 }
-
-@InputType()
-export class ApplicationIdDto extends PartialType(PersistApplicationDto, { pick: ['id'] }) {}

@@ -67,13 +67,16 @@ export class FileManager {
   async storeFile(name: string, data: Buffer, meta?: FileMetadata): Promise<StoredFile | null> {
     const fileName = FilesUtil.generateFileName(name);
     const res = await this.storageService.store(fileName, data, this.dirname);
+
     if (res) {
       this.logger.verbose('Stored file "%s"', fileName);
     }
+
     let metaId;
     if (res && meta) {
       metaId = await this.fileMetaService.save({ name: fileName, ...meta });
     }
+
     return res ? { fileName, metaId } : null;
   }
 
@@ -92,20 +95,24 @@ export class FileManager {
 
   async deleteFile(name: string): Promise<boolean> {
     const result = await this.storageService.delete(name, this.dirname);
+
     if (result) {
       this.logger.verbose('Deleted file "%s"', name);
       await this.fileMetaService.delete(name);
     }
+
     return result;
   }
 
   async moveFromTemp(name: string, meta?: FileMetadata): Promise<StoredFile | null> {
     const result = await this.storageService.move(name, this.tempDirname, this.dirname);
     let metaId;
+
     if (result) {
       this.logger.verbose('Moved file "%s"', name);
       metaId = await this.fileMetaService.save({ name, ...meta });
     }
+
     return result ? { fileName: name, metaId } : null;
   }
 
@@ -122,20 +129,22 @@ export class FileManager {
         success = false;
       }
     }
+
     return success;
   }
 
-  async deleteFileArray(fileFields: string[]): Promise<number> {
-    if (!fileFields) {
+  async deleteFileArray(fileNames: string[]): Promise<number> {
+    if (!fileNames) {
       return 0;
     }
 
     let deleteCount = 0;
-    for (const fileField of fileFields) {
-      if (!!(await this.deleteFile(fileField))) {
+    for (const fileName of fileNames) {
+      if (!!(await this.deleteFile(fileName))) {
         deleteCount++;
       }
     }
+
     return deleteCount;
   }
 
@@ -144,7 +153,12 @@ export class FileManager {
     currentModel: any,
     newModel?: any
   ): Promise<number> {
-    let deleteCount = 0;
+    const filesToDelete = this.getFilesToDelete(fileProps, currentModel, newModel);
+    return this.deleteFileArray(filesToDelete);
+  }
+
+  getFilesToDelete(fileProps: Record<string, FileProps>, currentModel: any, newModel?: any): string[] {
+    const fileNames: string[] = [];
 
     for (const fileField of Object.keys(fileProps)) {
       if (!this.fileMetaService.modelFields(currentModel).includes(fileField)) {
@@ -157,14 +171,10 @@ export class FileManager {
       if (!newModel) {
         if (Array.isArray(currentValue)) {
           for (const value of currentValue) {
-            if (!!(await this.deleteFile(value.data))) {
-              deleteCount++;
-            }
+            fileNames.push(value.data);
           }
         } else if (currentValue && currentValue.data) {
-          if (!!(await this.deleteFile(currentValue.data))) {
-            deleteCount++;
-          }
+          fileNames.push(currentValue.data);
         }
         continue;
       }
@@ -177,20 +187,16 @@ export class FileManager {
           if (newValue.find((nv) => nv.data === value.data)) {
             continue;
           }
-          if (!!(await this.deleteFile(value.data))) {
-            deleteCount++;
-          }
+          fileNames.push(value.data);
         }
       } else if (currentValue && currentValue.data) {
         if (!newValue || newValue.data !== currentValue.data) {
-          if (!!(await this.deleteFile(currentValue.data))) {
-            deleteCount++;
-          }
+          fileNames.push(currentValue.data);
         }
       }
     }
 
-    return deleteCount;
+    return fileNames;
   }
 
   async persistFile(file: File, isUpdate = false, meta?: FileMetadata): Promise<StoredFile | null> {
@@ -207,13 +213,13 @@ export class FileManager {
 
     // Data is existing file name
     if (!match || !match.value || match.value.length < 3) {
-      let fileUuid;
+      let fileUUID;
       try {
-        fileUuid = file.data.split('.').slice(0, -1).join('').split('_').slice(-1)[0];
+        fileUUID = file.data.split('.').slice(0, -1).join('').split('_').slice(-1)[0];
       } catch (e) {
         // invalid file format
       }
-      if (isUpdate || FilesUtil.isFileNameSuffixValid(fileUuid)) {
+      if (isUpdate || FilesUtil.isFileNameSuffixValid(fileUUID)) {
         return null;
       } else {
         throw new FileError('Invalid file format', 400);

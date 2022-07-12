@@ -8,10 +8,13 @@ import { ResourceService } from './resource.service';
 import { ResourceEntity } from '../entity';
 import { ResourcePolicyService } from '../policy';
 import * as _ from 'lodash';
+import { RelationMetadata } from 'typeorm/metadata/RelationMetadata';
 
 type ModelReferences = {
   fields: string[];
   files: string[];
+  relations: string[];
+  relationMetadata: Record<string, RelationMetadata>;
   fileProps: Record<string, FileProps>;
 };
 
@@ -91,19 +94,32 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     };
   }
 
-  async create(createDto: any): Promise<T> {
+  async create(createDto: Partial<T & any>): Promise<T> {
     let createdModel;
     let storedFiles;
 
-    const model = this.repository.create(createDto) as any;
+    let model = this.repository.create(createDto as any) as any;
     if (!model.createdBy && this.fields().includes('createdBy')) {
       model.createdBy = this.getAuthUser()?.getId();
     }
 
+    model = _.assign(model, createDto) as any;
+
     try {
-      storedFiles = await this.fileManager?.persistFiles(this.fileProps(), model);
+      storedFiles = await this.persistResourceFiles(
+        model,
+        null,
+        false,
+        this.repository as Repository<ResourceEntity>
+      );
+
       createdModel = await this.repository.save(model);
-      await this.fileManager?.updateFilesMetaResourceIds(storedFiles, createdModel.id);
+
+      await this.updateFilesMetaResourceIds(
+        storedFiles,
+        createdModel,
+        this.repository as Repository<ResourceEntity>
+      );
     } catch (e) {
       this.logger.debug(e);
       await this.fileManager?.deleteFileArray(storedFiles);
@@ -117,10 +133,13 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
       });
     }
 
-    return createdModel;
+    return this.find(createdModel.id);
   }
 
-  async update(id: string | number, updateDto: any, isFileUpload?: boolean): Promise<T> {
+  async update(id: string | number, updateDto: Partial<T & any>, isFileUpload?: boolean): Promise<T> {
+    let updatedModel;
+    let storedFiles;
+
     let resource = await this.find(id);
     const currentResource = _.cloneDeep(resource);
 
@@ -130,17 +149,28 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
       FilesUtil.mergeFileArrays(currentResource, resource, this.fileFields());
     }
 
-    let updatedModel;
-    let storedFiles;
     try {
-      storedFiles = await this.fileManager?.persistFiles(
-        this.fileProps(),
+      storedFiles = await this.persistResourceFiles(
         resource,
         currentResource,
-        isFileUpload
+        isFileUpload,
+        this.repository as Repository<ResourceEntity>
       );
+
       updatedModel = await this.repository.save(resource);
-      await this.fileManager?.deleteFiles(this.fileProps(), currentResource, updatedModel);
+
+      await this.updateFilesMetaResourceIds(
+        storedFiles,
+        updatedModel,
+        this.repository as Repository<ResourceEntity>
+      );
+
+      const filesToDelete = await this.resourceFilesToDelete(
+        currentResource,
+        updatedModel,
+        this.repository as Repository<ResourceEntity>
+      );
+      await this.fileManager?.deleteFileArray(filesToDelete);
     } catch (e) {
       this.logger.debug(e);
       await this.fileManager?.deleteFileArray(storedFiles);
@@ -159,11 +189,18 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
 
   async delete(id: string | number): Promise<T> {
     const resource = await this.find(id);
+    const currentResource = _.cloneDeep(resource);
 
-    let removedModel;
     try {
-      removedModel = await this.repository.remove(resource);
-      await this.fileManager?.deleteFiles(this.fileProps(), removedModel);
+      const filesToDelete = await this.resourceFilesToDelete(
+        resource,
+        null,
+        this.repository as Repository<ResourceEntity>
+      );
+
+      await this.repository.remove(resource);
+
+      await this.fileManager?.deleteFileArray(filesToDelete);
     } catch (e) {
       this.logger.debug(e);
       throw new ResourceError(this.repository.metadata.name, {
@@ -173,12 +210,198 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
       });
     }
 
-    return this.find(removedModel.id);
+    return currentResource;
+  }
+
+  private async persistResourceFiles(
+    resource: ResourceEntity,
+    currentResource: ResourceEntity,
+    isFileUpload: boolean,
+    repository: Repository<ResourceEntity>
+  ): Promise<string[]> {
+    const modelName = repository.metadata?.name;
+    const relations = this.relationFields(modelName);
+
+    const storedFiles = [];
+
+    const fileFileds = this.fileFields(modelName);
+
+    let resourceEntity = repository.create(resource);
+    resourceEntity = _.assign(resourceEntity, resource);
+
+    const fileNames = await this.fileManager?.persistFiles(
+      this.fileProps(modelName),
+      resourceEntity,
+      currentResource,
+      isFileUpload
+    );
+    storedFiles.push(...fileNames);
+
+    for (const relation of relations) {
+      if (fileFileds.includes(relation)) {
+        continue;
+      }
+
+      const relationMetadata = this.relationMetadata(relation, modelName);
+      const relationModelName = relationMetadata.type['name'];
+
+      if (relationMetadata.isCascadeUpdate || relationMetadata.isCascadeInsert) {
+        let referencedResources = resource[relation];
+        const currentReferencedResources = currentResource?.[relation];
+        if (!referencedResources) {
+          continue;
+        }
+
+        if (!Array.isArray(referencedResources)) {
+          referencedResources = [referencedResources];
+        }
+
+        for (const referencedResource of referencedResources) {
+          const referencedRepository: Repository<ResourceEntity> =
+            this.repository.manager.getRepository(relationModelName);
+
+          const storedSubReferenceFiles = await this.persistResourceFiles(
+            referencedResource,
+            Array.isArray(currentReferencedResources)
+              ? currentReferencedResources.find((crr) => crr.id === referencedResource.id)
+              : currentReferencedResources,
+            false,
+            referencedRepository
+          );
+
+          storedFiles.push(...storedSubReferenceFiles);
+        }
+      }
+    }
+
+    return storedFiles;
+  }
+
+  private async updateFilesMetaResourceIds(
+    storedFiles: string[],
+    resource: ResourceEntity,
+    repository: Repository<ResourceEntity>
+  ): Promise<void> {
+    const modelName = repository.metadata?.name;
+    const relations = this.relationFields(modelName);
+
+    const fileFileds = this.fileFields(modelName);
+
+    for (const relation of relations) {
+      if (fileFileds.includes(relation)) {
+        let fileData = await resource[relation];
+        if (fileData && storedFiles.length > 0) {
+          if (!Array.isArray(fileData)) {
+            fileData = [fileData];
+          }
+          const resourceFiles = fileData.map((fd) => fd.data);
+          const filesMetaToUpdate = storedFiles.filter((sf) => resourceFiles.includes(sf));
+          await this.fileManager?.updateFilesMetaResourceIds(filesMetaToUpdate, resource.id);
+        }
+        continue;
+      }
+
+      const relationMetadata = this.relationMetadata(relation, modelName);
+      const relationModelName = relationMetadata.type['name'];
+
+      if (relationMetadata.isCascadeUpdate || relationMetadata.isCascadeInsert) {
+        let referencedResources = await resource[relation];
+        if (!referencedResources) {
+          continue;
+        }
+
+        if (!Array.isArray(referencedResources)) {
+          referencedResources = [referencedResources];
+        }
+
+        for (const referencedResource of referencedResources) {
+          const referencedRepository: Repository<ResourceEntity> =
+            this.repository.manager.getRepository(relationModelName);
+
+          await this.updateFilesMetaResourceIds(storedFiles, referencedResource, referencedRepository);
+        }
+      }
+    }
+  }
+
+  private async resourceFilesToDelete(
+    resource: ResourceEntity,
+    newResource: ResourceEntity,
+    repository: Repository<ResourceEntity>
+  ): Promise<string[]> {
+    const modelName = repository.metadata?.name;
+    const relations = this.relationFields(modelName);
+
+    const filesToDelete = [];
+
+    const fileFileds = this.fileFields(modelName);
+
+    filesToDelete.push(
+      ...this.fileManager?.getFilesToDelete(this.fileProps(modelName), resource, newResource)
+    );
+
+    for (const relation of relations) {
+      if (fileFileds.includes(relation)) {
+        continue;
+      }
+
+      const relationMetadata = this.relationMetadata(relation, modelName);
+      const relationModelName = relationMetadata.type['name'];
+
+      if (
+        (relationMetadata.isOwning && relationMetadata.onDelete === 'CASCADE') ||
+        (!relationMetadata.isOwning && relationMetadata.inverseRelation?.onDelete === 'CASCADE') ||
+        relationMetadata.isCascadeRemove ||
+        (newResource && (relationMetadata.isCascadeUpdate || relationMetadata.isCascadeRemove))
+      ) {
+        let referencedResources = await resource[relation];
+        const currentReferencedResources = newResource?.[relation];
+        if (!referencedResources) {
+          continue;
+        }
+
+        if (!Array.isArray(referencedResources)) {
+          referencedResources = [referencedResources];
+        }
+
+        for (const referencedResource of referencedResources) {
+          const referencedRepository: Repository<ResourceEntity> =
+            this.repository.manager.getRepository(relationModelName);
+
+          const subFilesToDelete = await this.resourceFilesToDelete(
+            referencedResource,
+            Array.isArray(currentReferencedResources)
+              ? currentReferencedResources.find((crr) => crr.id === referencedResource.id)
+              : currentReferencedResources,
+            referencedRepository
+          );
+
+          filesToDelete.push(...subFilesToDelete);
+        }
+      }
+    }
+
+    return filesToDelete;
   }
 
   private fields(modelName?: string): string[] {
     const name = modelName || this.repository.metadata.name;
     return TypeOrmResourceService.modelReferences[name]?.fields;
+  }
+
+  private relationFields(modelName?: string): string[] {
+    const name = modelName || this.repository.metadata.name;
+    return TypeOrmResourceService.modelReferences[name]?.relations;
+  }
+
+  private relationMetadata(fieldName: string, modelName?: string): RelationMetadata {
+    const name = modelName || this.repository.metadata.name;
+    return TypeOrmResourceService.modelReferences[name]?.relationMetadata?.[fieldName];
+  }
+
+  private relationMetadataList(modelName?: string): Record<string, RelationMetadata> {
+    const name = modelName || this.repository.metadata.name;
+    return TypeOrmResourceService.modelReferences[name]?.relationMetadata;
   }
 
   private fileFields(modelName?: string): string[] {
@@ -209,6 +432,8 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
   private fetchReferences(repository: Repository<any>): ModelReferences {
     const fields: string[] = [];
     const files: string[] = [];
+    const relations: string[] = [];
+    const relationMetadata: Record<string, RelationMetadata> = {};
     let fileProps: Record<string, FileProps> = {};
 
     for (const field of Object.keys(repository.metadata?.propertiesMap || {})) {
@@ -222,8 +447,14 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
       }
     }
 
-    this.logger.debug('%s file fields: %j', repository.metadata.name, files);
+    for (const relation of repository.metadata?.relations || []) {
+      relations.push(relation.propertyName);
+      relationMetadata[relation.propertyName] = relation;
+    }
 
-    return { fields, files, fileProps };
+    this.logger.debug('%s file fields: %j', repository.metadata?.name, files);
+    this.logger.debug('%s relation fields: %j', repository.metadata?.name, relations);
+
+    return { fields, files, relations, relationMetadata, fileProps };
   }
 }

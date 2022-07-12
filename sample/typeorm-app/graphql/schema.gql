@@ -44,13 +44,14 @@ enum AuthSource {
 
 input CreateApplicationDto {
   projectId: Float
-  reviewers: [UserIdDto!]
+  reviewers: [IntegerIdDto!]
   scheduledAt: DateTime
   title: String!
 }
 
 input CreatePlanDto {
   features: [PersistFeatureDto!]
+  files: [FileDto!]
   name: String!
   projectId: Float
 }
@@ -83,6 +84,7 @@ scalar DateTime
 
 type Feature {
   createdAt: DateTime
+  file: File
   id: ID!
   name: String!
   plan: Plan
@@ -94,6 +96,7 @@ input FeaturesFilter {
   _nor: FeaturesFilter
   _or: FeaturesFilter
   createdAt: FilterOperator
+  file: FileFilter
   id: FilterOperator
   name: FilterOperator
   plan: PlansFilter
@@ -173,6 +176,10 @@ type HealthStatusDto {
   storage: StatusDto!
 }
 
+input IntegerIdDto {
+  id: Float!
+}
+
 type JwtToken {
   access_token: String!
   expires_in: Float!
@@ -186,6 +193,7 @@ type Mutation {
   createUser(data: CreateUserDto!): User!
   deleteApplication(id: ID!): Application!
   deletePlan(id: ID!): Plan!
+  deletePlanFiles(files: [String!], id: ID): StatusResponse!
   deleteProject(id: ID!): Project!
   deleteProjectFiles(documents: [String!], id: ID): StatusResponse!
   deleteUser(id: ID!): User!
@@ -201,6 +209,7 @@ type Mutation {
 }
 
 input PersistFeatureDto {
+  file: FileDto
   id: Float
   name: String
 }
@@ -208,6 +217,7 @@ input PersistFeatureDto {
 type Plan {
   createdAt: DateTime
   features: [Feature!]
+  files: [File!]
   id: ID!
   name: String!
   project: Project
@@ -220,6 +230,7 @@ input PlansFilter {
   _or: PlansFilter
   createdAt: FilterOperator
   features: FeaturesFilter
+  files: FileFilter
   id: FilterOperator
   name: FilterOperator
   project: ProjectsFilter
@@ -309,13 +320,14 @@ type StatusResponse {
 
 input UpdateApplicationDto {
   projectId: Float
-  reviewers: [UserIdDto!]
+  reviewers: [IntegerIdDto!]
   scheduledAt: DateTime
   title: String
 }
 
 input UpdatePlanDto {
   features: [PersistFeatureDto!]
+  files: [FileDto!]
   name: String
   projectId: Float
 }
@@ -359,10 +371,6 @@ type User {
   role: Role!
   updatedAt: DateTime
   verified: Boolean!
-}
-
-input UserIdDto {
-  id: Float
 }
 
 input UsersFilter {

@@ -209,7 +209,7 @@ export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown
       if (deleteFilesRequest.count === 0) {
         return { success: false, message: 'No files for deletion are provided' };
       }
-      await this.service.update(deleteFiles['id'], deleteFilesRequest.dto);
+      await this.service.update(deleteFiles['id'], deleteFilesRequest.dto as any);
       return {
         success: true,
         message: `Deleted ${deleteFilesRequest.count} file${deleteFilesRequest.count > 1 ? 's' : ''}`

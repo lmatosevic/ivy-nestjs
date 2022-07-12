@@ -365,7 +365,7 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
       if (deleteFilesRequest.count === 0) {
         return { success: false, message: 'No files for deletion are provided' };
       }
-      await this.service.update(id, deleteFilesRequest.dto);
+      await this.service.update(id, deleteFilesRequest.dto as any);
       return {
         success: true,
         message: `Deleted ${deleteFilesRequest.count} file${deleteFilesRequest.count > 1 ? 's' : ''}`

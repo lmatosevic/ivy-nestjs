@@ -9,7 +9,7 @@ import {
   MaxLength,
   ValidateNested
 } from 'class-validator';
-import { UserIdDto } from '@resources/users/dto';
+import { IntegerIdDto } from 'ivy-nestjs';
 
 @InputType()
 export class CreateApplicationDto {
@@ -32,6 +32,6 @@ export class CreateApplicationDto {
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => UserIdDto)
-  readonly reviewers?: UserIdDto[];
+  @Type(() => IntegerIdDto)
+  readonly reviewers?: IntegerIdDto[];
 }

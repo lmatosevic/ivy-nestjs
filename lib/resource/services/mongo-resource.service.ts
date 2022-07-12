@@ -72,7 +72,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     };
   }
 
-  async create(createDto: any): Promise<T> {
+  async create(createDto: Partial<T & any>): Promise<T> {
     const intersectedDto = this.intersectFields(createDto);
 
     const model = new this.model(intersectedDto);
@@ -101,7 +101,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     return this.populateModelDeep(createdModel);
   }
 
-  async update(id: string, updateDto: any, isFileUpload?: boolean): Promise<T> {
+  async update(id: string, updateDto: Partial<T & any>, isFileUpload?: boolean): Promise<T> {
     const intersectedDto = this.intersectFields(updateDto);
 
     const resource = await this.findResource(id);
@@ -152,10 +152,14 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
 
       removedModel = await resource.remove();
       populatedModel = await this.populateModelDeep(removedModel);
-      await this.cascadeDelete(populatedModel);
+
+      const filesToDelete = await this.resourceFilesToDelete(populatedModel);
+
+      await this.cascadeRelations(populatedModel);
 
       await session.commitTransaction();
 
+      await this.fileManager?.deleteFileArray(filesToDelete);
       await this.fileManager?.deleteFiles(this.fileProps(), removedModel);
     } catch (e) {
       this.logger.debug(e);
@@ -310,20 +314,18 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     return populations;
   }
 
-  private async cascadeDelete(deletedResource: T & Document): Promise<void> {
+  private async cascadeRelations(deletedResource: Document): Promise<void> {
     const deletedModelName = deletedResource.constructor['modelName'];
     const virtuals = this.virtualFields(deletedModelName);
 
-    if (virtuals.length === 0) {
-      return;
+    if (virtuals.length > 0) {
+      this.logger.verbose('Cascade virtuals: %j', virtuals);
     }
 
-    this.logger.verbose('Cascade virtuals: %j', virtuals);
-
     for (const virtualField of virtuals) {
-      let referencedModels = deletedResource[virtualField];
-      if (!Array.isArray(referencedModels)) {
-        referencedModels = [referencedModels];
+      let referencedResources = deletedResource[virtualField];
+      if (!Array.isArray(referencedResources)) {
+        referencedResources = [referencedResources];
       }
 
       const fieldProp = this.refProp(virtualField);
@@ -332,28 +334,27 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
         .filter(([_, props]) => props?.ref === deletedModelName)
         .map(([field, props]) => ({ name: field, props }));
 
-      for (const referencedModel of referencedModels) {
-        const logData = { id: referencedModel.id };
+      for (const referencedResource of referencedResources) {
+        const logData = { id: referencedResource.id };
 
         if (fieldProp.onDelete === 'cascade') {
-          await referencedModel.remove();
-          await this.fileManager?.deleteFiles(this.fileProps(fieldProp.ref), referencedModel);
+          await referencedResource.remove();
           this.logger.verbose('Cascade delete for %s, %j', fieldProp.ref, logData);
-          const populatedRefModel = await this.populateModel(referencedModel, fieldProp.ref);
-          await this.cascadeDelete(populatedRefModel);
+          const populatedRefModel = await this.populateModel(referencedResource, fieldProp.ref);
+          await this.cascadeRelations(populatedRefModel);
           continue;
         }
 
         for (const field of fieldsToUpdate) {
           if (!fieldProp.onDelete || fieldProp.onDelete === 'setNull') {
-            if (!Array.isArray(referencedModel[field.name])) {
-              referencedModel[field.name] = null;
+            if (!Array.isArray(referencedResource[field.name])) {
+              referencedResource[field.name] = null;
             } else {
-              referencedModel[field.name] = referencedModel[field.name].filter(
+              referencedResource[field.name] = referencedResource[field.name].filter(
                 (id) => id !== deletedResource.id
               );
             }
-            await referencedModel.save();
+            await referencedResource.save();
             this.logger.verbose('Cascaded to null value for %s.%s, %j', fieldProp.ref, field.name, logData);
           } else {
             this.logger.verbose('Do nothing on cascade for %s.%s, %j', fieldProp.ref, field.name, logData);
@@ -361,6 +362,37 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
         }
       }
     }
+  }
+
+  private async resourceFilesToDelete(deletedResource: Document): Promise<string[]> {
+    const deletedModelName = deletedResource.constructor['modelName'];
+    const virtuals = this.virtualFields(deletedModelName);
+
+    const filesToDelete = [];
+
+    for (const virtualField of virtuals) {
+      let referencedResources = deletedResource[virtualField];
+      if (!Array.isArray(referencedResources)) {
+        referencedResources = [referencedResources];
+      }
+
+      const fieldProp = this.refProp(virtualField);
+
+      if (fieldProp.onDelete === 'cascade') {
+        for (const referencedResource of referencedResources) {
+          filesToDelete.push(
+            ...this.fileManager?.getFilesToDelete(this.fileProps(fieldProp.ref), referencedResource)
+          );
+
+          const populatedRefModel = await this.populateModel(referencedResource, fieldProp.ref);
+          const subFilesToDelete = await this.resourceFilesToDelete(populatedRefModel);
+
+          filesToDelete.concat(subFilesToDelete);
+        }
+      }
+    }
+
+    return filesToDelete;
   }
 
   private async resolveFilterSubReferences(filter: any): Promise<any> {

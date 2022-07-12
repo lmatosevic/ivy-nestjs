@@ -11,6 +11,3 @@ export class PersistFeatureDto extends PartialType(CreateFeatureDto) {
   @IsOptional()
   readonly id?: number;
 }
-
-@InputType()
-export class FeatureIdDto extends PartialType(PersistFeatureDto, { pick: ['id'] }) {}

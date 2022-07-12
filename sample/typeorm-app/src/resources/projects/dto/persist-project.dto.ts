@@ -11,6 +11,3 @@ export class PersistProjectDto extends PartialType(CreateProjectDto) {
   @IsOptional()
   readonly id?: number;
 }
-
-@InputType()
-export class ProjectIdDto extends PartialType(PersistProjectDto, { pick: ['id'] }) {}
