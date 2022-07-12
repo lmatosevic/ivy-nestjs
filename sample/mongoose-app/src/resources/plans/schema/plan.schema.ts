@@ -1,4 +1,4 @@
-import { Document, Schema as MongooseSchema } from 'mongoose';
+import { Document } from 'mongoose';
 import { Prop, Schema } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Field, ID, ObjectType } from '@nestjs/graphql';
@@ -19,10 +19,11 @@ export class Plan extends Document {
   @VirtualProp({ ref: 'Project', justOne: true, populate: true })
   project?: Project;
 
-  @Prop({
-    type: [
-      { type: MongooseSchema.Types.ObjectId, ref: 'Feature', populate: true }
-    ]
+  @VirtualProp({
+    ref: 'Feature',
+    foreignField: 'plan',
+    populate: true,
+    onDelete: 'cascade'
   })
   features?: Feature[];
 

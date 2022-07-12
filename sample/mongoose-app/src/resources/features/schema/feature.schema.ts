@@ -1,8 +1,8 @@
-import { Document } from 'mongoose';
+import { Document, Schema as MongooseSchema } from 'mongoose';
 import { Prop, Schema } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Field, ID, ObjectType } from '@nestjs/graphql';
-import { MongooseSchemaFactory, VirtualProp } from 'ivy-nestjs/resource';
+import { MongooseSchemaFactory } from 'ivy-nestjs/resource';
 import { Plan } from '@resources/plans/schema';
 
 @ObjectType()
@@ -15,13 +15,8 @@ export class Feature extends Document {
   @Prop()
   name: string;
 
-  @VirtualProp({
-    ref: 'Plan',
-    foreignField: 'features',
-    justOne: true,
-    populate: true
-  })
-  plan?: Plan;
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Plan', required: true })
+  plan: Plan;
 
   @Prop()
   createdAt?: Date;
