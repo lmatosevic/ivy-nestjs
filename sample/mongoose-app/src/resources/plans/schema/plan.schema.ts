@@ -4,7 +4,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { MongooseSchemaFactory, VirtualProp } from 'ivy-nestjs/resource';
 import { Project } from '@resources/projects/schema';
-import { Feature } from '@resources/features/schema';
+import { Feature, FeatureSchema } from '@resources/features/schema';
 
 @ObjectType()
 @Schema({ timestamps: true })
@@ -19,12 +19,7 @@ export class Plan extends Document {
   @VirtualProp({ ref: 'Project', justOne: true, populate: true })
   project?: Project;
 
-  @VirtualProp({
-    ref: 'Feature',
-    foreignField: 'plan',
-    populate: true,
-    onDelete: 'cascade'
-  })
+  @Prop({ type: [FeatureSchema], default: [] })
   features?: Feature[];
 
   @Prop()

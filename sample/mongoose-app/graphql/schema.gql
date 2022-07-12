@@ -44,12 +44,8 @@ input CreateApplicationDto {
   title: String!
 }
 
-input CreateFeatureDto {
-  name: String!
-}
-
 input CreatePlanDto {
-  features: [String!]
+  features: [PersistFeatureDto!]
   name: String!
 }
 
@@ -89,7 +85,6 @@ type Feature {
   createdAt: DateTime
   id: ID!
   name: String!
-  plan: Plan
   updatedAt: DateTime
 }
 
@@ -100,14 +95,7 @@ input FeaturesFilter {
   createdAt: FilterOperator
   id: FilterOperator
   name: FilterOperator
-  plan: PlansFilter
   updatedAt: FilterOperator
-}
-
-type FeaturesResponse {
-  items: [Feature!]!
-  resultCount: Int!
-  totalCount: Int!
 }
 
 input FileDto {
@@ -196,12 +184,10 @@ type Mutation {
   authorizeFacebook(data: FacebookAuth!): JwtToken!
   authorizeGoogle(data: GoogleAuth!): JwtToken!
   createApplication(data: CreateApplicationDto!): Application!
-  createFeature(data: CreateFeatureDto!): Feature!
   createPlan(data: CreatePlanDto!): Plan!
   createProject(data: CreateProjectDto!): Project!
   createUser(data: CreateUserDto!): User!
   deleteApplication(id: ID!): Application!
-  deleteFeature(id: ID!): Feature!
   deletePlan(id: ID!): Plan!
   deleteProject(id: ID!): Project!
   deleteProjectFiles(documents: [String!], id: ID): StatusResponse!
@@ -212,10 +198,14 @@ type Mutation {
   refresh: JwtToken!
   registration(data: RegisterUserDto!): User!
   updateApplication(data: UpdateApplicationDto!, id: ID!): Application!
-  updateFeature(data: UpdateFeatureDto!, id: ID!): Feature!
   updatePlan(data: UpdatePlanDto!, id: ID!): Plan!
   updateProject(data: UpdateProjectDto!, id: ID!): Project!
   updateUser(data: UpdateUserDto!, id: ID!): User!
+}
+
+input PersistFeatureDto {
+  id: String
+  name: String
 }
 
 type Plan {
@@ -282,8 +272,6 @@ type Query {
   application(id: ID!): Application!
   applications(filter: ApplicationsFilter, page: Int, size: Int, sort: String): ApplicationsResponse!
   authUser: User!
-  feature(id: ID!): Feature!
-  features(filter: FeaturesFilter, page: Int, size: Int, sort: String): FeaturesResponse!
   health: HealthDto!
   identifierAvailable(field: String!, value: String!): StatusResponse!
   info: InfoDto!
@@ -325,12 +313,8 @@ input UpdateApplicationDto {
   title: String
 }
 
-input UpdateFeatureDto {
-  name: String
-}
-
 input UpdatePlanDto {
-  features: [String!]
+  features: [PersistFeatureDto!]
   name: String
 }
 

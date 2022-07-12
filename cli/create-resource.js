@@ -187,8 +187,17 @@ function createResource(name, type, outDir, moduleFile, noEndpoint, rest, graphq
           .replace('@PrimaryGeneratedColumn()', "@PrimaryGeneratedColumn('uuid')")
           .replace('id: number;', 'id: string;');
       } else if (templateFileName === 'persist-resource.dto.ts.tpl') {
-        templateContent = templateContent.replace('readonly id?: number;', 'readonly id?: string;');
+        templateContent = templateContent
+          .replace('readonly id?: number;', 'readonly id?: string;')
+          .replace('IsInt', 'IsString');
       }
+    }
+
+    if (noEndpoint && type === 'mongoose' && templateFileName === 'resource.schema.ts.tpl') {
+      templateContent = templateContent.replace(
+        '@Schema({ timestamps: true })',
+        '@Schema({ timestamps: true, autoCreate: false })'
+      );
     }
 
     Object.keys(variables).forEach((variable) => {

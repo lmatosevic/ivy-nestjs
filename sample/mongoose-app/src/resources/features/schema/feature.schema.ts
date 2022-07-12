@@ -1,12 +1,11 @@
-import { Document, Schema as MongooseSchema } from 'mongoose';
+import { Document } from 'mongoose';
 import { Prop, Schema } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { MongooseSchemaFactory } from 'ivy-nestjs/resource';
-import { Plan } from '@resources/plans/schema';
 
 @ObjectType()
-@Schema({ timestamps: true })
+@Schema({ timestamps: true, autoCreate: false })
 export class Feature extends Document {
   @ApiProperty({ name: 'id' })
   @Field(() => ID, { name: 'id' })
@@ -14,9 +13,6 @@ export class Feature extends Document {
 
   @Prop()
   name: string;
-
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Plan', required: true })
-  plan: Plan;
 
   @Prop()
   createdAt?: Date;
