@@ -160,7 +160,6 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
       await session.commitTransaction();
 
       await this.fileManager?.deleteFileArray(filesToDelete);
-      await this.fileManager?.deleteFiles(this.fileProps(), removedModel);
     } catch (e) {
       this.logger.debug(e);
       await session.abortTransaction();
@@ -328,7 +327,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
         referencedResources = [referencedResources];
       }
 
-      const fieldProp = this.refProp(virtualField);
+      const fieldProp = this.refProp(virtualField, deletedModelName);
       const fieldRefs = this.refProps(fieldProp.ref);
       const fieldsToUpdate = Object.entries(fieldRefs)
         .filter(([_, props]) => props?.ref === deletedModelName)
@@ -370,20 +369,20 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
 
     const filesToDelete = [];
 
+    filesToDelete.push(
+      ...this.fileManager?.getFilesToDelete(this.fileProps(deletedModelName), deletedResource)
+    );
+
     for (const virtualField of virtuals) {
       let referencedResources = deletedResource[virtualField];
       if (!Array.isArray(referencedResources)) {
         referencedResources = [referencedResources];
       }
 
-      const fieldProp = this.refProp(virtualField);
+      const fieldProp = this.refProp(virtualField, deletedModelName);
 
       if (fieldProp.onDelete === 'cascade') {
         for (const referencedResource of referencedResources) {
-          filesToDelete.push(
-            ...this.fileManager?.getFilesToDelete(this.fileProps(fieldProp.ref), referencedResource)
-          );
-
           const populatedRefModel = await this.populateModel(referencedResource, fieldProp.ref);
           const subFilesToDelete = await this.resourceFilesToDelete(populatedRefModel);
 
