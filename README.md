@@ -120,4 +120,4 @@ Options:
 
 ## License
 
-Nest is [MIT licensed](LICENSE).
+Ivy-NestJS is [MIT licensed](LICENSE).

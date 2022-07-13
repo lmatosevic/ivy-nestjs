@@ -32,7 +32,7 @@ $ npm run start:dev
 
 Database migrations will be performed automatically on application bootstrap.
 
-Swager documentation is available on: `http://{APP_HOST}:{APP_PORT}/api-docs`
+Swagger documentation is available on: `http://{APP_HOST}:{APP_PORT}/api-docs`
 
 GraphQL playground is available on: `http://{APP_HOST}:{APP_PORT}/graphql`
 

@@ -30,7 +30,7 @@ $ npm install
 $ npm run start:dev
 ```
 
-Swager documentation is available on: `http://{APP_HOST}:{APP_PORT}/api-docs`
+Swagger documentation is available on: `http://{APP_HOST}:{APP_PORT}/api-docs`
 
 GraphQL playground is available on: `http://{APP_HOST}:{APP_PORT}/graphql`
 
