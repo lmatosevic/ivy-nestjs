@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.23](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.22...v0.1.23) (2022-07-13)
+
+
+### Features
+
+* add mongoose support for embedded documents and files ([5c8b9d1](https://github.com/Lujo5/ivy-nestjs/commit/5c8b9d1e3a24bc63ba1bd9f8cf964df69ea26668))
+* implement relation file persistence for typeorm resources ([c2f5592](https://github.com/Lujo5/ivy-nestjs/commit/c2f55923cd0bead0d91efcd27a1c511a7cc5cc86))
+* update create-resource script for mongoose type relations ([187a7a8](https://github.com/Lujo5/ivy-nestjs/commit/187a7a8279dc51534e6862240ac76b67cd6e5577))
+* update mongoose resource service cascade option ([5c7230b](https://github.com/Lujo5/ivy-nestjs/commit/5c7230b6f0c63e43011d058889a8c202685464b2))
+
 ### [0.1.22](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.21...v0.1.22) (2022-07-04)
 
 ### [0.1.21](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.20...v0.1.21) (2022-07-04)
