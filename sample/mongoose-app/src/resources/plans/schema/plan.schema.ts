@@ -5,6 +5,8 @@ import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { MongooseSchemaFactory, VirtualProp } from 'ivy-nestjs/resource';
 import { Project } from '@resources/projects/schema';
 import { Feature, FeatureSchema } from '@resources/features/schema';
+import { FileProp } from 'ivy-nestjs';
+import { File } from 'ivy-nestjs/storage/entity';
 
 @ObjectType()
 @Schema({ timestamps: true })
@@ -21,6 +23,9 @@ export class Plan extends Document {
 
   @Prop({ type: [FeatureSchema], default: [] })
   features?: Feature[];
+
+  @FileProp({ maxSize: 3145728, maxCount: 5, isArray: true })
+  files?: File[];
 
   @Prop()
   createdAt?: Date;

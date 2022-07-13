@@ -46,6 +46,7 @@ input CreateApplicationDto {
 
 input CreatePlanDto {
   features: [PersistFeatureDto!]
+  files: [FileDto!]
   name: String!
 }
 
@@ -83,6 +84,7 @@ input FacebookAuth {
 
 type Feature {
   createdAt: DateTime
+  file: File
   id: ID!
   name: String!
   updatedAt: DateTime
@@ -93,9 +95,18 @@ input FeaturesFilter {
   _nor: FeaturesFilter
   _or: FeaturesFilter
   createdAt: FilterOperator
+  file: FileFilter
   id: FilterOperator
   name: FilterOperator
   updatedAt: FilterOperator
+}
+
+type File {
+  data: String!
+  description: String
+  meta: FileMeta
+  originalName: String
+  title: String
 }
 
 input FileDto {
@@ -189,6 +200,7 @@ type Mutation {
   createUser(data: CreateUserDto!): User!
   deleteApplication(id: ID!): Application!
   deletePlan(id: ID!): Plan!
+  deletePlanFiles(files: [String!], id: ID): StatusResponse!
   deleteProject(id: ID!): Project!
   deleteProjectFiles(documents: [String!], id: ID): StatusResponse!
   deleteUser(id: ID!): User!
@@ -204,6 +216,7 @@ type Mutation {
 }
 
 input PersistFeatureDto {
+  file: FileDto
   id: String
   name: String
 }
@@ -211,6 +224,7 @@ input PersistFeatureDto {
 type Plan {
   createdAt: DateTime
   features: [Feature!]
+  files: [File!]
   id: ID!
   name: String!
   project: Project
@@ -223,6 +237,7 @@ input PlansFilter {
   _or: PlansFilter
   createdAt: FilterOperator
   features: FeaturesFilter
+  files: FileFilter
   id: FilterOperator
   name: FilterOperator
   project: ProjectsFilter
@@ -315,6 +330,7 @@ input UpdateApplicationDto {
 
 input UpdatePlanDto {
   features: [PersistFeatureDto!]
+  files: [FileDto!]
   name: String
 }
 

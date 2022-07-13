@@ -17,14 +17,12 @@ export class CreatePlanDto {
   readonly projectId?: number;
 
   @Expose()
-  @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => PersistFeatureDto)
   readonly features?: PersistFeatureDto[];
 
   @Expose()
-  @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => FileDto)

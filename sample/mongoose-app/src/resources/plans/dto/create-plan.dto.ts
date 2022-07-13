@@ -7,6 +7,7 @@ import {
   ValidateNested
 } from 'class-validator';
 import { PersistFeatureDto } from '@resources/features/dto';
+import { FileDto } from 'ivy-nestjs';
 
 @InputType()
 export class CreatePlanDto {
@@ -20,4 +21,10 @@ export class CreatePlanDto {
   @ValidateNested({ each: true })
   @Type(() => PersistFeatureDto)
   readonly features?: PersistFeatureDto[];
+
+  @Expose()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => FileDto)
+  readonly files?: FileDto[];
 }

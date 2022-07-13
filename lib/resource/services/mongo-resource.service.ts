@@ -14,9 +14,11 @@ type ModelReferences = {
   fields: string[];
   references: string[];
   virtuals: string[];
+  embedded: string[];
   files: string[];
   fileProps: Record<string, FileProps>;
   refProps: Record<string, any>;
+  embeddedTypes: Record<string, string>;
 };
 
 export abstract class MongoResourceService<T> extends ResourcePolicyService implements ResourceService<T> {
@@ -83,7 +85,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     let createdModel;
     let storedFiles;
     try {
-      storedFiles = await this.fileManager?.persistFiles(this.fileProps(), model);
+      storedFiles = await this.persistResourceFiles(model, null, false);
       createdModel = await model.save();
     } catch (e) {
       this.logger.debug(e);
@@ -102,7 +104,8 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
   }
 
   async update(id: string, updateDto: Partial<T & any>, isFileUpload?: boolean): Promise<T> {
-    const intersectedDto = this.intersectFields(updateDto);
+    let intersectedDto = this.intersectFields(updateDto);
+    intersectedDto = RequestUtil.mapIdKeys(intersectedDto);
 
     const resource = await this.findResource(id);
     const currentResource = _.cloneDeep(resource);
@@ -116,14 +119,12 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     let updatedModel;
     let storedFiles;
     try {
-      storedFiles = await this.fileManager?.persistFiles(
-        this.fileProps(),
-        resource,
-        currentResource,
-        isFileUpload
-      );
+      storedFiles = await this.persistResourceFiles(resource, currentResource, isFileUpload);
+
       updatedModel = await resource.save();
-      await this.fileManager?.deleteFiles(this.fileProps(), currentResource, updatedModel);
+
+      const filesToDelete = await this.resourceFilesToDelete(currentResource, updatedModel);
+      await this.fileManager?.deleteFileArray(filesToDelete);
     } catch (e) {
       this.logger.debug(e);
       await this.fileManager?.deleteFileArray(storedFiles);
@@ -153,7 +154,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
       removedModel = await resource.remove();
       populatedModel = await this.populateModelDeep(removedModel);
 
-      const filesToDelete = await this.resourceFilesToDelete(populatedModel);
+      const filesToDelete = await this.resourceFilesToDelete(populatedModel, null);
 
       await this.cascadeRelations(populatedModel);
 
@@ -219,10 +220,6 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
       });
     }
     return reasons.length > 0 ? reasons : 'Invalid data provided';
-  }
-
-  private async populateModel(model: T & Document, modelName?: string): Promise<T & Document> {
-    return model.populate(this.makePopulationArray(modelName, 1));
   }
 
   private async populateModelDeep(model: T & Document, modelName?: string): Promise<T & Document> {
@@ -313,6 +310,14 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     return populations;
   }
 
+  private async populateModelAllFields(model: Document, modelName?: string): Promise<Document> {
+    const filePaths = this.fileFields(modelName).map((f) => ({ path: f, populate: ['meta'] }));
+    const refPaths = [...this.referencedFields(modelName), ...this.virtualFields(modelName)].map((f) => ({
+      path: f
+    }));
+    return model.populate([...refPaths, ...filePaths]);
+  }
+
   private async cascadeRelations(deletedResource: Document): Promise<void> {
     const deletedModelName = deletedResource.constructor['modelName'];
     const virtuals = this.virtualFields(deletedModelName);
@@ -323,6 +328,10 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
 
     for (const virtualField of virtuals) {
       let referencedResources = deletedResource[virtualField];
+      if (!referencedResources) {
+        continue;
+      }
+
       if (!Array.isArray(referencedResources)) {
         referencedResources = [referencedResources];
       }
@@ -339,7 +348,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
         if (fieldProp.onDelete === 'cascade') {
           await referencedResource.remove();
           this.logger.verbose('Cascade delete for %s, %j', fieldProp.ref, logData);
-          const populatedRefModel = await this.populateModel(referencedResource, fieldProp.ref);
+          const populatedRefModel = await this.populateModelAllFields(referencedResource, fieldProp.ref);
           await this.cascadeRelations(populatedRefModel);
           continue;
         }
@@ -363,18 +372,78 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     }
   }
 
-  private async resourceFilesToDelete(deletedResource: Document): Promise<string[]> {
-    const deletedModelName = deletedResource.constructor['modelName'];
+  private async persistResourceFiles(
+    resource: Document,
+    currentResource: Document,
+    isFileUpload: boolean
+  ): Promise<string[]> {
+    let modelName = resource.constructor['modelName'];
+    if (!modelName || modelName === 'EmbeddedDocument') {
+      modelName = resource?.schema?.['classRef']?.name;
+    }
+    const embedded = this.embeddedFields(modelName);
+
+    const storedFiles = [];
+
+    const storedFilesList = await this.fileManager?.persistFiles(
+      this.fileProps(modelName),
+      resource,
+      currentResource,
+      isFileUpload
+    );
+    storedFiles.push(...storedFilesList);
+
+    for (const embeddedField of embedded) {
+      let referencedResources = resource[embeddedField];
+      const currentReferencedResources = currentResource?.[embeddedField];
+      if (!referencedResources) {
+        continue;
+      }
+
+      if (!Array.isArray(referencedResources)) {
+        referencedResources = [referencedResources];
+      }
+
+      for (const referencedResource of referencedResources) {
+        let currentReferencedResource = Array.isArray(currentReferencedResources)
+          ? currentReferencedResources.find((crr) => crr.id === referencedResource.id)
+          : currentReferencedResources;
+
+        const subReferencedStoredFiles = await this.persistResourceFiles(
+          referencedResource,
+          currentReferencedResource,
+          isFileUpload
+        );
+
+        storedFiles.push(...subReferencedStoredFiles);
+      }
+    }
+
+    return storedFiles;
+  }
+
+  private async resourceFilesToDelete(deletedResource: Document, newResource: Document): Promise<string[]> {
+    let deletedModelName = deletedResource.constructor['modelName'];
+    if (!deletedModelName || deletedModelName === 'EmbeddedDocument') {
+      deletedModelName = deletedResource?.schema?.['classRef']?.name;
+    }
+
     const virtuals = this.virtualFields(deletedModelName);
+    const embedded = this.embeddedFields(deletedModelName);
 
     const filesToDelete = [];
 
     filesToDelete.push(
-      ...this.fileManager?.getFilesToDelete(this.fileProps(deletedModelName), deletedResource)
+      ...this.fileManager?.getFilesToDelete(this.fileProps(deletedModelName), deletedResource, newResource)
     );
 
     for (const virtualField of virtuals) {
       let referencedResources = deletedResource[virtualField];
+      const currentReferencedResources = newResource?.[virtualField];
+      if (!referencedResources) {
+        continue;
+      }
+
       if (!Array.isArray(referencedResources)) {
         referencedResources = [referencedResources];
       }
@@ -383,11 +452,49 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
 
       if (fieldProp.onDelete === 'cascade') {
         for (const referencedResource of referencedResources) {
-          const populatedRefModel = await this.populateModel(referencedResource, fieldProp.ref);
-          const subFilesToDelete = await this.resourceFilesToDelete(populatedRefModel);
+          let currentReferencedResource = Array.isArray(currentReferencedResources)
+            ? currentReferencedResources.find((crr) => crr.id === referencedResource.id)
+            : currentReferencedResources;
+          if (currentReferencedResource) {
+            currentReferencedResource = await this.populateModelAllFields(
+              currentReferencedResource,
+              fieldProp.ref
+            );
+          }
 
-          filesToDelete.concat(subFilesToDelete);
+          const populatedRefModel = await this.populateModelAllFields(referencedResource, fieldProp.ref);
+          const subFilesToDelete = await this.resourceFilesToDelete(
+            populatedRefModel,
+            currentReferencedResource
+          );
+
+          filesToDelete.push(...subFilesToDelete);
         }
+      }
+    }
+
+    for (const embeddedField of embedded) {
+      let referencedResources = deletedResource[embeddedField];
+      const currentReferencedResources = newResource?.[embeddedField];
+      if (!referencedResources) {
+        continue;
+      }
+
+      if (!Array.isArray(referencedResources)) {
+        referencedResources = [referencedResources];
+      }
+
+      for (const referencedResource of referencedResources) {
+        let currentReferencedResource = Array.isArray(currentReferencedResources)
+          ? currentReferencedResources.find((crr) => crr.id === referencedResource.id)
+          : currentReferencedResources;
+
+        const subFilesToDelete = await this.resourceFilesToDelete(
+          referencedResource,
+          currentReferencedResource
+        );
+
+        filesToDelete.push(...subFilesToDelete);
       }
     }
 
@@ -444,38 +551,41 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
   }
 
   private fields(modelName?: string): string[] {
-    const name = modelName || this.model.modelName;
-    return MongoResourceService.modelReferences[name]?.fields;
+    return MongoResourceService.modelReferences[modelName || this.model.modelName]?.fields;
   }
 
   private referencedFields(modelName?: string): string[] {
-    const name = modelName || this.model.modelName;
-    return MongoResourceService.modelReferences[name]?.references;
+    return MongoResourceService.modelReferences[modelName || this.model.modelName]?.references;
   }
 
   private virtualFields(modelName?: string): string[] {
-    const name = modelName || this.model.modelName;
-    return MongoResourceService.modelReferences[name]?.virtuals;
+    return MongoResourceService.modelReferences[modelName || this.model.modelName]?.virtuals;
+  }
+
+  private embeddedFields(modelName?: string): string[] {
+    return MongoResourceService.modelReferences[modelName || this.model.modelName]?.embedded;
   }
 
   private fileFields(modelName?: string): string[] {
-    const name = modelName || this.model.modelName;
-    return MongoResourceService.modelReferences[name]?.files;
+    return MongoResourceService.modelReferences[modelName || this.model.modelName]?.files;
   }
 
   private fileProps(modelName?: string): Record<string, FileProps> {
-    const name = modelName || this.model.modelName;
-    return MongoResourceService.modelReferences[name]?.fileProps;
+    return MongoResourceService.modelReferences[modelName || this.model.modelName]?.fileProps;
   }
 
   private refProps(modelName?: string): Record<string, any> {
-    const name = modelName || this.model.modelName;
-    return MongoResourceService.modelReferences[name]?.refProps;
+    return MongoResourceService.modelReferences[modelName || this.model.modelName]?.refProps;
   }
 
   private refProp(fieldName: string, modelName?: string): any {
-    const name = modelName || this.model.modelName;
-    return MongoResourceService.modelReferences[name]?.refProps?.[fieldName];
+    return MongoResourceService.modelReferences[modelName || this.model.modelName]?.refProps?.[fieldName];
+  }
+
+  private embeddedTypes(fieldName: string, modelName?: string): any {
+    return MongoResourceService.modelReferences[modelName || this.model.modelName]?.embeddedTypes?.[
+      fieldName
+    ];
   }
 
   private modelNameFromFieldList(fieldList: string[]): string {
@@ -513,10 +623,12 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
   private fetchReferences(model: Model<T & Document>): ModelReferences {
     const references: string[] = [];
     const virtuals: string[] = [];
+    const embedded: string[] = [];
     const files: string[] = [];
     const fields: string[] = [];
     const fileProps: Record<string, FileProps> = {};
-    const refProps: Record<string, any> = [];
+    const refProps: Record<string, any> = {};
+    const embeddedTypes: Record<string, string> = {};
 
     for (const fieldName of Object.keys(model?.schema?.obj)) {
       const fieldData = model?.schema?.obj[fieldName];
@@ -540,6 +652,17 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
         references.push(fieldName);
         refProps[fieldName] = referenceProperties;
       }
+
+      if (!files.includes(fieldName) && fieldData?.type) {
+        const classRef = Array.isArray(fieldData?.type)
+          ? fieldData?.type[0]?.['classRef']
+          : fieldData?.type?.['classRef'];
+
+        if (classRef?.prototype instanceof Document) {
+          embedded.push(fieldName);
+          embeddedTypes[fieldName] = classRef.name;
+        }
+      }
     }
 
     for (const virtualModelName of Object.keys(model?.schema?.virtuals)) {
@@ -552,8 +675,9 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
 
     this.logger.debug('%s file fields: %j', model.modelName, files);
     this.logger.debug('%s referenced fields: %j', model.modelName, references);
+    this.logger.debug('%s embedded fields: %j', model.modelName, embedded);
     this.logger.debug('%s virtual fields: %j', model.modelName, virtuals);
 
-    return { fields, references, virtuals, files, fileProps, refProps };
+    return { fields, references, virtuals, embedded, files, fileProps, refProps, embeddedTypes };
   }
 }

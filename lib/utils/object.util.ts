@@ -30,12 +30,14 @@ export class ObjectUtil {
       if (newKeyResult) {
         const newValueResult = newValue(key, val);
         if (Object.keys(acc).includes(newKeyResult)) {
-          const { key: resolvedKey, value: resolvedValue } = mergeKeyValue(
-            key,
-            acc[key],
-            newKeyResult,
-            newValueResult
-          );
+          const {
+            key: resolvedKey,
+            value: resolvedValue,
+            remove
+          } = mergeKeyValue(key, acc[newKeyResult], newKeyResult, newValueResult);
+          if (remove) {
+            delete acc[newKeyResult];
+          }
           acc[resolvedKey] = resolvedValue;
         } else {
           acc[newKeyResult] = newValueResult;

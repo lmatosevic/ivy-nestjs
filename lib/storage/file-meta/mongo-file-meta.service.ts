@@ -90,6 +90,10 @@ export class MongoFileMetaService implements FileMetaService {
   }
 
   modelName(model: any): string {
-    return model?.constructor?.modelName;
+    let modelName = model?.constructor?.modelName;
+    if (!modelName || modelName === 'EmbeddedDocument') {
+      modelName = model?.schema?.['classRef']?.name
+    }
+    return modelName;
   }
 }

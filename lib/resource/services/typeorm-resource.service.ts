@@ -1,5 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { Repository } from 'typeorm';
+import { RelationMetadata } from 'typeorm/metadata/RelationMetadata';
 import { ResourceError } from '../../resource/errors';
 import { FILE_PROPS_KEY, FileError, FileManager, FileProps } from '../../storage';
 import { QueryRequest, QueryResponse } from '../dto';
@@ -8,7 +9,6 @@ import { ResourceService } from './resource.service';
 import { ResourceEntity } from '../entity';
 import { ResourcePolicyService } from '../policy';
 import * as _ from 'lodash';
-import { RelationMetadata } from 'typeorm/metadata/RelationMetadata';
 
 type ModelReferences = {
   fields: string[];
@@ -385,33 +385,29 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
   }
 
   private fields(modelName?: string): string[] {
-    const name = modelName || this.repository.metadata.name;
-    return TypeOrmResourceService.modelReferences[name]?.fields;
+    return TypeOrmResourceService.modelReferences[modelName || this.repository.metadata.name]?.fields;
   }
 
   private relationFields(modelName?: string): string[] {
-    const name = modelName || this.repository.metadata.name;
-    return TypeOrmResourceService.modelReferences[name]?.relations;
+    return TypeOrmResourceService.modelReferences[modelName || this.repository.metadata.name]?.relations;
   }
 
   private relationMetadata(fieldName: string, modelName?: string): RelationMetadata {
-    const name = modelName || this.repository.metadata.name;
-    return TypeOrmResourceService.modelReferences[name]?.relationMetadata?.[fieldName];
+    return TypeOrmResourceService.modelReferences[modelName || this.repository.metadata.name]
+      ?.relationMetadata?.[fieldName];
   }
 
   private relationMetadataList(modelName?: string): Record<string, RelationMetadata> {
-    const name = modelName || this.repository.metadata.name;
-    return TypeOrmResourceService.modelReferences[name]?.relationMetadata;
+    return TypeOrmResourceService.modelReferences[modelName || this.repository.metadata.name]
+      ?.relationMetadata;
   }
 
   private fileFields(modelName?: string): string[] {
-    const name = modelName || this.repository.metadata.name;
-    return TypeOrmResourceService.modelReferences[name]?.files;
+    return TypeOrmResourceService.modelReferences[modelName || this.repository.metadata.name]?.files;
   }
 
   private fileProps(modelName?: string): Record<string, FileProps> {
-    const name = modelName || this.repository.metadata.name;
-    return TypeOrmResourceService.modelReferences[name]?.fileProps;
+    return TypeOrmResourceService.modelReferences[modelName || this.repository.metadata.name]?.fileProps;
   }
 
   private fetchAllReferences(): Record<string, ModelReferences> {
