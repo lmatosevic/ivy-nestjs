@@ -1,11 +1,11 @@
-import crypto, { BinaryToTextEncoding } from 'crypto';
+import * as crypto from 'crypto';
 
 export class CryptoUtil {
   static signParams(
     params: Record<string, any>,
     secret: string,
     algorithm = 'sha256',
-    output: BinaryToTextEncoding = 'hex'
+    output: crypto.BinaryToTextEncoding = 'hex'
   ): string {
     return CryptoUtil.signText(
       Object.keys(params)
@@ -21,7 +21,7 @@ export class CryptoUtil {
     text: string,
     secret: string,
     algorithm = 'sha256',
-    output: BinaryToTextEncoding = 'hex'
+    output: crypto.BinaryToTextEncoding = 'hex'
   ): string {
     return crypto.createHmac(algorithm, secret).update(text).digest(output);
   }

@@ -21,8 +21,6 @@ export class FilterOperator {
 
   _regex?: string;
 
-  _where?: string;
-
   _exists?: boolean;
 
   _all?: string[];

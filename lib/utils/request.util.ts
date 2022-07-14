@@ -22,7 +22,6 @@ export class RequestUtil {
     '_ne',
     '_nin',
     '_regex',
-    '_where',
     '_exists',
     '_all',
     '_size',
