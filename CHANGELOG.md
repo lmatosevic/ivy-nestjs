@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.24](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.23...v0.1.24) (2022-07-14)
+
+
+### Features
+
+* remove where query filter param ([90fa3d9](https://github.com/Lujo5/ivy-nestjs/commit/90fa3d91369599fc0c4706256b19d07a8b6a2384))
+
 ### [0.1.23](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.22...v0.1.23) (2022-07-13)
 
 
