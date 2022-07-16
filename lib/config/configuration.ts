@@ -60,6 +60,14 @@ export default () => ({
       extraMigrations: StringUtil.parseArray(process.env.DB_MIGRATION_EXTRA_MIGRATIONS, [], ';'),
     }
   },
+  queue: {
+    type: process.env.QUEUE_TYPE || 'redis',
+    host: process.env.QUEUE_HOST || '127.0.0.1',
+    port: StringUtil.parseInteger(process.env.QUEUE_PORT, 6379),
+    db: process.env.QUEUE_DB,
+    user: process.env.QUEUE_USER,
+    password: process.env.QUEUE_PASSWORD
+  },
   cors: {
     enabled: StringUtil.parseBool(process.env.CORS_ENABLED, true),
     origin: process.env.CORS_ORIGIN || '*',

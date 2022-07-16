@@ -8,10 +8,12 @@ import {
   LoggerModule,
   RequestContextModule,
   StorageModule,
-  TypeOrmModule
+  TypeOrmModule,
+  QueueModule
 } from 'ivy-nestjs';
 import { AppService } from './app.service';
 import { InfoModule } from '@modules/info';
+import { WorkerModule } from '@modules/worker';
 import { UsersModule, UsersService } from '@resources/users';
 import { User } from '@resources/users/entity';
 import { RegisterUserDto } from '@resources/users/dto';
@@ -29,6 +31,7 @@ import { FeaturesModule } from '@resources/features';
     HealthModule.forRoot(),
     TypeOrmModule.forRoot(),
     GraphQLModule.forRoot(),
+    QueueModule.forRoot(),
     AuthModule.forRootAsync({
       userDetailsClass: User,
       userRegisterDtoClass: RegisterUserDto,
@@ -40,6 +43,7 @@ import { FeaturesModule } from '@resources/features';
     }),
     RequestContextModule,
     InfoModule,
+    WorkerModule,
     UsersModule,
     ProjectsModule,
     ApplicationsModule,

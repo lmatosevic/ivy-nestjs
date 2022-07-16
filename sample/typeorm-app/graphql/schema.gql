@@ -160,7 +160,6 @@ input FilterOperator {
   _not: FilterOperator
   _regex: String
   _size: Int
-  _where: String
 }
 
 type HealthDto {

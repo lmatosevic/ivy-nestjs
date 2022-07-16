@@ -7,11 +7,13 @@ import {
   HealthModule,
   LoggerModule,
   MongooseModule,
+  QueueModule,
   RequestContextModule,
   StorageModule
 } from 'ivy-nestjs';
 import { AppService } from './app.service';
 import { InfoModule } from '@modules/info';
+import { WorkerModule } from '@modules/worker';
 import { UsersModule, UsersService } from '@resources/users';
 import { RegisterUserDto } from '@resources/users/dto';
 import { User } from '@resources/users/schema';
@@ -29,6 +31,7 @@ import { FeaturesModule } from '@resources/features';
     HealthModule.forRoot(),
     MongooseModule.forRoot(),
     GraphQLModule.forRoot(),
+    QueueModule.forRoot(),
     AuthModule.forRootAsync({
       userDetailsClass: User,
       userRegisterDtoClass: RegisterUserDto,
@@ -40,6 +43,7 @@ import { FeaturesModule } from '@resources/features';
     }),
     RequestContextModule,
     InfoModule,
+    WorkerModule,
     UsersModule,
     ProjectsModule,
     ApplicationsModule,

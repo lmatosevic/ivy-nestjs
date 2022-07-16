@@ -10,4 +10,5 @@ export * from './storage';
 export * from './graphql';
 export * from './mongoose';
 export * from './typeorm';
+export * from './queue';
 export * from './utils';

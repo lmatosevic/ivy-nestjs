@@ -26,36 +26,28 @@ export class GraphQLModule {
   }
 
   static createModule(providers: any[] = [], imports: any[] = []): DynamicModule {
-    const env = ModuleUtil.getCurrentEnv();
     return {
       module: GraphQLModule,
       imports: [
         ...imports,
-        ...(env.GRAPHQL_ENABLED !== 'false'
-          ? [
-              NestjsGraphQLModule.forRootAsync<ApolloDriverConfig>({
-                driver: ApolloDriver,
-                inject: [GRAPHQL_MODULE_OPTIONS, ConfigService],
-                useFactory: async (graphqlModuleOptions: GqlModuleOptions, conf: ConfigService) => ({
-                  debug: conf.get('app.debug'),
-                  playground: conf.get('graphql.playground'),
-                  autoSchemaFile: `${process.cwd()}/graphql/schema.gql`,
-                  sortSchema: true,
-                  cors: {
-                    origin: conf.get('cors.origin'),
-                    credentials: conf.get('cors.credentials')
-                  },
-                  ...graphqlModuleOptions
-                })
-              })
-            ]
-          : [])
+        NestjsGraphQLModule.forRootAsync<ApolloDriverConfig>({
+          driver: ApolloDriver,
+          inject: [GRAPHQL_MODULE_OPTIONS, ConfigService],
+          useFactory: async (graphqlModuleOptions: GqlModuleOptions, conf: ConfigService) => ({
+            debug: conf.get('app.debug'),
+            playground: conf.get('graphql.playground'),
+            autoSchemaFile: `${process.cwd()}/graphql/schema.gql`,
+            sortSchema: true,
+            cors: {
+              origin: conf.get('cors.origin'),
+              credentials: conf.get('cors.credentials')
+            },
+            ...graphqlModuleOptions
+          })
+        })
       ],
       providers: [...providers],
-      exports: [
-        GRAPHQL_MODULE_OPTIONS,
-        ...(env.GRAPHQL_ENABLED !== 'false' ? [NestjsGraphQLModule] : [])
-      ]
+      exports: [GRAPHQL_MODULE_OPTIONS, NestjsGraphQLModule]
     };
   }
 }
