@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.25](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.24...v0.1.25) (2022-07-16)
+
+
+### Features
+
+* add queue module ([1065a34](https://github.com/Lujo5/ivy-nestjs/commit/1065a34666396890385c1c2d39cf5001ddbe6dcd))
+
 ### [0.1.24](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.23...v0.1.24) (2022-07-14)
 
 
