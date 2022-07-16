@@ -1,5 +1,5 @@
 import { Logger } from '@nestjs/common';
-import { OnQueueCompleted, Process, Processor } from '@nestjs/bull';
+import { OnQueueCompleted, OnQueueFailed, Process, Processor } from '@nestjs/bull';
 import { Job } from 'bull';
 
 export type WorkerData = {
@@ -19,5 +19,10 @@ export class WorkerJob {
   @OnQueueCompleted()
   async onCompleted(job: Job, result: boolean): Promise<void> {
     this.logger.log('Worker job finished: %j', result);
+  }
+
+  @OnQueueFailed()
+  async onFailed(job: Job, err: Error): Promise<void> {
+    this.logger.error('Job ID: %d failed: %j', job.id, err.message);
   }
 }

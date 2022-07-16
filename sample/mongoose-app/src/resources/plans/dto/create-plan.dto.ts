@@ -1,11 +1,6 @@
 import { InputType } from '@nestjs/graphql';
 import { Expose, Type } from 'class-transformer';
-import {
-  IsArray,
-  IsNotEmpty,
-  MaxLength,
-  ValidateNested
-} from 'class-validator';
+import { IsArray, IsNotEmpty, MaxLength, ValidateNested } from 'class-validator';
 import { PersistFeatureDto } from '@resources/features/dto';
 import { FileDto } from 'ivy-nestjs';
 
