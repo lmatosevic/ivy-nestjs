@@ -1,10 +1,5 @@
 import { Logger } from '@nestjs/common';
-import {
-  OnQueueCompleted,
-  OnQueueFailed,
-  Process,
-  Processor
-} from '@nestjs/bull';
+import { OnQueueCompleted, OnQueueFailed, Process, Processor } from '@nestjs/bull';
 import { Job } from 'bull';
 
 export type WorkerData = {

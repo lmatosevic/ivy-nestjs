@@ -7,9 +7,7 @@ import { Plan, PlanSchema } from './schema';
 import { PlansPolicy } from './policy';
 
 @Module({
-  imports: [
-    MongooseModule.forFeature([{ name: Plan.name, schema: PlanSchema }])
-  ],
+  imports: [MongooseModule.forFeature([{ name: Plan.name, schema: PlanSchema }])],
   controllers: [PlansController],
   providers: [PlansService, PlansResolver, PlansPolicy],
   exports: [PlansService, PlansPolicy]

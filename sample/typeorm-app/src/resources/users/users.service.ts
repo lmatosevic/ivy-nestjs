@@ -7,11 +7,7 @@ import { User } from './entity';
 import { CreateUserDto, UpdateUserDto } from '@resources/users/dto';
 
 @Injectable()
-export class UsersService extends TypeOrmUserDetailsService<
-  User,
-  CreateUserDto,
-  UpdateUserDto
-> {
+export class UsersService extends TypeOrmUserDetailsService<User, CreateUserDto, UpdateUserDto> {
   constructor(
     @InjectRepository(User) private usersRepository: Repository<User>,
     protected fileManager: FileManager

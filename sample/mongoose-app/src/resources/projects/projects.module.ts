@@ -7,9 +7,7 @@ import { ProjectsService } from './projects.service';
 import { ProjectsPolicy } from './policy';
 
 @Module({
-  imports: [
-    MongooseModule.forFeature([{ name: Project.name, schema: ProjectSchema }])
-  ],
+  imports: [MongooseModule.forFeature([{ name: Project.name, schema: ProjectSchema }])],
   controllers: [ProjectsController],
   providers: [ProjectsService, ProjectsResolver, ProjectsPolicy],
   exports: [ProjectsService, ProjectsPolicy]

@@ -6,15 +6,8 @@ import { UsersService } from './users.service';
 import { UsersPolicy } from './policy';
 
 @Resolver(() => User)
-export class UsersResolver extends ResourceResolver(
-  User,
-  CreateUserDto,
-  UpdateUserDto
-) {
-  constructor(
-    private usersService: UsersService,
-    private usersPolicy: UsersPolicy
-  ) {
+export class UsersResolver extends ResourceResolver(User, CreateUserDto, UpdateUserDto) {
+  constructor(private usersService: UsersService, private usersPolicy: UsersPolicy) {
     super(usersService, usersPolicy);
   }
 }

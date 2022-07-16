@@ -7,11 +7,7 @@ import { ApplicationsService } from './applications.service';
 import { ApplicationsPolicy } from './policy';
 
 @Module({
-  imports: [
-    MongooseModule.forFeature([
-      { name: Application.name, schema: ApplicationSchema }
-    ])
-  ],
+  imports: [MongooseModule.forFeature([{ name: Application.name, schema: ApplicationSchema }])],
   controllers: [ApplicationsController],
   providers: [ApplicationsService, ApplicationsResolver, ApplicationsPolicy],
   exports: [ApplicationsService, ApplicationsPolicy]

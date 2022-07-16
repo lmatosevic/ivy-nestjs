@@ -10,10 +10,7 @@ type Subjects = InferSubjects<typeof Application.name>;
 export type ApplicationAbility = Ability<[Action, Subjects]>;
 
 @Injectable()
-export class ApplicationsPolicy extends ResourcePolicy<
-  ApplicationAbility,
-  Subjects
-> {
+export class ApplicationsPolicy extends ResourcePolicy<ApplicationAbility, Subjects> {
   define(
     user: AuthUser,
     subject: Subjects,

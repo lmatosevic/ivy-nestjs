@@ -11,12 +11,7 @@ export type PlanAbility = Ability<[Action, Subjects]>;
 
 @Injectable()
 export class PlansPolicy extends ResourcePolicy<PlanAbility, Subjects> {
-  define(
-    user: AuthUser,
-    subject: Subjects,
-    can: Can<PlanAbility>,
-    cannot: Cannot<PlanAbility>
-  ) {
+  define(user: AuthUser, subject: Subjects, can: Can<PlanAbility>, cannot: Cannot<PlanAbility>) {
     can(Action.Manage, subject);
   }
 

@@ -6,15 +6,8 @@ import { ProjectsService } from './projects.service';
 import { ProjectsPolicy } from './policy';
 
 @Controller('projects')
-export class ProjectsController extends ResourceController(
-  Project,
-  CreateProjectDto,
-  UpdateProjectDto
-) {
-  constructor(
-    private projectsService: ProjectsService,
-    private projectsPolicy: ProjectsPolicy
-  ) {
+export class ProjectsController extends ResourceController(Project, CreateProjectDto, UpdateProjectDto) {
+  constructor(private projectsService: ProjectsService, private projectsPolicy: ProjectsPolicy) {
     super(projectsService, projectsPolicy);
   }
 }
