@@ -42,10 +42,10 @@ services:
     env_file:
       - .env
     environment:
-      QUEUE_HOST: ivy-redis
       DB_HOST: ivy-postgresql
       DB_USER: "${DB_USER:-ivy}"
       DB_PASSWORD: "${DB_PASSWORD:-Password1!}"
+      QUEUE_HOST: ivy-redis
 
 volumes:
   postgresql-data:

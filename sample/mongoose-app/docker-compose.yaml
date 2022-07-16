@@ -40,10 +40,10 @@ services:
     env_file:
       - .env
     environment:
-      QUEUE_HOST: ivy-redis
       DB_HOST: ivy-mongodb
       DB_USER: "${DB_USER:-admin}"
       DB_PASSWORD: "${DB_PASSWORD:-Password1!}"
+      QUEUE_HOST: ivy-redis
 
 volumes:
   mongodb-data:
