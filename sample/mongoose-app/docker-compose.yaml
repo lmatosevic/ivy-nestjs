@@ -13,6 +13,15 @@ services:
       MONGO_INITDB_ROOT_USERNAME: "${DB_USER:-admin}"
       MONGO_INITDB_ROOT_PASSWORD: "${DB_PASSWORD:-Password1!}"
 
+  redis:
+    image: redis:6.2.6
+    container_name: ivy-redis
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+    ports:
+      - "6379:6379"
+
   backend:
     image: ivy-backend
     container_name: ivy-backend
@@ -22,6 +31,7 @@ services:
       dockerfile: ./sample/mongoose-app/Dockerfile
     depends_on:
       - mongodb
+      - redis
     volumes:
       - storage-data:/usr/app/storage
       - backend-logs:/usr/app/logs
@@ -30,11 +40,13 @@ services:
     env_file:
       - .env
     environment:
+      QUEUE_HOST: ivy-redis
       DB_HOST: ivy-mongodb
       DB_USER: "${DB_USER:-admin}"
       DB_PASSWORD: "${DB_PASSWORD:-Password1!}"
 
 volumes:
   mongodb-data:
+  redis-data:
   storage-data:
   backend-logs:

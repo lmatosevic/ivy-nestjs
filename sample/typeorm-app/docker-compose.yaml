@@ -15,6 +15,15 @@ services:
       POSTGRES_USER: "${DB_USER:-ivy}"
       POSTGRES_PASSWORD: "${DB_PASSWORD:-Password1!}"
 
+  redis:
+    image: redis:6.2.6
+    container_name: ivy-redis
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+    ports:
+      - "6379:6379"
+
   backend:
     image: ivy-typeorm-backend
     container_name: ivy-typeorm-backend
@@ -24,6 +33,7 @@ services:
       dockerfile: ./sample/typeorm-app/Dockerfile
     depends_on:
       - postgresql
+      - redis
     volumes:
       - storage-data:/usr/app/storage
       - backend-logs:/usr/app/logs
@@ -32,11 +42,13 @@ services:
     env_file:
       - .env
     environment:
+      QUEUE_HOST: ivy-redis
       DB_HOST: ivy-postgresql
       DB_USER: "${DB_USER:-ivy}"
       DB_PASSWORD: "${DB_PASSWORD:-Password1!}"
 
 volumes:
   postgresql-data:
+  redis-data:
   storage-data:
   backend-logs:

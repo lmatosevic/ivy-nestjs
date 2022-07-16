@@ -9,6 +9,7 @@ Project requirements:
 * Node >= 14.2.0
 * NPM >= 6.0.0
 * PostgreSQL >= 10.21.0
+* Redis >= 6.0.0
 
 ## Development setup
 
