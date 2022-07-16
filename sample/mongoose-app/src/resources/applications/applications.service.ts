@@ -8,7 +8,8 @@ import { Application } from './schema';
 @Injectable()
 export class ApplicationsService extends MongoResourceService<Application> {
   constructor(
-    @InjectModel(Application.name) protected applicationModel: Model<Application>,
+    @InjectModel(Application.name)
+    protected applicationModel: Model<Application>,
     protected fileManager: FileManager
   ) {
     super(applicationModel, fileManager);

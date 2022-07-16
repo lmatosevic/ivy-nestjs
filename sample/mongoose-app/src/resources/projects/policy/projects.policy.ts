@@ -11,7 +11,12 @@ export type ProjectAbility = Ability<[Action, Subjects]>;
 
 @Injectable()
 export class ProjectsPolicy extends ResourcePolicy<ProjectAbility, Subjects> {
-  define(user: AuthUser, subject: Subjects, can: Can<ProjectAbility>, cannot: Cannot<ProjectAbility>) {
+  define(
+    user: AuthUser,
+    subject: Subjects,
+    can: Can<ProjectAbility>,
+    cannot: Cannot<ProjectAbility>
+  ) {
     can(Action.Manage, subject);
   }
 

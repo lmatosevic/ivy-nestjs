@@ -5,7 +5,9 @@ import { Feature, FeatureSchema } from './schema';
 import { FeaturesPolicy } from './policy';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: Feature.name, schema: FeatureSchema }])],
+  imports: [
+    MongooseModule.forFeature([{ name: Feature.name, schema: FeatureSchema }])
+  ],
   controllers: [],
   providers: [FeaturesService, FeaturesPolicy],
   exports: [FeaturesService, FeaturesPolicy]

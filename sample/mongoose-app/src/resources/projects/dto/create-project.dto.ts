@@ -1,6 +1,13 @@
 import { InputType } from '@nestjs/graphql';
 import { Expose, Type } from 'class-transformer';
-import { IsArray, IsHexadecimal, IsNotEmpty, IsOptional, MaxLength, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsHexadecimal,
+  IsNotEmpty,
+  IsOptional,
+  MaxLength,
+  ValidateNested
+} from 'class-validator';
 import { FileDto } from 'ivy-nestjs/storage';
 
 @InputType()

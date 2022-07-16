@@ -11,7 +11,12 @@ export type FeatureAbility = Ability<[Action, Subjects]>;
 
 @Injectable()
 export class FeaturesPolicy extends ResourcePolicy<FeatureAbility, Subjects> {
-  define(user: AuthUser, subject: Subjects, can: Can<FeatureAbility>, cannot: Cannot<FeatureAbility>) {
+  define(
+    user: AuthUser,
+    subject: Subjects,
+    can: Can<FeatureAbility>,
+    cannot: Cannot<FeatureAbility>
+  ) {
     can(Action.Manage, subject);
   }
 

@@ -26,4 +26,5 @@ export class Feature extends Document {
   updatedAt?: Date;
 }
 
-export const FeatureSchema = MongooseSchemaFactory.createForClass<Feature>(Feature);
+export const FeatureSchema =
+  MongooseSchemaFactory.createForClass<Feature>(Feature);

@@ -11,7 +11,12 @@ export type UserAbility = Ability<[Action, Subjects]>;
 
 @Injectable()
 export class UsersPolicy extends ResourcePolicy<UserAbility, Subjects> {
-  define(user: AuthUser, subject: Subjects, can: Can<UserAbility>, cannot: Cannot<UserAbility>) {
+  define(
+    user: AuthUser,
+    subject: Subjects,
+    can: Can<UserAbility>,
+    cannot: Cannot<UserAbility>
+  ) {
     if (user?.hasRole(Role.Admin)) {
       can(Action.Manage, subject);
     } else {

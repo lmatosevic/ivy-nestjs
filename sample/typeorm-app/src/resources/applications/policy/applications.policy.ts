@@ -10,8 +10,16 @@ type Subjects = InferSubjects<typeof Application.name>;
 export type ApplicationAbility = Ability<[Action, Subjects]>;
 
 @Injectable()
-export class ApplicationsPolicy extends ResourcePolicy<ApplicationAbility, Subjects> {
-  define(user: AuthUser, subject: Subjects, can: Can<ApplicationAbility>, cannot: Cannot<ApplicationAbility>) {
+export class ApplicationsPolicy extends ResourcePolicy<
+  ApplicationAbility,
+  Subjects
+> {
+  define(
+    user: AuthUser,
+    subject: Subjects,
+    can: Can<ApplicationAbility>,
+    cannot: Cannot<ApplicationAbility>
+  ) {
     can(Action.Manage, subject);
   }
 

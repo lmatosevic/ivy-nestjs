@@ -22,7 +22,10 @@ export class Feature extends ResourceEntity {
   @Column()
   name: string;
 
-  @ManyToOne(() => Plan, (plan) => plan.features, { onDelete: 'CASCADE', orphanedRowAction: 'delete' })
+  @ManyToOne(() => Plan, (plan) => plan.features, {
+    onDelete: 'CASCADE',
+    orphanedRowAction: 'delete'
+  })
   plan?: Plan;
 
   @FileColumn({ maxSize: 3145728 })

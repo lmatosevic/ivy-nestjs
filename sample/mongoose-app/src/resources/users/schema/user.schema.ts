@@ -3,7 +3,12 @@ import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 import { Field, HideField, ID, ObjectType } from '@nestjs/graphql';
 import { AuthSource, Role } from 'ivy-nestjs/enums';
 import { AuthUser } from 'ivy-nestjs/auth';
-import { CreatorProp, MongooseSchemaFactory, ResourceSchema, VirtualProp } from 'ivy-nestjs/resource';
+import {
+  CreatorProp,
+  MongooseSchemaFactory,
+  ResourceSchema,
+  VirtualProp
+} from 'ivy-nestjs/resource';
 import { FileProp } from 'ivy-nestjs/storage';
 import { File } from 'ivy-nestjs/storage/schema';
 import { Project } from '@resources/projects/schema';

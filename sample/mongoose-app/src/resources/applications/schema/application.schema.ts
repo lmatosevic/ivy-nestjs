@@ -2,7 +2,11 @@ import { Schema as MongooseSchema } from 'mongoose';
 import { Prop, Schema } from '@nestjs/mongoose';
 import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 import { Field, HideField, ID, ObjectType } from '@nestjs/graphql';
-import { CreatorProp, MongooseSchemaFactory, ResourceSchema } from 'ivy-nestjs/resource';
+import {
+  CreatorProp,
+  MongooseSchemaFactory,
+  ResourceSchema
+} from 'ivy-nestjs/resource';
 import { Project } from '@resources/projects/schema';
 import { User } from '@resources/users/schema';
 
@@ -39,4 +43,5 @@ export class Application extends ResourceSchema {
   updatedAt?: Date;
 }
 
-export const ApplicationSchema = MongooseSchemaFactory.createForClass<Application>(Application);
+export const ApplicationSchema =
+  MongooseSchemaFactory.createForClass<Application>(Application);

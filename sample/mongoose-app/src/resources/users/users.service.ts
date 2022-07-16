@@ -7,8 +7,15 @@ import { CreateUserDto, UpdateUserDto } from './dto';
 import { User } from './schema';
 
 @Injectable()
-export class UsersService extends MongoUserDetailsService<User, CreateUserDto, UpdateUserDto> {
-  constructor(@InjectModel(User.name) protected userModel: Model<User>, protected fileManager: FileManager) {
+export class UsersService extends MongoUserDetailsService<
+  User,
+  CreateUserDto,
+  UpdateUserDto
+> {
+  constructor(
+    @InjectModel(User.name) protected userModel: Model<User>,
+    protected fileManager: FileManager
+  ) {
     super(userModel, fileManager);
   }
 }

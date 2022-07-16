@@ -6,8 +6,15 @@ import { ApplicationsService } from './applications.service';
 import { ApplicationsPolicy } from './policy';
 
 @Controller('applications')
-export class ApplicationsController extends ResourceController(Application, CreateApplicationDto, UpdateApplicationDto) {
-  constructor(private applicationsService: ApplicationsService, private applicationsPolicy: ApplicationsPolicy) {
+export class ApplicationsController extends ResourceController(
+  Application,
+  CreateApplicationDto,
+  UpdateApplicationDto
+) {
+  constructor(
+    private applicationsService: ApplicationsService,
+    private applicationsPolicy: ApplicationsPolicy
+  ) {
     super(applicationsService, applicationsPolicy);
   }
 }

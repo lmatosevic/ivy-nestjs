@@ -8,7 +8,8 @@ import { Application } from './entity';
 @Injectable()
 export class ApplicationsService extends TypeOrmResourceService<Application> {
   constructor(
-    @InjectRepository(Application) protected applicationRepository: Repository<Application>,
+    @InjectRepository(Application)
+    protected applicationRepository: Repository<Application>,
     protected fileManager: FileManager
   ) {
     super(applicationRepository, fileManager);
