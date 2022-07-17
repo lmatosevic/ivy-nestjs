@@ -22,7 +22,7 @@ export default () => ({
       pattern: process.env.LOG_ROTATE_PATTERN || 'YYYY-MM-DD',
       maxSize: process.env.LOG_ROTATE_MAX_SIZE,
       maxFiles: process.env.LOG_ROTATE_MAX_FILES,
-      zipArchive: StringUtil.parseBool(process.env.LOG_ROTATE_ZIP_ARCHIVE, false),
+      zipArchive: StringUtil.parseBool(process.env.LOG_ROTATE_ZIP_ARCHIVE, false)
     }
   },
   storage: {
@@ -36,7 +36,10 @@ export default () => ({
   db: {
     type: process.env.DB_TYPE || 'mongoose',
     host: process.env.DB_HOST || '127.0.0.1',
-    port: StringUtil.parseInteger(process.env.DB_PORT, 27017),
+    port: StringUtil.parseInteger(
+      process.env.DB_PORT,
+      !process.env.DB_TYPE || process.env.DB_TYPE === 'mongoose' ? 27017 : 5432
+    ),
     name: process.env.DB_NAME || 'ivy',
     schema: process.env.DB_SCHEMA || 'public',
     authSource: process.env.DB_AUTH_SOURCE || 'admin',
@@ -57,7 +60,7 @@ export default () => ({
       distRoot: process.env.DB_MIGRATION_DIST_ROOT || './dist',
       extraEntities: StringUtil.parseArray(process.env.DB_MIGRATION_EXTRA_ENTITIES, [], ';'),
       extraSubscribers: StringUtil.parseArray(process.env.DB_MIGRATION_EXTRA_SUBSCRIBERS, [], ';'),
-      extraMigrations: StringUtil.parseArray(process.env.DB_MIGRATION_EXTRA_MIGRATIONS, [], ';'),
+      extraMigrations: StringUtil.parseArray(process.env.DB_MIGRATION_EXTRA_MIGRATIONS, [], ';')
     }
   },
   queue: {
@@ -83,7 +86,7 @@ export default () => ({
     registration: StringUtil.parseBool(process.env.AUTH_REGISTRATION_ENABLED, true),
     admin: {
       create: StringUtil.parseBool(process.env.AUTH_ADMIN_CREATE, false),
-      username: process.env.AUTH_ADMIN_USERNAME || 'admin@ivy',
+      username: process.env.AUTH_ADMIN_USERNAME || 'admin@ivy-nestjs',
       password: process.env.AUTH_ADMIN_PASSWORD
     },
     jwt: {
