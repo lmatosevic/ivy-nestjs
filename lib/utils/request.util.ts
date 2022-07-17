@@ -68,7 +68,18 @@ export class RequestUtil {
     return instance;
   }
 
-  static transformFilter(filter: any): any {
+  static transformFilter(filter: any, type: string): any {
+    switch (type) {
+      case 'mongoose':
+        return this.transformMongooseFilter(filter);
+      case 'typeorm':
+        return this.transformTypeormFilter(filter);
+      default:
+        return filter;
+    }
+  }
+
+  static transformMongooseFilter(filter: any): any {
     const newFilter = ObjectUtil.transfromKeysAndValues(
       filter,
       (key) => (this.filterSpecialKeys.includes(key) ? key.replace('_', '$') : key),
@@ -87,9 +98,27 @@ export class RequestUtil {
     return this.mapIdKeys(newFilter);
   }
 
-  static mapIdKeys(filter: any): any {
+  static transformTypeormFilter(filter: any): any {
+    return ObjectUtil.transfromKeysAndValues(
+      filter,
+      (key) => (this.filterSpecialKeys.includes(key) ? key.replace('_', '') : key),
+      (key, value) => {
+        const valueArray = [];
+        if (['_and', '_or', '_nor'].indexOf(key) !== -1) {
+          Object.keys(value).forEach((valKey) => {
+            valueArray.push({ [valKey]: value[valKey] });
+          });
+        } else {
+          return value;
+        }
+        return valueArray;
+      }
+    );
+  }
+
+  static mapIdKeys(filter: any, newIdKey: string = '_id'): any {
     return _.transform(filter, (result, value, key) => {
-      result[key === 'id' ? '_id' : key] = _.isObject(value) ? this.mapIdKeys(value) : value;
+      result[key === 'id' ? newIdKey : key] = _.isObject(value) ? this.mapIdKeys(value) : value;
     });
   }
 

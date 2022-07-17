@@ -29,7 +29,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     protected repository: Repository<T & ResourceEntity>,
     protected fileManager?: FileManager
   ) {
-    super();
+    super('id');
 
     if (!TypeOrmResourceService.modelReferences) {
       TypeOrmResourceService.modelReferences = this.fetchAllReferences();
@@ -64,6 +64,8 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     let { filter, ...options } = queryDto;
     let results;
     let totalCount;
+
+    filter = _.merge(filter || {}, this.policyFilter());
 
     if (options?.sort) {
       options.sort = RequestUtil.normalizeSort(options.sort);

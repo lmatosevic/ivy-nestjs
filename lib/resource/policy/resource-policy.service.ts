@@ -2,8 +2,11 @@ import { RequestContext } from '../../context';
 import { PolicyRules } from './resource-policy.interceptor';
 import * as _ from 'lodash';
 import { AuthUser } from '../../auth';
+import { ObjectUtil } from '../../utils';
 
 export abstract class ResourcePolicyService {
+  protected constructor(private idFieldName?: string) {}
+
   intersectFields(object: any): any {
     const allowedFields = this.policyProjection();
 
@@ -48,7 +51,13 @@ export abstract class ResourcePolicyService {
   }
 
   getPolicyRules(): PolicyRules {
-    return RequestContext.currentContext?.req?.['policyRules'] || null;
+    let policyRules = RequestContext.currentContext?.req?.['policyRules'] || null;
+    if (policyRules && this.idFieldName && this.idFieldName !== 'id') {
+      policyRules = ObjectUtil.transfromKeysAndValues(policyRules, (key: string) =>
+        key === 'id' ? this.idFieldName : key
+      );
+    }
+    return policyRules;
   }
 
   getAuthUser(): AuthUser {

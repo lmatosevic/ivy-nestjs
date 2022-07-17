@@ -82,17 +82,11 @@ export class ResourcePolicyInterceptor<T extends Ability> implements NestInterce
     for (const rule of rules) {
       if (rule.conditions) {
         for (let [condName, condValue] of Object.entries(rule.conditions)) {
-          if (condName === 'id') {
-            condName = '_id';
-          }
           policyRules.filter[condName] = condValue;
         }
       }
       if (rule.fields) {
         for (let field of rule.fields) {
-          if (field === 'id') {
-            field = '_id';
-          }
           policyRules.projection[field] = 1;
         }
       }

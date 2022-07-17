@@ -1,14 +1,17 @@
 import { Document, FilterQuery } from 'mongoose';
-import { Min } from 'class-validator';
+import { IsOptional, Min } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class QueryRequest<T> {
+  @IsOptional()
   readonly filter?: FilterQuery<T & Document>;
 
   @Min(1)
+  @IsOptional()
   page?: number;
 
   @Min(0)
+  @IsOptional()
   size?: number;
 
   @ApiProperty({
@@ -22,5 +25,6 @@ export class QueryRequest<T> {
       }
     ]
   })
+  @IsOptional()
   sort?: string | Record<string, number | string>;
 }

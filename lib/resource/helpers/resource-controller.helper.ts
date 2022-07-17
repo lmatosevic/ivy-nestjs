@@ -29,7 +29,7 @@ import {
 import { FilesUtil, RequestUtil, StringUtil } from '../../utils';
 import { FILE_PROPS_KEY, FileDto, FileFilter, FileProps } from '../../storage';
 import { ErrorResponse, FilterOperator, QueryRequest, QueryResponse, StatusResponse } from '../dto';
-import { ResourceService } from '../services';
+import { MongoResourceService, ResourceService } from '../services';
 import { Resource, ResourceConfig } from '../decorators';
 import { ResourcePolicy, ResourcePolicyInterceptor } from '../policy';
 import { Expose } from 'class-transformer';
@@ -221,6 +221,8 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
   @ApiTags(pluralName.toLowerCase())
   @Resource(config)
   abstract class ResourceController {
+    private readonly databaseType: string;
+
     protected constructor(
       protected service: ResourceService<T>,
       protected policy?: ResourcePolicy<any, any>
@@ -228,6 +230,8 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
       if (policy) {
         UseInterceptors(new ResourcePolicyInterceptor(policy))(ResourceController);
       }
+      this.databaseType =
+        this.service.constructor.prototype instanceof MongoResourceService ? 'mongoose' : 'typeorm';
     }
 
     @ApiOkResponse({ type: () => resourceRef })
@@ -276,7 +280,7 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
     @Post('/query')
     query(@Body() queryDto: QueryRequest<T>): Promise<QueryResponse<T>> {
       const { filter, ...options } = queryDto;
-      const query = RequestUtil.transformFilter(filter);
+      const query = RequestUtil.transformFilter(filter, this.databaseType);
       return this.service.query({
         filter: query,
         ...RequestUtil.restrictQueryPageSize(options)

@@ -26,7 +26,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
   private readonly logger = new Logger(MongoResourceService.name);
 
   protected constructor(protected model: Model<T & ResourceSchema>, protected fileManager?: FileManager) {
-    super();
+    super('_id');
 
     if (!MongoResourceService.modelReferences) {
       MongoResourceService.modelReferences = this.fetchAllReferences();

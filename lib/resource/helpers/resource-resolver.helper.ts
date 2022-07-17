@@ -14,7 +14,7 @@ import {
 } from '@nestjs/graphql';
 import { RequestUtil, StringUtil } from '../../utils';
 import { FilterOperator, StatusResponse } from '../dto';
-import { ResourceService } from '../services';
+import { MongoResourceService, ResourceService } from '../services';
 import { Resource, ResourceConfig } from '../decorators';
 import { FILE_PROPS_KEY, FileFilter, FileProps } from '../../storage';
 import { ResourcePolicy, ResourcePolicyInterceptor } from '../policy';
@@ -124,16 +124,20 @@ export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown
   @ArgsType()
   class QueryOptions {
     @Min(1)
+    @IsOptional()
     @Field(() => Int, { nullable: true })
     page?: number;
 
     @Min(0)
+    @IsOptional()
     @Field(() => Int, { nullable: true })
     size?: number;
 
+    @IsOptional()
     @Field({ nullable: true })
     sort?: string;
 
+    @IsOptional()
     @Field(() => queryFilter, { nullable: true })
     filter?: typeof queryFilter;
   }
@@ -156,6 +160,8 @@ export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown
   @Resource(config)
   @Resolver({ isAbstract: true })
   abstract class ResourceResolver {
+    private readonly databaseType: string;
+
     protected constructor(
       protected service: ResourceService<T>,
       protected policy?: ResourcePolicy<any, any>
@@ -163,6 +169,8 @@ export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown
       if (policy) {
         UseInterceptors(new ResourcePolicyInterceptor(policy))(ResourceResolver);
       }
+      this.databaseType =
+        this.service.constructor.prototype instanceof MongoResourceService ? 'mongoose' : 'typeorm';
     }
 
     @Query(() => resourceRef, { name: `${resourceRef.name.toLowerCase()}` })
@@ -173,7 +181,7 @@ export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown
     @Query(() => QueryResponse, { name: `${pluralName.toLowerCase()}` })
     async query(@Args() queryOptions: QueryOptions): Promise<QueryResponse> {
       const { filter, ...options } = queryOptions;
-      const query = RequestUtil.transformFilter(filter);
+      const query = RequestUtil.transformFilter(filter, this.databaseType);
       return await this.service.query({
         filter: query,
         ...RequestUtil.restrictQueryPageSize(options)
