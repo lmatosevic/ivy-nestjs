@@ -80,6 +80,12 @@ Bootstraping logic for Typeorm library usage any SQL relational database.
 
 Common utility functions and classes used accross other modules.
 
+## Environment variables
+
+| Variable name                        | Description                                                                          | Default value                               |
+|--------------------------------------|--------------------------------------------------------------------------------------|---------------------------------------------|
+| NODE_ENV                             | Environment (development, test or production)                                        | production                                  |
+
 ## Command-line interface
 
 ### Create resource

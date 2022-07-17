@@ -13,8 +13,8 @@ Project requirements:
 
 ## Development setup
 
-Create _.env_ file in project root directory and add variables for database connection `DB_*` and jwt
-authorization `AUTH_JWT_SECRET=...`. Examples are available in _.env.example_.
+Create _.env_ file in project root directory and add variables for database connection `DB_*`, jwt
+authorization `AUTH_JWT_SECRET=...` and other used features. Example values are available in _.env.example_.
 
 It is recommended to add default admin user with `AUTH_ADMIN_CREATE=true`. If you don't specify `AUTH_ADMIN_PASSWORD`
 it will be generated on the first application run and logged into console.
