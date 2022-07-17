@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.28](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.27...v0.1.28) (2022-07-17)
+
+
+### Features
+
+* add parse int pipe to id params ([c30e29e](https://github.com/Lujo5/ivy-nestjs/commit/c30e29e85a730b44b5278fc5f413293c10affa61))
+* change API tags naming to uppercase words ([5ef3221](https://github.com/Lujo5/ivy-nestjs/commit/5ef32219956b979e8202a6639bd2dc066e672961))
+
 ### [0.1.27](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.26...v0.1.27) (2022-07-17)
 
 
