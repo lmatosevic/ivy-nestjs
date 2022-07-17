@@ -10,7 +10,7 @@ import { FacebookAuth } from './facebook-auth.dto';
 import { AuthModuleOptions } from '../../auth.module';
 import { AUTH_MODULE_OPTIONS } from '../../auth.constants';
 
-@ApiTags('auth')
+@ApiTags('Auth')
 @Controller('facebook')
 export class FacebookController {
   constructor(

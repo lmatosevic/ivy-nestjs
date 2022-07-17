@@ -10,7 +10,7 @@ import { GoogleAuth } from './google-auth.dto';
 import { AuthModuleOptions } from '../../auth.module';
 import { AUTH_MODULE_OPTIONS } from '../../auth.constants';
 
-@ApiTags('auth')
+@ApiTags('Auth')
 @Controller('google')
 export class GoogleController {
   constructor(

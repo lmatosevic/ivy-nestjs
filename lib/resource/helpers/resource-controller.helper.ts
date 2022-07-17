@@ -218,7 +218,7 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
     type: ErrorResponse
   })
   @ApiExtraModels(QueryResponse, QueryRequest, queryFilter, resourceRef)
-  @ApiTags(pluralName.toLowerCase())
+  @ApiTags(pluralName)
   @Resource(config)
   abstract class ResourceController {
     private readonly databaseType: string;

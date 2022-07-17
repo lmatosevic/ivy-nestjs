@@ -39,7 +39,7 @@ export function AuthController<T extends Type<unknown>>(authUserRef: T, register
     password: string;
   }
 
-  @ApiTags('auth')
+  @ApiTags('Auth')
   @Controller('auth')
   class AuthController {
     constructor(

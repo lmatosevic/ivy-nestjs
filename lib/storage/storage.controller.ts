@@ -8,7 +8,7 @@ import { FileError } from './errors';
 import { StorageModuleOptions } from './storage.module';
 import { STORAGE_MODULE_OPTIONS } from './storage.constants';
 
-@ApiTags('files')
+@ApiTags('Files')
 @Controller('files')
 export class StorageController {
   private readonly cacheDuration;

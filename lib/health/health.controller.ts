@@ -7,7 +7,7 @@ import { HealthDto } from './health.dto';
 import { HealthModuleOptions } from './health.module';
 import { HEALTH_MODULE_OPTIONS } from './health.constants';
 
-@ApiTags('health')
+@ApiTags('Health')
 @Controller('health')
 export class HealthController {
   constructor(
