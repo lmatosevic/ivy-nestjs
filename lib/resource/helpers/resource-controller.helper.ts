@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   Type,
@@ -212,6 +213,7 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
   const queryFilter = initializeFilterModel(resourceRef);
 
   const idParamType = () => resourceRef['_OPENAPI_METADATA_FACTORY']?.()?.['id']?.type?.() || String;
+  const idValidationPipes = () => (idParamType() === String ? [] : [ParseIntPipe]);
 
   @ApiInternalServerErrorResponse({
     description: 'Internal server error',
@@ -242,7 +244,7 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
     @ApiParam({ name: 'id', type: () => idParamType() })
     @HttpCode(200)
     @Get('/:id')
-    find(@Param('id') id: string): Promise<T> {
+    find(@Param('id', ...idValidationPipes()) id: string): Promise<T> {
       return this.service.find(id);
     }
 
@@ -303,7 +305,7 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
     @ApiParam({ name: 'id', type: () => idParamType() })
     @HttpCode(200)
     @Put('/:id')
-    async update(@Param('id') id: string, @Body() updateDto: U): Promise<T> {
+    async update(@Param('id', ...idValidationPipes()) id: string, @Body() updateDto: U): Promise<T> {
       const instance = await RequestUtil.deserializeAndValidate(updateDtoRef, updateDto);
       return this.service.update(id, instance);
     }
@@ -316,7 +318,7 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
     @ApiParam({ name: 'id', type: () => idParamType() })
     @HttpCode(200)
     @Delete('/:id')
-    async delete(@Param('id') id: string): Promise<T> {
+    async delete(@Param('id', ...idValidationPipes()) id: string): Promise<T> {
       return this.service.delete(id);
     }
 
@@ -341,9 +343,13 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
     @ApiBadRequestResponse({ description: 'Bad request', type: ErrorResponse })
     @UseInterceptors(FileFieldsInterceptor(fileTypesMulterArray))
     @ApiExtraModels(FileDto)
+    @ApiParam({ name: 'id', type: () => idParamType() })
     @HttpCode(201)
     @Post('/:id/files')
-    async upload(@Param('id') id: string, @UploadedFiles() files: Record<string, Express.Multer.File[]>) {
+    async upload(
+      @Param('id', ...idValidationPipes()) id: string,
+      @UploadedFiles() files: Record<string, Express.Multer.File[]>
+    ) {
       try {
         const updateDto = FilesUtil.createFilesUpdateDto(files, filePropsMap);
         const instance = await RequestUtil.deserializeAndValidate(updateDtoRef, updateDto);
@@ -360,9 +366,13 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
     @ApiBody(fileTypesMulterArray.length > 0 ? { type: deleteFilesDto } : {})
     @ApiBadRequestResponse({ description: 'Bad request', type: ErrorResponse })
     @ApiExtraModels(StatusResponse)
+    @ApiParam({ name: 'id', type: () => idParamType() })
     @HttpCode(200)
     @Post('/:id/delete-files')
-    async unlink(@Param('id') id: string, @Body() deleteDto: any): Promise<StatusResponse> {
+    async unlink(
+      @Param('id', ...idValidationPipes()) id: string,
+      @Body() deleteDto: any
+    ): Promise<StatusResponse> {
       const deleteFilesInstance = await RequestUtil.deserializeAndValidate(deleteFilesDto, deleteDto);
       const resource = await this.service.find(id);
       const deleteFilesRequest = RequestUtil.transformDeleteFilesRequest(resource, deleteFilesInstance);
