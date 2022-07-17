@@ -6,7 +6,7 @@ import { ResourceSchema } from '../../resource';
 import { MongoResourceService } from '../../resource/services';
 import { FileManager } from '../../storage/file-manager';
 
-export abstract class MongoUserDetailsService<T extends AuthUser, C, U>
+export abstract class MongoUserDetailsService<T extends AuthUser>
   extends MongoResourceService<T>
   implements UserDetailsService<T>
 {
@@ -14,12 +14,12 @@ export abstract class MongoUserDetailsService<T extends AuthUser, C, U>
     super(model, fileManager);
   }
 
-  async create(createDto: C): Promise<T> {
+  async create(createDto: Partial<T>): Promise<T> {
     const passwordHash = await this.hashPassword(createDto['password']);
     return super.create({ ...createDto, passwordHash });
   }
 
-  async update(id: string, updateDto: U, isFileUpload?: boolean): Promise<T> {
+  async update(id: string, updateDto: Partial<T>, isFileUpload?: boolean): Promise<T> {
     if (updateDto['password']) {
       updateDto['passwordHash'] = await this.hashPassword(updateDto['password']);
       updateDto['logoutAt'] = new Date();
@@ -34,11 +34,11 @@ export abstract class MongoUserDetailsService<T extends AuthUser, C, U>
   }
 
   async onLogin(user: T): Promise<boolean> {
-    return !!(await super.update(user.getId(), { loginAt: new Date() }));
+    return !!(await super.update(user.getId(), { loginAt: new Date() } as Partial<T>));
   }
 
   async onLogout(user: T): Promise<boolean> {
-    return !!(await super.update(user.getId(), { logoutAt: new Date() }));
+    return !!(await super.update(user.getId(), { logoutAt: new Date() } as Partial<T>));
   }
 
   async checkPassword(password: string, passwordHash: string): Promise<boolean> {
@@ -53,7 +53,7 @@ export abstract class MongoUserDetailsService<T extends AuthUser, C, U>
     return await bcrypt.hash(password, salt);
   }
 
-  async registerUser(userData: C, source: AuthSource = AuthSource.Local): Promise<T> {
+  async registerUser(userData: Partial<T>, source: AuthSource = AuthSource.Local): Promise<T> {
     userData['authSource'] = source;
     userData['roles'] = [Role.User];
     userData['role'] = Role.User;

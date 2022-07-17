@@ -5,9 +5,9 @@ export interface ResourceService<T> {
 
   query(queryDto: QueryRequest<T>): Promise<QueryResponse<T>>;
 
-  create(createDto: Partial<T & any>): Promise<T>;
+  create(createDto: Partial<T>): Promise<T>;
 
-  update(id: string | number, updateDto: Partial<T & any>, isFileUpload?: boolean): Promise<T>;
+  update(id: string | number, updateDto: Partial<T>, isFileUpload?: boolean): Promise<T>;
 
   delete(id: string | number): Promise<T>;
 }

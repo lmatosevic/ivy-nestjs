@@ -96,7 +96,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     };
   }
 
-  async create(createDto: Partial<T & any>): Promise<T> {
+  async create(createDto: Partial<T>): Promise<T> {
     let createdModel;
     let storedFiles;
 
@@ -138,7 +138,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     return this.find(createdModel.id);
   }
 
-  async update(id: string | number, updateDto: Partial<T & any>, isFileUpload?: boolean): Promise<T> {
+  async update(id: string | number, updateDto: Partial<T>, isFileUpload?: boolean): Promise<T> {
     let updatedModel;
     let storedFiles;
 

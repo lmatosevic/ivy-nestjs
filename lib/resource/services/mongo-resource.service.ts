@@ -74,7 +74,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     };
   }
 
-  async create(createDto: Partial<T & any>): Promise<T> {
+  async create(createDto: Partial<T>): Promise<T> {
     const intersectedDto = this.intersectFields(createDto);
 
     const model = new this.model(intersectedDto);
@@ -103,7 +103,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     return this.populateModelDeep(createdModel);
   }
 
-  async update(id: string, updateDto: Partial<T & any>, isFileUpload?: boolean): Promise<T> {
+  async update(id: string, updateDto: Partial<T>, isFileUpload?: boolean): Promise<T> {
     let intersectedDto = this.intersectFields(updateDto);
     intersectedDto = RequestUtil.mapIdKeys(intersectedDto);
 

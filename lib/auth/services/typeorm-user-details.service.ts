@@ -6,7 +6,7 @@ import { ResourceEntity } from '../../resource';
 import { TypeOrmResourceService } from '../../resource/services';
 import { FileManager } from '../../storage/file-manager';
 
-export abstract class TypeOrmUserDetailsService<T extends AuthUser, C, U>
+export abstract class TypeOrmUserDetailsService<T extends AuthUser>
   extends TypeOrmResourceService<T & ResourceEntity>
   implements UserDetailsService<T>
 {
@@ -17,18 +17,18 @@ export abstract class TypeOrmUserDetailsService<T extends AuthUser, C, U>
     super(repository, fileManager);
   }
 
-  async create(createDto: C): Promise<T & ResourceEntity> {
+  async create(createDto: Partial<T>): Promise<T & ResourceEntity> {
     const passwordHash = await this.hashPassword(createDto['password']);
-    return super.create({ ...createDto, passwordHash });
+    return super.create({ ...createDto, passwordHash } as Partial<T & ResourceEntity>);
   }
 
-  async update(id: number | string, updateDto: U, isFileUpload?: boolean): Promise<T & ResourceEntity> {
+  async update(id: number | string, updateDto: Partial<T>, isFileUpload?: boolean): Promise<T & ResourceEntity> {
     if (updateDto['password']) {
       updateDto['passwordHash'] = await this.hashPassword(updateDto['password']);
       updateDto['logoutAt'] = new Date();
       delete updateDto['password'];
     }
-    return super.update(id, updateDto, isFileUpload);
+    return super.update(id, updateDto as Partial<T & ResourceEntity>, isFileUpload);
   }
 
   async findByUsername(username: string): Promise<T> {
@@ -37,11 +37,11 @@ export abstract class TypeOrmUserDetailsService<T extends AuthUser, C, U>
   }
 
   async onLogin(user: T): Promise<boolean> {
-    return !!(await super.update(user.getId(), { loginAt: new Date() }));
+    return !!(await super.update(user.getId(), { loginAt: new Date() } as Partial<T & ResourceEntity>));
   }
 
   async onLogout(user: T): Promise<boolean> {
-    return !!(await super.update(user.getId(), { logoutAt: new Date() }));
+    return !!(await super.update(user.getId(), { logoutAt: new Date() } as Partial<T & ResourceEntity>));
   }
 
   async checkPassword(password: string, passwordHash: string): Promise<boolean> {
@@ -56,7 +56,7 @@ export abstract class TypeOrmUserDetailsService<T extends AuthUser, C, U>
     return await bcrypt.hash(password, salt);
   }
 
-  async registerUser(userData: C, source: AuthSource = AuthSource.Local): Promise<T> {
+  async registerUser(userData: Partial<T>, source: AuthSource = AuthSource.Local): Promise<T> {
     userData['authSource'] = source;
     userData['roles'] = [Role.User];
     userData['role'] = Role.User;
