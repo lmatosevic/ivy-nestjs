@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.26](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.25...v0.1.26) (2022-07-17)
+
+
+### Features
+
+* add support for typeorm filter transformation ([d4d9295](https://github.com/Lujo5/ivy-nestjs/commit/d4d9295dc0bd63e4ab1c4c12bc2daeed69276e03))
+* update default db port based on db type ([93c2d2a](https://github.com/Lujo5/ivy-nestjs/commit/93c2d2a1e6b083e12aaa4a7abcc24be6da40eae0))
+
 ### [0.1.25](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.24...v0.1.25) (2022-07-16)
 
 
