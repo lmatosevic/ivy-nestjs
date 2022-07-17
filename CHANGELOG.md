@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.27](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.26...v0.1.27) (2022-07-17)
+
+
+### Features
+
+* update typings for user details and resource service ([1ba5a87](https://github.com/Lujo5/ivy-nestjs/commit/1ba5a87f1d67d0802dde4157b7f763ba9fdee048))
+
 ### [0.1.26](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.25...v0.1.26) (2022-07-17)
 
 
