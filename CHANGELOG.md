@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.29](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.28...v0.1.29) (2022-07-18)
+
+
+### Features
+
+* add deep partial type ([1b7c798](https://github.com/Lujo5/ivy-nestjs/commit/1b7c798587232e84ec004240487f6028e28ecdaf))
+* add queue prefix option ([009cf59](https://github.com/Lujo5/ivy-nestjs/commit/009cf590105577acbd9c8c64393593a28c90eb16))
+
 ### [0.1.28](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.27...v0.1.28) (2022-07-17)
 
 
