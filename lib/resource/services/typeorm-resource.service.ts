@@ -1,5 +1,5 @@
 import { Logger } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { PartialDeep } from 'type-fest';
 import { RelationMetadata } from 'typeorm/metadata/RelationMetadata';
 import { ResourceError } from '../../resource/errors';
@@ -35,6 +35,13 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     if (!TypeOrmResourceService.modelReferences) {
       TypeOrmResourceService.modelReferences = this.fetchAllReferences();
     }
+  }
+
+  public withManager(manager: EntityManager): TypeOrmResourceService<T> {
+    class ManagedTypeOrmResourceService extends TypeOrmResourceService<T> {}
+
+    const repository: Repository<T & ResourceEntity> = manager.getRepository(this.repository.metadata.name);
+    return new ManagedTypeOrmResourceService(repository, this.fileManager);
   }
 
   async find(id: string | number): Promise<T> {
