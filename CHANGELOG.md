@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.31](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.30...v0.1.31) (2022-07-18)
+
+
+### Bug Fixes
+
+* roles decorator now works together with authorized decorator ([9c90507](https://github.com/Lujo5/ivy-nestjs/commit/9c905074a352599aceecc71b8a46142c009f364a))
+
 ### [0.1.30](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.29...v0.1.30) (2022-07-18)
 
 
