@@ -69,7 +69,8 @@ export default () => ({
     port: StringUtil.parseInteger(process.env.QUEUE_PORT, 6379),
     db: process.env.QUEUE_DB,
     user: process.env.QUEUE_USER,
-    password: process.env.QUEUE_PASSWORD
+    password: process.env.QUEUE_PASSWORD,
+    prefix: process.env.QUEUE_PREFIX
   },
   cors: {
     enabled: StringUtil.parseBool(process.env.CORS_ENABLED, true),
