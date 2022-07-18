@@ -1,5 +1,6 @@
 import * as bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
+import { PartialDeep } from 'type-fest';
 import { AuthUser, UserDetailsService } from '../interfaces';
 import { AuthSource, Role } from '../../enums';
 import { ResourceEntity } from '../../resource';
@@ -17,18 +18,22 @@ export abstract class TypeOrmUserDetailsService<T extends AuthUser>
     super(repository, fileManager);
   }
 
-  async create(createDto: Partial<T>): Promise<T & ResourceEntity> {
+  async create(createDto: PartialDeep<T & ResourceEntity>): Promise<T & ResourceEntity> {
     const passwordHash = await this.hashPassword(createDto['password']);
-    return super.create({ ...createDto, passwordHash } as Partial<T & ResourceEntity>);
+    return super.create({ ...createDto, passwordHash } as PartialDeep<T & ResourceEntity>);
   }
 
-  async update(id: number | string, updateDto: Partial<T>, isFileUpload?: boolean): Promise<T & ResourceEntity> {
+  async update(
+    id: number | string,
+    updateDto: PartialDeep<T & ResourceEntity>,
+    isFileUpload?: boolean
+  ): Promise<T & ResourceEntity> {
     if (updateDto['password']) {
       updateDto['passwordHash'] = await this.hashPassword(updateDto['password']);
       updateDto['logoutAt'] = new Date();
       delete updateDto['password'];
     }
-    return super.update(id, updateDto as Partial<T & ResourceEntity>, isFileUpload);
+    return super.update(id, updateDto as PartialDeep<T & ResourceEntity>, isFileUpload);
   }
 
   async findByUsername(username: string): Promise<T> {
@@ -37,11 +42,11 @@ export abstract class TypeOrmUserDetailsService<T extends AuthUser>
   }
 
   async onLogin(user: T): Promise<boolean> {
-    return !!(await super.update(user.getId(), { loginAt: new Date() } as Partial<T & ResourceEntity>));
+    return !!(await super.update(user.getId(), { loginAt: new Date() } as PartialDeep<T & ResourceEntity>));
   }
 
   async onLogout(user: T): Promise<boolean> {
-    return !!(await super.update(user.getId(), { logoutAt: new Date() } as Partial<T & ResourceEntity>));
+    return !!(await super.update(user.getId(), { logoutAt: new Date() } as PartialDeep<T & ResourceEntity>));
   }
 
   async checkPassword(password: string, passwordHash: string): Promise<boolean> {
@@ -56,11 +61,11 @@ export abstract class TypeOrmUserDetailsService<T extends AuthUser>
     return await bcrypt.hash(password, salt);
   }
 
-  async registerUser(userData: Partial<T>, source: AuthSource = AuthSource.Local): Promise<T> {
+  async registerUser(userData: PartialDeep<T>, source: AuthSource = AuthSource.Local): Promise<T> {
     userData['authSource'] = source;
     userData['roles'] = [Role.User];
     userData['role'] = Role.User;
-    return await this.create(userData);
+    return await this.create(userData as PartialDeep<T & ResourceEntity>);
   }
 
   async createAdmin(username: string, password: string): Promise<T> {

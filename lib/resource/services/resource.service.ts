@@ -1,3 +1,4 @@
+import { PartialDeep } from 'type-fest';
 import { QueryRequest, QueryResponse } from '../dto';
 
 export interface ResourceService<T> {
@@ -5,9 +6,9 @@ export interface ResourceService<T> {
 
   query(queryDto: QueryRequest<T>): Promise<QueryResponse<T>>;
 
-  create(createDto: Partial<T>): Promise<T>;
+  create(createDto: PartialDeep<T>): Promise<T>;
 
-  update(id: string | number, updateDto: Partial<T>, isFileUpload?: boolean): Promise<T>;
+  update(id: string | number, updateDto: PartialDeep<T>, isFileUpload?: boolean): Promise<T>;
 
   delete(id: string | number): Promise<T>;
 }

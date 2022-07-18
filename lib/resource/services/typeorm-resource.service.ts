@@ -1,5 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { Repository } from 'typeorm';
+import { PartialDeep } from 'type-fest';
 import { RelationMetadata } from 'typeorm/metadata/RelationMetadata';
 import { ResourceError } from '../../resource/errors';
 import { FILE_PROPS_KEY, FileError, FileManager, FileProps } from '../../storage';
@@ -96,7 +97,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     };
   }
 
-  async create(createDto: Partial<T>): Promise<T> {
+  async create(createDto: PartialDeep<T>): Promise<T> {
     let createdModel;
     let storedFiles;
 
@@ -138,7 +139,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     return this.find(createdModel.id);
   }
 
-  async update(id: string | number, updateDto: Partial<T>, isFileUpload?: boolean): Promise<T> {
+  async update(id: string | number, updateDto: PartialDeep<T>, isFileUpload?: boolean): Promise<T> {
     let updatedModel;
     let storedFiles;
 

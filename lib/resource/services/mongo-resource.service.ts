@@ -1,5 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { Document, Model } from 'mongoose';
+import { PartialDeep } from 'type-fest';
 import { ResourceError } from '../../resource/errors';
 import { FILE_PROPS_KEY, FileProps } from '../../storage/decorators';
 import { FileError, FileManager } from '../../storage';
@@ -74,7 +75,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     };
   }
 
-  async create(createDto: Partial<T>): Promise<T> {
+  async create(createDto: PartialDeep<T>): Promise<T> {
     const intersectedDto = this.intersectFields(createDto);
 
     const model = new this.model(intersectedDto);
@@ -103,7 +104,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     return this.populateModelDeep(createdModel);
   }
 
-  async update(id: string, updateDto: Partial<T>, isFileUpload?: boolean): Promise<T> {
+  async update(id: string, updateDto: PartialDeep<T>, isFileUpload?: boolean): Promise<T> {
     let intersectedDto = this.intersectFields(updateDto);
     intersectedDto = RequestUtil.mapIdKeys(intersectedDto);
 

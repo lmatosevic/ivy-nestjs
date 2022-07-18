@@ -99,6 +99,7 @@
     "rxjs": "^7.5.5",
     "standard-version": "9.5.0",
     "swagger-ui-express": "^4.3.0",
+    "type-fest": "2.16.0",
     "typeorm": "^0.3.6",
     "uuid": "^8.3.2",
     "winston": "^3.6.0",

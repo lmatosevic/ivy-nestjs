@@ -1,3 +1,4 @@
+import { PartialDeep } from 'type-fest';
 import { AuthSource } from '../../enums';
 import { AuthUser } from './auth-user';
 
@@ -14,7 +15,7 @@ export interface UserDetailsService<T extends AuthUser> {
 
   hashPassword(password: string): Promise<string>;
 
-  registerUser(userData: Partial<T>, source: AuthSource): Promise<T>;
+  registerUser(userData: PartialDeep<T>, source: AuthSource): Promise<T>;
 
   createAdmin(username: string, password: string): Promise<T>;
 

@@ -1,5 +1,6 @@
 import * as bcrypt from 'bcrypt';
 import { Model } from 'mongoose';
+import { PartialDeep } from 'type-fest';
 import { AuthUser, UserDetailsService } from '../interfaces';
 import { AuthSource, Role } from '../../enums';
 import { ResourceSchema } from '../../resource';
@@ -14,12 +15,12 @@ export abstract class MongoUserDetailsService<T extends AuthUser>
     super(model, fileManager);
   }
 
-  async create(createDto: Partial<T>): Promise<T> {
+  async create(createDto: PartialDeep<T>): Promise<T> {
     const passwordHash = await this.hashPassword(createDto['password']);
     return super.create({ ...createDto, passwordHash });
   }
 
-  async update(id: string, updateDto: Partial<T>, isFileUpload?: boolean): Promise<T> {
+  async update(id: string, updateDto: PartialDeep<T>, isFileUpload?: boolean): Promise<T> {
     if (updateDto['password']) {
       updateDto['passwordHash'] = await this.hashPassword(updateDto['password']);
       updateDto['logoutAt'] = new Date();
@@ -34,11 +35,11 @@ export abstract class MongoUserDetailsService<T extends AuthUser>
   }
 
   async onLogin(user: T): Promise<boolean> {
-    return !!(await super.update(user.getId(), { loginAt: new Date() } as Partial<T>));
+    return !!(await super.update(user.getId(), { loginAt: new Date() } as PartialDeep<T>));
   }
 
   async onLogout(user: T): Promise<boolean> {
-    return !!(await super.update(user.getId(), { logoutAt: new Date() } as Partial<T>));
+    return !!(await super.update(user.getId(), { logoutAt: new Date() } as PartialDeep<T>));
   }
 
   async checkPassword(password: string, passwordHash: string): Promise<boolean> {
@@ -53,7 +54,7 @@ export abstract class MongoUserDetailsService<T extends AuthUser>
     return await bcrypt.hash(password, salt);
   }
 
-  async registerUser(userData: Partial<T>, source: AuthSource = AuthSource.Local): Promise<T> {
+  async registerUser(userData: PartialDeep<T>, source: AuthSource = AuthSource.Local): Promise<T> {
     userData['authSource'] = source;
     userData['roles'] = [Role.User];
     userData['role'] = Role.User;
