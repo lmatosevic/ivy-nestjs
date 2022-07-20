@@ -102,7 +102,7 @@ function createResource(name, type, outDir, moduleFile, noEndpoint, rest, graphq
     resourceName: `${modelName.charAt(0).toLowerCase()}${modelName.substring(1)}`,
     resourceFileName: name.toLowerCase(),
     resourceFileNamePlural: namePlural.toLowerCase(),
-    resourceNamePlural: modelNamePlural,
+    resourceNamePlural: `${modelNamePlural.charAt(0).toLowerCase()}${modelNamePlural.substring(1)}`,
     resourceModelName: modelName,
     createDtoName: `Create${modelName}Dto`,
     updateDtoName: `Update${modelName}Dto`,
