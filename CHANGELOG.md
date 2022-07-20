@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.32](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.31...v0.1.32) (2022-07-20)
+
+
+### Features
+
+* add pagination configuration ([d345401](https://github.com/Lujo5/ivy-nestjs/commit/d345401075d6ec14247d282703e7aa87d1cdad5e))
+
+
+### Bug Fixes
+
+* **cli:** start with lowercase for controller and resolver variables ([f449f66](https://github.com/Lujo5/ivy-nestjs/commit/f449f66afbf5d1fbc31e2f01c3b5340e8c1d4a9d))
+
 ### [0.1.31](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.30...v0.1.31) (2022-07-18)
 
 
