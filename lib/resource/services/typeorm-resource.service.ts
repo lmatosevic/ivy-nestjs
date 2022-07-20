@@ -76,7 +76,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     filter = _.merge(filter || {}, this.policyFilter());
 
     if (options?.sort) {
-      options.sort = RequestUtil.normalizeSort(options.sort);
+      options.sort = RequestUtil.normalizeSort(options.sort, this.fields());
     }
 
     try {

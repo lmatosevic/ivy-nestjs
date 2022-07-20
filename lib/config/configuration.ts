@@ -121,11 +121,6 @@ export default () => ({
       appSecret: process.env.FACEBOOK_APP_SECRET
     }
   },
-  health: {
-    route: process.env.HEALTH_ROUTE || 'health',
-    memoryThreshold: StringUtil.parseInteger(process.env.HEALTH_MEMORY_THRESHOLD, 512),
-    diskThreshold: StringUtil.parseFloat(process.env.HEALTH_DISK_THRESHOLD, 0.9)
-  },
   rest: {
     enabled: StringUtil.parseBool(process.env.REST_ENABLED, true),
     swagger: StringUtil.parseBool(process.env.REST_SWAGGER_ENABLED, true)
@@ -133,5 +128,15 @@ export default () => ({
   graphql: {
     enabled: StringUtil.parseBool(process.env.GRAPHQL_ENABLED, true),
     playground: StringUtil.parseBool(process.env.GRAPHQL_PLAYGROUND_ENABLED, true)
+  },
+  pagination: {
+    maxSize: StringUtil.parseInteger(process.env.PAGINATION_MAX_SIZE, 100),
+    defaultSize: StringUtil.parseInteger(process.env.PAGINATION_DEFAULT_SIZE, 20),
+    defaultSort: process.env.PAGINATION_DEFAULT_SORT
+  },
+  health: {
+    route: process.env.HEALTH_ROUTE || 'health',
+    memoryThreshold: StringUtil.parseInteger(process.env.HEALTH_MEMORY_THRESHOLD, 512),
+    diskThreshold: StringUtil.parseFloat(process.env.HEALTH_DISK_THRESHOLD, 0.9)
   }
 });

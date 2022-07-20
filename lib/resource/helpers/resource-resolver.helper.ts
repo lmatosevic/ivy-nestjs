@@ -12,14 +12,16 @@ import {
   Query,
   Resolver
 } from '@nestjs/graphql';
+import { ConfigService } from '@nestjs/config';
+import { Expose } from 'class-transformer';
+import { IsArray, IsOptional, Min } from 'class-validator';
+import { Config } from '../../config/decorators';
 import { RequestUtil, StringUtil } from '../../utils';
 import { FilterOperator, StatusResponse } from '../dto';
-import { MongoResourceService, ResourceService } from '../services';
+import { ResourceService } from '../services';
 import { Resource, ResourceConfig } from '../decorators';
 import { FILE_PROPS_KEY, FileFilter, FileProps } from '../../storage';
 import { ResourcePolicy, ResourcePolicyInterceptor } from '../policy';
-import { Expose } from 'class-transformer';
-import { IsArray, IsOptional, Min } from 'class-validator';
 
 function extractFileProps<T>(classRef: Type<T>): Record<string, FileProps> {
   const types = {};
@@ -160,8 +162,6 @@ export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown
   @Resource(config)
   @Resolver({ isAbstract: true })
   abstract class ResourceResolver {
-    private readonly databaseType: string;
-
     protected constructor(
       protected service: ResourceService<T>,
       protected policy?: ResourcePolicy<any, any>
@@ -169,8 +169,6 @@ export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown
       if (policy) {
         UseInterceptors(new ResourcePolicyInterceptor(policy))(ResourceResolver);
       }
-      this.databaseType =
-        this.service.constructor.prototype instanceof MongoResourceService ? 'mongoose' : 'typeorm';
     }
 
     @Query(() => resourceRef, { name: `${resourceRef.name.toLowerCase()}` })
@@ -179,12 +177,17 @@ export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown
     }
 
     @Query(() => QueryResponse, { name: `${pluralName.toLowerCase()}` })
-    async query(@Args() queryOptions: QueryOptions): Promise<QueryResponse> {
+    async query(@Args() queryOptions: QueryOptions, @Config() config: ConfigService): Promise<QueryResponse> {
       const { filter, ...options } = queryOptions;
-      const query = RequestUtil.transformFilter(filter, this.databaseType);
+      const query = RequestUtil.transformFilter(filter, config.get('db.type'));
       return await this.service.query({
         filter: query,
-        ...RequestUtil.restrictQueryPageSize(options)
+        ...RequestUtil.prepareQueryParams(
+          options,
+          config.get('pagination.maxSize'),
+          config.get('pagination.defaultSize'),
+          config.get('pagination.defaultSort')
+        )
       });
     }
 

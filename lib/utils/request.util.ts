@@ -9,7 +9,6 @@ import { ObjectUtil } from './object.util';
 import * as _ from 'lodash';
 
 export class RequestUtil {
-  static maxQueryPageSize = 2000;
   static filterSpecialKeys = [
     '_and',
     '_or',
@@ -30,18 +29,26 @@ export class RequestUtil {
     '_not'
   ];
 
-  static restrictQueryPageSize(options: QueryOptions, max?: number): QueryOptions {
-    if (!max) {
-      max = this.maxQueryPageSize;
-    }
-
-    if (Math.abs(options?.size) > max || !options?.size) {
-      if (!options) {
-        options = { size: max };
+  static prepareQueryParams(
+    options: QueryOptions,
+    maxSize: number = 2000,
+    defaultSize?: number,
+    defaultSort?: string
+  ): QueryOptions {
+    if (Math.abs(options?.size) > maxSize || !options?.size) {
+      if (!options && defaultSize) {
+        options = { size: defaultSize };
       } else {
         const sign = Math.sign(options?.size);
-        options.size = sign !== 0 && !isNaN(sign) ? sign * max : max;
+        options.size = sign !== 0 && !isNaN(sign) ? sign * maxSize : maxSize;
       }
+    }
+
+    if (!options?.sort && defaultSort) {
+      if (!options) {
+        options = {};
+      }
+      options.sort = defaultSort;
     }
     return options;
   }
@@ -70,14 +77,7 @@ export class RequestUtil {
   }
 
   static transformFilter(filter: any, type: string): any {
-    switch (type) {
-      case 'mongoose':
-        return this.transformMongooseFilter(filter);
-      case 'typeorm':
-        return this.transformTypeormFilter(filter);
-      default:
-        return filter;
-    }
+    return type === 'mongoose' ? this.transformMongooseFilter(filter) : this.transformTypeormFilter(filter);
   }
 
   static transformMongooseFilter(filter: any): any {
@@ -123,7 +123,7 @@ export class RequestUtil {
     });
   }
 
-  static normalizeSort(sort: any): any {
+  static normalizeSort(sort: any, fields: string[]): any {
     const sortMap = {};
     if (!sort || typeof sort !== 'string') {
       return sort;
@@ -133,7 +133,9 @@ export class RequestUtil {
       let value = part.trim();
       const order = value.charAt(0) === '-' ? 'desc' : 'asc';
       value = value.charAt(0) === '-' || value.charAt(0) === '+' ? value.substring(1) : value;
-      sortMap[value] = order;
+      if (fields.includes(value)) {
+        sortMap[value] = order;
+      }
     }
     return sortMap;
   }

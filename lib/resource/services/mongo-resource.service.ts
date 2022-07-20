@@ -43,7 +43,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     filter = _.merge(filter || {}, this.policyFilter());
 
     if (options?.sort) {
-      options.sort = RequestUtil.normalizeSort(options.sort);
+      options.sort = RequestUtil.normalizeSort(options.sort, this.fields());
     }
 
     let results;

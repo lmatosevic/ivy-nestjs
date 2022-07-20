@@ -1,8 +1,9 @@
-import { DynamicModule, Module } from '@nestjs/common';
+import { DynamicModule, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule as NestjsConfigModule, ConfigModuleOptions } from '@nestjs/config';
-import configuration from './configuration';
-import { CONFIG_MODULE_OPTIONS } from './config.constants';
 import { ModuleUtil } from '../utils';
+import configuration from './configuration';
+import { ConfigMiddleware } from './config.middleware';
+import { CONFIG_MODULE_OPTIONS } from './config.constants';
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import { ModuleUtil } from '../utils';
   ],
   exports: [NestjsConfigModule]
 })
-export class ConfigModule {
+export class ConfigModule implements NestModule {
   static forRoot(options: ConfigModuleOptions = {}): DynamicModule {
     return this.createModule(
       [
@@ -26,10 +27,7 @@ export class ConfigModule {
       [
         NestjsConfigModule.forRoot({
           ...options,
-          envFilePath: [
-            ...(ModuleUtil.getEnvFiles()),
-            ...(options.envFilePath || [])
-          ],
+          envFilePath: [...ModuleUtil.getEnvFiles(), ...(options.envFilePath || [])],
           load: [configuration, ...(options.load || [])],
           isGlobal: options.isGlobal ?? true
         })
@@ -41,8 +39,12 @@ export class ConfigModule {
     return {
       module: ConfigModule,
       imports: [...imports],
-      providers: [...providers],
-      exports: [CONFIG_MODULE_OPTIONS, NestjsConfigModule]
+      providers: [...providers, ConfigMiddleware],
+      exports: [CONFIG_MODULE_OPTIONS, NestjsConfigModule, ConfigMiddleware]
     };
+  }
+
+  configure(consumer: MiddlewareConsumer): any {
+    consumer.apply(ConfigMiddleware).forRoutes('*');
   }
 }

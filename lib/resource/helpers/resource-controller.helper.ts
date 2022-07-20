@@ -27,14 +27,16 @@ import {
   getSchemaPath,
   PartialType
 } from '@nestjs/swagger';
+import { ConfigService } from '@nestjs/config';
+import { Expose } from 'class-transformer';
+import { IsArray, IsOptional } from 'class-validator';
+import { Config } from '../../config/decorators';
 import { FilesUtil, RequestUtil, StringUtil } from '../../utils';
 import { FILE_PROPS_KEY, FileDto, FileFilter, FileProps } from '../../storage';
 import { ErrorResponse, FilterOperator, QueryRequest, QueryResponse, StatusResponse } from '../dto';
-import { MongoResourceService, ResourceService } from '../services';
+import { ResourceService } from '../services';
 import { Resource, ResourceConfig } from '../decorators';
 import { ResourcePolicy, ResourcePolicyInterceptor } from '../policy';
-import { Expose } from 'class-transformer';
-import { IsArray, IsOptional } from 'class-validator';
 
 function extractFileProps<T>(classRef: Type<T>): Record<string, FileProps> {
   const types = {};
@@ -223,8 +225,6 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
   @ApiTags(pluralName)
   @Resource(config)
   abstract class ResourceController {
-    private readonly databaseType: string;
-
     protected constructor(
       protected service: ResourceService<T>,
       protected policy?: ResourcePolicy<any, any>
@@ -232,8 +232,6 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
       if (policy) {
         UseInterceptors(new ResourcePolicyInterceptor(policy))(ResourceController);
       }
-      this.databaseType =
-        this.service.constructor.prototype instanceof MongoResourceService ? 'mongoose' : 'typeorm';
     }
 
     @ApiOkResponse({ type: () => resourceRef })
@@ -280,12 +278,17 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
     @ApiBadRequestResponse({ description: 'Bad request', type: ErrorResponse })
     @HttpCode(200)
     @Post('/query')
-    query(@Body() queryDto: QueryRequest<T>): Promise<QueryResponse<T>> {
+    query(@Body() queryDto: QueryRequest<T>, @Config() config: ConfigService): Promise<QueryResponse<T>> {
       const { filter, ...options } = queryDto;
-      const query = RequestUtil.transformFilter(filter, this.databaseType);
+      const query = RequestUtil.transformFilter(filter, config.get('db.type'));
       return this.service.query({
         filter: query,
-        ...RequestUtil.restrictQueryPageSize(options)
+        ...RequestUtil.prepareQueryParams(
+          options,
+          config.get('pagination.maxSize'),
+          config.get('pagination.defaultSize'),
+          config.get('pagination.defaultSort')
+        )
       });
     }
 
