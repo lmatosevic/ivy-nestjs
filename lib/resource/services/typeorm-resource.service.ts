@@ -80,14 +80,15 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     }
 
     try {
-      results = await this.repository.find({
+      const result = await this.repository.findAndCount({
         skip: (options.page - 1) * options.size || 0,
         take: options.size,
         order: options.sort as any,
         where: filter,
         relations: []
       });
-      totalCount = await this.repository.count({ where: filter });
+      results = result[0];
+      totalCount = result[1];
     } catch (e) {
       this.logger.debug(e);
       throw new ResourceError(this.repository.metadata.name, {
