@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.33](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.32...v0.1.33) (2022-07-21)
+
+
+### Features
+
+* use findAndCount method instead of two separate queries for typeorm query ([3434a5f](https://github.com/Lujo5/ivy-nestjs/commit/3434a5faeaf94e14f1f2c36445f1d9598a6724e4))
+
 ### [0.1.32](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.31...v0.1.32) (2022-07-20)
 
 
