@@ -6,7 +6,6 @@ import {
   Inject,
   Post,
   Query,
-  Request,
   Type,
   UseGuards
 } from '@nestjs/common';
@@ -20,7 +19,7 @@ import {
 } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import { LocalAuthGuard } from './strategy/local/local-auth.guard';
-import { Authorized, Public, ReCaptcha } from './decorators';
+import { Authorized, CurrentUser, Public, ReCaptcha } from './decorators';
 import { RequestUtil } from '../utils';
 import { ErrorResponse, StatusResponse } from '../resource';
 import { AuthUser } from './interfaces';
@@ -70,8 +69,8 @@ export function AuthController<T extends Type<unknown>>(authUserRef: T, register
     @ApiBadRequestResponse({ description: 'Invalid credentials', type: ErrorResponse })
     @HttpCode(200)
     @Post('login')
-    login(@Request() req): Promise<JwtToken> {
-      return this.authService.login(req.user);
+    login(@CurrentUser() user: AuthUser): Promise<JwtToken> {
+      return this.authService.login(user);
     }
 
     @ReCaptcha()
@@ -99,23 +98,23 @@ export function AuthController<T extends Type<unknown>>(authUserRef: T, register
     @Authorized(AuthType.Jwt, AuthType.OAuth2)
     @HttpCode(200)
     @Post('refresh')
-    refresh(@Request() req): Promise<JwtToken> {
-      return this.authService.login(req.user);
+    refresh(@CurrentUser() user: AuthUser): Promise<JwtToken> {
+      return this.authService.login(user);
     }
 
     @Authorized()
     @ApiOkResponse({ type: () => StatusResponse })
     @HttpCode(200)
     @Post('logout')
-    logout(@Request() req): Promise<StatusResponse> {
-      return this.authService.logout(req.user);
+    logout(@CurrentUser() user: AuthUser): Promise<StatusResponse> {
+      return this.authService.logout(user);
     }
 
     @Authorized()
     @ApiOkResponse({ type: () => authUserRef })
     @Get('user')
-    authUser(@Request() req): AuthUser {
-      return req.user;
+    authUser(@CurrentUser() user: AuthUser): AuthUser {
+      return user;
     }
   }
 
