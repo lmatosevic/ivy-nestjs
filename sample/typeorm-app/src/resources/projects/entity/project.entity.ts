@@ -50,14 +50,14 @@ export class Project extends ResourceEntity {
   @Column()
   planId: number;
 
-  @ManyToOne(() => User, (user) => user.projects)
+  @ManyToOne(() => User, (user) => user.projects, { cascade: ['update'] })
   owner: User;
 
-  @OneToOne(() => Plan, (plan) => plan.project)
+  @OneToOne(() => Plan, (plan) => plan.project, { eager: true, cascade: ['update'] })
   @JoinColumn()
   plan: Plan;
 
-  @OneToMany(() => Application, (application) => application.project)
+  @OneToMany(() => Application, (application) => application.project, { eager: true })
   applications?: Application[];
 
   @ApiHideProperty()

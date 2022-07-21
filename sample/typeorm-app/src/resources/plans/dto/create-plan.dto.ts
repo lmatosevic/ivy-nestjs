@@ -24,6 +24,7 @@ export class CreatePlanDto {
 
   @Expose()
   @IsArray()
+  @IsOptional()
   @ValidateNested({ each: true })
   @Type(() => FileDto)
   readonly files?: FileDto[];

@@ -60,8 +60,8 @@ input CreateProjectDto {
   description: String
   documents: [FileDto!]
   name: String!
-  ownerId: Float
-  planId: Float!
+  owner: IntegerIdDto
+  plan: IntegerIdDto!
 }
 
 input CreateUserDto {
@@ -335,8 +335,8 @@ input UpdateProjectDto {
   description: String
   documents: [FileDto!]
   name: String
-  ownerId: Float
-  planId: Float
+  owner: IntegerIdDto
+  plan: IntegerIdDto
 }
 
 input UpdateUserDto {

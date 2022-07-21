@@ -69,13 +69,13 @@ export class User extends ResourceEntity implements AuthUser {
   @FileColumn({ mimeType: 'image/(jpg|jpeg|png|gif)', maxSize: '1.23 MB' })
   avatar?: File;
 
-  @OneToMany(() => Project, (project) => project.owner)
+  @OneToMany(() => Project, (project) => project.owner, { eager: true })
   projects?: Project[];
 
   @RelationId((user: User) => user.projects)
   projectIds?: number[];
 
-  @ManyToMany(() => Application, (application) => application.reviewers)
+  @ManyToMany(() => Application, (application) => application.reviewers, { eager: true })
   @JoinTable()
   reviewedApps?: Application[];
 

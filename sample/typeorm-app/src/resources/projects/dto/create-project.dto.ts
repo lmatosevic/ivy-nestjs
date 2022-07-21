@@ -1,7 +1,7 @@
 import { InputType } from '@nestjs/graphql';
 import { Expose, Type } from 'class-transformer';
-import { IsArray, IsInt, IsNotEmpty, IsOptional, MaxLength, ValidateNested } from 'class-validator';
-import { FileDto } from 'ivy-nestjs';
+import { IsArray, IsNotEmpty, IsOptional, MaxLength, ValidateNested } from 'class-validator';
+import { FileDto, IntegerIdDto } from 'ivy-nestjs';
 
 @InputType()
 export class CreateProjectDto {
@@ -17,13 +17,15 @@ export class CreateProjectDto {
 
   @Expose()
   @IsOptional()
-  @IsInt()
-  readonly ownerId?: number;
+  @ValidateNested()
+  @Type(() => IntegerIdDto)
+  readonly owner?: IntegerIdDto;
 
   @Expose()
   @IsNotEmpty()
-  @IsInt()
-  readonly planId: number;
+  @ValidateNested()
+  @Type(() => IntegerIdDto)
+  readonly plan: IntegerIdDto;
 
   @Expose()
   @IsOptional()
