@@ -240,6 +240,10 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
   }
 
   private relationsToPopulate(modelName?: string, level: number = 0, excludeFields: string[] = []): string[] {
+    if (this.isInternal()) {
+      return [];
+    }
+
     const fields = [];
 
     const relationPopulation = this.relationPopulationList(modelName);

@@ -63,4 +63,8 @@ export abstract class ResourcePolicyService {
   getAuthUser(): AuthUser {
     return (RequestContext.currentContext?.req?.['user'] as AuthUser) || null;
   }
+
+  isInternal(): boolean {
+    return !RequestContext.currentContext?.req;
+  }
 }
