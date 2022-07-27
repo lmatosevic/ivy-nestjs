@@ -272,7 +272,9 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
           subRelations = this.relationFields(subRelationModelName);
         }
 
-        fields.push(...subRelations.map((sr) => `${relation}.${sr}`));
+        fields.push(
+          ...subRelations.map((sr) => `${relation}.${sr}`).filter((f) => !excludeFields?.includes(f))
+        );
       }
     }
 
