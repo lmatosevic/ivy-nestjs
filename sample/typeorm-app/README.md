@@ -37,6 +37,36 @@ Swagger documentation is available on: `http://{APP_HOST}:{APP_PORT}/api-docs`
 
 GraphQL playground is available on: `http://{APP_HOST}:{APP_PORT}/graphql`
 
+## Database management
+
+Before running any of the following commands, make sure you have provided database credentials in _.env_ file.
+
+All migration files are stored in directory: _./src/migrations/_.
+
+Generate new migration from entity changes:
+
+```
+npm run migration:generate src/migrations/NewMigrationName
+```
+
+Manually run the migrations:
+
+```
+npm run migration:run
+```
+
+Create new migration and write it manually:
+
+```
+npm run migration:create
+```
+
+Revert last executed migration:
+
+```
+npm run migration:revert
+```
+
 ## Docker
 
 Start backend application and PostgresSQL database docker images: `docker-compose up -d`, or if you don't need database
