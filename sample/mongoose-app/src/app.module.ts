@@ -21,6 +21,7 @@ import { ProjectsModule } from '@resources/projects';
 import { ApplicationsModule } from '@resources/applications';
 import { PlansModule } from '@resources/plans';
 import { FeaturesModule } from '@resources/features';
+import { CategoriesModule } from '@resources/categories';
 
 @Module({
   imports: [
@@ -48,7 +49,8 @@ import { FeaturesModule } from '@resources/features';
     ProjectsModule,
     ApplicationsModule,
     PlansModule,
-    FeaturesModule
+    FeaturesModule,
+    CategoriesModule
   ],
   providers: [AppService]
 })

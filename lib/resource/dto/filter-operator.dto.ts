@@ -1,36 +1,61 @@
-import { Field, InputType, Int } from '@nestjs/graphql';
-import { ApiProperty } from '@nestjs/swagger';
+import { Field, InputType } from '@nestjs/graphql';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 
 @InputType()
 export class FilterOperator {
-  _eq?: string;
+  @Field(() => String, { nullable: true })
+  @ApiPropertyOptional({ type: String })
+  _eq?: string | number;
 
-  _gt?: string;
+  @Field(() => String, { nullable: true })
+  @ApiPropertyOptional({ type: String })
+  _gt?: string | number;
 
-  _gte?: string;
+  @Field(() => String, { nullable: true })
+  @ApiPropertyOptional({ type: String })
+  _gte?: string | number;
 
+  @Field(() => [String], { nullable: true })
+  @ApiPropertyOptional({ type: [String] })
   _in?: string[];
 
-  _lt?: string;
+  @Field(() => String, { nullable: true })
+  @ApiPropertyOptional({ type: String })
+  _lt?: string | number;
 
-  _lte?: string;
+  @Field(() => String, { nullable: true })
+  @ApiPropertyOptional({ type: String })
+  _lte?: string | number;
 
-  _ne?: string;
+  @Field(() => String, { nullable: true })
+  @ApiPropertyOptional({ type: String })
+  _ne?: string | number;
 
-  _nin?: string[];
+  @Field(() => [String], { nullable: true })
+  @ApiPropertyOptional({ type: [String] })
+  _nin?: string[] | number[];
 
-  _regex?: string;
+  @Field(() => String, { nullable: true })
+  @ApiPropertyOptional({ type: String })
+  _like?: string;
 
+  @Field(() => String, { nullable: true })
+  @ApiPropertyOptional({ type: String })
+  _ilike?: string;
+
+  @Field(() => Boolean, { nullable: true })
+  @ApiPropertyOptional({ type: Boolean })
   _exists?: boolean;
 
-  _all?: string[];
+  @Field(() => [String], { nullable: true })
+  @ApiPropertyOptional({ type: [String] })
+  _all?: string[] | number[];
 
-  @Field(() => Int, { nullable: true })
-  _size?: number;
-
-  @ApiProperty({ type: () => FilterOperator, required: false })
+  @Field(() => FilterOperator, { nullable: true })
+  @ApiPropertyOptional({ type: () => FilterOperator })
   _elemMatch?: FilterOperator;
 
-  @ApiProperty({ type: () => FilterOperator, required: false })
+  @Field(() => FilterOperator, { nullable: true })
+  @ApiPropertyOptional({ type: () => FilterOperator })
   _not?: FilterOperator;
 }

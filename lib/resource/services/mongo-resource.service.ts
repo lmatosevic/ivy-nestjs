@@ -1,9 +1,10 @@
 import { Logger } from '@nestjs/common';
-import { Document, Model } from 'mongoose';
+import { ClientSession, Document, Model } from 'mongoose';
 import { PartialDeep } from 'type-fest';
 import { ResourceError } from '../../resource/errors';
 import { FILE_PROPS_KEY, FileProps } from '../../storage/decorators';
 import { FileError, FileManager } from '../../storage';
+import { FileMeta } from '../../storage/schema';
 import { FilesUtil, ObjectUtil, RequestUtil } from '../../utils';
 import { QueryRequest, QueryResponse, ValidationError } from '../dto';
 import { ResourceService } from './resource.service';
@@ -24,14 +25,34 @@ type ModelReferences = {
 
 export abstract class MongoResourceService<T> extends ResourcePolicyService implements ResourceService<T> {
   private static modelReferences: Record<string, ModelReferences>;
+  private static replicationEnabled: boolean;
   private readonly logger = new Logger(MongoResourceService.name);
 
-  protected constructor(protected model: Model<T & ResourceSchema>, protected fileManager?: FileManager) {
+  protected constructor(
+    protected model: Model<T & ResourceSchema>,
+    protected fileManager?: FileManager,
+    private session?: ClientSession
+  ) {
     super('_id');
+
+    if (MongoResourceService.replicationEnabled === undefined) {
+      MongoResourceService.replicationEnabled = !!this.model.db['_connectionOptions'].replicaSet;
+      this.logger.log('Database replication enabled');
+    }
 
     if (!MongoResourceService.modelReferences) {
       MongoResourceService.modelReferences = this.fetchAllReferences();
     }
+  }
+
+  public useWith(sessionManager: ClientSession): ResourceService<T> {
+    class ManagedMongoResourceService extends MongoResourceService<T> {}
+
+    return new ManagedMongoResourceService(
+      this.model,
+      this.fileManager,
+      MongoResourceService.replicationEnabled ? sessionManager : undefined
+    );
   }
 
   async find(id: string): Promise<T> {
@@ -42,30 +63,60 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     let { filter, ...options } = queryDto;
     filter = _.merge(filter || {}, this.policyFilter());
 
+    if (Object.keys(filter).length > 0) {
+      filter = RequestUtil.transformMongooseFilter(filter);
+    }
+
     if (options?.sort) {
-      options.sort = RequestUtil.normalizeSort(options.sort, this.fields());
+      options.sort = RequestUtil.normalizeSort(options.sort);
+    }
+
+    let session;
+    if (!this.session && MongoResourceService.replicationEnabled) {
+      session = await this.model.db.startSession();
+    } else if (MongoResourceService.replicationEnabled) {
+      session = this.session;
     }
 
     let results;
     let totalCount;
     try {
+      if (!this.session && session) {
+        session.startTransaction();
+      }
+
       filter = await this.resolveFilterSubReferences(filter);
       results = await this.model
-        .find(filter, this.policyProjection(), {
+        .find(filter as any, this.policyProjection(), {
           skip: (options.page - 1) * options.size,
           limit: options.size,
           sort: options.sort
         })
         .populate(this.makePopulationArray())
+        .session(session)
         .exec();
-      totalCount = await this.model.countDocuments(filter).exec();
+      totalCount = await this.model
+        .countDocuments(filter as any)
+        .session(session)
+        .exec();
+
+      if (!this.session && session) {
+        await session.commitTransaction();
+      }
     } catch (e) {
+      if (!this.session && session) {
+        await session.abortTransaction();
+      }
       this.logger.debug(e);
       throw new ResourceError(this.model.modelName, {
         message: 'Bad request',
         reason: e.reason?.message || e.message,
         status: 400
       });
+    } finally {
+      if (!this.session && session) {
+        await session.endSession();
+      }
     }
 
     return {
@@ -170,9 +221,9 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
         reason: this.errorReasonsList(e),
         status: e.stack?.includes('ValidationError') ? 400 : 500
       });
+    } finally {
+      await session.endSession();
     }
-
-    await session.endSession();
 
     return populatedModel;
   }
@@ -189,7 +240,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
       if (populate) {
         resourceFind.populate(this.makePopulationArray());
       }
-      resource = await resourceFind.exec();
+      resource = await resourceFind.session(this.session).exec();
     } catch (e) {
       this.logger.debug(e);
       throw new ResourceError(this.model.modelName, {
@@ -291,7 +342,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
         .filter((f) => !this.refProp(f, fieldProp.ref)?.ref)
         .map((f) => '-' + f)
         .concat(policySelect);
-      const newPopulationArray = this.makePopulationArray(fieldProp.ref, depth, level + 1, [
+      const newPopulationArray = this.makePopulationArray(fieldProp.ref, fieldProp.maxDepth, level + 1, [
         ...excludeFields,
         ...exclude,
         ...[fieldProp.foreignField].filter((f) => !!f)
@@ -510,9 +561,16 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
       async (key, value, keyList) => {
         const modelName = this.modelNameFromFieldList(keyList);
 
+        // Virtual fields references will be transformed to map of allowed id values
         if (value !== null && typeof value === 'object' && this.virtualFields(modelName).includes(key)) {
           return '_id';
         }
+
+        // Nested keys and values will be returned from newValue function
+        if (value !== null && typeof value === 'object' && this.fileFields(modelName).includes(key)) {
+          return null;
+        }
+
         return key;
       },
       async (key, value, keyList) => {
@@ -521,18 +579,45 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
         if (value !== null && typeof value === 'object') {
           const model = this.model.db.models[this.refProp(key, modelName)?.ref];
 
+          // Make referenced fields query as an array of matching ids
           if (model && !Array.isArray(value) && this.referencedFields(modelName).includes(key)) {
-            return await model.distinct('_id', value).exec();
+            return model.distinct('_id', value).session(this.session).exec();
           }
 
+          // Make array of allowed reverse id references by virtual properties
           if (model && this.virtualFields(modelName).includes(key)) {
             const query = Array.isArray(value) ? { _id: value } : value;
             const fieldRefs = this.refProps(model.modelName);
             const refData = Object.entries(fieldRefs).find(([_, meta]) => (meta as any).ref === modelName);
             if (refData && refData.length > 1) {
               const refName = refData[0];
-              return await model.distinct(refName, query).exec();
+              return model.distinct(refName, query).session(this.session).exec();
             }
+          }
+
+          // Make keys for nested properties in format key.subKey = value and resolved FileMeta subqueries
+          if (!Array.isArray(value) && this.fileFields(modelName).includes(key)) {
+            const metaModel = this.model.db.models[FileMeta.name];
+            const nestedEntires = [];
+            for (const filterKey of Object.keys(value)) {
+              const filterValue = value[filterKey];
+              if (['$and', '$or', '$nor'].includes(filterKey)) {
+                const replacedEntryKeys = await ObjectUtil.transfromKeysAndValuesAsync(
+                  { filterValue },
+                  async (k, v, kl) => (k.startsWith('$') || kl.includes('meta') ? k : `${key}.${k}`),
+                  async (k, v) =>
+                    (k !== 'meta' ? v : metaModel.distinct('_id', v).session(this.session).exec())
+                );
+                nestedEntires.push({ key: filterKey, value: replacedEntryKeys[`${key}.filterValue`] });
+              } else {
+                const nestedValue =
+                  filterKey !== 'meta'
+                    ? filterValue
+                    : await metaModel.distinct('_id', filterValue).session(this.session).exec();
+                nestedEntires.push({ key: `${key}.${filterKey}`, value: nestedValue });
+              }
+            }
+            return nestedEntires;
           }
         }
         return value;
@@ -549,6 +634,23 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     this.logger.debug('After filter resolve: %j', resolvedFilter);
 
     return resolvedFilter;
+  }
+
+  private modelNameFromFieldList(fieldList: string[]): string {
+    const fields = [...fieldList];
+    let previousModelName = this.model.modelName;
+    let currentModelName = this.model.modelName;
+
+    while (fields.length > 0) {
+      const field = fields.shift();
+      const fieldRef = this.refProp(field, currentModelName);
+      if (fieldRef && fieldRef.ref) {
+        previousModelName = currentModelName;
+        currentModelName = fieldRef.ref;
+      }
+    }
+
+    return fieldList.length > 1 ? previousModelName : currentModelName;
   }
 
   private fields(modelName?: string): string[] {
@@ -587,23 +689,6 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     return MongoResourceService.modelReferences[modelName || this.model.modelName]?.embeddedTypes?.[
       fieldName
     ];
-  }
-
-  private modelNameFromFieldList(fieldList: string[]): string {
-    const fields = [...fieldList];
-    let previousModelName = this.model.modelName;
-    let currentModelName = this.model.modelName;
-
-    while (fields.length > 0) {
-      const field = fields.shift();
-      const fieldRef = this.refProp(field, currentModelName);
-      if (fieldRef && fieldRef.ref) {
-        previousModelName = currentModelName;
-        currentModelName = fieldRef.ref;
-      }
-    }
-
-    return fieldList.length > 1 ? previousModelName : currentModelName;
   }
 
   private fetchAllReferences(): Record<string, ModelReferences> {

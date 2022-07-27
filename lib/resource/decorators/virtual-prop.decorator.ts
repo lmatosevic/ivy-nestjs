@@ -5,6 +5,7 @@ export const VIRTUAL_PROPS_KEY = 'virtualProps';
 export interface VirtualRefProps {
   populate?: boolean;
   excludeFields?: string[];
+  maxDepth?: number;
   onDelete?: 'setNull' | 'cascade' | 'none';
 }
 
@@ -19,6 +20,9 @@ export function VirtualProp(config: VirtualTypeOptions & VirtualRefProps) {
     if (config.ref && config.justOne === undefined) {
       const designType = Reflect.getMetadata('design:type', target, propertyKey);
       config.justOne = designType?.name !== 'Array';
+    }
+    if (!config.maxDepth && config.maxDepth !== 0) {
+      config.maxDepth = 5;
     }
     const virtualData = Reflect.getMetadata(VIRTUAL_PROPS_KEY, target) || {};
     virtualData[propertyKey] = config;

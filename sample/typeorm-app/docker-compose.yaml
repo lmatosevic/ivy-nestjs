@@ -3,7 +3,7 @@ version: "3"
 services:
   postgresql:
     image: postgres:14.3
-    restart: always
+    restart: unless-stopped
     container_name: ivy-postgresql
     ports:
       - "5432:5432"

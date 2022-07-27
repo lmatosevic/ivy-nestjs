@@ -10,7 +10,7 @@ import {
   UpdateDateColumn
 } from 'typeorm';
 import { Field, HideField, ID, ObjectType } from '@nestjs/graphql';
-import { CreatorColumn, ResourceEntity } from 'ivy-nestjs/resource';
+import { CreatorColumn, PopulateRelation, ResourceEntity } from 'ivy-nestjs/resource';
 import { User } from '@resources/users/entity';
 import { File } from 'ivy-nestjs/storage/schema';
 import { FileColumn, Role } from 'ivy-nestjs';
@@ -53,11 +53,13 @@ export class Project extends ResourceEntity {
   @ManyToOne(() => User, (user) => user.projects, { cascade: ['update'] })
   owner: User;
 
-  @OneToOne(() => Plan, (plan) => plan.project, { eager: true, cascade: ['update'] })
+  @PopulateRelation()
+  @OneToOne(() => Plan, (plan) => plan.project, { cascade: ['update'] })
   @JoinColumn()
   plan: Plan;
 
-  @OneToMany(() => Application, (application) => application.project, { eager: true })
+  @PopulateRelation()
+  @OneToMany(() => Application, (application) => application.project)
   applications?: Application[];
 
   @ApiHideProperty()

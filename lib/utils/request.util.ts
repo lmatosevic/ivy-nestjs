@@ -2,6 +2,21 @@ import { Type } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { validateOrReject } from 'class-validator';
 import { PartialDeep } from 'type-fest';
+import {
+  Any,
+  ArrayOverlap,
+  Between,
+  Equal,
+  ILike,
+  In,
+  IsNull,
+  LessThan,
+  LessThanOrEqual,
+  Like,
+  MoreThan,
+  MoreThanOrEqual,
+  Not
+} from 'typeorm';
 import { QueryOptions } from 'mongoose';
 import { ResourceError } from '../resource';
 import { FileDto } from '../storage';
@@ -9,25 +24,26 @@ import { ObjectUtil } from './object.util';
 import * as _ from 'lodash';
 
 export class RequestUtil {
-  static filterSpecialKeys = [
-    '_and',
-    '_or',
-    '_nor',
-    '_eq',
-    '_gt',
-    '_gte',
-    '_in',
-    '_lt',
-    '_lte',
-    '_ne',
-    '_nin',
-    '_regex',
-    '_exists',
-    '_all',
-    '_size',
-    '_elemMatch',
-    '_not'
-  ];
+  static filterQueryMappers = {
+    _and: (arg) => ({ ...arg }),
+    _or: (arg) => Object.keys(arg).map((k) => ({ [k]: arg[k] })),
+    _nor: (arg) => Object.assign({}, ...Object.keys(arg).map((k) => ({ [k]: Not(arg[k]) }))),
+    _eq: Equal,
+    _gt: MoreThan,
+    _gte: MoreThanOrEqual,
+    _in: In,
+    _lt: LessThan,
+    _lte: LessThanOrEqual,
+    _ne: (arg) => Not(Equal(arg)),
+    _nin: (arg) => Not(In(arg)),
+    _like: Like,
+    _ilike: ILike,
+    _exists: (arg) => (arg ? Not(IsNull()) : IsNull()),
+    _all: ArrayOverlap,
+    _elemMatch: Any,
+    _not: Not
+  };
+  static filterQueryKeys = Object.keys(this.filterQueryMappers);
 
   static prepareQueryParams(
     options: QueryOptions,
@@ -76,17 +92,49 @@ export class RequestUtil {
     return instance;
   }
 
-  static transformFilter(filter: any, type: string): any {
-    return type === 'mongoose' ? this.transformMongooseFilter(filter) : this.transformTypeormFilter(filter);
-  }
-
   static transformMongooseFilter(filter: any): any {
+    const addILikeOptions = (obj: any) => {
+      return _.transform(obj, (result, value, key) => {
+        result[key] = _.isObject(value) ? addILikeOptions(value) : value;
+        if (key === '_ilike') {
+          result['$options'] = 'i';
+        }
+      });
+    };
+
+    filter = addILikeOptions(filter);
+
     const newFilter = ObjectUtil.transfromKeysAndValues(
       filter,
-      (key) => (this.filterSpecialKeys.includes(key) ? key.replace('_', '$') : key),
+      (key) => {
+        if (['_like', '_ilike'].includes(key)) {
+          return '$regex';
+        }
+        return this.filterQueryKeys.includes(key) ? key.replace('_', '$') : key;
+      },
       (key, value) => {
+        if (['_like', '_ilike'].includes(key)) {
+          const prefix = value.trim().startsWith('%') ? '' : '^';
+          const suffix = value.trim().endsWith('%') ? '' : '$';
+          return (
+            prefix +
+            value
+              .trim()
+              .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+              .replace(/\\\\\[/g, '\\[')
+              .replace(/\\\\]/g, '\\]')
+              .replace(/\\\[/g, '[')
+              .replace(/\\]/g, ']')
+              .replace(/%/g, '.*')
+              .replace(/\\\\\.\*/g, '%')
+              .replace(/_/g, '.')
+              .replace(/\\\\\./g, '_') +
+            suffix
+          );
+        }
+
         const valueArray = [];
-        if (['_and', '_or', '_nor'].indexOf(key) !== -1) {
+        if (['_and', '_or', '_nor'].includes(key)) {
           Object.keys(value).forEach((valKey) => {
             valueArray.push({ [valKey]: value[valKey] });
           });
@@ -102,17 +150,35 @@ export class RequestUtil {
   static transformTypeormFilter(filter: any): any {
     return ObjectUtil.transfromKeysAndValues(
       filter,
-      (key) => (this.filterSpecialKeys.includes(key) ? key.replace('_', '') : key),
-      (key, value) => {
-        const valueArray = [];
-        if (['_and', '_or', '_nor'].indexOf(key) !== -1) {
-          Object.keys(value).forEach((valKey) => {
-            valueArray.push({ [valKey]: value[valKey] });
-          });
-        } else {
-          return value;
+      (key) => {
+        if (['_and', '_or', '_nor'].includes(key)) {
+          return null;
         }
-        return valueArray;
+        return key;
+      },
+      (key, value) => {
+        if (value && typeof value === 'object' && !this.filterQueryKeys.includes(key)) {
+          if (('_lt' in value || '_lte' in value) && ('_gt' in value || '_gte' in value)) {
+            const from = value['_gt'] || value['_gte'];
+            const to = value['_lt'] || value['_lte'];
+            return Between(from, to);
+          }
+
+          for (const [subKey, subVal] of Object.entries(value)) {
+            if (this.filterQueryKeys.includes(subKey)) {
+              return this.filterQueryMappers[subKey](subVal);
+            }
+          }
+        }
+
+        if (['_and', '_or', '_nor'].includes(key)) {
+          const mappedValues = this.filterQueryMappers[key](value);
+          return key === '_or'
+            ? mappedValues
+            : Object.entries(mappedValues).map(([k, v]) => ({ key: k, value: v }));
+        }
+
+        return value;
       }
     );
   }
@@ -123,7 +189,7 @@ export class RequestUtil {
     });
   }
 
-  static normalizeSort(sort: any, fields: string[]): any {
+  static normalizeSort(sort: any): any {
     const sortMap = {};
     if (!sort || typeof sort !== 'string') {
       return sort;
@@ -133,9 +199,7 @@ export class RequestUtil {
       let value = part.trim();
       const order = value.charAt(0) === '-' ? 'desc' : 'asc';
       value = value.charAt(0) === '-' || value.charAt(0) === '+' ? value.substring(1) : value;
-      if (fields.includes(value)) {
-        sortMap[value] = order;
-      }
+      _.set(sortMap, value, order);
     }
     return sortMap;
   }

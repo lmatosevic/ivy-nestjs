@@ -98,16 +98,26 @@ export class AuthService implements OnApplicationBootstrap {
     const username = this.authModuleOptions.admin?.username ?? this.configService.get('auth.admin.username');
     let password = this.authModuleOptions.admin?.password ?? this.configService.get('auth.admin.password');
 
-    let adminUser = await this.authModuleOptions.userDetailsService.findByUsername(username);
+    let tries = 5;
+    let adminUser = undefined;
+    while (adminUser === undefined && tries > 0) {
+      tries--;
+      try {
+        adminUser = await this.authModuleOptions.userDetailsService.findByUsername(username);
+      } catch (e) {
+        this.logger.log('Waiting for connection...');
+        await new Promise((res) => setTimeout(res, 2000));
+      }
+    }
 
-    if (!adminUser) {
+    if (!adminUser && adminUser !== undefined) {
       if (!password) {
         password = StringUtil.randomString(12);
         this.logger.log('Generated admin user password: ' + password);
       }
       adminUser = await this.authModuleOptions.userDetailsService.createAdmin(username, password);
       this.logger.log('Created admin user with ID: ' + adminUser['id']);
-    } else {
+    } else if (adminUser) {
       this.logger.log('Admin user ID: ' + adminUser['id']);
     }
   }

@@ -9,16 +9,16 @@ import {
   RelationId,
   UpdateDateColumn
 } from 'typeorm';
+import { ApiHideProperty } from '@nestjs/swagger';
 import { Field, HideField, ID, ObjectType } from '@nestjs/graphql';
+import { Exclude } from 'class-transformer';
 import { AuthUser } from 'ivy-nestjs/auth';
 import { AuthSource, Role } from 'ivy-nestjs/enums';
-import { CreatorColumn, ResourceEntity } from 'ivy-nestjs/resource';
+import { CreatorColumn, PopulateRelation, ResourceEntity } from 'ivy-nestjs/resource';
 import { FileColumn } from 'ivy-nestjs/storage';
 import { File } from 'ivy-nestjs/storage/entity';
 import { Project } from '@resources/projects/entity';
 import { Application } from '@resources/applications/entity';
-import { Exclude } from 'class-transformer';
-import { ApiHideProperty } from '@nestjs/swagger';
 
 @ObjectType()
 @Entity()
@@ -69,13 +69,15 @@ export class User extends ResourceEntity implements AuthUser {
   @FileColumn({ mimeType: 'image/(jpg|jpeg|png|gif)', maxSize: '1.23 MB' })
   avatar?: File;
 
-  @OneToMany(() => Project, (project) => project.owner, { eager: true })
+  @PopulateRelation()
+  @OneToMany(() => Project, (project) => project.owner)
   projects?: Project[];
 
   @RelationId((user: User) => user.projects)
   projectIds?: number[];
 
-  @ManyToMany(() => Application, (application) => application.reviewers, { eager: true })
+  @PopulateRelation()
+  @ManyToMany(() => Application, (application) => application.reviewers)
   @JoinTable()
   reviewedApps?: Application[];
 

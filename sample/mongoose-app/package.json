@@ -16,7 +16,11 @@
     "start:prod": "node dist/sample/mongoose-app/src/main.js",
     "test": "jest --no-cache --forceExit --detectOpenHandles --coverage",
     "test:e2e": "jest --no-cache --forceExit --config ./test/e2e/jest-e2e.json",
+    "generate-mongo-key": "randomstring 756 > ./initdb/replica.key",
     "create-resource": "node ../../cli/create-resource.js mongoose"
+  },
+  "devDependencies": {
+    "randomstring": "1.2.2"
   },
   "jest": {
     "moduleFileExtensions": [

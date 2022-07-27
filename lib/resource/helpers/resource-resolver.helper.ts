@@ -179,9 +179,8 @@ export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown
     @Query(() => QueryResponse, { name: `${pluralName.toLowerCase()}` })
     async query(@Args() queryOptions: QueryOptions, @Config() config: ConfigService): Promise<QueryResponse> {
       const { filter, ...options } = queryOptions;
-      const query = RequestUtil.transformFilter(filter, config.get('db.type'));
       return await this.service.query({
-        filter: query,
+        filter,
         ...RequestUtil.prepareQueryParams(
           options,
           config.get('pagination.maxSize'),

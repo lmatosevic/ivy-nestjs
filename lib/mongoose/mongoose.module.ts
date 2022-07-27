@@ -45,6 +45,7 @@ export class MongooseModule {
           useFactory: async (mongooseModuleOptions: MongooseModuleOptions, conf: ConfigService) => ({
             uri: `mongodb://${conf.get('db.host')}:${conf.get('db.port')}`,
             authSource: conf.get('db.authSource'),
+            replicaSet: conf.get('db.replicaSet'),
             user: conf.get('db.user'),
             pass: conf.get('db.password'),
             dbName: conf.get('db.name'),

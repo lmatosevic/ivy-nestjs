@@ -5,6 +5,7 @@ import { Field, HideField, ID, ObjectType } from '@nestjs/graphql';
 import { CreatorProp, MongooseSchemaFactory, ResourceSchema } from 'ivy-nestjs/resource';
 import { Project } from '@resources/projects/schema';
 import { User } from '@resources/users/schema';
+import { Category } from '@resources/categories/schema';
 
 @ObjectType()
 @Schema({ timestamps: true })
@@ -26,6 +27,9 @@ export class Application extends ResourceSchema {
     type: [{ type: MongooseSchema.Types.ObjectId, ref: 'User', populate: true }]
   })
   reviewers?: User[];
+
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Category', populate: true })
+  category: Category;
 
   @ApiHideProperty()
   @HideField()

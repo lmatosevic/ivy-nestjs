@@ -17,10 +17,15 @@ export class CreateApplicationDto {
   @Expose()
   @IsNotEmpty()
   @IsHexadecimal()
-  readonly project?: string;
+  readonly project: string;
 
   @Expose()
   @IsOptional()
   @IsArray()
   readonly reviewers?: string[];
+
+  @Expose()
+  @IsOptional()
+  @IsHexadecimal()
+  readonly category?: string;
 }

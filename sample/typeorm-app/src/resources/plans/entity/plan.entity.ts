@@ -8,7 +8,7 @@ import {
   UpdateDateColumn
 } from 'typeorm';
 import { Field, ID, ObjectType } from '@nestjs/graphql';
-import { ResourceEntity } from 'ivy-nestjs/resource';
+import { PopulateRelation, ResourceEntity } from 'ivy-nestjs/resource';
 import { Project } from '@resources/projects/entity';
 import { Feature } from '@resources/features/entity';
 import { FileColumn } from 'ivy-nestjs';
@@ -27,9 +27,9 @@ export class Plan extends ResourceEntity {
   @OneToOne(() => Project, (project) => project.plan)
   project?: Project;
 
+  @PopulateRelation()
   @OneToMany(() => Feature, (feature) => feature.plan, {
-    cascade: true,
-    eager: true
+    cascade: true
   })
   features?: Feature[];
 

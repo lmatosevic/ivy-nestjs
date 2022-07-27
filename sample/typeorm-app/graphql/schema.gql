@@ -3,6 +3,7 @@
 # ------------------------------------------------------
 
 type Application {
+  category: Category
   createdAt: DateTime
   createdBy: User!
   id: ID!
@@ -19,6 +20,7 @@ input ApplicationsFilter {
   _and: ApplicationsFilter
   _nor: ApplicationsFilter
   _or: ApplicationsFilter
+  category: CategoriesFilter
   createdAt: FilterOperator
   id: FilterOperator
   project: ProjectsFilter
@@ -42,11 +44,46 @@ enum AuthSource {
   Local
 }
 
+input CategoriesFilter {
+  _and: CategoriesFilter
+  _nor: CategoriesFilter
+  _or: CategoriesFilter
+  applications: ApplicationsFilter
+  children: CategoriesFilter
+  createdAt: FilterOperator
+  id: FilterOperator
+  name: FilterOperator
+  parent: CategoriesFilter
+  updatedAt: FilterOperator
+}
+
+type CategoriesResponse {
+  items: [Category!]!
+  resultCount: Int!
+  totalCount: Int!
+}
+
+type Category {
+  applications: [Application!]
+  children: [Category!]
+  createdAt: DateTime
+  id: ID!
+  name: String!
+  parent: Category
+  updatedAt: DateTime
+}
+
 input CreateApplicationDto {
-  projectId: Float
+  category: IntegerIdDto
+  project: IntegerIdDto!
   reviewers: [IntegerIdDto!]
   scheduledAt: DateTime
   title: String!
+}
+
+input CreateCategoryDto {
+  name: String!
+  parent: IntegerIdDto
 }
 
 input CreatePlanDto {
@@ -119,8 +156,12 @@ input FileDto {
 }
 
 input FileFilter {
+  _and: FileFilter
+  _nor: FileFilter
+  _or: FileFilter
   data: FilterOperator
   description: FilterOperator
+  meta: FileMetaFilter
   originalName: FilterOperator
   title: FilterOperator
 }
@@ -129,6 +170,15 @@ type FileMeta {
   createdAt: DateTime
   mimeType: String
   size: Float
+}
+
+input FileMetaFilter {
+  _and: FileMetaFilter
+  _nor: FileMetaFilter
+  _or: FileMetaFilter
+  createdAt: FilterOperator
+  mimeType: FilterOperator
+  size: FilterOperator
 }
 
 type FileMetaSchema {
@@ -152,14 +202,14 @@ input FilterOperator {
   _exists: Boolean
   _gt: String
   _gte: String
+  _ilike: String
   _in: [String!]
+  _like: String
   _lt: String
   _lte: String
   _ne: String
   _nin: [String!]
   _not: FilterOperator
-  _regex: String
-  _size: Int
 }
 
 type HealthDto {
@@ -187,10 +237,12 @@ type JwtToken {
 
 type Mutation {
   createApplication(data: CreateApplicationDto!): Application!
+  createCategory(data: CreateCategoryDto!): Category!
   createPlan(data: CreatePlanDto!): Plan!
   createProject(data: CreateProjectDto!): Project!
   createUser(data: CreateUserDto!): User!
   deleteApplication(id: ID!): Application!
+  deleteCategory(id: ID!): Category!
   deletePlan(id: ID!): Plan!
   deletePlanFiles(files: [String!], id: ID): StatusResponse!
   deleteProject(id: ID!): Project!
@@ -202,6 +254,7 @@ type Mutation {
   refresh: JwtToken!
   registration(data: RegisterUserDto!): User!
   updateApplication(data: UpdateApplicationDto!, id: ID!): Application!
+  updateCategory(data: UpdateCategoryDto!, id: ID!): Category!
   updatePlan(data: UpdatePlanDto!, id: ID!): Plan!
   updateProject(data: UpdateProjectDto!, id: ID!): Project!
   updateUser(data: UpdateUserDto!, id: ID!): User!
@@ -284,6 +337,8 @@ type Query {
   application(id: ID!): Application!
   applications(filter: ApplicationsFilter, page: Int, size: Int, sort: String): ApplicationsResponse!
   authUser: User!
+  categories(filter: CategoriesFilter, page: Int, size: Int, sort: String): CategoriesResponse!
+  category(id: ID!): Category!
   health: HealthDto!
   identifierAvailable(field: String!, value: String!): StatusResponse!
   plan(id: ID!): Plan!
@@ -318,10 +373,16 @@ type StatusResponse {
 }
 
 input UpdateApplicationDto {
-  projectId: Float
+  category: IntegerIdDto
+  project: IntegerIdDto
   reviewers: [IntegerIdDto!]
   scheduledAt: DateTime
   title: String
+}
+
+input UpdateCategoryDto {
+  name: String
+  parent: IntegerIdDto
 }
 
 input UpdatePlanDto {

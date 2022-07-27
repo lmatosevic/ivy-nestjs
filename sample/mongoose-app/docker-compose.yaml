@@ -3,13 +3,25 @@ version: "3.8"
 services:
   mongodb:
     image: mongo:5.0.3
-    container_name: ivy-mongodb
     restart: unless-stopped
+    container_name: ivy-mongodb
+    ports:
+      - "5432:5432"
     volumes:
       - mongodb-data:/data/db
-    ports:
-      - "27017:27017"
+      - ./initdb:/docker-entrypoint-initdb.d
+      - ./initdb/replica.key:/data/replica.key.temp
+    entrypoint:
+      - bash
+      - -c
+      - |
+        cp /data/replica.key.temp /data/replica.key
+        chmod 400 /data/replica.key
+        chown 999:999 /data/replica.key
+        exec docker-entrypoint.sh $$@
+    command: "mongod --bind_ip_all --replSet rs01 --keyFile /data/replica.key"
     environment:
+      MONGO_INITDB_DATABASE: "${DB_NAME:-ivy}"
       MONGO_INITDB_ROOT_USERNAME: "${DB_USER:-admin}"
       MONGO_INITDB_ROOT_PASSWORD: "${DB_PASSWORD:-Password1!}"
 
@@ -23,8 +35,8 @@ services:
       - "6379:6379"
 
   backend:
-    image: ivy-backend
-    container_name: ivy-backend
+    image: ivy-mongoose-backend
+    container_name: ivy-mongoose-backend
     restart: unless-stopped
     build:
       context: ../../
@@ -41,6 +53,7 @@ services:
       - .env
     environment:
       DB_HOST: ivy-mongodb
+      DB_REPLICA_SET: rs01
       DB_USER: "${DB_USER:-admin}"
       DB_PASSWORD: "${DB_PASSWORD:-Password1!}"
       QUEUE_HOST: ivy-redis

@@ -1,6 +1,7 @@
 import { Prop, PropOptions } from '@nestjs/mongoose';
-import { FileSchema } from '../schema';
 import { FILE_PROPS_KEY, FileProps } from './file-types';
+import { PopulateRelation } from '../../resource';
+import { FileSchema } from '../schema';
 
 export function FileProp(config: PropOptions & FileProps = {}) {
   if (!('type' in config)) {
@@ -21,6 +22,11 @@ export function FileProp(config: PropOptions & FileProps = {}) {
 
   return (target: Object, propertyKey: string) => {
     Prop(config)(target, propertyKey);
+
+    if (!config.exclude) {
+      PopulateRelation()(target, propertyKey);
+    }
+
     const virtualData = Reflect.getMetadata(FILE_PROPS_KEY, target) || {};
     virtualData[propertyKey] = config;
     Reflect.defineMetadata(FILE_PROPS_KEY, virtualData, target);

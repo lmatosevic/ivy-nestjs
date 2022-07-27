@@ -43,6 +43,7 @@ export default () => ({
     name: process.env.DB_NAME || 'ivy',
     schema: process.env.DB_SCHEMA || 'public',
     authSource: process.env.DB_AUTH_SOURCE || 'admin',
+    replicaSet: process.env.DB_REPLICA_SET,
     user: process.env.DB_USER || 'admin',
     password: process.env.DB_PASSWORD,
     logging:

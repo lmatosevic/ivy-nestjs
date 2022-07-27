@@ -7,14 +7,17 @@ export const CREATOR_COLUMN_KEY = 'creatorColumn';
 
 export interface CreatorColumnConfig {
   type: () => Type<unknown>;
+  expose?: boolean;
 }
 
 export function CreatorColumn(config: RelationOptions & CreatorColumnConfig) {
-  const { type, ...colConf } = config;
+  const { type, expose, ...colConf } = config;
 
   return (target: Object, propertyKey: string) => {
     Field(type)(target, propertyKey);
-    ApiProperty({ type })(target, propertyKey);
+    if (expose) {
+      ApiProperty({ type })(target, propertyKey);
+    }
     ManyToOne(type, { nullable: true, ...colConf })(target, propertyKey);
 
     const creatorColumn = Reflect.getMetadata(CREATOR_COLUMN_KEY, target) || {};

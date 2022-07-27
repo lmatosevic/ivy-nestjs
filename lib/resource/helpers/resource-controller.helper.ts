@@ -280,9 +280,8 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
     @Post('/query')
     query(@Body() queryDto: QueryRequest<T>, @Config() config: ConfigService): Promise<QueryResponse<T>> {
       const { filter, ...options } = queryDto;
-      const query = RequestUtil.transformFilter(filter, config.get('db.type'));
       return this.service.query({
-        filter: query,
+        filter,
         ...RequestUtil.prepareQueryParams(
           options,
           config.get('pagination.maxSize'),

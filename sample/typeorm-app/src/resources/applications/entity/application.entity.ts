@@ -8,12 +8,13 @@ import {
   RelationId,
   UpdateDateColumn
 } from 'typeorm';
+import { ApiHideProperty } from '@nestjs/swagger';
 import { Field, HideField, ID, ObjectType } from '@nestjs/graphql';
-import { CreatorColumn, ResourceEntity } from 'ivy-nestjs/resource';
+import { Exclude } from 'class-transformer';
+import { CreatorColumn, PopulateRelation, ResourceEntity } from 'ivy-nestjs/resource';
 import { Project } from '@resources/projects/entity';
 import { User } from '@resources/users/entity';
-import { ApiHideProperty } from '@nestjs/swagger';
-import { Exclude } from 'class-transformer';
+import { Category } from '@resources/categories/entity';
 
 @ObjectType()
 @Entity()
@@ -28,7 +29,7 @@ export class Application extends ResourceEntity {
   @Column({ type: 'timestamptz', nullable: true })
   scheduledAt?: Date;
 
-  @ManyToOne(() => Project, (project) => project.applications)
+  @ManyToOne(() => Project, (project) => project.applications, { cascade: ['update'] })
   project: Project;
 
   @Column()
@@ -39,6 +40,12 @@ export class Application extends ResourceEntity {
 
   @RelationId((app: Application) => app.reviewers)
   reviewerIds?: number[];
+
+  @PopulateRelation()
+  @ManyToOne(() => Category, (category) => category.applications, {
+    cascade: ['update']
+  })
+  category?: Category;
 
   @ApiHideProperty()
   @HideField()

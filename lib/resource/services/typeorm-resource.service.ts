@@ -4,6 +4,7 @@ import { PartialDeep } from 'type-fest';
 import { RelationMetadata } from 'typeorm/metadata/RelationMetadata';
 import { ResourceError } from '../../resource/errors';
 import { FILE_PROPS_KEY, FileError, FileManager, FileProps } from '../../storage';
+import { POPULATE_RELATION_KEY, PopulateRelationConfig } from '../decorators';
 import { QueryRequest, QueryResponse } from '../dto';
 import { FilesUtil, RequestUtil } from '../../utils';
 import { ResourceService } from './resource.service';
@@ -16,6 +17,7 @@ type ModelReferences = {
   files: string[];
   relations: string[];
   relationMetadata: Record<string, RelationMetadata>;
+  relationPopulation: Record<string, PopulateRelationConfig>;
   fileProps: Record<string, FileProps>;
 };
 
@@ -37,10 +39,12 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     }
   }
 
-  public withManager(manager: EntityManager): TypeOrmResourceService<T> {
+  public useWith(sessionManager: EntityManager): ResourceService<T> {
     class ManagedTypeOrmResourceService extends TypeOrmResourceService<T> {}
 
-    const repository: Repository<T & ResourceEntity> = manager.getRepository(this.repository.metadata.name);
+    const repository: Repository<T & ResourceEntity> = sessionManager.getRepository(
+      this.repository.metadata.name
+    );
     return new ManagedTypeOrmResourceService(repository, this.fileManager);
   }
 
@@ -48,7 +52,11 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     let result;
 
     try {
-      result = await this.repository.findOne({ where: { id }, relations: [] } as any);
+      result = await this.repository.findOne({
+        where: { id },
+        select: this.policyProjection(),
+        relations: this.relationsToPopulate()
+      } as any);
     } catch (e) {
       this.logger.debug(e);
       throw new ResourceError(this.repository.metadata.name, {
@@ -75,8 +83,12 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
 
     filter = _.merge(filter || {}, this.policyFilter());
 
+    if (Object.keys(filter).length > 0) {
+      filter = RequestUtil.transformTypeormFilter(filter);
+    }
+
     if (options?.sort) {
-      options.sort = RequestUtil.normalizeSort(options.sort, this.fields());
+      options.sort = RequestUtil.normalizeSort(options.sort);
     }
 
     try {
@@ -84,8 +96,10 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
         skip: (options.page - 1) * options.size || 0,
         take: options.size,
         order: options.sort as any,
-        where: filter,
-        relations: []
+        where: filter as any,
+        select: this.policyProjection(),
+        relations: this.relationsToPopulate(),
+        transaction: true
       });
       results = result[0];
       totalCount = result[1];
@@ -222,6 +236,47 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     }
 
     return currentResource;
+  }
+
+  private relationsToPopulate(modelName?: string, level: number = 0, excludeFields: string[] = []): string[] {
+    const fields = [];
+
+    const relationPopulation = this.relationPopulationList(modelName);
+
+    for (const [relation, config] of Object.entries(relationPopulation || {})) {
+      if (excludeFields && excludeFields.includes(relation)) {
+        continue;
+      }
+
+      fields.push(relation);
+
+      if (config.populateChildren !== false && config.maxDepth > 0) {
+        const subRelationMetadata = this.relationMetadata(relation, modelName);
+        const subRelationModelName = subRelationMetadata.type['name'];
+
+        if (level >= config.maxDepth) {
+          continue;
+        }
+
+        let subRelations = [];
+        if (!config.includeRelations && (!config.excludeRelations || config.excludeRelations?.length > 0)) {
+          subRelations = this.relationsToPopulate(subRelationModelName, level + 1, config.excludeRelations);
+        } else if (config.includeRelations?.length > 0) {
+          const subRelationFields = this.relationFields(subRelationModelName);
+          subRelations = this.relationsToPopulate(
+            subRelationModelName,
+            level + 1,
+            subRelationFields.filter((srf) => !config.includeRelations.includes(srf))
+          );
+        } else {
+          subRelations = this.relationFields(subRelationModelName);
+        }
+
+        fields.push(...subRelations.map((sr) => `${relation}.${sr}`));
+      }
+    }
+
+    return fields;
   }
 
   private async persistResourceFiles(
@@ -413,6 +468,16 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
       ?.relationMetadata;
   }
 
+  private relationPopulation(fieldName: string, modelName?: string): PopulateRelationConfig {
+    return TypeOrmResourceService.modelReferences[modelName || this.repository.metadata.name]
+      ?.relationPopulation?.[fieldName];
+  }
+
+  private relationPopulationList(modelName?: string): Record<string, PopulateRelationConfig> {
+    return TypeOrmResourceService.modelReferences[modelName || this.repository.metadata.name]
+      ?.relationPopulation;
+  }
+
   private fileFields(modelName?: string): string[] {
     return TypeOrmResourceService.modelReferences[modelName || this.repository.metadata.name]?.files;
   }
@@ -441,6 +506,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     const files: string[] = [];
     const relations: string[] = [];
     const relationMetadata: Record<string, RelationMetadata> = {};
+    const relationPopulation: Record<string, PopulateRelationConfig> = {};
     let fileProps: Record<string, FileProps> = {};
 
     for (const field of Object.keys(repository.metadata?.propertiesMap || {})) {
@@ -457,11 +523,25 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     for (const relation of repository.metadata?.relations || []) {
       relations.push(relation.propertyName);
       relationMetadata[relation.propertyName] = relation;
+
+      const relationProps = Reflect.getMetadata(
+        POPULATE_RELATION_KEY,
+        repository.metadata.target?.['prototype']
+      );
+
+      if (relationProps && relationProps[relation.propertyName]) {
+        relationPopulation[relation.propertyName] = relationProps[relation.propertyName];
+      }
     }
 
     this.logger.debug('%s file fields: %j', repository.metadata?.name, files);
     this.logger.debug('%s relation fields: %j', repository.metadata?.name, relations);
+    this.logger.debug(
+      '%s populate relation fields: %j',
+      repository.metadata?.name,
+      Object.keys(relationPopulation)
+    );
 
-    return { fields, files, relations, relationMetadata, fileProps };
+    return { fields, files, relations, relationMetadata, relationPopulation, fileProps };
   }
 }
