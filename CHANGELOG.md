@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.1](https://github.com/Lujo5/ivy-nestjs/compare/v0.2.0...v0.2.1) (2022-07-27)
+
+
+### Features
+
+* enable exclusion of sub relations for populated relations ([3b5f192](https://github.com/Lujo5/ivy-nestjs/commit/3b5f192fea72390796dc6f8dcc653c763bffb4e0))
+* exclude transaction in query operation if already under transaction, fix _not filter operator ([2b7b128](https://github.com/Lujo5/ivy-nestjs/commit/2b7b128eaa8c193214df16eaffd195a19b3c0693))
+
 ## [0.2.0](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.33...v0.2.0) (2022-07-27)
 
 
