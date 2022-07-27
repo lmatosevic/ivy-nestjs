@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.2.0](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.33...v0.2.0) (2022-07-27)
+
+
+### ⚠ BREAKING CHANGES
+
+* rename resource service method for custom connection manager from withManager to useWith
+
+### Features
+
+* change user injection decorator ([4404dba](https://github.com/Lujo5/ivy-nestjs/commit/4404dba37e3b1a3e15965267acbf12315aad9993))
+* implement typeorm filtering ([ee5e692](https://github.com/Lujo5/ivy-nestjs/commit/ee5e69209cebb87b0e5e3ce3aa62210d91b64caf))
+
 ### [0.1.33](https://github.com/Lujo5/ivy-nestjs/compare/v0.1.32...v0.1.33) (2022-07-21)
 
 
