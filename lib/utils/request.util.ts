@@ -157,7 +157,7 @@ export class RequestUtil {
         return key;
       },
       (key, value) => {
-        if (value && typeof value === 'object' && !this.filterQueryKeys.includes(key)) {
+        if (value && typeof value === 'object' && (!this.filterQueryKeys.includes(key) || key === '_not')) {
           if (('_lt' in value || '_lte' in value) && ('_gt' in value || '_gte' in value)) {
             const from = value['_gt'] || value['_gte'];
             const to = value['_lt'] || value['_lte'];

@@ -30,7 +30,8 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
 
   protected constructor(
     protected repository: Repository<T & ResourceEntity>,
-    protected fileManager?: FileManager
+    protected fileManager?: FileManager,
+    private entityManager?: EntityManager
   ) {
     super('id');
 
@@ -45,7 +46,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     const repository: Repository<T & ResourceEntity> = sessionManager.getRepository(
       this.repository.metadata.name
     );
-    return new ManagedTypeOrmResourceService(repository, this.fileManager);
+    return new ManagedTypeOrmResourceService(repository, this.fileManager, sessionManager);
   }
 
   async find(id: string | number): Promise<T> {
@@ -99,7 +100,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
         where: filter as any,
         select: this.policyProjection(),
         relations: this.relationsToPopulate(),
-        transaction: true
+        transaction: !this.entityManager
       });
       results = result[0];
       totalCount = result[1];
