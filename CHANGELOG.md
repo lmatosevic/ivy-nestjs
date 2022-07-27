@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.2](https://github.com/Lujo5/ivy-nestjs/compare/v0.2.1...v0.2.2) (2022-07-27)
+
+
+### Features
+
+* add policy service method for detecting internal method calls ([e636ae9](https://github.com/Lujo5/ivy-nestjs/commit/e636ae911d00b634a2407dd3054a7d6d998e1c22))
+
 ### [0.2.1](https://github.com/Lujo5/ivy-nestjs/compare/v0.2.0...v0.2.1) (2022-07-27)
 
 
