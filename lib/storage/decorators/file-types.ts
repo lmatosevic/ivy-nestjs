@@ -12,5 +12,4 @@ export interface FileProps {
   maxSize?: number | string; // bytes or value with size unit (e.g. 1.5mb)
   isArray?: boolean;
   policy?: FileAccessPolicyFn;
-  exclude?: boolean;
 }

@@ -54,6 +54,7 @@ input CategoriesFilter {
   id: FilterOperator
   name: FilterOperator
   parent: CategoriesFilter
+  parentId: FilterOperator
   updatedAt: FilterOperator
 }
 
@@ -70,6 +71,7 @@ type Category {
   id: ID!
   name: String!
   parent: Category
+  parentId: Float
   updatedAt: DateTime
 }
 

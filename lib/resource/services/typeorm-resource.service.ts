@@ -56,7 +56,8 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
       result = await this.repository.findOne({
         where: { id },
         select: this.policyProjection(),
-        relations: this.relationsToPopulate()
+        join: this.joinRelations(),
+        transaction: !this.entityManager
       } as any);
     } catch (e) {
       this.logger.debug(e);
@@ -99,7 +100,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
         order: options.sort as any,
         where: filter as any,
         select: this.policyProjection(),
-        relations: this.relationsToPopulate(),
+        join: this.joinRelations(),
         transaction: !this.entityManager
       });
       results = result[0];
@@ -237,6 +238,34 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     }
 
     return currentResource;
+  }
+
+  private joinRelations(): any {
+    if (this.isInternal()) {
+      return undefined;
+    }
+
+    const relations = this.relationsToPopulate();
+    const modelName = this.repository.metadata.name;
+    const joinOptions = { alias: modelName, leftJoinAndSelect: {} };
+
+    for (const relation of relations) {
+      const relationParts = relation.split('.');
+
+      if (relationParts.length === 1) {
+        const alias = relationParts[0];
+        joinOptions.leftJoinAndSelect[alias] = `${modelName}.${alias}`;
+      } else if (relationParts.length > 1) {
+        const alias = relationParts.join('_');
+        joinOptions.leftJoinAndSelect[alias] = `${relationParts.slice(0, -1).join('_')}.${
+          relationParts[relationParts.length - 1]
+        }`;
+      }
+    }
+
+    this.logger.debug('Join options: %j', joinOptions);
+
+    return joinOptions;
   }
 
   private relationsToPopulate(modelName?: string, level: number = 0, excludeFields: string[] = []): string[] {

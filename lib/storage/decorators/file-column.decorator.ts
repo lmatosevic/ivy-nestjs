@@ -3,7 +3,9 @@ import { FILE_PROPS_KEY, FileProps } from './file-types';
 import { PopulateRelation } from '../../resource';
 import { File } from '../entity';
 
-export function FileColumn(config: ColumnOptions & RelationOptions & FileProps = {}) {
+export function FileColumn(
+  config: ColumnOptions & RelationOptions & FileProps & { populate?: boolean } = {}
+) {
   if (!('nullable' in config)) {
     config['nullable'] = true;
   }
@@ -25,7 +27,7 @@ export function FileColumn(config: ColumnOptions & RelationOptions & FileProps =
       JoinColumn()(target, propertyKey);
     }
 
-    if (!config.exclude) {
+    if (config.populate === undefined || config.populate) {
       PopulateRelation()(target, propertyKey);
     }
 
