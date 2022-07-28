@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.3](https://github.com/Lujo5/ivy-nestjs/compare/v0.2.2...v0.2.3) (2022-07-28)
+
+
+### Features
+
+* add custom join relations generator method ([7dc3511](https://github.com/Lujo5/ivy-nestjs/commit/7dc351122c0190a608a30c8834444c33c603a3b2))
+
 ### [0.2.2](https://github.com/Lujo5/ivy-nestjs/compare/v0.2.1...v0.2.2) (2022-07-27)
 
 
