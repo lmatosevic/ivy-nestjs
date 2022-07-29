@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.4](https://github.com/Lujo5/ivy-nestjs/compare/v0.2.3...v0.2.4) (2022-07-29)
+
+
+### Features
+
+* typeorm service now uses a custom query builder and relations management logic, removed _not query operator ([82c8840](https://github.com/Lujo5/ivy-nestjs/commit/82c88406e99b98e20ddd737d1b44bcae22c86bbb))
+
 ### [0.2.3](https://github.com/Lujo5/ivy-nestjs/compare/v0.2.2...v0.2.3) (2022-07-28)
 
 
