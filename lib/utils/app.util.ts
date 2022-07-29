@@ -23,7 +23,7 @@ export class AppUtil {
     let host = configService.get('app.host');
     let hostname = configService.get('app.hostname');
 
-    const address = `http://${hostname}:${port}`;
+    const address = hostname.startsWith('http') ? hostname : `http://${hostname}:${port}`;
 
     if (configService.get('app.shutdownHooks')) {
       app.enableShutdownHooks();
