@@ -147,7 +147,7 @@
     "reflect-metadata": "^0.1.12"
   },
   "engines": {
-    "node": ">=14.2"
+    "node": ">=16.0"
   },
   "jest": {
     "moduleFileExtensions": [
