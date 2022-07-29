@@ -5,6 +5,7 @@ export interface PopulateRelationConfig {
   excludeRelations?: string[];
   includeRelations?: string[];
   maxDepth?: number;
+  type?: 'all' | 'single' | 'multi';
 }
 
 export function PopulateRelation(config: PopulateRelationConfig = {}) {
@@ -16,6 +17,10 @@ export function PopulateRelation(config: PopulateRelationConfig = {}) {
 
   if (!config.maxDepth && config.maxDepth !== 0) {
     config.maxDepth = 5;
+  }
+
+  if (!config.type) {
+    config.type = 'all';
   }
 
   return function (target: Object, propertyKey: string) {

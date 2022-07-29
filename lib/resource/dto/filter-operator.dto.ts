@@ -51,11 +51,11 @@ export class FilterOperator {
   @ApiPropertyOptional({ type: [String] })
   _all?: string[] | number[];
 
-  @Field(() => FilterOperator, { nullable: true })
-  @ApiPropertyOptional({ type: () => FilterOperator })
-  _elemMatch?: FilterOperator;
+  @Field(() => [String], { nullable: true })
+  @ApiPropertyOptional({ type: [String] })
+  _any?: string[] | number[];
 
   @Field(() => FilterOperator, { nullable: true })
   @ApiPropertyOptional({ type: () => FilterOperator })
-  _not?: FilterOperator;
+  _elemMatch?: FilterOperator;
 }

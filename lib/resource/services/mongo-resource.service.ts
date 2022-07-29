@@ -63,10 +63,6 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     let { filter, ...options } = queryDto;
     filter = _.merge(filter || {}, this.policyFilter());
 
-    if (Object.keys(filter).length > 0) {
-      filter = RequestUtil.transformMongooseFilter(filter);
-    }
-
     if (options?.sort) {
       options.sort = RequestUtil.normalizeSort(options.sort);
     }
@@ -83,6 +79,10 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     try {
       if (!this.session && session) {
         session.startTransaction();
+      }
+
+      if (Object.keys(filter).length > 0) {
+        filter = RequestUtil.transformMongooseFilter(filter);
       }
 
       filter = await this.resolveFilterSubReferences(filter);
@@ -567,7 +567,11 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
         }
 
         // Nested keys and values will be returned from newValue function
-        if (value !== null && typeof value === 'object' && this.fileFields(modelName).includes(key)) {
+        if (
+          value !== null &&
+          typeof value === 'object' &&
+          (this.fileFields(modelName).includes(key) || this.embeddedFields(modelName).includes(key))
+        ) {
           return null;
         }
 
@@ -596,7 +600,10 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
           }
 
           // Make keys for nested properties in format key.subKey = value and resolved FileMeta subqueries
-          if (!Array.isArray(value) && this.fileFields(modelName).includes(key)) {
+          if (
+            !Array.isArray(value) &&
+            (this.fileFields(modelName).includes(key) || this.embeddedFields(modelName).includes(key))
+          ) {
             const metaModel = this.model.db.models[FileMeta.name];
             const nestedEntires = [];
             for (const filterKey of Object.keys(value)) {
@@ -606,7 +613,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
                   { filterValue },
                   async (k, v, kl) => (k.startsWith('$') || kl.includes('meta') ? k : `${key}.${k}`),
                   async (k, v) =>
-                    (k !== 'meta' ? v : metaModel.distinct('_id', v).session(this.session).exec())
+                    k !== 'meta' ? v : metaModel.distinct('_id', v).session(this.session).exec()
                 );
                 nestedEntires.push({ key: filterKey, value: replacedEntryKeys[`${key}.filterValue`] });
               } else {

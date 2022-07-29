@@ -40,8 +40,8 @@ export class ObjectUtil {
         }
       }
 
-      const newKeyResult = newKey(key, val);
-      const newValueResult = newValue(key, val);
+      const newKeyResult = newKey(key, val, keyList);
+      const newValueResult = newValue(key, val, keyList);
 
       if (newKeyResult) {
         if (Object.keys(acc).includes(newKeyResult)) {
@@ -49,7 +49,7 @@ export class ObjectUtil {
             key: resolvedKey,
             value: resolvedValue,
             remove
-          } = mergeKeyValue(key, acc[newKeyResult], newKeyResult, newValueResult);
+          } = mergeKeyValue(key, acc[newKeyResult], newKeyResult, newValueResult, keyList);
           if (remove) {
             delete acc[newKeyResult];
           }
@@ -58,7 +58,6 @@ export class ObjectUtil {
           acc[newKeyResult] = newValueResult;
         }
       } else if (Array.isArray(newValueResult)) {
-        let added = 0;
         for (const newResult of newValueResult) {
           if (!newResult.key || !newResult.value) {
             continue;
@@ -76,16 +75,11 @@ export class ObjectUtil {
           } else {
             acc[newResult.key] = newResult.value;
           }
-          added++;
-        }
-
-        if (!added) {
-          return newValueResult;
         }
       }
-
-      keyList.pop();
     }
+
+    keyList.pop();
 
     return acc;
   }
@@ -152,7 +146,6 @@ export class ObjectUtil {
           acc[newKeyResult] = newValueResult;
         }
       } else if (Array.isArray(newValueResult)) {
-        let added = 0;
         for (const newResult of newValueResult) {
           if (!newResult.key || !newResult.value) {
             continue;
@@ -170,17 +163,36 @@ export class ObjectUtil {
           } else {
             acc[newResult.key] = newResult.value;
           }
-          added++;
-        }
-
-        if (!added) {
-          return newValueResult;
         }
       }
-
-      keyList.pop();
     }
 
+    keyList.pop();
+
     return acc;
+  }
+
+  static nestedKeys(object: any, excludeKeys: string[] = []): string[] {
+    if (!object || typeof object !== 'object' || Object.keys(object).length === 0) {
+      return [];
+    }
+
+    const keys = [];
+
+    for (const [key, value] of Object.entries(object)) {
+      if (!excludeKeys.includes(key)) {
+        keys.push(key);
+      }
+
+      if (value && typeof value === 'object' && !Array.isArray(value)) {
+        keys.push(
+          ...this.nestedKeys(value, excludeKeys)
+            .filter((k) => !excludeKeys.includes(k))
+            .map((k) => (!excludeKeys.includes(key) ? `${key}.${k}` : k))
+        );
+      }
+    }
+
+    return keys;
   }
 }

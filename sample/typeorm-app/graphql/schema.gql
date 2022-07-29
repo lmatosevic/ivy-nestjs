@@ -199,6 +199,7 @@ type FileSchema {
 
 input FilterOperator {
   _all: [String!]
+  _any: [String!]
   _elemMatch: FilterOperator
   _eq: String
   _exists: Boolean
@@ -211,7 +212,6 @@ input FilterOperator {
   _lte: String
   _ne: String
   _nin: [String!]
-  _not: FilterOperator
 }
 
 type HealthDto {

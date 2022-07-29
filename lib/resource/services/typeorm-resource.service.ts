@@ -1,12 +1,12 @@
 import { Logger } from '@nestjs/common';
-import { EntityManager, Repository } from 'typeorm';
+import { Brackets, EntityManager, NotBrackets, Repository } from 'typeorm';
 import { PartialDeep } from 'type-fest';
 import { RelationMetadata } from 'typeorm/metadata/RelationMetadata';
 import { ResourceError } from '../../resource/errors';
 import { FILE_PROPS_KEY, FileError, FileManager, FileProps } from '../../storage';
 import { POPULATE_RELATION_KEY, PopulateRelationConfig } from '../decorators';
 import { QueryRequest, QueryResponse } from '../dto';
-import { FilesUtil, RequestUtil } from '../../utils';
+import { FilesUtil, ObjectUtil, RequestUtil } from '../../utils';
 import { ResourceService } from './resource.service';
 import { ResourceEntity } from '../entity';
 import { ResourcePolicyService } from '../policy';
@@ -19,6 +19,12 @@ type ModelReferences = {
   relationMetadata: Record<string, RelationMetadata>;
   relationPopulation: Record<string, PopulateRelationConfig>;
   fileProps: Record<string, FileProps>;
+};
+
+type JoinOptions = {
+  alias: string;
+  leftJoinAndSelect: Record<string, string>;
+  innerJoin: Record<string, string>;
 };
 
 export abstract class TypeOrmResourceService<T extends ResourceEntity>
@@ -53,10 +59,12 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     let result;
 
     try {
+      const filter = { id };
+
       result = await this.repository.findOne({
-        where: { id },
+        where: filter,
         select: this.policyProjection(),
-        join: this.joinRelations(),
+        join: this.buildJoinRelations(filter),
         transaction: !this.entityManager
       } as any);
     } catch (e) {
@@ -85,33 +93,83 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
 
     filter = _.merge(filter || {}, this.policyFilter());
 
-    if (Object.keys(filter).length > 0) {
-      filter = RequestUtil.transformTypeormFilter(filter);
-    }
-
     if (options?.sort) {
       options.sort = RequestUtil.normalizeSort(options.sort);
     }
 
+    let repository = this.repository;
+    let queryRunner;
+    if (!this.entityManager) {
+      queryRunner = this.repository.metadata.connection.createQueryRunner();
+      repository = queryRunner.manager.getRepository(this.repository.metadata.name);
+
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+    }
+
     try {
-      const result = await this.repository.findAndCount({
-        skip: (options.page - 1) * options.size || 0,
-        take: options.size,
-        order: options.sort as any,
-        where: filter as any,
-        select: this.policyProjection(),
-        join: this.joinRelations(),
-        transaction: !this.entityManager
-      });
-      results = result[0];
-      totalCount = result[1];
+      const joins = this.buildJoinRelations(filter, false);
+      const modelAlias = joins.alias;
+
+      if (Object.keys(filter).length > 0) {
+        filter = RequestUtil.transformTypeormFilter(filter, repository.metadata.name);
+        this.logger.debug('Transformed filter: %j', filter);
+      }
+
+      const whereQuery = this.buildWhereQuery(filter, joins);
+
+      const queryBuilder = repository.createQueryBuilder(modelAlias).where(whereQuery);
+
+      for (const [alias, path] of Object.entries(joins.leftJoinAndSelect)) {
+        if (this.isInternal()) {
+          queryBuilder.leftJoin(path, alias);
+        } else {
+          queryBuilder.leftJoinAndSelect(path, alias);
+        }
+      }
+
+      for (const [alias, path] of Object.entries(joins.innerJoin)) {
+        queryBuilder.innerJoin(path, alias);
+      }
+
+      for (const [sort, order] of Object.entries(options.sort || {})) {
+        queryBuilder.addOrderBy(modelAlias + '.' + sort, order.toUpperCase());
+      }
+
+      results = await queryBuilder
+        .skip((options.page - 1) * options.size || 0)
+        .take(options.size)
+        .getMany();
+
+      const countQueryBuilder = repository.createQueryBuilder().where(whereQuery);
+
+      for (const [alias, path] of Object.entries(joins.leftJoinAndSelect)) {
+        countQueryBuilder.leftJoin(path, alias);
+      }
+
+      for (const [alias, path] of Object.entries(joins.innerJoin)) {
+        countQueryBuilder.innerJoin(path, alias);
+      }
+
+      totalCount = await countQueryBuilder.getCount();
+
+      if (!this.entityManager) {
+        await queryRunner.commitTransaction();
+      }
     } catch (e) {
+      if (!this.entityManager) {
+        await queryRunner.rollbackTransaction();
+      }
       this.logger.debug(e);
-      throw new ResourceError(this.repository.metadata.name, {
+      throw new ResourceError(repository.metadata.name, {
         message: 'Bad request',
         reason: e.message,
         status: 400
       });
+    } finally {
+      if (!this.entityManager) {
+        await queryRunner.release();
+      }
     }
 
     return {
@@ -240,26 +298,122 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     return currentResource;
   }
 
-  private joinRelations(): any {
-    if (this.isInternal()) {
-      return undefined;
+  private buildWhereQuery(filter: any, joins: JoinOptions, isNot?: boolean): Brackets | NotBrackets {
+    const brackets = isNot ? NotBrackets : Brackets;
+
+    return new brackets((qb) => {
+      let first = true;
+      for (const [key, value] of Object.entries(filter)) {
+        let whereKey = first ? 'where' : 'andWhere';
+
+        // Map AND & OR operators using recursive brackets expressions
+        if (RequestUtil.filterQueryBrackets.includes(key) && Array.isArray(value)) {
+          for (const operator of value) {
+            const whereType = key === '_and' ? 'andWhere' : 'orWhere';
+            whereKey = first ? 'where' : whereType;
+            switch (key) {
+              case '_and':
+                qb[whereKey](this.buildWhereQuery(operator, joins));
+                break;
+              case '_or':
+                qb[whereKey](this.buildWhereQuery(operator, joins, false));
+                break;
+              case '_nor':
+                qb[whereKey](this.buildWhereQuery(operator, joins, true));
+                break;
+            }
+            first = false;
+          }
+          continue;
+        }
+
+        // Add where statements for entity properties with single or multiple values and replace left join alias with
+        // inner join alias to prevent data exclusion from array relations
+        if (!RequestUtil.filterQueryKeys.includes(key) && Array.isArray(value)) {
+          if (value.length === 2 && typeof value[0] === 'string' && typeof value[1] === 'object') {
+            let statement = this.replaceInnerJoinAlias(value[0], joins);
+            qb[whereKey](statement, value[1]);
+            first = false;
+          } else {
+            for (const operatorValue of value) {
+              whereKey = first ? 'where' : 'andWhere';
+              if (
+                operatorValue.length === 2 &&
+                typeof operatorValue[0] === 'string' &&
+                typeof operatorValue[1] === 'object'
+              ) {
+                let statement = this.replaceInnerJoinAlias(operatorValue[0], joins);
+                qb[whereKey](statement, operatorValue[1]);
+                first = false;
+              }
+            }
+          }
+          continue;
+        }
+
+        // Recursively traverse nested relation property map
+        if (!RequestUtil.filterQueryKeys.includes(key) && typeof value === 'object') {
+          qb[whereKey](this.buildWhereQuery(value, joins, isNot));
+          first = false;
+        }
+      }
+    });
+  }
+
+  private replaceInnerJoinAlias(statement: string, joins: JoinOptions): string {
+    const joinAlias = Object.entries(joins.leftJoinAndSelect).find(([k, v]) => statement.startsWith(k + '.'));
+    if (joinAlias) {
+      const innerJoinAlias = Object.entries(joins.innerJoin).find(([k, v]) => v === joinAlias[1]);
+      if (innerJoinAlias) {
+        statement = statement.replace(joinAlias[0], innerJoinAlias[0]);
+      }
+    }
+    return statement;
+  }
+
+  private buildJoinRelations(
+    filter?: any,
+    single: boolean = true
+  ): {
+    alias: string;
+    leftJoinAndSelect: Record<string, string>;
+    innerJoin: Record<string, string>;
+  } {
+    let relations = this.relationsToPopulate(single);
+    const modelName = this.repository.metadata.name;
+    const joinOptions = { alias: modelName, leftJoinAndSelect: {}, innerJoin: {} };
+
+    const filterKeys = ObjectUtil.nestedKeys(filter, RequestUtil.filterQueryKeys);
+    if (this.isInternal() && filter) {
+      relations = relations.filter((r) => filterKeys.includes(r.name));
     }
 
-    const relations = this.relationsToPopulate();
-    const modelName = this.repository.metadata.name;
-    const joinOptions = { alias: modelName, leftJoinAndSelect: {} };
-
     for (const relation of relations) {
-      const relationParts = relation.split('.');
+      const relationParts = relation.name.split('.');
 
-      if (relationParts.length === 1) {
-        const alias = relationParts[0];
-        joinOptions.leftJoinAndSelect[alias] = `${modelName}.${alias}`;
-      } else if (relationParts.length > 1) {
-        const alias = relationParts.join('_');
-        joinOptions.leftJoinAndSelect[alias] = `${relationParts.slice(0, -1).join('_')}.${
-          relationParts[relationParts.length - 1]
-        }`;
+      const { alias, path } = this.makeAliasAndPath(relationParts, modelName);
+      if (alias && path) {
+        joinOptions.leftJoinAndSelect[alias] = path;
+      }
+
+      // Inner join statements are used to separate data selection from where query filtering
+      if (alias && path && relation.isMany && filterKeys.includes(relation.name)) {
+        joinOptions.innerJoin[`${alias}__${modelName}`] = path;
+      }
+    }
+
+    // Add all relations excluded from population but used in where query as inner join statements
+    const filterRelations = this.filterAliasAndPaths(filterKeys, modelName);
+    for (const filterRelation of filterRelations) {
+      const { alias, path } = filterRelation;
+      if (
+        alias &&
+        path &&
+        path !== 'File.meta' &&
+        !joinOptions.leftJoinAndSelect[alias] &&
+        !joinOptions.innerJoin[alias]
+      ) {
+        joinOptions.innerJoin[alias] = path;
       }
     }
 
@@ -268,24 +422,73 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     return joinOptions;
   }
 
-  private relationsToPopulate(modelName?: string, level: number = 0, excludeFields: string[] = []): string[] {
-    if (this.isInternal()) {
-      return [];
+  private makeAliasAndPath(relationParts: string[], modelName: string): { alias: string; path: string } {
+    let alias;
+    let path;
+    if (relationParts.length === 1) {
+      alias = relationParts[0];
+      path = `${modelName}.${alias}`;
+    } else if (relationParts.length > 1) {
+      alias = relationParts.join('_');
+      path = `${relationParts.slice(0, -1).join('_')}.${relationParts[relationParts.length - 1]}`;
+    }
+    return { alias, path };
+  }
+
+  private filterAliasAndPaths(filterKeys: string[], modelName: string): { alias: string; path: string }[] {
+    const items = [];
+
+    for (const filterKey of filterKeys) {
+      const relationMetadata = this.relationMetadata(filterKey, modelName);
+
+      if (relationMetadata) {
+        const relationModelName = relationMetadata.type['name'];
+        const { alias, path } = this.makeAliasAndPath(filterKey.split('.'), modelName);
+        if (alias && path) {
+          items.push({ alias, path });
+        }
+
+        items.push(
+          ...this.filterAliasAndPaths(
+            filterKeys
+              .filter((fk) => fk.startsWith(filterKey + '.'))
+              .map((fk) => fk.replace(filterKey + '.', '')),
+            relationModelName
+          )
+        );
+      }
     }
 
+    return items;
+  }
+
+  private relationsToPopulate(
+    single: boolean = true,
+    modelName?: string,
+    level: number = 0,
+    excludeFields: string[] = []
+  ): { name: string; isMany?: boolean }[] {
     const fields = [];
 
     const relationPopulation = this.relationPopulationList(modelName);
 
     for (const [relation, config] of Object.entries(relationPopulation || {})) {
-      if (excludeFields && excludeFields.includes(relation)) {
+      if (
+        excludeFields?.includes(relation) ||
+        (single && config.type === 'multi') ||
+        (!single && config.type === 'single')
+      ) {
         continue;
       }
 
-      fields.push(relation);
+      const subRelationMetadata = this.relationMetadata(relation, modelName);
+
+      fields.push({
+        name: relation,
+        isMany: subRelationMetadata.isOneToMany || subRelationMetadata.isManyToMany
+      });
 
       if (config.populateChildren !== false && config.maxDepth > 0) {
-        const subRelationMetadata = this.relationMetadata(relation, modelName);
         const subRelationModelName = subRelationMetadata.type['name'];
 
         if (level >= config.maxDepth) {
@@ -294,10 +497,16 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
 
         let subRelations = [];
         if (!config.includeRelations && (!config.excludeRelations || config.excludeRelations?.length > 0)) {
-          subRelations = this.relationsToPopulate(subRelationModelName, level + 1, config.excludeRelations);
+          subRelations = this.relationsToPopulate(
+            single,
+            subRelationModelName,
+            level + 1,
+            config.excludeRelations
+          );
         } else if (config.includeRelations?.length > 0) {
           const subRelationFields = this.relationFields(subRelationModelName);
           subRelations = this.relationsToPopulate(
+            single,
             subRelationModelName,
             level + 1,
             subRelationFields.filter((srf) => !config.includeRelations.includes(srf))
@@ -307,7 +516,12 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
         }
 
         fields.push(
-          ...subRelations.map((sr) => `${relation}.${sr}`).filter((f) => !excludeFields?.includes(f))
+          ...subRelations
+            .map((sr) => ({
+              name: `${relation}.${sr.name}`,
+              isMany: sr.isMany
+            }))
+            .filter((f) => !excludeFields?.includes(f.name))
         );
       }
     }

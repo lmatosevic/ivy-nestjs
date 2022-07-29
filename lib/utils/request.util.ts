@@ -2,48 +2,37 @@ import { Type } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { validateOrReject } from 'class-validator';
 import { PartialDeep } from 'type-fest';
-import {
-  Any,
-  ArrayOverlap,
-  Between,
-  Equal,
-  ILike,
-  In,
-  IsNull,
-  LessThan,
-  LessThanOrEqual,
-  Like,
-  MoreThan,
-  MoreThanOrEqual,
-  Not
-} from 'typeorm';
-import { QueryOptions } from 'mongoose';
-import { ResourceError } from '../resource';
+import { QueryRequest, ResourceError } from '../resource';
 import { FileDto } from '../storage';
 import { ObjectUtil } from './object.util';
 import * as _ from 'lodash';
 
+type QueryOptions = Omit<QueryRequest<any>, 'filter'>;
+
 export class RequestUtil {
   static filterQueryMappers = {
-    _and: (arg) => ({ ...arg }),
-    _or: (arg) => Object.keys(arg).map((k) => ({ [k]: arg[k] })),
-    _nor: (arg) => Object.assign({}, ...Object.keys(arg).map((k) => ({ [k]: Not(arg[k]) }))),
-    _eq: Equal,
-    _gt: MoreThan,
-    _gte: MoreThanOrEqual,
-    _in: In,
-    _lt: LessThan,
-    _lte: LessThanOrEqual,
-    _ne: (arg) => Not(Equal(arg)),
-    _nin: (arg) => Not(In(arg)),
-    _like: Like,
-    _ilike: ILike,
-    _exists: (arg) => (arg ? Not(IsNull()) : IsNull()),
-    _all: ArrayOverlap,
-    _elemMatch: Any,
-    _not: Not
+    _and: (k, v) => v,
+    _or: (k, v) => v,
+    _nor: (k, v) => v,
+    _eq: (k, v, p) => [`${k} = :${p}`, { [`${p}`]: v }],
+    _gt: (k, v, p) => [`${k} > :${p}`, { [`${p}`]: v }],
+    _gte: (k, v, p) => [`${k} >= :${p}`, { [`${p}`]: v }],
+    _in: (k, v, p) => [`${k} IN (:...${p})`, { [`${p}`]: v }],
+    _lt: (k, v, p) => [`${k} < :${p}`, { [`${p}`]: v }],
+    _lte: (k, v, p) => [`${k} <= :${p}`, { [`${p}`]: v }],
+    _ne: (k, v, p) => [`${k} <> :${p}`, { [`${p}`]: v }],
+    _nin: (k, v, p) => [`${k} NOT IN (:...${p})`, { [`${p}`]: v }],
+    _like: (k, v, p) => [`${k} LIKE :${p}`, { [`${p}`]: v }],
+    _ilike: (k, v, p) => [`${k} ILIKE :${p}`, { [`${p}`]: v }],
+    _exists: (k, v) => [`${k} IS ${!v ? '' : 'NOT '}NULL`, {}],
+    _all: (k, v, p) => [`${k} @> {:...${p}}`, { [`${p}`]: v }],
+    _any: (k, v, p) => [`${k} = ANY(:...${p})`, { [`${p}`]: v }],
+    _elemMatch: () => {
+      throw Error('Unsupported operator "_elemMatch"');
+    }
   };
   static filterQueryKeys = Object.keys(this.filterQueryMappers);
+  static filterQueryBrackets = ['_and', '_or', '_nor'];
 
   static prepareQueryParams(
     options: QueryOptions,
@@ -133,49 +122,53 @@ export class RequestUtil {
           );
         }
 
-        const valueArray = [];
-        if (['_and', '_or', '_nor'].includes(key)) {
-          Object.keys(value).forEach((valKey) => {
-            valueArray.push({ [valKey]: value[valKey] });
-          });
-        } else {
-          return value;
+        if (this.filterQueryBrackets.includes(key)) {
+          return Object.entries(value).map(([opKey, opVal]) => ({ [opKey]: opVal }));
         }
-        return valueArray;
+
+        return value;
       }
     );
     return this.mapIdKeys(newFilter);
   }
 
-  static transformTypeormFilter(filter: any): any {
+  static transformTypeormFilter(filter: any, modelName: string): any {
+    const paramName = (name: string | any, op: string | any) => {
+      const suffix = Math.floor(Math.random() * 999);
+      return `${name.split('.').join('_')}_${op}_${suffix}`;
+    };
+
     return ObjectUtil.transfromKeysAndValues(
       filter,
-      (key) => {
-        if (['_and', '_or', '_nor'].includes(key)) {
-          return null;
-        }
-        return key;
-      },
-      (key, value) => {
-        if (value && typeof value === 'object' && (!this.filterQueryKeys.includes(key) || key === '_not')) {
-          if (('_lt' in value || '_lte' in value) && ('_gt' in value || '_gte' in value)) {
-            const from = value['_gt'] || value['_gte'];
-            const to = value['_lt'] || value['_lte'];
-            return Between(from, to);
-          }
+      (key) => key,
+      (key, value, keyList) => {
+        const propertyKeys = keyList?.filter((k) => !this.filterQueryKeys.includes(k));
+        const path = propertyKeys?.join('_') || modelName;
 
+        if (value && typeof value === 'object' && !this.filterQueryKeys.includes(key)) {
+          const operatorList = [];
+          let subPath =
+            !propertyKeys || propertyKeys.length <= 2
+              ? `${path}.${key}`
+              : `${propertyKeys.slice(0, -1).join('_')}.${propertyKeys[propertyKeys.length - 1]}`;
           for (const [subKey, subVal] of Object.entries(value)) {
             if (this.filterQueryKeys.includes(subKey)) {
-              return this.filterQueryMappers[subKey](subVal);
+              if (propertyKeys?.length >= 2) {
+                subPath = subPath.replace(`_${key}.`, '.');
+              }
+              operatorList.push(this.filterQueryMappers[subKey](subPath, subVal, paramName(subPath, subKey)));
             }
           }
+          return operatorList.length > 0 ? operatorList : value;
         }
 
-        if (['_and', '_or', '_nor'].includes(key)) {
-          const mappedValues = this.filterQueryMappers[key](value);
-          return key === '_or'
-            ? mappedValues
-            : Object.entries(mappedValues).map(([k, v]) => ({ key: k, value: v }));
+        if (typeof value !== 'object' && !this.filterQueryKeys.includes(key)) {
+          const simplePath = `${path}.${key}`;
+          return this.filterQueryMappers['_eq'](simplePath, value, paramName(simplePath, '_eq'));
+        }
+
+        if (this.filterQueryBrackets.includes(key)) {
+          return Object.entries(value).map(([opKey, opVal]) => ({ [opKey]: opVal }));
         }
 
         return value;
