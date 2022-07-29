@@ -28,13 +28,15 @@ export class ObjectUtil {
       let val = object[key];
 
       if (val && typeof val === 'object') {
-        keyList.push(key);
         if (!Array.isArray(val)) {
+          keyList.push(key);
           val = this.transfromKeysAndValues(val, newKey, newValue, mergeKeyValue, keyList);
         } else {
           const items = [];
           for (let item of val) {
+            keyList.push(key);
             items.push(this.transfromKeysAndValues(item, newKey, newValue, mergeKeyValue, keyList));
+            keyList.pop();
           }
           val = items;
         }
@@ -114,15 +116,17 @@ export class ObjectUtil {
       let val = object[key];
 
       if (val && typeof val === 'object') {
-        keyList.push(key);
         if (!Array.isArray(val)) {
+          keyList.push(key);
           val = await this.transfromKeysAndValuesAsync(val, newKey, newValue, mergeKeyValue, keyList);
         } else {
           const items = [];
           for (let item of val) {
+            keyList.push(key);
             items.push(
               await this.transfromKeysAndValuesAsync(item, newKey, newValue, mergeKeyValue, keyList)
             );
+            keyList.pop();
           }
           val = items;
         }

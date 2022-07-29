@@ -406,13 +406,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     const filterRelations = this.filterAliasAndPaths(filterKeys, modelName);
     for (const filterRelation of filterRelations) {
       const { alias, path } = filterRelation;
-      if (
-        alias &&
-        path &&
-        path !== 'File.meta' &&
-        !joinOptions.leftJoinAndSelect[alias] &&
-        !joinOptions.innerJoin[alias]
-      ) {
+      if (alias && path && !joinOptions.leftJoinAndSelect[alias] && !joinOptions.innerJoin[alias]) {
         joinOptions.innerJoin[alias] = path;
       }
     }
@@ -445,7 +439,9 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
         const relationModelName = relationMetadata.type['name'];
         const { alias, path } = this.makeAliasAndPath(filterKey.split('.'), modelName);
         if (alias && path) {
-          items.push({ alias, path });
+          if (!path.startsWith(modelName) || this.repository.metadata.name === modelName) {
+            items.push({ alias, path });
+          }
         }
 
         items.push(

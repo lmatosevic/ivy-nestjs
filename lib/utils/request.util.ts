@@ -151,6 +151,7 @@ export class RequestUtil {
             !propertyKeys || propertyKeys.length <= 2
               ? `${path}.${key}`
               : `${propertyKeys.slice(0, -1).join('_')}.${propertyKeys[propertyKeys.length - 1]}`;
+
           for (const [subKey, subVal] of Object.entries(value)) {
             if (this.filterQueryKeys.includes(subKey)) {
               if (propertyKeys?.length >= 2) {
