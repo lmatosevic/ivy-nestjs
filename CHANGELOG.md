@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.5](https://github.com/Lujo5/ivy-nestjs/compare/v0.2.4...v0.2.5) (2022-07-29)
+
+
+### Bug Fixes
+
+* typeorm many relations now resolve to correct join statements ([4ed22f6](https://github.com/Lujo5/ivy-nestjs/commit/4ed22f6e3fd280bd557a8bc6a5eed595560eb33b))
+
 ### [0.2.4](https://github.com/Lujo5/ivy-nestjs/compare/v0.2.3...v0.2.4) (2022-07-29)
 
 
