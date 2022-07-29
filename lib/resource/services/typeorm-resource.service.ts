@@ -396,7 +396,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
         joinOptions.leftJoinAndSelect[alias] = path;
       }
 
-      // Inner join statements are used to separate data selection from where query filtering
+      // Inner join statements are used to separate data selection from where query filtering on manyTo relations
       if (alias && path && relation.isMany && filterKeys.includes(relation.name)) {
         joinOptions.innerJoin[`${alias}__${modelName}`] = path;
       }
