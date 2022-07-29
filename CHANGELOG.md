@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.6](https://github.com/Lujo5/ivy-nestjs/compare/v0.2.5...v0.2.6) (2022-07-29)
+
+
+### Features
+
+* option to use configured hostname without port ([cbcc305](https://github.com/Lujo5/ivy-nestjs/commit/cbcc3054c30de4927d602e07449e7a96b226e228))
+
 ### [0.2.5](https://github.com/Lujo5/ivy-nestjs/compare/v0.2.4...v0.2.5) (2022-07-29)
 
 
