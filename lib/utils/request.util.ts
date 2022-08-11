@@ -43,6 +43,8 @@ export class RequestUtil {
     if (Math.abs(options?.size) > maxSize || !options?.size) {
       if (!options && defaultSize) {
         options = { size: defaultSize };
+      } else if (options && (options.size === null || options.size === undefined) && defaultSize) {
+        options.size = defaultSize;
       } else {
         const sign = Math.sign(options?.size);
         options.size = sign !== 0 && !isNaN(sign) ? sign * maxSize : maxSize;
@@ -196,6 +198,14 @@ export class RequestUtil {
       _.set(sortMap, value, order);
     }
     return sortMap;
+  }
+
+  static transformQueryParamsToFilter(params: Record<string, any>): any {
+    const filter = {};
+    for (const [param, value] of Object.entries(params || {})) {
+      _.set(filter, param, value);
+    }
+    return filter;
   }
 
   static transformDeleteFilesRequest(

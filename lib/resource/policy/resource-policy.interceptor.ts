@@ -3,6 +3,7 @@ import { Ability } from '@casl/ability';
 import { Observable } from 'rxjs';
 import { Action, Operation } from '../../enums';
 import { ContextUtil } from '../../utils';
+import { extraOperations } from '../decorators';
 import { ResourcePolicy } from './resource.policy';
 
 export type PolicyRules = {
@@ -25,7 +26,12 @@ export class ResourcePolicyInterceptor<T extends Ability> implements NestInterce
     const request = ctx.switchToHttp().getRequest();
     const { user } = request;
     const handler = ctx.getHandler();
-    const handlerName = `${handler?.name[0].toUpperCase()}${handler?.name.substring(1)}`;
+    let handlerName = `${handler?.name[0].toUpperCase()}${handler?.name.substring(1)}`;
+
+    if (extraOperations[handlerName]) {
+      handlerName = extraOperations[handlerName];
+    }
+
     const sub = this.resourcePolicy.getSubject();
 
     let ability;

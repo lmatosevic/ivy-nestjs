@@ -1,6 +1,7 @@
 import { IsOptional, Min } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { FilterOperator } from './filter-operator.dto';
+import { Transform } from 'class-transformer';
 
 type FilterOperatorType<T> = Record<keyof T, FilterOperator>;
 
@@ -22,10 +23,12 @@ export class QueryRequest<T> {
   @IsOptional()
   filter?: FilterQueryType<T>;
 
+  @Transform(({ value }) => parseInt(value))
   @Min(1)
   @IsOptional()
   page?: number;
 
+  @Transform(({ value }) => parseInt(value))
   @Min(0)
   @IsOptional()
   size?: number;

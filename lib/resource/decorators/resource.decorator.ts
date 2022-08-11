@@ -1,7 +1,16 @@
 import { AuthType, DeliveryMethod, Operation, Role } from '../../enums';
 import { AUTH_KEY, Authorized, ReCaptcha, RECAPTCHA_KEY, Roles, ROLES_KEY } from '../../auth';
 
-export type ResourceConfig = Partial<Record<keyof typeof Operation, OperationConfig>>;
+export const extraOperations = {
+  QueryGet: Operation.Query,
+  CreateBulk: Operation.Create,
+  UpdateBulk: Operation.Update,
+  DeleteBulk: Operation.Delete
+};
+
+export type ResourceConfig = Partial<
+  Record<keyof typeof Operation | keyof typeof extraOperations, OperationConfig>
+>;
 
 export type OperationConfig = {
   enabled?: boolean;
@@ -34,29 +43,37 @@ export function Resource(config?: ResourceConfig) {
       }
     }
 
-    for (const [operation, conf] of Object.entries(config)) {
-      if (operation === Operation.All) {
-        continue;
-      }
-
-      if (conf.enabled === false) {
-        deleteOperation(target, operation);
-        continue;
-      }
-
-      if (conf.public !== true) {
-        authorizedOperation(target, operation, conf);
-      }
-
-      if (conf.roles) {
-        roleAccessOperation(target, operation, conf);
-      }
-
-      if (conf.recaptcha) {
-        recaptchaOperation(target, operation, conf);
-      }
+    for (const [extraOperation, operation] of Object.entries(extraOperations)) {
+      config[extraOperation] = config[operation];
     }
+
+    applyOperationsConfig(config, target);
   };
+}
+
+function applyOperationsConfig(config: ResourceConfig, target: Function) {
+  for (const [operation, conf] of Object.entries(config)) {
+    if (operation === Operation.All) {
+      continue;
+    }
+
+    if (conf.enabled === false) {
+      deleteOperation(target, operation);
+      continue;
+    }
+
+    if (conf.public !== true) {
+      authorizedOperation(target, operation, conf);
+    }
+
+    if (conf.roles) {
+      roleAccessOperation(target, operation, conf);
+    }
+
+    if (conf.recaptcha) {
+      recaptchaOperation(target, operation, conf);
+    }
+  }
 }
 
 function deleteOperation(target: Function, operation: string) {
@@ -80,7 +97,7 @@ function authorizedOperation(target: Function, operation: string, conf: Operatio
   if (conf.auth && Array.isArray(conf.auth)) {
     authorize = Authorized(...currentAuths, ...conf.auth);
   }
-  authorize(parent, operation.toLowerCase(), descriptor);
+  authorize(parent, operationName(operation), descriptor);
 }
 
 function roleAccessOperation(target: Function, operation: string, conf: OperationConfig) {
@@ -96,7 +113,7 @@ function roleAccessOperation(target: Function, operation: string, conf: Operatio
   } else {
     roles = Roles(...currentRoles, conf.roles);
   }
-  roles(parent, operation.toLowerCase(), descriptor);
+  roles(parent, operationName(operation), descriptor);
 }
 
 function recaptchaOperation(target: Function, operation: string, conf: OperationConfig) {
@@ -112,7 +129,7 @@ function recaptchaOperation(target: Function, operation: string, conf: Operation
   } else {
     recaptcha = ReCaptcha(...currentDeliveries);
   }
-  recaptcha(parent, operation.toLowerCase(), descriptor);
+  recaptcha(parent, operationName(operation), descriptor);
 }
 
 function parentAndDescriptor(
@@ -120,6 +137,10 @@ function parentAndDescriptor(
   operation: string
 ): { parent: any; descriptor: PropertyDescriptor } {
   const parent = target.prototype;
-  const descriptor = Object.getOwnPropertyDescriptor(parent, operation.toLowerCase());
+  const descriptor = Object.getOwnPropertyDescriptor(parent, operationName(operation));
   return { parent, descriptor };
+}
+
+function operationName(operation: string): string {
+  return `${operation?.charAt(0)?.toLowerCase()}${operation?.substring(1)}`;
 }

@@ -7,6 +7,7 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
   Type,
   UploadedFiles,
   UseInterceptors
@@ -37,6 +38,7 @@ import { ErrorResponse, FilterOperator, QueryRequest, QueryResponse, StatusRespo
 import { ResourceService } from '../services';
 import { Resource, ResourceConfig } from '../decorators';
 import { ResourcePolicy, ResourcePolicyInterceptor } from '../policy';
+import { ApiImplicitQuery } from '@nestjs/swagger/dist/decorators/api-implicit-query.decorator';
 
 function extractFileProps<T>(classRef: Type<T>): Record<string, FileProps> {
   const types = {};
@@ -244,6 +246,43 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
     @Get('/:id')
     find(@Param('id', ...idValidationPipes()) id: string): Promise<T> {
       return this.service.find(id);
+    }
+
+    @ApiOkResponse({
+      schema: {
+        allOf: [
+          { $ref: getSchemaPath(QueryResponse) },
+          {
+            properties: {
+              items: {
+                type: 'array',
+                items: { $ref: getSchemaPath(resourceRef) }
+              }
+            }
+          }
+        ]
+      }
+    })
+    @ApiImplicitQuery({ name: 'sort', required: false })
+    @ApiBadRequestResponse({ description: 'Bad request', type: ErrorResponse })
+    @HttpCode(200)
+    @Get('')
+    queryGet(
+      @Config() config: ConfigService,
+      @Query('sort') sortParam?: string,
+      @Query() queryDto?: QueryRequest<T>
+    ): Promise<QueryResponse<T>> {
+      const { page, size, sort, ...queryParams } = queryDto;
+      const filter = RequestUtil.transformQueryParamsToFilter(queryParams);
+      return this.service.query({
+        filter,
+        ...RequestUtil.prepareQueryParams(
+          { page, size, sort },
+          config.get('pagination.maxSize'),
+          config.get('pagination.defaultSize'),
+          config.get('pagination.defaultSort')
+        )
+      });
     }
 
     @ApiOkResponse({
