@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.7](https://github.com/Lujo5/ivy-nestjs/compare/v0.2.6...v0.2.7) (2022-08-12)
+
+
+### Features
+
+* add bulk create, update and delete operations for rest and graphql endpoints ([6238074](https://github.com/Lujo5/ivy-nestjs/commit/623807486065d21547de40a541b7d4eba9c7e042))
+* add query resource endpoint for GET method ([6bb452a](https://github.com/Lujo5/ivy-nestjs/commit/6bb452a9523e4989bf592fd1de6d55a262835f30))
+
 ### [0.2.6](https://github.com/Lujo5/ivy-nestjs/compare/v0.2.5...v0.2.6) (2022-07-29)
 
 
