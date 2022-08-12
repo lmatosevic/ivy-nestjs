@@ -1,7 +1,7 @@
 import { InputType } from '@nestjs/graphql';
 import { Expose, Type } from 'class-transformer';
 import { IsArray, IsInt, IsNotEmpty, IsOptional, MaxLength, ValidateNested } from 'class-validator';
-import { PersistFeatureDto } from '@resources/features/dto';
+import { UpdateFeatureDto } from '@resources/features/dto';
 import { FileDto } from 'ivy-nestjs';
 
 @InputType()
@@ -19,8 +19,8 @@ export class CreatePlanDto {
   @Expose()
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => PersistFeatureDto)
-  readonly features?: PersistFeatureDto[];
+  @Type(() => UpdateFeatureDto)
+  readonly features?: UpdateFeatureDto[];
 
   @Expose()
   @IsArray()

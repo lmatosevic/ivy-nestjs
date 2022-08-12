@@ -80,7 +80,7 @@ input CreateCategoryDto {
 }
 
 input CreatePlanDto {
-  features: [PersistFeatureDto!]
+  features: [UpdateFeatureDto!]
   files: [FileDto!]
   name: String!
 }
@@ -242,11 +242,21 @@ type Mutation {
   authorizeFacebook(data: FacebookAuth!): JwtToken!
   authorizeGoogle(data: GoogleAuth!): JwtToken!
   createApplication(data: CreateApplicationDto!): Application!
+  createBulkApplications(data: [CreateApplicationDto!]!): [Application!]!
+  createBulkCategories(data: [CreateCategoryDto!]!): [Category!]!
+  createBulkPlans(data: [CreatePlanDto!]!): [Plan!]!
+  createBulkProjects(data: [CreateProjectDto!]!): [Project!]!
+  createBulkUsers(data: [CreateUserDto!]!): [User!]!
   createCategory(data: CreateCategoryDto!): Category!
   createPlan(data: CreatePlanDto!): Plan!
   createProject(data: CreateProjectDto!): Project!
   createUser(data: CreateUserDto!): User!
   deleteApplication(id: ID!): Application!
+  deleteBulkApplications(ids: [ID!]!): [Application!]!
+  deleteBulkCategories(ids: [ID!]!): [Category!]!
+  deleteBulkPlans(ids: [ID!]!): [Plan!]!
+  deleteBulkProjects(ids: [ID!]!): [Project!]!
+  deleteBulkUsers(ids: [ID!]!): [User!]!
   deleteCategory(id: ID!): Category!
   deletePlan(id: ID!): Plan!
   deletePlanFiles(files: [String!], id: ID): StatusResponse!
@@ -259,16 +269,15 @@ type Mutation {
   refresh: JwtToken!
   registration(data: RegisterUserDto!): User!
   updateApplication(data: UpdateApplicationDto!, id: ID!): Application!
+  updateBulkApplications(data: [UpdateApplicationDto!]!): [Application!]!
+  updateBulkCategories(data: [UpdateCategoryDto!]!): [Category!]!
+  updateBulkPlans(data: [UpdatePlanDto!]!): [Plan!]!
+  updateBulkProjects(data: [UpdateProjectDto!]!): [Project!]!
+  updateBulkUsers(data: [UpdateUserDto!]!): [User!]!
   updateCategory(data: UpdateCategoryDto!, id: ID!): Category!
   updatePlan(data: UpdatePlanDto!, id: ID!): Plan!
   updateProject(data: UpdateProjectDto!, id: ID!): Project!
   updateUser(data: UpdateUserDto!, id: ID!): User!
-}
-
-input PersistFeatureDto {
-  file: FileDto
-  id: String
-  name: String
 }
 
 type Plan {
@@ -375,6 +384,7 @@ type StatusResponse {
 
 input UpdateApplicationDto {
   category: String
+  id: String
   project: String
   reviewers: [String!]
   scheduledAt: DateTime
@@ -382,19 +392,28 @@ input UpdateApplicationDto {
 }
 
 input UpdateCategoryDto {
+  id: String
   name: String
   parent: String
 }
 
+input UpdateFeatureDto {
+  file: FileDto
+  id: String
+  name: String
+}
+
 input UpdatePlanDto {
-  features: [PersistFeatureDto!]
+  features: [UpdateFeatureDto!]
   files: [FileDto!]
+  id: String
   name: String
 }
 
 input UpdateProjectDto {
   description: String
   documents: [FileDto!]
+  id: String
   name: String
   owner: String
   plan: String
@@ -406,6 +425,7 @@ input UpdateUserDto {
   email: String
   enabled: Boolean
   firstName: String
+  id: String
   lastName: String
   password: String
   roles: [Role!]

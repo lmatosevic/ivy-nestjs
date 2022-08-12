@@ -6,6 +6,7 @@ import { TypeMetadataStorage } from '@nestjs/graphql';
 import helmet from 'helmet';
 import { LoggerService } from '../logger/logger.service';
 import { GRAPHQL_MODULE_OPTIONS } from '../graphql/graphql.constant';
+import { RESOURCE_CONFIG_KEY } from '../resource';
 
 export class AppUtil {
   static initialize(app: INestApplication): { port: number; host: string; address: string } {
@@ -58,6 +59,11 @@ export class AppUtil {
       logger.warn('Debug mode activated');
     }
 
+    this.upgradeGraphQLSchemaBuilder();
+
+    this.resolveRestControllerOperations(app, configService);
+    this.resolveGraphqlResolverOperations(app, configService);
+
     if (configService.get('rest.enabled') && configService.get('rest.swagger')) {
       const builder = new DocumentBuilder()
         .setTitle(configService.get('app.name'))
@@ -109,9 +115,90 @@ export class AppUtil {
         });
     }
 
-    this.upgradeGraphQLSchemaBuilder();
-
     return { port, host, address };
+  }
+
+  private static resolveRestControllerOperations(app: INestApplication, config: ConfigService): void {
+    const modules = app['container'].getModules();
+
+    const queryMethod = config.get('rest.queryMethod');
+
+    for (const module of modules.values()) {
+      for (const controller of module.controllers.values()) {
+        const resourceConfig = Reflect.getMetadata(RESOURCE_CONFIG_KEY, controller.metatype);
+
+        if (!resourceConfig) {
+          continue;
+        }
+
+        const prototype = Object.getPrototypeOf(controller.metatype).prototype;
+        this.resolveResourceEndpoints(config, prototype);
+
+        if (queryMethod?.toLowerCase() === 'get') {
+          const descriptor = Object.getOwnPropertyDescriptor(prototype, 'query');
+          if (descriptor) {
+            Reflect.deleteMetadata('path', descriptor.value);
+          }
+        } else if (queryMethod?.toLowerCase() === 'post') {
+          const descriptor = Object.getOwnPropertyDescriptor(prototype, 'queryGet');
+          if (descriptor) {
+            Reflect.deleteMetadata('path', descriptor.value);
+          }
+        }
+      }
+    }
+  }
+
+  private static resolveGraphqlResolverOperations(app: INestApplication, config: ConfigService): void {
+    const modules = app['container'].getModules();
+
+    for (const module of modules.values()) {
+      for (const resolver of module.providers.values()) {
+        if (!resolver.metatype) {
+          continue;
+        }
+
+        const resourceConfig = Reflect.getMetadata(RESOURCE_CONFIG_KEY, resolver.metatype);
+
+        if (!resourceConfig) {
+          continue;
+        }
+
+        const prototype = Object.getPrototypeOf(resolver.metatype).prototype;
+        this.resolveResourceEndpoints(config, prototype);
+      }
+    }
+  }
+
+  private static resolveResourceEndpoints(config: ConfigService, prototype: any): void {
+    const bulkEnabled = config.get('bulk.enabled');
+    const bulkCreateEnabled = config.get('bulk.createEnabled');
+    const bulkUpdateEnabled = config.get('bulk.updateEnabled');
+    const bulkDeleteEnabled = config.get('bulk.deleteEnabled');
+
+    if (!bulkEnabled || !bulkCreateEnabled) {
+      const descriptor = Object.getOwnPropertyDescriptor(prototype, 'createBulk');
+      if (descriptor) {
+        Reflect.deleteMetadata('path', descriptor.value);
+        Reflect.deleteMetadata('graphql:resolver_type', descriptor.value);
+      }
+    }
+
+    if (!bulkEnabled || !bulkUpdateEnabled) {
+      const descriptor = Object.getOwnPropertyDescriptor(prototype, 'updateBulk');
+      if (descriptor) {
+        Reflect.deleteMetadata('path', descriptor.value);
+        Reflect.deleteMetadata('graphql:resolver_type', descriptor.value);
+      }
+    }
+
+    if (!bulkEnabled || !bulkDeleteEnabled) {
+      const descriptor = Object.getOwnPropertyDescriptor(prototype, 'deleteBulk');
+      if (descriptor) {
+        Reflect.deleteMetadata('path', descriptor.value);
+        Reflect.deleteMetadata('graphql:resolver_type', descriptor.value);
+      }
+    }
   }
 
   private static upgradeGraphQLSchemaBuilder(): void {

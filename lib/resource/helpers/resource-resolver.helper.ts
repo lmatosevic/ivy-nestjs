@@ -119,6 +119,9 @@ export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown
   config?: ResourceConfig
 ): any {
   const pluralName = StringUtil.pluralize(resourceRef.name);
+  const findOperationName = `${resourceRef.name.charAt(0).toLowerCase()}${resourceRef.name.substring(1)}`;
+  const queryOperationName = `${pluralName.charAt(0).toLowerCase()}${pluralName.substring(1)}`;
+
   const fileProps = extractFileProps(resourceRef);
 
   const queryFilter = initializeFilterModel(resourceRef);
@@ -171,12 +174,12 @@ export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown
       }
     }
 
-    @Query(() => resourceRef, { name: `${resourceRef.name.toLowerCase()}` })
+    @Query(() => resourceRef, { name: findOperationName })
     async find(@Args('id', { type: () => ID }) id: string | number): Promise<T> {
       return this.service.find(id);
     }
 
-    @Query(() => QueryResponse, { name: `${pluralName.toLowerCase()}` })
+    @Query(() => QueryResponse, { name: queryOperationName })
     async query(@Args() queryOptions: QueryOptions, @Config() config: ConfigService): Promise<QueryResponse> {
       const { filter, ...options } = queryOptions;
       return await this.service.query({
@@ -208,6 +211,48 @@ export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown
     @Mutation(() => resourceRef, { name: `delete${resourceRef.name}` })
     async delete(@Args('id', { type: () => ID }) id: string | number): Promise<T> {
       return this.service.delete(id);
+    }
+
+    @Mutation(() => [resourceRef], { name: `createBulk${pluralName}` })
+    async createBulk(
+      @Args('data', { type: () => [createDtoRef] }) createDtos: C[],
+      @Config() config: ConfigService
+    ): Promise<T[]> {
+      const instances = await RequestUtil.validateBulkRequest<C>(
+        resourceRef.name,
+        createDtos,
+        createDtoRef,
+        config.get('bulk.maxSize')
+      );
+      return this.service.createBulk(instances);
+    }
+
+    @Mutation(() => [resourceRef], { name: `updateBulk${pluralName}` })
+    async updateBulk(
+      @Args('data', { type: () => [updateDtoRef] }) updateDtos: U[],
+      @Config() config: ConfigService
+    ): Promise<T[]> {
+      const instances = await RequestUtil.validateBulkRequest<U>(
+        resourceRef.name,
+        updateDtos,
+        updateDtoRef,
+        config.get('bulk.maxSize')
+      );
+      return this.service.updateBulk(instances);
+    }
+
+    @Mutation(() => [resourceRef], { name: `deleteBulk${pluralName}` })
+    async deleteBulk(
+      @Args('ids', { type: () => [ID] }) ids: (string | number)[],
+      @Config() config: ConfigService
+    ): Promise<T[]> {
+      const instances = await RequestUtil.validateBulkRequest<string | number>(
+        resourceRef.name,
+        ids,
+        null,
+        config.get('bulk.maxSize')
+      );
+      return this.service.deleteBulk(instances);
     }
 
     @Mutation(() => StatusResponse, { name: `delete${resourceRef.name}Files` })

@@ -342,6 +342,10 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
 
     @ApiBody({ type: updateDtoProxy[updateDtoRef.name] })
     @ApiOkResponse({ type: () => resourceRef })
+    @ApiNotFoundResponse({
+      description: `${resourceRef.name} not found`,
+      type: ErrorResponse
+    })
     @ApiBadRequestResponse({ description: 'Bad request', type: ErrorResponse })
     @ApiParam({ name: 'id', type: () => idParamType() })
     @HttpCode(200)
@@ -359,8 +363,52 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
     @ApiParam({ name: 'id', type: () => idParamType() })
     @HttpCode(200)
     @Delete('/:id')
-    async delete(@Param('id', ...idValidationPipes()) id: string): Promise<T> {
+    async delete(@Param('id', ...idValidationPipes()) id: string | number): Promise<T> {
       return this.service.delete(id);
+    }
+
+    @ApiBody({ type: [createDtoRef] })
+    @ApiCreatedResponse({ type: () => resourceRef, isArray: true, status: 201 })
+    @ApiBadRequestResponse({ description: 'Bad request', type: ErrorResponse })
+    @HttpCode(201)
+    @Post('/bulk/create')
+    async createBulk(@Body() createDtos: C[], @Config() config: ConfigService): Promise<T[]> {
+      const instances = await RequestUtil.validateBulkRequest<C>(
+        resourceRef.name,
+        createDtos,
+        createDtoRef,
+        config.get('bulk.maxSize')
+      );
+      return this.service.createBulk(instances);
+    }
+
+    @ApiBody({ type: [updateDtoProxy[updateDtoRef.name]] })
+    @ApiOkResponse({ type: () => resourceRef, isArray: true })
+    @ApiBadRequestResponse({ description: 'Bad request', type: ErrorResponse })
+    @HttpCode(200)
+    @Put('/bulk/update')
+    async updateBulk(@Body() updateDtos: U[], @Config() config: ConfigService): Promise<T[]> {
+      const instances = await RequestUtil.validateBulkRequest<U>(
+        resourceRef.name,
+        updateDtos,
+        updateDtoRef,
+        config.get('bulk.maxSize')
+      );
+      return this.service.updateBulk(instances);
+    }
+
+    @ApiBody({ type: [idParamType()] })
+    @ApiOkResponse({ type: () => resourceRef, isArray: true })
+    @HttpCode(200)
+    @Post('/bulk/delete')
+    async deleteBulk(@Body() ids: (string | number)[], @Config() config: ConfigService): Promise<T[]> {
+      const instances = await RequestUtil.validateBulkRequest<string | number>(
+        resourceRef.name,
+        ids,
+        null,
+        config.get('bulk.maxSize')
+      );
+      return this.service.deleteBulk(instances);
     }
 
     @ApiOkResponse({

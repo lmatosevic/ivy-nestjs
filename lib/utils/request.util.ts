@@ -208,6 +208,43 @@ export class RequestUtil {
     return filter;
   }
 
+  static async validateBulkRequest<T>(
+    name: string,
+    data: any[],
+    dtoRef?: Type<unknown>,
+    maxSize: number = 100
+  ): Promise<(PartialDeep<T> | any)[]> {
+    if (!data || !Array.isArray(data)) {
+      return;
+    }
+
+    if (data.length === 0) {
+      throw new ResourceError(name, {
+        message: 'Bad request',
+        reason: `Bulk array is empty`,
+        status: 400
+      });
+    } else if (data.length > maxSize) {
+      throw new ResourceError(name, {
+        message: 'Bad request',
+        reason: `Bulk array length (${data.length}) exceeds max size of ${maxSize} items`,
+        status: 400
+      });
+    }
+
+    if (!dtoRef) {
+      return data;
+    }
+
+    const validated = [];
+
+    for (const item of data) {
+      validated.push(await this.deserializeAndValidate(dtoRef, item));
+    }
+
+    return validated;
+  }
+
   static transformDeleteFilesRequest(
     resource: any,
     deleteFilesRequest: any

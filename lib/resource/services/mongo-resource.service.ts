@@ -155,6 +155,18 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     return this.populateModelDeep(createdModel);
   }
 
+  async createBulk(createDtos: PartialDeep<T>[]): Promise<T[]> {
+    const results = [];
+    for (const createDto of createDtos) {
+      try {
+        results.push(await this.create(createDto));
+      } catch (e) {
+        // ignore
+      }
+    }
+    return results;
+  }
+
   async update(id: string, updateDto: PartialDeep<T>, isFileUpload?: boolean): Promise<T> {
     let intersectedDto = this.intersectFields(updateDto);
     intersectedDto = RequestUtil.mapIdKeys(intersectedDto);
@@ -193,6 +205,18 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     return this.populateModelDeep(updatedModel);
   }
 
+  async updateBulk(updateDtos: PartialDeep<T>[]): Promise<T[]> {
+    const results = [];
+    for (const updateDto of updateDtos) {
+      try {
+        results.push(await this.update((updateDto as any).id, updateDto));
+      } catch (e) {
+        // ignore
+      }
+    }
+    return results;
+  }
+
   async delete(id: string): Promise<T> {
     const resource = await this.findResource(id);
 
@@ -228,6 +252,18 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     return populatedModel;
   }
 
+  async deleteBulk(ids: (string | number)[]): Promise<T[]> {
+    const results = [];
+    for (const id of ids) {
+      try {
+        results.push(await this.delete(id as string));
+      } catch (e) {
+        // ignore
+      }
+    }
+    return results;
+  }
+
   private async findResource(id: string, populate: boolean = false): Promise<T & Document> {
     let resource;
 
@@ -252,7 +288,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
 
     if (!resource) {
       throw new ResourceError(this.model.modelName, {
-        message: 'Not Found',
+        message: 'Not Found for id: ' + id,
         status: 404
       });
     }

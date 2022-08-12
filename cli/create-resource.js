@@ -106,7 +106,6 @@ function createResource(name, type, outDir, moduleFile, noEndpoint, rest, graphq
     resourceModelName: modelName,
     createDtoName: `Create${modelName}Dto`,
     updateDtoName: `Update${modelName}Dto`,
-    persistDtoName: `Persist${modelName}Dto`,
     resourceSchemaName: `${modelName}Schema`,
     resourceAbilityName: `${modelName}Ability`,
     resourceServiceName: `${modelNamePlural}Service`,
@@ -186,7 +185,7 @@ function createResource(name, type, outDir, moduleFile, noEndpoint, rest, graphq
         templateContent = templateContent
           .replace('@PrimaryGeneratedColumn()', "@PrimaryGeneratedColumn('uuid')")
           .replace('id: number;', 'id: string;');
-      } else if (templateFileName === 'persist-resource.dto.ts.tpl') {
+      } else if (templateFileName === 'update-resource.dto.ts.tpl') {
         templateContent = templateContent
           .replace('readonly id?: number;', 'readonly id?: string;')
           .replace('IsInt', 'IsString');

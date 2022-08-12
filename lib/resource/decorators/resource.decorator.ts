@@ -1,6 +1,8 @@
 import { AuthType, DeliveryMethod, Operation, Role } from '../../enums';
 import { AUTH_KEY, Authorized, ReCaptcha, RECAPTCHA_KEY, Roles, ROLES_KEY } from '../../auth';
 
+export const RESOURCE_CONFIG_KEY = 'resourceConfig';
+
 export const extraOperations = {
   QueryGet: Operation.Query,
   CreateBulk: Operation.Create,
@@ -48,6 +50,7 @@ export function Resource(config?: ResourceConfig) {
     }
 
     applyOperationsConfig(config, target);
+    Reflect.defineMetadata(RESOURCE_CONFIG_KEY, config, target);
   };
 }
 

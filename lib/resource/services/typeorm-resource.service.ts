@@ -78,7 +78,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
 
     if (!result) {
       throw new ResourceError(this.repository.metadata.name, {
-        message: 'Not Found',
+        message: 'Not Found for id: ' + id,
         status: 404
       });
     }
@@ -221,6 +221,18 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     return this.find(createdModel.id);
   }
 
+  async createBulk(createDtos: PartialDeep<T>[]): Promise<T[]> {
+    const results = [];
+    for (const createDto of createDtos) {
+      try {
+        results.push(await this.create(createDto));
+      } catch (e) {
+        // ignore
+      }
+    }
+    return results;
+  }
+
   async update(id: string | number, updateDto: PartialDeep<T>, isFileUpload?: boolean): Promise<T> {
     let updatedModel;
     let storedFiles;
@@ -272,6 +284,18 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     return this.find(updatedModel.id);
   }
 
+  async updateBulk(updateDtos: PartialDeep<T>[]): Promise<T[]> {
+    const results = [];
+    for (const updateDto of updateDtos) {
+      try {
+        results.push(await this.update(updateDto.id, updateDto));
+      } catch (e) {
+        // ignore
+      }
+    }
+    return results;
+  }
+
   async delete(id: string | number): Promise<T> {
     const resource = await this.find(id);
     const currentResource = _.cloneDeep(resource);
@@ -296,6 +320,18 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     }
 
     return currentResource;
+  }
+
+  async deleteBulk(ids: (string | number)[]): Promise<T[]> {
+    const results = [];
+    for (const id of ids) {
+      try {
+        results.push(await this.delete(id));
+      } catch (e) {
+       // ignore
+      }
+    }
+    return results;
   }
 
   private buildWhereQuery(filter: any, joins: JoinOptions, isNot?: boolean): Brackets | NotBrackets {

@@ -124,7 +124,8 @@ export default () => ({
   },
   rest: {
     enabled: StringUtil.parseBool(process.env.REST_ENABLED, true),
-    swagger: StringUtil.parseBool(process.env.REST_SWAGGER_ENABLED, true)
+    swagger: StringUtil.parseBool(process.env.REST_SWAGGER_ENABLED, true),
+    queryMethod: process.env.REST_QUERY_METHOD
   },
   graphql: {
     enabled: StringUtil.parseBool(process.env.GRAPHQL_ENABLED, true),
@@ -134,6 +135,13 @@ export default () => ({
     maxSize: StringUtil.parseInteger(process.env.PAGINATION_MAX_SIZE, 100),
     defaultSize: StringUtil.parseInteger(process.env.PAGINATION_DEFAULT_SIZE, 20),
     defaultSort: process.env.PAGINATION_DEFAULT_SORT
+  },
+  bulk: {
+    enabled: StringUtil.parseBool(process.env.BULK_ENABLED, true),
+    maxSize: StringUtil.parseInteger(process.env.BULK_MAX_SIZE, 100),
+    createEnabled: StringUtil.parseBool(process.env.BULK_CREATE_ENABLED, true),
+    updateEnabled: StringUtil.parseBool(process.env.BULK_UPDATE_ENABLED, true),
+    deleteEnabled: StringUtil.parseBool(process.env.BULK_DELETE_ENABLED, true)
   },
   health: {
     route: process.env.HEALTH_ROUTE || 'health',

@@ -89,7 +89,7 @@ input CreateCategoryDto {
 }
 
 input CreatePlanDto {
-  features: [PersistFeatureDto!]
+  features: [UpdateFeatureDto!]
   files: [FileDto!]
   name: String!
   projectId: Float
@@ -262,12 +262,6 @@ type Mutation {
   updateUser(data: UpdateUserDto!, id: ID!): User!
 }
 
-input PersistFeatureDto {
-  file: FileDto
-  id: Float
-  name: String
-}
-
 type Plan {
   createdAt: DateTime
   features: [Feature!]
@@ -376,6 +370,7 @@ type StatusResponse {
 
 input UpdateApplicationDto {
   category: IntegerIdDto
+  id: Float
   project: IntegerIdDto
   reviewers: [IntegerIdDto!]
   scheduledAt: DateTime
@@ -383,13 +378,21 @@ input UpdateApplicationDto {
 }
 
 input UpdateCategoryDto {
+  id: Float
   name: String
   parent: IntegerIdDto
 }
 
+input UpdateFeatureDto {
+  file: FileDto
+  id: Float
+  name: String
+}
+
 input UpdatePlanDto {
-  features: [PersistFeatureDto!]
+  features: [UpdateFeatureDto!]
   files: [FileDto!]
+  id: Float
   name: String
   projectId: Float
 }
@@ -397,6 +400,7 @@ input UpdatePlanDto {
 input UpdateProjectDto {
   description: String
   documents: [FileDto!]
+  id: Float
   name: String
   owner: IntegerIdDto
   plan: IntegerIdDto
@@ -408,6 +412,7 @@ input UpdateUserDto {
   email: String
   enabled: Boolean
   firstName: String
+  id: Float
   lastName: String
   password: String
   role: Role
