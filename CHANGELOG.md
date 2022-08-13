@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.1](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.0...v0.3.1) (2022-08-13)
+
+
+### Bug Fixes
+
+* fix projections query error with many-to relationships ([07d2602](https://github.com/Lujo5/ivy-nestjs/commit/07d2602b23838f4fd12b721304bc8f63e66dcf06))
+
 ## [0.3.0](https://github.com/Lujo5/ivy-nestjs/compare/v0.2.8...v0.3.0) (2022-08-13)
 
 
