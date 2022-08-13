@@ -1,5 +1,5 @@
 import { Logger } from '@nestjs/common';
-import { Brackets, EntityManager, NotBrackets, Repository } from 'typeorm';
+import { Brackets, EntityManager, NotBrackets, QueryBuilder, Repository, SelectQueryBuilder } from 'typeorm';
 import { PartialDeep } from 'type-fest';
 import { RelationMetadata } from 'typeorm/metadata/RelationMetadata';
 import { ResourceError } from '../../resource/errors';
@@ -56,34 +56,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
   }
 
   async find(id: string | number): Promise<T> {
-    let result;
-
-    try {
-      const filter = { id };
-
-      result = await this.repository.findOne({
-        where: filter,
-        select: this.policyProjection(),
-        join: this.buildJoinRelations(filter),
-        transaction: !this.entityManager
-      } as any);
-    } catch (e) {
-      this.logger.debug(e);
-      throw new ResourceError(this.repository.metadata.name, {
-        message: 'Bad request',
-        reason: e.message,
-        status: 400
-      });
-    }
-
-    if (!result) {
-      throw new ResourceError(this.repository.metadata.name, {
-        message: 'Not Found for id: ' + id,
-        status: 404
-      });
-    }
-
-    return result as T;
+    return this.findResource(id);
   }
 
   async query(queryDto: QueryRequest<T>): Promise<QueryResponse<T>> {
@@ -92,6 +65,8 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     let totalCount;
 
     filter = _.merge(filter || {}, this.policyFilter());
+
+    const projection = this.policyProjection(false);
 
     if (options?.sort) {
       options.sort = RequestUtil.normalizeSort(options.sort);
@@ -108,29 +83,12 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     }
 
     try {
-      const joins = this.buildJoinRelations(filter, false);
-      const modelAlias = joins.alias;
-
-      if (Object.keys(filter).length > 0) {
-        filter = RequestUtil.transformTypeormFilter(filter, repository.metadata.name);
-        this.logger.debug('Transformed filter: %j', filter);
-      }
-
-      const whereQuery = this.buildWhereQuery(filter, joins);
-
-      const queryBuilder = repository.createQueryBuilder(modelAlias).where(whereQuery);
-
-      for (const [alias, path] of Object.entries(joins.leftJoinAndSelect)) {
-        if (this.isInternal()) {
-          queryBuilder.leftJoin(path, alias);
-        } else {
-          queryBuilder.leftJoinAndSelect(path, alias);
-        }
-      }
-
-      for (const [alias, path] of Object.entries(joins.innerJoin)) {
-        queryBuilder.innerJoin(path, alias);
-      }
+      const [queryBuilder, whereQuery, joins, modelAlias] = this.makeQueryBuilderParts(
+        filter,
+        projection,
+        repository,
+        false
+      );
 
       for (const [sort, order] of Object.entries(options.sort || {})) {
         queryBuilder.addOrderBy(modelAlias + '.' + sort, order.toUpperCase());
@@ -183,12 +141,14 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     let createdModel;
     let storedFiles;
 
-    let model = this.repository.create(createDto as any) as any;
+    const intersectedDto = this.intersectFields(createDto);
+
+    let model = this.repository.create(intersectedDto as any) as any;
     if (!model.createdBy && this.fields().includes('createdBy')) {
       model.createdBy = this.getAuthUser()?.getId();
     }
 
-    model = _.assign(model, createDto) as any;
+    model = _.assign(model, intersectedDto) as any;
 
     try {
       storedFiles = await this.persistResourceFiles(
@@ -218,7 +178,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
       });
     }
 
-    return this.find(createdModel.id);
+    return this.findResource(createdModel.id);
   }
 
   async createBulk(createDtos: PartialDeep<T>[]): Promise<T[]> {
@@ -237,10 +197,15 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     let updatedModel;
     let storedFiles;
 
-    let resource = await this.find(id);
+    delete updateDto.id;
+
+    let intersectedDto = this.intersectFields(updateDto);
+    intersectedDto = RequestUtil.mapIdKeys(intersectedDto);
+
+    let resource = await this.findResource(id, false);
     const currentResource = _.cloneDeep(resource);
 
-    resource = _.assign(resource, updateDto) as any;
+    resource = _.assign(resource, intersectedDto) as any;
 
     if (isFileUpload) {
       FilesUtil.mergeFileArrays(currentResource, resource, this.fileFields());
@@ -281,7 +246,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
       });
     }
 
-    return this.find(updatedModel.id);
+    return this.findResource(updatedModel.id);
   }
 
   async updateBulk(updateDtos: PartialDeep<T>[]): Promise<T[]> {
@@ -297,7 +262,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
   }
 
   async delete(id: string | number): Promise<T> {
-    const resource = await this.find(id);
+    const resource = await this.findResource(id, false);
     const currentResource = _.cloneDeep(resource);
 
     try {
@@ -328,10 +293,92 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
       try {
         results.push(await this.delete(id));
       } catch (e) {
-       // ignore
+        // ignore
       }
     }
     return results;
+  }
+
+  private async findResource(id: string | number, useReadPolicy: boolean = true): Promise<T> {
+    let result;
+
+    const filter = { _and: [{ id }, this.policyFilter(useReadPolicy)] };
+    const projection = this.policyProjection(false);
+
+    try {
+      const [queryBuilder] = this.makeQueryBuilderParts(filter, projection);
+
+      result = await queryBuilder.getOne();
+    } catch (e) {
+      this.logger.debug(e);
+      throw new ResourceError(this.repository.metadata.name, {
+        message: 'Bad request',
+        reason: e.message,
+        status: 400
+      });
+    }
+
+    if (!result) {
+      throw new ResourceError(this.repository.metadata.name, {
+        message: 'Not Found for id: ' + id,
+        status: 404
+      });
+    }
+
+    return result as T;
+  }
+
+  private makeQueryBuilderParts(
+    filter?: any,
+    projection?: any,
+    repository?: Repository<T & ResourceEntity>,
+    single: boolean = true
+  ): [SelectQueryBuilder<T & ResourceEntity>, Brackets, JoinOptions, string] {
+    if (!repository) {
+      repository = this.repository;
+    }
+
+    const hasProjections = Object.keys(projection || {}).length > 0;
+    if (hasProjections && !Object.keys(projection).includes('id')) {
+      projection = _.merge(projection, { id: 1 });
+    }
+
+    const joins = this.buildJoinRelations(filter, single);
+    const modelAlias = joins.alias;
+
+    if (Object.keys(filter).length > 0) {
+      filter = RequestUtil.transformTypeormFilter(filter, repository.metadata.name);
+      this.logger.debug('Transformed filter: %j', filter);
+    }
+
+    const whereQuery = this.buildWhereQuery(filter, joins);
+
+    const queryBuilder = repository.createQueryBuilder(modelAlias).where(whereQuery);
+
+    let mappedProjections = [];
+    if (hasProjections) {
+      let first = true;
+      for (const proj of Object.keys(projection)) {
+        const { alias, path } = this.makeAliasAndPath(proj.split('.'), modelAlias);
+        queryBuilder[first ? 'select' : 'addSelect'](path);
+        mappedProjections.push(alias);
+        first = false;
+      }
+    }
+
+    for (const [alias, path] of Object.entries(joins.leftJoinAndSelect)) {
+      if (this.isInternalCall() || (hasProjections && !mappedProjections.includes(alias))) {
+        queryBuilder.leftJoin(path, alias);
+      } else {
+        queryBuilder.leftJoinAndSelect(path, alias);
+      }
+    }
+
+    for (const [alias, path] of Object.entries(joins.innerJoin)) {
+      queryBuilder.innerJoin(path, alias);
+    }
+
+    return [queryBuilder, whereQuery, joins, modelAlias];
   }
 
   private buildWhereQuery(filter: any, joins: JoinOptions, isNot?: boolean): Brackets | NotBrackets {
@@ -407,20 +454,13 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     return statement;
   }
 
-  private buildJoinRelations(
-    filter?: any,
-    single: boolean = true
-  ): {
-    alias: string;
-    leftJoinAndSelect: Record<string, string>;
-    innerJoin: Record<string, string>;
-  } {
+  private buildJoinRelations(filter?: any, single: boolean = true): JoinOptions {
     let relations = this.relationsToPopulate(single);
     const modelName = this.repository.metadata.name;
     const joinOptions = { alias: modelName, leftJoinAndSelect: {}, innerJoin: {} };
 
     const filterKeys = ObjectUtil.nestedKeys(filter, RequestUtil.filterQueryKeys);
-    if (this.isInternal() && filter) {
+    if (this.isInternalCall() && filter) {
       relations = relations.filter((r) => filterKeys.includes(r.name));
     }
 

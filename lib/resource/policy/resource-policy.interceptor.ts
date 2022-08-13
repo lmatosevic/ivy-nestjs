@@ -70,6 +70,11 @@ export class ResourcePolicyInterceptor<T extends Ability> implements NestInterce
       request.policyRules = this.aggregatePolicyRules(rules, request.policyRules);
     }
 
+    const readRules = ability.rulesFor(Action.Read as any, sub);
+    if (readRules.length > 0) {
+      request.policyReadRules = this.aggregatePolicyRules(readRules, request.policyReadRules);
+    }
+
     return next.handle();
   }
 

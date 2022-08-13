@@ -61,7 +61,10 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
 
   async query(queryDto: QueryRequest<T>): Promise<QueryResponse<T>> {
     let { filter, ...options } = queryDto;
+
     filter = _.merge(filter || {}, this.policyFilter());
+
+    const projection = this.policyProjection();
 
     if (options?.sort) {
       options.sort = RequestUtil.normalizeSort(options.sort);
@@ -87,7 +90,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
 
       filter = await this.resolveFilterSubReferences(filter);
       results = await this.model
-        .find(filter as any, this.policyProjection(), {
+        .find(filter as any, projection, {
           skip: (options.page - 1) * options.size,
           limit: options.size,
           sort: options.sort
@@ -168,10 +171,12 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
   }
 
   async update(id: string, updateDto: PartialDeep<T>, isFileUpload?: boolean): Promise<T> {
+    delete updateDto['id'];
+
     let intersectedDto = this.intersectFields(updateDto);
     intersectedDto = RequestUtil.mapIdKeys(intersectedDto);
 
-    const resource = await this.findResource(id);
+    const resource = await this.findResource(id, false, false);
     const currentResource = _.cloneDeep(resource);
 
     resource.set(intersectedDto);
@@ -218,7 +223,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
   }
 
   async delete(id: string): Promise<T> {
-    const resource = await this.findResource(id);
+    const resource = await this.findResource(id, false, false);
 
     const session = await this.model.db.startSession();
 
@@ -264,19 +269,23 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     return results;
   }
 
-  private async findResource(id: string, populate: boolean = false): Promise<T & Document> {
+  private async findResource(
+    id: string,
+    populate: boolean = false,
+    useReadPolicy: boolean = true
+  ): Promise<T & Document> {
     let resource;
 
     try {
-      const policyFilter = await this.resolveFilterSubReferences(this.policyFilter());
-      const resourceFind = this.model.findOne(
+      const policyFilter = await this.resolveFilterSubReferences(this.policyFilter(useReadPolicy));
+      const findQuery = this.model.findOne(
         { $and: [{ _id: id }, policyFilter] } as any,
         this.policyProjection()
       );
       if (populate) {
-        resourceFind.populate(this.makePopulationArray());
+        findQuery.populate(this.makePopulationArray());
       }
-      resource = await resourceFind.session(this.session).exec();
+      resource = await findQuery.session(this.session).exec();
     } catch (e) {
       this.logger.debug(e);
       throw new ResourceError(this.model.modelName, {

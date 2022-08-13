@@ -35,11 +35,11 @@ export abstract class MongoUserDetailsService<T extends AuthUser>
   }
 
   async onLogin(user: T): Promise<boolean> {
-    return !!(await super.update(user.getId(), { loginAt: Date.now() } as PartialDeep<T>));
+    return !!(await super.update(user.getId(), { loginAt: new Date() } as PartialDeep<T>));
   }
 
   async onLogout(user: T): Promise<boolean> {
-    return !!(await super.update(user.getId(), { logoutAt: Date.now() } as PartialDeep<T>));
+    return !!(await super.update(user.getId(), { logoutAt: new Date() } as PartialDeep<T>));
   }
 
   async checkPassword(password: string, passwordHash: string): Promise<boolean> {

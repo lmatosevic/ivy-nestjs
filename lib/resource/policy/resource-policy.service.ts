@@ -8,7 +8,7 @@ export abstract class ResourcePolicyService {
   protected constructor(private idFieldName?: string) {}
 
   intersectFields(object: any): any {
-    const allowedFields = this.policyProjection();
+    const allowedFields = this.policyProjection(true, false);
 
     if (!object || !allowedFields || Object.keys(allowedFields).length === 0) {
       return object;
@@ -27,16 +27,16 @@ export abstract class ResourcePolicyService {
     return _.pick(dtoObject, fields);
   }
 
-  policyFilter(): any {
-    const policyRules = this.getPolicyRules();
+  policyFilter(useReadPolicy: boolean = true): any {
+    const policyRules = this.getPolicyRules(useReadPolicy);
     if (!policyRules || Object.keys(policyRules).length === 0) {
       return {};
     }
     return policyRules.filter;
   }
 
-  policyProjection(excludeSubFields = true): any {
-    const policyRules = this.getPolicyRules();
+  policyProjection(excludeSubFields = true, useReadPolicy: boolean = true): any {
+    const policyRules = this.getPolicyRules(useReadPolicy);
     if (!policyRules || Object.keys(policyRules).length === 0) {
       return {};
     }
@@ -50,8 +50,9 @@ export abstract class ResourcePolicyService {
     }
   }
 
-  getPolicyRules(): PolicyRules {
-    let policyRules = RequestContext.currentContext?.req?.['policyRules'] || null;
+  getPolicyRules(useReadPolicy: boolean = false): PolicyRules {
+    let policyRules =
+      RequestContext.currentContext?.req?.[useReadPolicy ? 'policyReadRules' : 'policyRules'] || null;
     if (policyRules && this.idFieldName && this.idFieldName !== 'id') {
       policyRules = ObjectUtil.transfromKeysAndValues(policyRules, (key: string) =>
         key === 'id' ? this.idFieldName : key
@@ -64,7 +65,7 @@ export abstract class ResourcePolicyService {
     return (RequestContext.currentContext?.req?.['user'] as AuthUser) || null;
   }
 
-  isInternal(): boolean {
+  isInternalCall(): boolean {
     return !RequestContext.currentContext?.req;
   }
 }

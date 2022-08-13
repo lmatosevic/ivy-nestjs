@@ -86,7 +86,7 @@ export class RequestUtil {
   static transformMongooseFilter(filter: any): any {
     const addILikeOptions = (obj: any) => {
       return _.transform(obj, (result, value, key) => {
-        result[key] = _.isObject(value) ? addILikeOptions(value) : value;
+        result[key] = _.isPlainObject(value) ? addILikeOptions(value) : value;
         if (key === '_ilike') {
           result['$options'] = 'i';
         }
@@ -124,7 +124,7 @@ export class RequestUtil {
           );
         }
 
-        if (this.filterQueryBrackets.includes(key)) {
+        if (this.filterQueryBrackets.includes(key) && !Array.isArray(value)) {
           return Object.entries(value).map(([opKey, opVal]) => ({ [opKey]: opVal }));
         }
 
@@ -170,7 +170,7 @@ export class RequestUtil {
           return this.filterQueryMappers['_eq'](simplePath, value, paramName(simplePath, '_eq'));
         }
 
-        if (this.filterQueryBrackets.includes(key)) {
+        if (this.filterQueryBrackets.includes(key) && !Array.isArray(value)) {
           return Object.entries(value).map(([opKey, opVal]) => ({ [opKey]: opVal }));
         }
 
@@ -181,7 +181,7 @@ export class RequestUtil {
 
   static mapIdKeys(filter: any, newIdKey: string = '_id'): any {
     return _.transform(filter, (result, value, key) => {
-      result[key === 'id' ? newIdKey : key] = _.isObject(value) ? this.mapIdKeys(value) : value;
+      result[key === 'id' ? newIdKey : key] = _.isPlainObject(value) ? this.mapIdKeys(value) : value;
     });
   }
 

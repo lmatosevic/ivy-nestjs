@@ -15,7 +15,7 @@ export class UsersPolicy extends ResourcePolicy<UserAbility, Subjects> {
     if (user?.hasRole(Role.Admin)) {
       can(Action.Manage, subject);
     } else {
-      can(Action.Update, subject, ['firstName', 'lastName', 'email'], {
+      can(Action.Update, subject, ['firstName', 'lastName', 'email', 'passwordHash', 'logoutAt'], {
         id: user?.getId()
       });
       can(
