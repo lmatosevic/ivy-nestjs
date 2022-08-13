@@ -7,7 +7,7 @@ const logger = new Logger('Bootstrap');
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
-  const { port, host, address } = AppUtil.initialize(app);
+  const { port, host, address } = await AppUtil.initialize(app);
   await app.listen(port, host);
   logger.log(`Listening on: ${address}`);
 }

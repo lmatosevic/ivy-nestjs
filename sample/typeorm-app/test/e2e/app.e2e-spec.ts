@@ -14,7 +14,7 @@ describe('InfoController (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
 
-    AppUtil.initialize(app);
+    await AppUtil.initialize(app);
 
     await app.init();
   });

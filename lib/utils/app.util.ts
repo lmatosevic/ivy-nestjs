@@ -4,12 +4,13 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ResolverTypeMetadata } from '@nestjs/graphql/dist/schema-builder/metadata';
 import { TypeMetadataStorage } from '@nestjs/graphql';
 import helmet from 'helmet';
+import * as fs from 'fs/promises';
 import { LoggerService } from '../logger/logger.service';
 import { GRAPHQL_MODULE_OPTIONS } from '../graphql/graphql.constant';
 import { RESOURCE_CONFIG_KEY } from '../resource';
 
 export class AppUtil {
-  static initialize(app: INestApplication): { port: number; host: string; address: string } {
+  static async initialize(app: INestApplication): Promise<{ port: number; host: string; address: string }> {
     const logger = new Logger('Initialization');
 
     app.useLogger(app.get(LoggerService));
@@ -92,6 +93,15 @@ export class AppUtil {
       const config = builder.build();
       const document = SwaggerModule.createDocument(app, config);
       SwaggerModule.setup('api-docs', app, document);
+
+      const docsDir = `${process.cwd()}/openapi`;
+      try {
+        await fs.access(docsDir);
+      } catch {
+        await fs.mkdir(docsDir, { recursive: true });
+      }
+      await fs.writeFile(`${docsDir}/api-docs.json`, JSON.stringify(document, null, 4));
+
       logger.log(`Swagger docs available on: ${address}/api-docs`);
     }
 
@@ -105,14 +115,19 @@ export class AppUtil {
     }
 
     if (configService.get('graphql.enabled') && configService.get('graphql.playground')) {
-      app
-        .resolve(GRAPHQL_MODULE_OPTIONS, undefined, { strict: false })
-        .then(() => {
-          logger.log(`GraphQL playground available on: ${address}/graphql`);
-        })
-        .catch(() => {
-          // GraphQL module not imported
-        });
+      try {
+        await app.resolve(GRAPHQL_MODULE_OPTIONS, undefined, { strict: false });
+        logger.log(`GraphQL playground available on: ${address}/graphql`);
+      } catch (e) {
+        // GraphQL module not imported
+      }
+    }
+
+    if (configService.get('docsOnly')) {
+      await app.init();
+      logger.log('Documentation generated, exiting...');
+      await app.close();
+      process.exit(0);
     }
 
     return { port, host, address };

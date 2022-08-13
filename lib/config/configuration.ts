@@ -2,6 +2,7 @@ import { StringUtil } from '../utils';
 
 export default () => ({
   env: process.env.NODE_ENV || 'production',
+  docsOnly: StringUtil.parseBool(process.env.DOCS_ONLY, false),
   app: {
     name: process.env.APP_NAME || 'Ivy API',
     description: process.env.APP_DESCRIPTION || 'Ivy backend API service',

@@ -7,7 +7,10 @@ export class MigrationService implements OnModuleInit {
   constructor(private configService: ConfigService, private dataSource: DataSource) {}
 
   async onModuleInit(): Promise<void> {
-    if (this.configService.get<boolean>('db.migration.autoRun')) {
+    if (
+      this.configService.get<boolean>('db.migration.autoRun') &&
+      !this.configService.get<boolean>('docsOnly')
+    ) {
       if (!this.dataSource.isInitialized) {
         await this.dataSource.initialize();
       }
