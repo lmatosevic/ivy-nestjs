@@ -1,5 +1,5 @@
 import { Logger } from '@nestjs/common';
-import { Brackets, EntityManager, NotBrackets, QueryBuilder, Repository, SelectQueryBuilder } from 'typeorm';
+import { Brackets, EntityManager, NotBrackets, Repository, SelectQueryBuilder } from 'typeorm';
 import { PartialDeep } from 'type-fest';
 import { RelationMetadata } from 'typeorm/metadata/RelationMetadata';
 import { ResourceError } from '../../resource/errors';
