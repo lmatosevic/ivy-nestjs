@@ -93,8 +93,8 @@ Common utility functions and classes used accross other modules.
 Script for creating new resource modules with all of it's required files. There are two types of generated resource
 based on database library used in project:
 
-- **typeorm** - generates models using typeorm entity
-- **mongoose** - generates models using mongoose schema
+- **typeorm** - generates models using TypeORM entity
+- **mongoose** - generates models using Mongoose schema
 
 ```shell
 create-resource.js [type] [name]
