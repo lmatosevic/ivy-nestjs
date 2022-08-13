@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.8](https://github.com/Lujo5/ivy-nestjs/compare/v0.2.7...v0.2.8) (2022-08-13)
+
+
+### Features
+
+* add openapi schema generation and option for generating docs only ([5b776d8](https://github.com/Lujo5/ivy-nestjs/commit/5b776d8eb51b422ec83a10daddffa06492f0509a))
+* implement resource policy restrictions with separation for read and action policy rules ([1bb26d1](https://github.com/Lujo5/ivy-nestjs/commit/1bb26d15505ac17f8039613766c1faaf10da28ef))
+
 ### [0.2.7](https://github.com/Lujo5/ivy-nestjs/compare/v0.2.6...v0.2.7) (2022-08-12)
 
 
