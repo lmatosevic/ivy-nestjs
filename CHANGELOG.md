@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.3.0](https://github.com/Lujo5/ivy-nestjs/compare/v0.2.8...v0.3.0) (2022-08-13)
+
+
+### ⚠ BREAKING CHANGES
+
+* update NestJS to version 9
+
+### Features
+
+* add cross-env lib to dev deps ([35001c7](https://github.com/Lujo5/ivy-nestjs/commit/35001c75a4f77dde68ef3fb2717993ff5b1a0188))
+* update NestJS to version 9 ([252e277](https://github.com/Lujo5/ivy-nestjs/commit/252e277e0ea7891dff7955e411dd56b7cd2527c9))
+
 ### [0.2.8](https://github.com/Lujo5/ivy-nestjs/compare/v0.2.7...v0.2.8) (2022-08-13)
 
 
