@@ -360,7 +360,12 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
       let first = true;
       for (const proj of Object.keys(projection)) {
         const { alias, path } = this.makeAliasAndPath(proj.split('.'), modelAlias);
-        queryBuilder[first ? 'select' : 'addSelect'](path);
+
+        // Skip relation fields since they are selected in join statements
+        if (!this.relationMetadata(alias)) {
+          queryBuilder[first ? 'select' : 'addSelect'](path);
+        }
+
         mappedProjections.push(alias);
         first = false;
       }

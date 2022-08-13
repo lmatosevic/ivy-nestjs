@@ -15,12 +15,17 @@ export class UsersPolicy extends ResourcePolicy<UserAbility, Subjects> {
     if (user?.hasRole(Role.Admin)) {
       can(Action.Manage, subject);
     } else {
-      can(Action.Update, subject, ['firstName', 'lastName', 'email', 'passwordHash', 'logoutAt'], {
+      can(Action.Update, subject, ['firstName', 'lastName', 'email', 'avatar', 'passwordHash', 'logoutAt'], {
         id: user?.getId()
       });
-      can(Action.Read, subject, ['firstName', 'lastName', 'email', 'createdAt', 'avatar', 'avatar.meta'], {
-        id: user?.getId()
-      });
+      can(
+        Action.Read,
+        subject,
+        ['firstName', 'lastName', 'email', 'createdAt', 'avatar', 'avatar.meta', 'projects', 'projects.plan'],
+        {
+          id: user?.getId()
+        }
+      );
       cannot(Action.Delete, subject);
       cannot(Action.Create, subject);
     }
