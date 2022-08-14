@@ -95,10 +95,6 @@ export class AuthService implements OnApplicationBootstrap {
   }
 
   private async createAdminUser(): Promise<void> {
-    if (this.configService.get('docsOnly')) {
-      return;
-    }
-
     const username = this.authModuleOptions.admin?.username ?? this.configService.get('auth.admin.username');
     let password = this.authModuleOptions.admin?.password ?? this.configService.get('auth.admin.password');
 
