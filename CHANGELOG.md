@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.2](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.1...v0.3.2) (2022-08-14)
+
+
+### Features
+
+* add warning log for non-configured external services ([5664d8d](https://github.com/Lujo5/ivy-nestjs/commit/5664d8d1e542b69aabda1a30590b30e0db7f70b0))
+* optimize configurations for docs only mode ([962aecf](https://github.com/Lujo5/ivy-nestjs/commit/962aecf60b620eb41a2c19624cf4752355c9a7e9))
+* separate recaptcha configuration per auth route ([671f322](https://github.com/Lujo5/ivy-nestjs/commit/671f32212cf1272acf4e4b9c341e87a933dd8286))
+
 ### [0.3.1](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.0...v0.3.1) (2022-08-13)
 
 
