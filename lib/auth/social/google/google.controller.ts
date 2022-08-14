@@ -1,7 +1,7 @@
 import { Body, Controller, HttpCode, Inject, Post } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiBody, ApiTags } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
-import { RequestUtil } from '../../../utils';
+import { ReflectionUtil, RequestUtil } from '../../../utils';
 import { ErrorResponse } from '../../../resource';
 import { Public } from '../../decorators';
 import { JwtToken } from '../../strategy/jwt/jwt.dto';
@@ -27,8 +27,7 @@ export class GoogleController {
 
     Reflect.defineMetadata('path', `${route || 'auth'}/${currentPath}`, GoogleController);
     if (enabled === false) {
-      const descriptor = Object.getOwnPropertyDescriptor(GoogleController.prototype, 'authorize');
-      Reflect.deleteMetadata('path', descriptor.value);
+      ReflectionUtil.deleteResourceOperation(GoogleController.prototype, 'authorize');
     }
   }
 

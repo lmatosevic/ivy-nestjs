@@ -16,7 +16,7 @@ import { ConfigService } from '@nestjs/config';
 import { Expose } from 'class-transformer';
 import { IsArray, IsOptional, Min } from 'class-validator';
 import { Config } from '../../config/decorators';
-import { RequestUtil, StringUtil } from '../../utils';
+import { ReflectionUtil, RequestUtil, StringUtil } from '../../utils';
 import { FilterOperator, StatusResponse } from '../dto';
 import { ResourceService } from '../services';
 import { Resource, ResourceConfig } from '../decorators';
@@ -273,8 +273,7 @@ export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown
   }
 
   if (Object.keys(fileProps).length === 0) {
-    const descriptor = Object.getOwnPropertyDescriptor(ResourceResolver.prototype, 'unlink');
-    Reflect.deleteMetadata('graphql:resolver_type', descriptor.value);
+    ReflectionUtil.deleteResourceOperation(ResourceResolver.prototype, 'unlink');
   }
 
   return ResourceResolver;

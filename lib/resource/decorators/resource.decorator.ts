@@ -1,5 +1,6 @@
 import { AuthType, DeliveryMethod, Operation, Role } from '../../enums';
 import { AUTH_KEY, Authorized, ReCaptcha, RECAPTCHA_KEY, Roles, ROLES_KEY } from '../../auth';
+import { ReflectionUtil } from '../../utils';
 
 export const RESOURCE_CONFIG_KEY = 'resourceConfig';
 
@@ -80,13 +81,7 @@ function applyOperationsConfig(config: ResourceConfig, target: Function) {
 }
 
 function deleteOperation(target: Function, operation: string) {
-  const { descriptor } = parentAndDescriptor(target, operation);
-  if (!descriptor) {
-    return;
-  }
-
-  Reflect.deleteMetadata('path', descriptor.value);
-  Reflect.deleteMetadata('graphql:resolver_type', descriptor.value);
+  ReflectionUtil.deleteResourceOperation(target.prototype, operationName(operation));
 }
 
 function authorizedOperation(target: Function, operation: string, conf: OperationConfig) {

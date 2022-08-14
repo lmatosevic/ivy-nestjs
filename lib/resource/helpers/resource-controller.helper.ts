@@ -32,7 +32,7 @@ import { ConfigService } from '@nestjs/config';
 import { Expose } from 'class-transformer';
 import { IsArray, IsOptional } from 'class-validator';
 import { Config } from '../../config/decorators';
-import { FilesUtil, RequestUtil, StringUtil } from '../../utils';
+import { FilesUtil, ReflectionUtil, RequestUtil, StringUtil } from '../../utils';
 import { FILE_PROPS_KEY, FileDto, FileFilter, FileProps } from '../../storage';
 import { ErrorResponse, FilterOperator, QueryRequest, QueryResponse, StatusResponse } from '../dto';
 import { ResourceService } from '../services';
@@ -477,10 +477,8 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
   }
 
   if (fileTypesMulterArray.length === 0) {
-    const descriptorUpload = Object.getOwnPropertyDescriptor(ResourceController.prototype, 'upload');
-    Reflect.deleteMetadata('path', descriptorUpload.value);
-    const descriptorUnlink = Object.getOwnPropertyDescriptor(ResourceController.prototype, 'unlink');
-    Reflect.deleteMetadata('path', descriptorUnlink.value);
+    ReflectionUtil.deleteResourceOperation(ResourceController.prototype, 'upload');
+    ReflectionUtil.deleteResourceOperation(ResourceController.prototype, 'unlink');
   }
 
   return ResourceController;

@@ -1,14 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  HttpCode,
-  Inject,
-  Post,
-  Query,
-  Type,
-  UseGuards
-} from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Inject, Post, Query, Type, UseGuards } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBody,
@@ -19,13 +9,13 @@ import {
 } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import { LocalAuthGuard } from './strategy/local/local-auth.guard';
-import { Authorized, CurrentUser, Public, ReCaptcha } from './decorators';
-import { RequestUtil } from '../utils';
+import { Authorized, CurrentUser, Public, ReCaptcha, RECAPTCHA_KEY } from './decorators';
+import { ReflectionUtil, RequestUtil } from '../utils';
 import { ErrorResponse, StatusResponse } from '../resource';
 import { AuthUser } from './interfaces';
 import { AuthService } from './auth.service';
 import { JwtToken } from './strategy/jwt/jwt.dto';
-import { AuthModuleOptions } from './auth.module';
+import { AuthModuleOptions, AuthRouteOptions } from './auth.module';
 import { AUTH_MODULE_OPTIONS } from './auth.constants';
 import { AuthType } from '../enums';
 
@@ -47,23 +37,38 @@ export function AuthController<T extends Type<unknown>>(authUserRef: T, register
       private authService: AuthService
     ) {
       const route = authModuleOptions.route ?? configService.get('auth.route');
-      const registration = authModuleOptions.registration ?? configService.get('auth.registration');
-      const login = authModuleOptions.login ?? configService.get('auth.login');
+      const registration =
+        authModuleOptions.registration ?? configService.get<AuthRouteOptions>('auth.registration');
+      const login = authModuleOptions.login ?? configService.get<AuthRouteOptions>('auth.login');
+      const identifierAvailable =
+        authModuleOptions.identifierAvailable ??
+        configService.get<AuthRouteOptions>('auth.identifierAvailable');
 
       if (route) {
         Reflect.defineMetadata('path', route, AuthController);
       }
-      if (registration === false) {
-        const descriptor = Object.getOwnPropertyDescriptor(AuthController.prototype, 'registration');
-        Reflect.deleteMetadata('path', descriptor.value);
+      if (registration.enabled === false) {
+        ReflectionUtil.deleteResourceOperation(AuthController.prototype, 'registration');
       }
-      if (login === false) {
-        const descriptor = Object.getOwnPropertyDescriptor(AuthController.prototype, 'login');
-        Reflect.deleteMetadata('path', descriptor.value);
+      if (registration.recaptcha === false) {
+        ReflectionUtil.deleteMetadata(AuthController.prototype, 'registration', RECAPTCHA_KEY);
+      }
+      if (login.enabled === false) {
+        ReflectionUtil.deleteResourceOperation(AuthController.prototype, 'login');
+      }
+      if (login.recaptcha === false) {
+        ReflectionUtil.deleteMetadata(AuthController.prototype, 'login', RECAPTCHA_KEY);
+      }
+      if (identifierAvailable.enabled === false) {
+        ReflectionUtil.deleteResourceOperation(AuthController.prototype, 'identifierAvailable');
+      }
+      if (identifierAvailable.recaptcha === false) {
+        ReflectionUtil.deleteMetadata(AuthController.prototype, 'identifierAvailable', RECAPTCHA_KEY);
       }
     }
 
     @Public()
+    @ReCaptcha()
     @UseGuards(LocalAuthGuard)
     @ApiBody({ type: () => LoginBody })
     @ApiBadRequestResponse({ description: 'Invalid credentials', type: ErrorResponse })

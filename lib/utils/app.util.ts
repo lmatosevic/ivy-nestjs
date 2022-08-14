@@ -8,6 +8,7 @@ import * as fs from 'fs/promises';
 import { LoggerService } from '../logger/logger.service';
 import { GRAPHQL_MODULE_OPTIONS } from '../graphql/graphql.constant';
 import { RESOURCE_CONFIG_KEY } from '../resource';
+import { ReflectionUtil } from './reflection.util';
 
 export class AppUtil {
   static async initialize(app: INestApplication): Promise<{ port: number; host: string; address: string }> {
@@ -150,15 +151,9 @@ export class AppUtil {
         this.resolveResourceEndpoints(config, prototype);
 
         if (queryMethod?.toLowerCase() === 'get') {
-          const descriptor = Object.getOwnPropertyDescriptor(prototype, 'query');
-          if (descriptor) {
-            Reflect.deleteMetadata('path', descriptor.value);
-          }
+          ReflectionUtil.deleteResourceOperation(prototype, 'query');
         } else if (queryMethod?.toLowerCase() === 'post') {
-          const descriptor = Object.getOwnPropertyDescriptor(prototype, 'queryGet');
-          if (descriptor) {
-            Reflect.deleteMetadata('path', descriptor.value);
-          }
+          ReflectionUtil.deleteResourceOperation(prototype, 'queryGet');
         }
       }
     }
@@ -192,27 +187,15 @@ export class AppUtil {
     const bulkDeleteEnabled = config.get('bulk.deleteEnabled');
 
     if (!bulkEnabled || !bulkCreateEnabled) {
-      const descriptor = Object.getOwnPropertyDescriptor(prototype, 'createBulk');
-      if (descriptor) {
-        Reflect.deleteMetadata('path', descriptor.value);
-        Reflect.deleteMetadata('graphql:resolver_type', descriptor.value);
-      }
+      ReflectionUtil.deleteResourceOperation(prototype, 'createBulk');
     }
 
     if (!bulkEnabled || !bulkUpdateEnabled) {
-      const descriptor = Object.getOwnPropertyDescriptor(prototype, 'updateBulk');
-      if (descriptor) {
-        Reflect.deleteMetadata('path', descriptor.value);
-        Reflect.deleteMetadata('graphql:resolver_type', descriptor.value);
-      }
+      ReflectionUtil.deleteResourceOperation(prototype, 'updateBulk');
     }
 
     if (!bulkEnabled || !bulkDeleteEnabled) {
-      const descriptor = Object.getOwnPropertyDescriptor(prototype, 'deleteBulk');
-      if (descriptor) {
-        Reflect.deleteMetadata('path', descriptor.value);
-        Reflect.deleteMetadata('graphql:resolver_type', descriptor.value);
-      }
+      ReflectionUtil.deleteResourceOperation(prototype, 'deleteBulk');
     }
   }
 

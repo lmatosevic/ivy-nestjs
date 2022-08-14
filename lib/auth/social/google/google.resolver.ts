@@ -1,7 +1,7 @@
 import { Args, Mutation, Resolver } from '@nestjs/graphql';
 import { Inject } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { RequestUtil } from '../../../utils';
+import { ReflectionUtil, RequestUtil } from '../../../utils';
 import { Public } from '../../decorators';
 import { GoogleAuth } from './google-auth.dto';
 import { GoogleService } from './google.service';
@@ -22,8 +22,7 @@ export class GoogleResolver {
         : authModuleOptions.google?.enabled;
 
     if (enabled === false) {
-      const descriptor = Object.getOwnPropertyDescriptor(GoogleResolver.prototype, 'authorizeGoogle');
-      Reflect.deleteMetadata('graphql:resolver_type', descriptor.value);
+      ReflectionUtil.deleteResourceOperation(GoogleResolver.prototype, 'authorizeGoogle');
     }
   }
 

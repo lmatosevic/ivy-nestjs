@@ -1,8 +1,8 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { Inject, Type } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Authorized, CurrentUser, ReCaptcha } from './decorators';
-import { RequestUtil } from '../utils';
+import { Authorized, CurrentUser, ReCaptcha, RECAPTCHA_KEY } from './decorators';
+import { ReflectionUtil, RequestUtil } from '../utils';
 import { StatusResponse } from '../resource';
 import { AuthSource, AuthType } from '../enums';
 import { JwtToken } from './strategy/jwt/jwt.dto';
@@ -10,7 +10,7 @@ import { AuthService } from './auth.service';
 import { AuthUser } from './interfaces';
 import { AuthorizationError } from './errors';
 import { AUTH_MODULE_OPTIONS } from '../auth/auth.constants';
-import { AuthModuleOptions } from '../auth/auth.module';
+import { AuthModuleOptions, AuthRouteOptions } from '../auth/auth.module';
 
 export function AuthResolver<T extends Type<unknown>>(authUserRef: T, registerUserRef: T): any {
   @Resolver()
@@ -20,19 +20,34 @@ export function AuthResolver<T extends Type<unknown>>(authUserRef: T, registerUs
       private configService: ConfigService,
       private authService: AuthService
     ) {
-      const registration = authModuleOptions.registration ?? configService.get('auth.registration');
-      const login = authModuleOptions.login ?? configService.get('auth.login');
+      const registration =
+        authModuleOptions.registration ?? configService.get<AuthRouteOptions>('auth.registration');
+      const login = authModuleOptions.login ?? configService.get<AuthRouteOptions>('auth.login');
+      const identifierAvailable =
+        authModuleOptions.identifierAvailable ??
+        configService.get<AuthRouteOptions>('auth.identifierAvailable');
 
-      if (registration === false) {
-        const descriptor = Object.getOwnPropertyDescriptor(AuthResolver.prototype, 'registration');
-        Reflect.deleteMetadata('graphql:resolver_type', descriptor.value);
+      if (registration.enabled === false) {
+        ReflectionUtil.deleteResourceOperation(AuthResolver.prototype, 'registration');
       }
-      if (login === false) {
-        const descriptor = Object.getOwnPropertyDescriptor(AuthResolver.prototype, 'login');
-        Reflect.deleteMetadata('graphql:resolver_type', descriptor.value);
+      if (registration.recaptcha === false) {
+        ReflectionUtil.deleteMetadata(AuthResolver.prototype, 'registration', RECAPTCHA_KEY);
+      }
+      if (login.enabled === false) {
+        ReflectionUtil.deleteResourceOperation(AuthResolver.prototype, 'login');
+      }
+      if (login.recaptcha === false) {
+        ReflectionUtil.deleteMetadata(AuthResolver.prototype, 'login', RECAPTCHA_KEY);
+      }
+      if (identifierAvailable.enabled === false) {
+        ReflectionUtil.deleteResourceOperation(AuthResolver.prototype, 'identifierAvailable');
+      }
+      if (identifierAvailable.recaptcha === false) {
+        ReflectionUtil.deleteMetadata(AuthResolver.prototype, 'identifierAvailable', RECAPTCHA_KEY);
       }
     }
 
+    @ReCaptcha()
     @Mutation(() => JwtToken)
     async login(
       @Args('username', { type: () => String }) username: string,

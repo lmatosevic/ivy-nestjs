@@ -88,8 +88,18 @@ export default () => {
     },
     auth: {
       route: process.env.AUTH_ROUTE || 'auth',
-      login: StringUtil.parseBool(process.env.AUTH_LOGIN_ENABLED, true),
-      registration: StringUtil.parseBool(process.env.AUTH_REGISTRATION_ENABLED, true),
+      login: {
+        enabled: StringUtil.parseBool(process.env.AUTH_LOGIN_ENABLED, true),
+        recaptcha: StringUtil.parseBool(process.env.AUTH_LOGIN_RECAPTCHA, false)
+      },
+      registration: {
+        enabled: StringUtil.parseBool(process.env.AUTH_REGISTRATION_ENABLED, true),
+        recaptcha: StringUtil.parseBool(process.env.AUTH_REGISTRATION_RECAPTCHA, true)
+      },
+      identifierAvailable: {
+        enabled: StringUtil.parseBool(process.env.AUTH_IDENTIFIER_AVAILABLE_ENABLED, true),
+        recaptcha: StringUtil.parseBool(process.env.AUTH_IDENTIFIER_AVAILABLE_RECAPTCHA, false)
+      },
       admin: {
         create: docsOnly ? false : StringUtil.parseBool(process.env.AUTH_ADMIN_CREATE, false),
         username: process.env.AUTH_ADMIN_USERNAME || 'admin@ivy-nestjs',

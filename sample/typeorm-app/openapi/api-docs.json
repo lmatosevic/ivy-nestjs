@@ -251,7 +251,24 @@
         "/auth/login": {
             "post": {
                 "operationId": "AuthController_login",
-                "parameters": [],
+                "parameters": [
+                    {
+                        "name": "X-RECAPTCHA-TOKEN",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "recaptcha_token",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "requestBody": {
                     "required": true,
                     "content": {

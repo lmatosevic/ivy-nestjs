@@ -2,7 +2,8 @@ import { Controller, Get, HttpCode, Inject, Param, Response, StreamableFile } fr
 import { ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import { AuthUser } from '../auth';
-import { CurrentUser, Authorized } from '../auth/decorators';
+import { ReflectionUtil } from '../utils';
+import { Authorized, CurrentUser } from '../auth/decorators';
 import { FileManager } from './file-manager';
 import { FileError } from './errors';
 import { StorageModuleOptions } from './storage.module';
@@ -25,12 +26,10 @@ export class StorageController {
       Reflect.defineMetadata('path', filesRoute, StorageController);
     }
     if (['public', 'none'].includes(filesAccess)) {
-      const descriptor = Object.getOwnPropertyDescriptor(StorageController.prototype, 'protectedFile');
-      Reflect.deleteMetadata('path', descriptor.value);
+      ReflectionUtil.deleteResourceOperation(StorageController.prototype, 'protectedFile');
     }
     if (['protected', 'none'].includes(filesAccess)) {
-      const descriptor = Object.getOwnPropertyDescriptor(StorageController.prototype, 'publicFile');
-      Reflect.deleteMetadata('path', descriptor.value);
+      ReflectionUtil.deleteResourceOperation(StorageController.prototype, 'publicFile');
     }
     this.cacheDuration =
       this.storageModuleOptions.cacheDuration ?? configService.get('storage.cacheDuration') ?? 86400;

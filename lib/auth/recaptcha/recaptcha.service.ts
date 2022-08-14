@@ -25,15 +25,15 @@ export class RecaptchaService {
     this.recaptchaSecret =
       authModuleOptions.recaptcha?.siteSecret || configService.get('auth.recaptcha.siteSecret');
     this.deliveryMethods = {
-      Header:
+      [DeliveryMethod.Header]:
         authModuleOptions.recaptcha?.deliveryHeader ||
         configService.get('auth.recaptcha.deliveryHeader') ||
         'X-RECAPTCHA-TOKEN',
-      Query:
+      [DeliveryMethod.Query]:
         authModuleOptions.recaptcha?.deliveryQuery ||
         configService.get('auth.recaptcha.deliveryQuery') ||
         'recaptcha_token',
-      Body:
+      [DeliveryMethod.Body]:
         authModuleOptions.recaptcha?.deliveryBody ||
         configService.get('auth.recaptcha.deliveryBody') ||
         'recaptchaToken'
@@ -69,13 +69,13 @@ export class RecaptchaService {
       let token;
       switch (method) {
         case DeliveryMethod.Header:
-          token = request.headers[this.deliveryMethods['header']];
+          token = request.headers[this.deliveryMethods[DeliveryMethod.Header].toLowerCase()];
           break;
         case DeliveryMethod.Query:
-          token = request.query[this.deliveryMethods['query']];
+          token = request.query[this.deliveryMethods[DeliveryMethod.Query]];
           break;
         case DeliveryMethod.Body:
-          token = request.body[this.deliveryMethods['body']];
+          token = request.body[this.deliveryMethods[DeliveryMethod.Body]];
           break;
         default:
           continue;
@@ -87,7 +87,10 @@ export class RecaptchaService {
     }
 
     throw new AuthorizationError(
-      'ReCaptcha token not submitted in any of delivery methods: "' + methods.join(',') + '"',
+      'ReCaptcha token is not submitted in any of valid delivery methods: ' +
+        Object.entries(this.deliveryMethods)
+          .map(([key, val]) => `${key}(${val})`)
+          .join(', '),
       400
     );
   }

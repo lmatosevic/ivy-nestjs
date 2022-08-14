@@ -5,7 +5,7 @@ import { AuthSource } from '../enums';
 import { StringUtil } from '../utils';
 import { StatusResponse } from '../resource';
 import { AuthUser } from './interfaces';
-import { AuthModuleOptions } from './auth.module';
+import { AuthModuleOptions, AuthRouteOptions } from './auth.module';
 import { JwtPayload, JwtToken } from './strategy/jwt/jwt.dto';
 import { AuthorizationError } from './errors';
 import { AUTH_MODULE_OPTIONS } from './auth.constants';
@@ -79,8 +79,9 @@ export class AuthService implements OnApplicationBootstrap {
   }
 
   async register(data: any, source: AuthSource = AuthSource.Local): Promise<AuthUser | null> {
-    const registration = this.authModuleOptions.registration ?? this.configService.get('auth.registration');
-    if (registration === false) {
+    const registration =
+      this.authModuleOptions.registration ?? this.configService.get<AuthRouteOptions>('auth.registration');
+    if (registration.enabled === false) {
       throw new AuthorizationError('Registration is not supported');
     }
     return await this.authModuleOptions.userDetailsService.registerUser(data, source);

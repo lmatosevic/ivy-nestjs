@@ -26,13 +26,19 @@ import {
 } from './social';
 import { AUTH_MODULE_OPTIONS } from './auth.constants';
 
+export type AuthRouteOptions = {
+  enabled?: boolean;
+  recaptcha?: boolean;
+};
+
 export interface AuthModuleOptions {
   userDetailsService: UserDetailsService<AuthUser>;
   userDetailsClass: Type;
   userRegisterDtoClass: Type;
   route?: string;
-  login?: boolean;
-  registration?: boolean;
+  login?: AuthRouteOptions;
+  registration?: AuthRouteOptions;
+  identifierAvailable?: AuthRouteOptions;
   admin?: { create?: boolean; username?: string; password?: string };
   jwt?: { secret: string; expiresIn?: number; enabled?: boolean };
   basic?: { enabled?: boolean };

@@ -5,7 +5,7 @@ import { Public } from '../../decorators';
 import { JwtToken } from '../../strategy/jwt/jwt.dto';
 import { FacebookService } from './facebook.service';
 import { FacebookAuth } from './facebook-auth.dto';
-import { RequestUtil } from '../../../utils';
+import { ReflectionUtil, RequestUtil } from '../../../utils';
 import { AuthModuleOptions } from '../../auth.module';
 import { AUTH_MODULE_OPTIONS } from '../../auth.constants';
 
@@ -22,8 +22,7 @@ export class FacebookResolver {
         : authModuleOptions.facebook?.enabled;
 
     if (enabled === false) {
-      const descriptor = Object.getOwnPropertyDescriptor(FacebookResolver.prototype, 'authorizeFacebook');
-      Reflect.deleteMetadata('graphql:resolver_type', descriptor.value);
+      ReflectionUtil.deleteResourceOperation(FacebookResolver.prototype, 'authorizeFacebook');
     }
   }
 
