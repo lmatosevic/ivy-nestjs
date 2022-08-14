@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
@@ -8,6 +8,7 @@ import { AUTH_MODULE_OPTIONS } from '../auth.constants';
 
 @Injectable()
 export class RecaptchaService {
+  private readonly logger = new Logger(RecaptchaService.name);
   private readonly checkTokenUri = 'https://www.google.com/recaptcha/api/siteverify';
   private readonly recaptchaSecret: string;
   private readonly enabled: boolean;
@@ -38,6 +39,10 @@ export class RecaptchaService {
         configService.get('auth.recaptcha.deliveryBody') ||
         'recaptchaToken'
     };
+
+    if (this.enabled && !this.recaptchaSecret) {
+      this.logger.warn('ReCaptcha site secret is not configured');
+    }
   }
 
   async verifyToken(token: string): Promise<boolean> {
@@ -56,6 +61,7 @@ export class RecaptchaService {
       );
       return response.data?.success;
     } catch (e) {
+      this.logger.debug(e);
       throw new AuthorizationError('Error verifying reCaptcha token', 500);
     }
   }

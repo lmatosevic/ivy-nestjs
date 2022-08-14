@@ -9,7 +9,7 @@ import {
 } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import { LocalAuthGuard } from './strategy/local/local-auth.guard';
-import { Authorized, CurrentUser, Public, ReCaptcha, RECAPTCHA_KEY } from './decorators';
+import { Authorized, CurrentUser, Public, ReCaptcha } from './decorators';
 import { ReflectionUtil, RequestUtil } from '../utils';
 import { ErrorResponse, StatusResponse } from '../resource';
 import { AuthUser } from './interfaces';
@@ -47,24 +47,8 @@ export function AuthController<T extends Type<unknown>>(authUserRef: T, register
       if (route) {
         Reflect.defineMetadata('path', route, AuthController);
       }
-      if (registration.enabled === false) {
-        ReflectionUtil.deleteResourceOperation(AuthController.prototype, 'registration');
-      }
-      if (registration.recaptcha === false) {
-        ReflectionUtil.deleteMetadata(AuthController.prototype, 'registration', RECAPTCHA_KEY);
-      }
-      if (login.enabled === false) {
-        ReflectionUtil.deleteResourceOperation(AuthController.prototype, 'login');
-      }
-      if (login.recaptcha === false) {
-        ReflectionUtil.deleteMetadata(AuthController.prototype, 'login', RECAPTCHA_KEY);
-      }
-      if (identifierAvailable.enabled === false) {
-        ReflectionUtil.deleteResourceOperation(AuthController.prototype, 'identifierAvailable');
-      }
-      if (identifierAvailable.recaptcha === false) {
-        ReflectionUtil.deleteMetadata(AuthController.prototype, 'identifierAvailable', RECAPTCHA_KEY);
-      }
+
+      ReflectionUtil.updateAuthRoutes(AuthController.prototype, { registration, login, identifierAvailable });
     }
 
     @Public()

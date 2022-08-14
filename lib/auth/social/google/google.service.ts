@@ -1,5 +1,5 @@
 import { OAuth2Client } from 'google-auth-library';
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AuthModuleOptions, AuthorizationError } from '../../../auth';
 import { AuthService } from '../../auth.service';
@@ -10,6 +10,7 @@ import { AUTH_MODULE_OPTIONS } from '../../auth.constants';
 
 @Injectable()
 export class GoogleService {
+  private readonly logger = new Logger(GoogleService.name);
   private readonly clientId: string;
   private readonly client: OAuth2Client;
 
@@ -20,6 +21,15 @@ export class GoogleService {
   ) {
     this.clientId = authModuleOptions.google?.clientId || configService.get('auth.google.clientId');
     this.client = new OAuth2Client(this.clientId);
+
+    const enabled =
+      authModuleOptions.google?.enabled === undefined
+        ? configService.get('auth.google.enabled')
+        : authModuleOptions.google?.enabled;
+
+    if (enabled && !this.clientId) {
+      this.logger.warn('Google client ID is not configured');
+    }
   }
 
   async authorize(data: GoogleAuth): Promise<JwtToken> {

@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
 import { AxiosResponse } from 'axios';
@@ -13,6 +13,7 @@ import { AUTH_MODULE_OPTIONS } from '../../auth.constants';
 
 @Injectable()
 export class FacebookService {
+  private readonly logger = new Logger(FacebookService.name);
   private readonly checkTokenUri = 'https://graph.facebook.com/debug_token';
   private readonly profileUri = 'https://graph.facebook.com/me';
   private readonly appId: string;
@@ -29,6 +30,15 @@ export class FacebookService {
     this.appSecret = authModuleOptions.facebook?.appSecret || configService.get('auth.facebook.appSecret');
     if (this.appId && this.appSecret) {
       this.accessToken = `${this.appId}|${this.appSecret}`;
+    }
+
+    const enabled =
+      authModuleOptions.facebook?.enabled === undefined
+        ? configService.get('auth.facebook.enabled')
+        : authModuleOptions.facebook?.enabled;
+
+    if (enabled && !this.accessToken) {
+      this.logger.warn('Facebook app ID and/or app secret are not configured');
     }
   }
 

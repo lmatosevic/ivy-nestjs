@@ -1,7 +1,7 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { Inject, Type } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Authorized, CurrentUser, ReCaptcha, RECAPTCHA_KEY } from './decorators';
+import { Authorized, CurrentUser, ReCaptcha } from './decorators';
 import { ReflectionUtil, RequestUtil } from '../utils';
 import { StatusResponse } from '../resource';
 import { AuthSource, AuthType } from '../enums';
@@ -27,24 +27,7 @@ export function AuthResolver<T extends Type<unknown>>(authUserRef: T, registerUs
         authModuleOptions.identifierAvailable ??
         configService.get<AuthRouteOptions>('auth.identifierAvailable');
 
-      if (registration.enabled === false) {
-        ReflectionUtil.deleteResourceOperation(AuthResolver.prototype, 'registration');
-      }
-      if (registration.recaptcha === false) {
-        ReflectionUtil.deleteMetadata(AuthResolver.prototype, 'registration', RECAPTCHA_KEY);
-      }
-      if (login.enabled === false) {
-        ReflectionUtil.deleteResourceOperation(AuthResolver.prototype, 'login');
-      }
-      if (login.recaptcha === false) {
-        ReflectionUtil.deleteMetadata(AuthResolver.prototype, 'login', RECAPTCHA_KEY);
-      }
-      if (identifierAvailable.enabled === false) {
-        ReflectionUtil.deleteResourceOperation(AuthResolver.prototype, 'identifierAvailable');
-      }
-      if (identifierAvailable.recaptcha === false) {
-        ReflectionUtil.deleteMetadata(AuthResolver.prototype, 'identifierAvailable', RECAPTCHA_KEY);
-      }
+      ReflectionUtil.updateAuthRoutes(AuthResolver.prototype, { registration, login, identifierAvailable });
     }
 
     @ReCaptcha()
