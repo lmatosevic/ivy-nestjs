@@ -30,6 +30,7 @@ export default () => {
       }
     },
     storage: {
+      type: process.env.STORAGE_TYPE || 'filesystem',
       rootDir: process.env.STORAGE_ROOT_DIR || './storage',
       filesRoute: process.env.STORAGE_FILES_ROUTE || 'files',
       filesAccess: process.env.STORAGE_FILES_ACCESS || 'all',
@@ -75,7 +76,27 @@ export default () => {
       db: process.env.QUEUE_DB,
       user: process.env.QUEUE_USER,
       password: process.env.QUEUE_PASSWORD,
-      prefix: process.env.QUEUE_PREFIX
+      prefix: process.env.QUEUE_PREFIX,
+      removeOnComplete: StringUtil.parseBool(process.env.QUEUE_REMOVE_ON_COMPLETE, true),
+      removeOnFail: StringUtil.parseBool(process.env.QUEUE_REMOVE_ON_FAIL, false),
+      retryAttempts: StringUtil.parseInteger(process.env.QUEUE_RETRY_ATTEMPTS, 3),
+      retryBackoff: StringUtil.parseInteger(process.env.QUEUE_RETRY_BACKOFF, 3000),
+    },
+    mail: {
+      type: process.env.MAIL_TYPE || 'smtp',
+      queueEnabled: StringUtil.parseBool(process.env.MAIL_QUEUE_ENABLED, true),
+      senderName: process.env.MAIL_SENDER_NAME,
+      senderAddress: process.env.MAIL_SENDER_ADDRESS,
+      smtp: {
+        host: process.env.MAIL_SMTP_HOST || '127.0.0.1',
+        port: StringUtil.parseInteger(process.env.MAIL_SMTP_PORT, 587),
+        secure: StringUtil.parseBool(process.env.MAIL_SMTP_SECURE, false),
+        user: process.env.MAIL_SMTP_USER,
+        password: process.env.MAIL_SMTP_PASSWORD
+      },
+      sendinblue: {
+        apiKey: process.env.MAIL_SENDINBLUE_API_KEY
+      }
     },
     cors: {
       enabled: StringUtil.parseBool(process.env.CORS_ENABLED, true),

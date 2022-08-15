@@ -1,4 +1,4 @@
-import { DynamicModule, Global, Module } from '@nestjs/common';
+import { DynamicModule, Global, Module, Provider } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MulterModule } from '@nestjs/platform-express';
@@ -14,12 +14,14 @@ import { MongoFileMetaService, TypeOrmFileMetaService } from './file-meta';
 import { FILE_META_SERVICE, STORAGE_MODULE_OPTIONS, STORAGE_SERVICE } from './storage.constants';
 
 export interface StorageModuleOptions {
+  type?: 'filesystem' | 'custom';
   rootDir?: string;
   filesDirname?: string;
   tempDirname?: string;
   filesRoute?: string;
   filesAccess?: 'all' | 'public' | 'protected' | 'none';
   cacheDuration?: number;
+  customData?: any;
 }
 
 @Global()
@@ -42,22 +44,8 @@ export class StorageModule {
   static createModule(providers: any[] = [], imports: any[] = []): DynamicModule {
     const env = ModuleUtil.getCurrentEnv();
     const dbType = env.DB_TYPE || 'mongoose';
-    let databaseModule;
-    let databaseFileMetaService;
 
-    if (dbType === 'mongoose') {
-      databaseModule = MongooseModule.forFeature([
-        {
-          name: FileMeta.name,
-          schema: FileMetaSchema,
-          collection: '_files'
-        }
-      ]);
-      databaseFileMetaService = MongoFileMetaService;
-    } else {
-      databaseModule = TypeOrmModule.forFeature([File, FileMetaEntity]);
-      databaseFileMetaService = TypeOrmFileMetaService;
-    }
+    const { databaseModule, metaServiceProvider } = this.databaseModuleAndMetaServiceProviders(dbType);
 
     return {
       module: StorageModule,
@@ -82,20 +70,53 @@ export class StorageModule {
         }),
         databaseModule
       ],
-      providers: [
-        ...providers,
-        FileManager,
-        {
-          provide: STORAGE_SERVICE,
-          useClass: FilesystemStorageService
-        },
-        {
-          provide: FILE_META_SERVICE,
-          useClass: databaseFileMetaService
-        }
-      ],
+      providers: [...providers, FileManager, metaServiceProvider, this.storageServiceProvider()],
       controllers: [StorageController],
       exports: [STORAGE_MODULE_OPTIONS, MulterModule, FileManager]
+    };
+  }
+
+  private static databaseModuleAndMetaServiceProviders(dbType: string): {
+    databaseModule: DynamicModule;
+    metaServiceProvider: Provider;
+  } {
+    let databaseModule;
+    let databaseFileMetaService;
+
+    if (dbType === 'mongoose') {
+      databaseModule = MongooseModule.forFeature([
+        {
+          name: FileMeta.name,
+          schema: FileMetaSchema,
+          collection: '_files'
+        }
+      ]);
+      databaseFileMetaService = MongoFileMetaService;
+    } else {
+      databaseModule = TypeOrmModule.forFeature([File, FileMetaEntity]);
+      databaseFileMetaService = TypeOrmFileMetaService;
+    }
+
+    return {
+      databaseModule,
+      metaServiceProvider: {
+        provide: FILE_META_SERVICE,
+        useClass: databaseFileMetaService
+      }
+    };
+  }
+
+  private static storageServiceProvider(): Provider {
+    return {
+      provide: STORAGE_SERVICE,
+      inject: [STORAGE_MODULE_OPTIONS, ConfigService],
+      useFactory: async (options: StorageModuleOptions, config: ConfigService) => {
+        const storageType = options.type ?? config.get('storage.type');
+        switch (storageType) {
+          case 'filesystem':
+            return new FilesystemStorageService(options, config);
+        }
+      }
     };
   }
 }

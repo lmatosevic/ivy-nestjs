@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Post } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { Authorized, Role, Roles, StatusResponse } from 'ivy-nestjs';
@@ -10,12 +10,12 @@ export class WorkerController {
 
   @Authorized()
   @Roles(Role.Admin)
-  @Get('start')
+  @Post('start')
   async start(): Promise<StatusResponse> {
-    await this.workerQueue.add({ startedAt: new Date() });
+    const job = await this.workerQueue.add({ startedAt: new Date() });
     return {
       success: true,
-      message: 'Worker started'
+      message: 'Worker started with job ID: ' + job.id
     };
   }
 }

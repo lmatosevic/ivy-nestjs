@@ -38,7 +38,13 @@ export class QueueModule {
         BullModule.forRootAsync({
           inject: [QUEUE_MODULE_OPTIONS, ConfigService],
           useFactory: async (queueModuleOptions: BullModuleOptions, conf: ConfigService) => ({
-            defaultJobOptions: { removeOnComplete: true, removeOnFail: true },
+            defaultJobOptions: {
+              removeOnComplete: conf.get('queue.removeOnComplete'),
+              removeOnFail: conf.get('queue.removeOnFail'),
+              attempts: conf.get('queue.retryAttempts'),
+              backoff: conf.get('queue.retryBackoff'),
+              ...(queueModuleOptions.defaultJobOptions || {})
+            },
             prefix: conf.get('queue.prefix'),
             ...queueModuleOptions,
             redis: {

@@ -11,14 +11,14 @@ export class WorkerJob {
   private readonly logger: Logger = new Logger(WorkerJob.name);
 
   @Process()
-  async onMessage(job: Job<WorkerData>): Promise<boolean> {
-    this.logger.log('Processing worker data: %j', job.data);
+  async process(job: Job<WorkerData>): Promise<boolean> {
+    this.logger.verbose('Processing worker data: %j', job.data);
     return true;
   }
 
   @OnQueueCompleted()
   async onCompleted(job: Job, result: boolean): Promise<void> {
-    this.logger.log('Worker job finished: %j', result);
+    this.logger.verbose('Worker job finished: %j', result);
   }
 
   @OnQueueFailed()

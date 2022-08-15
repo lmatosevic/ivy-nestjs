@@ -6,6 +6,7 @@ import {
   GraphQLModule,
   HealthModule,
   LoggerModule,
+  MailModule,
   MongooseModule,
   QueueModule,
   RequestContextModule,
@@ -14,6 +15,7 @@ import {
 import { AppService } from './app.service';
 import { InfoModule } from '@modules/info';
 import { WorkerModule } from '@modules/worker';
+import { MailerModule } from '@modules/mailer';
 import { UsersModule, UsersService } from '@resources/users';
 import { RegisterUserDto } from '@resources/users/dto';
 import { User } from '@resources/users/schema';
@@ -33,6 +35,7 @@ import { CategoriesModule } from '@resources/categories';
     MongooseModule.forRoot(),
     GraphQLModule.forRoot(),
     QueueModule.forRoot(),
+    MailModule.forRoot(),
     AuthModule.forRootAsync({
       userDetailsClass: User,
       userRegisterDtoClass: RegisterUserDto,
@@ -45,6 +48,7 @@ import { CategoriesModule } from '@resources/categories';
     RequestContextModule,
     InfoModule,
     WorkerModule,
+    MailerModule,
     UsersModule,
     ProjectsModule,
     ApplicationsModule,

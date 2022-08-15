@@ -1638,11 +1638,72 @@
             }
         },
         "/worker/start": {
-            "get": {
+            "post": {
                 "operationId": "WorkerController_start",
                 "parameters": [],
                 "responses": {
-                    "200": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ShortErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ShortErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "basic": []
+                    },
+                    {
+                        "bearer": []
+                    },
+                    {
+                        "oauth2": [
+                            "*"
+                        ]
+                    }
+                ]
+            }
+        },
+        "/mail/send": {
+            "post": {
+                "operationId": "MailerController_send",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SendMailDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
                         "description": "",
                         "content": {
                             "application/json": {
@@ -6604,6 +6665,51 @@
                     "name",
                     "version",
                     "environment"
+                ]
+            },
+            "MailAttachmentDto": {
+                "type": "object",
+                "properties": {
+                    "filename": {
+                        "type": "string"
+                    },
+                    "path": {
+                        "type": "string"
+                    },
+                    "content": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "filename"
+                ]
+            },
+            "SendMailDto": {
+                "type": "object",
+                "properties": {
+                    "to": {
+                        "type": "string"
+                    },
+                    "subject": {
+                        "type": "string"
+                    },
+                    "text": {
+                        "type": "string"
+                    },
+                    "html": {
+                        "type": "string"
+                    },
+                    "attachments": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/MailAttachmentDto"
+                        }
+                    }
+                },
+                "required": [
+                    "to",
+                    "subject",
+                    "text"
                 ]
             },
             "IntegerIdDto": {

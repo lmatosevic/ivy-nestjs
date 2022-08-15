@@ -60,6 +60,10 @@ Health monitoring logic and endpoints.
 
 Application logging implementation.
 
+### Mail
+
+Send emails using SMTP or other 3rd party APIs.
+
 ### Mongoose
 
 Bootstraping logic for Mongoose library usage with MongoDB.

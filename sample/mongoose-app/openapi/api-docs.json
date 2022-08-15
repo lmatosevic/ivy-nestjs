@@ -251,7 +251,24 @@
         "/auth/login": {
             "post": {
                 "operationId": "AuthController_login",
-                "parameters": [],
+                "parameters": [
+                    {
+                        "name": "X-RECAPTCHA-TOKEN",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "recaptcha_token",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -1703,11 +1720,72 @@
             }
         },
         "/worker/start": {
-            "get": {
+            "post": {
                 "operationId": "WorkerController_start",
                 "parameters": [],
                 "responses": {
-                    "200": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ShortErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ShortErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "basic": []
+                    },
+                    {
+                        "bearer": []
+                    },
+                    {
+                        "oauth2": [
+                            "*"
+                        ]
+                    }
+                ]
+            }
+        },
+        "/mail/send": {
+            "post": {
+                "operationId": "MailerController_send",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SendMailDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
                         "description": "",
                         "content": {
                             "application/json": {
@@ -6604,6 +6682,28 @@
                     "name",
                     "version",
                     "environment"
+                ]
+            },
+            "SendMailDto": {
+                "type": "object",
+                "properties": {
+                    "to": {
+                        "type": "string"
+                    },
+                    "subjet": {
+                        "type": "string"
+                    },
+                    "text": {
+                        "type": "string"
+                    },
+                    "html": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "to",
+                    "subjet",
+                    "text"
                 ]
             },
             "CreateProjectDto": {
