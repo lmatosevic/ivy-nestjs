@@ -18,6 +18,9 @@ export class MailService {
     @InjectQueue(MAIL_QUEUE_NAME) private mailQueue: Queue<SendMailData>,
     private configService: ConfigService
   ) {
+    if (!this.mailIntegrationService) {
+      throw Error('Mail integration service implementation is not provided');
+    }
     this.queueEnabled = mailModuleOptions.queueEnabled ?? configService.get('mail.queueEnabled');
   }
 

@@ -33,6 +33,9 @@ export class FileManager {
     @Inject(STORAGE_SERVICE) private storageService: StorageService,
     private configService: ConfigService
   ) {
+    if (!this.storageService) {
+      throw Error('Storage service implementation is not provided');
+    }
     this.dirname = storageModuleOptions.filesDirname || configService.get('storage.filesDirname') || 'files';
     this.tempDirname = storageModuleOptions.tempDirname || configService.get('storage.tempDirname') || 'temp';
   }

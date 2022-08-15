@@ -3,7 +3,7 @@ import { ModuleAsyncOptions, ModuleUtil } from '../utils';
 import { QueueModule } from '../queue';
 import { MailService } from './mail.service';
 import { MailJob } from './mail.job';
-import { SendinblueService, SmtpService } from './integrations';
+import { MailIntegrationService, SendinblueService, SmtpService } from './integrations';
 import { MAIL_INTEGRATION_SERVICE, MAIL_MODULE_OPTIONS, MAIL_QUEUE_NAME } from './mail.constants';
 import { ConfigService } from '@nestjs/config';
 
@@ -22,7 +22,7 @@ export interface MailModuleOptions {
   sendinblue?: {
     apiKey: string;
   };
-  customData?: any;
+  integrationService?: MailIntegrationService;
 }
 
 @Global()
@@ -70,6 +70,8 @@ export class MailModule {
             return new SmtpService(options, config);
           case 'sendinblue':
             return new SendinblueService(options, config);
+          default:
+            return options.integrationService;
         }
       }
     };

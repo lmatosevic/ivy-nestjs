@@ -5,7 +5,7 @@ import { MulterModule } from '@nestjs/platform-express';
 import { ConfigService } from '@nestjs/config';
 import { FilesUtil, ModuleAsyncOptions, ModuleUtil } from '../utils';
 import { diskStorage } from 'multer';
-import { FilesystemStorageService } from './services';
+import { FilesystemStorageService, StorageService } from './services';
 import { FileMeta, FileMetaSchema } from './schema';
 import { File, FileMeta as FileMetaEntity } from './entity';
 import { StorageController } from './storage.controller';
@@ -21,7 +21,7 @@ export interface StorageModuleOptions {
   filesRoute?: string;
   filesAccess?: 'all' | 'public' | 'protected' | 'none';
   cacheDuration?: number;
-  customData?: any;
+  storageService?: StorageService;
 }
 
 @Global()
@@ -115,6 +115,8 @@ export class StorageModule {
         switch (storageType) {
           case 'filesystem':
             return new FilesystemStorageService(options, config);
+          default:
+            return options.storageService;
         }
       }
     };
