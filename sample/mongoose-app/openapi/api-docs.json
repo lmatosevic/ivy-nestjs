@@ -306,128 +306,6 @@
                 ]
             }
         },
-        "/auth/registration": {
-            "post": {
-                "operationId": "AuthController_registration",
-                "parameters": [
-                    {
-                        "name": "X-RECAPTCHA-TOKEN",
-                        "in": "header",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "recaptcha_token",
-                        "required": false,
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/RegisterUserDto"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/User"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        }
-                    }
-                },
-                "tags": [
-                    "Auth"
-                ]
-            }
-        },
-        "/auth/identifier/available": {
-            "get": {
-                "operationId": "AuthController_identifierAvailable",
-                "parameters": [
-                    {
-                        "name": "field",
-                        "required": true,
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "value",
-                        "required": true,
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "X-RECAPTCHA-TOKEN",
-                        "in": "header",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "recaptcha_token",
-                        "required": false,
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/StatusResponse"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        }
-                    }
-                },
-                "tags": [
-                    "Auth"
-                ]
-            }
-        },
         "/auth/refresh": {
             "post": {
                 "operationId": "AuthController_refresh",
@@ -1698,6 +1576,128 @@
                             "*"
                         ]
                     }
+                ]
+            }
+        },
+        "/account/registration": {
+            "post": {
+                "operationId": "AccountController_registration",
+                "parameters": [
+                    {
+                        "name": "X-RECAPTCHA-TOKEN",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "recaptcha_token",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RegisterUserDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Account"
+                ]
+            }
+        },
+        "/account/identifier/available": {
+            "get": {
+                "operationId": "AccountController_identifierAvailable",
+                "parameters": [
+                    {
+                        "name": "field",
+                        "required": true,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "value",
+                        "required": true,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "X-RECAPTCHA-TOKEN",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "recaptcha_token",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Account"
                 ]
             }
         },
@@ -5714,60 +5714,18 @@
                     "code"
                 ]
             },
-            "FileDto": {
+            "StatusResponse": {
                 "type": "object",
                 "properties": {
-                    "data": {
-                        "type": "string"
-                    },
-                    "originalName": {
-                        "type": "string"
-                    },
-                    "title": {
-                        "type": "string",
-                        "maxLength": 255
-                    },
-                    "description": {
-                        "type": "string",
-                        "maxLength": 4096
-                    }
-                },
-                "required": [
-                    "data"
-                ]
-            },
-            "RegisterUserDto": {
-                "type": "object",
-                "properties": {
-                    "consent": {
+                    "success": {
                         "type": "boolean"
                     },
-                    "firstName": {
-                        "type": "string",
-                        "maxLength": 255
-                    },
-                    "lastName": {
-                        "type": "string",
-                        "maxLength": 255
-                    },
-                    "email": {
-                        "type": "string",
-                        "maxLength": 255
-                    },
-                    "password": {
-                        "type": "string",
-                        "minLength": 6
-                    },
-                    "avatar": {
-                        "$ref": "#/components/schemas/FileDto"
+                    "message": {
+                        "type": "string"
                     }
                 },
                 "required": [
-                    "consent",
-                    "firstName",
-                    "lastName",
-                    "email",
-                    "password"
+                    "success"
                 ]
             },
             "FileMeta": {
@@ -6059,20 +6017,6 @@
                     "id",
                     "name",
                     "plan"
-                ]
-            },
-            "StatusResponse": {
-                "type": "object",
-                "properties": {
-                    "success": {
-                        "type": "boolean"
-                    },
-                    "message": {
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "success"
                 ]
             },
             "GoogleAuth": {
@@ -6536,6 +6480,28 @@
                     }
                 }
             },
+            "FileDto": {
+                "type": "object",
+                "properties": {
+                    "data": {
+                        "type": "string"
+                    },
+                    "originalName": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "description": {
+                        "type": "string",
+                        "maxLength": 4096
+                    }
+                },
+                "required": [
+                    "data"
+                ]
+            },
             "CreateUserDto": {
                 "type": "object",
                 "properties": {
@@ -6662,6 +6628,40 @@
                     }
                 }
             },
+            "RegisterUserDto": {
+                "type": "object",
+                "properties": {
+                    "consent": {
+                        "type": "boolean"
+                    },
+                    "firstName": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "lastName": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "email": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "password": {
+                        "type": "string",
+                        "minLength": 6
+                    },
+                    "avatar": {
+                        "$ref": "#/components/schemas/FileDto"
+                    }
+                },
+                "required": [
+                    "consent",
+                    "firstName",
+                    "lastName",
+                    "email",
+                    "password"
+                ]
+            },
             "InfoDto": {
                 "type": "object",
                 "properties": {
@@ -6684,13 +6684,30 @@
                     "environment"
                 ]
             },
+            "MailAttachmentDto": {
+                "type": "object",
+                "properties": {
+                    "filename": {
+                        "type": "string"
+                    },
+                    "path": {
+                        "type": "string"
+                    },
+                    "content": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "filename"
+                ]
+            },
             "SendMailDto": {
                 "type": "object",
                 "properties": {
                     "to": {
                         "type": "string"
                     },
-                    "subjet": {
+                    "subject": {
                         "type": "string"
                     },
                     "text": {
@@ -6698,11 +6715,17 @@
                     },
                     "html": {
                         "type": "string"
+                    },
+                    "attachments": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/MailAttachmentDto"
+                        }
                     }
                 },
                 "required": [
                     "to",
-                    "subjet",
+                    "subject",
                     "text"
                 ]
             },

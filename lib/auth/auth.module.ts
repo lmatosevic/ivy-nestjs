@@ -6,7 +6,6 @@ import { HttpModule } from '@nestjs/axios';
 import { JwtModule } from '@nestjs/jwt';
 import { ModuleAsyncOptions, ModuleUtil } from '../utils';
 import { AuthUser, UserDetailsService } from './interfaces';
-import { AuthController } from './auth.controller';
 import { LocalAuthGuard, LocalStrategy } from './strategy/local';
 import { BasicAuthGuard, BasicStrategy } from './strategy/basic';
 import { JwtAuthGuard, JwtStrategy } from './strategy/jwt';
@@ -15,6 +14,8 @@ import { OAuth2AuthGuard, OAuth2Strategy } from './strategy/oauth2';
 import { RecaptchaGuard, RecaptchaService } from './recaptcha';
 import { RolesGuard } from './roles.guard';
 import { AuthService } from './auth.service';
+import { AccountDetailsService, AccountModule, AccountModuleOptions } from './account';
+import { AuthController } from './auth.controller';
 import { AuthResolver } from './auth.resolver';
 import {
   FacebookController,
@@ -32,13 +33,14 @@ export type AuthRouteOptions = {
 };
 
 export interface AuthModuleOptions {
-  userDetailsService: UserDetailsService<AuthUser>;
+  userDetailsService:
+    | UserDetailsService<AuthUser>
+    | (AccountDetailsService<AuthUser> & UserDetailsService<AuthUser>);
   userDetailsClass: Type;
-  userRegisterDtoClass: Type;
+  userRegisterDtoClass?: Type;
   route?: string;
   login?: AuthRouteOptions;
-  registration?: AuthRouteOptions;
-  identifierAvailable?: AuthRouteOptions;
+  logout?: { enabled?: boolean };
   admin?: { create?: boolean; username?: string; password?: string };
   jwt?: { secret: string; expiresIn?: number; enabled?: boolean };
   basic?: { enabled?: boolean };
@@ -53,12 +55,13 @@ export interface AuthModuleOptions {
   };
   google?: { clientId: string; enabled?: boolean };
   facebook?: { appId: string; appSecret: string; enabled?: boolean };
+  accountOptions?: Partial<AccountModuleOptions> & { enabled?: boolean };
 }
 
 export interface AuthModuleAsyncOptions
   extends ModuleAsyncOptions<Omit<AuthModuleOptions, 'userDetailsClass' | 'userRegisterDtoClass'>> {
   userDetailsClass: Type;
-  userRegisterDtoClass: Type;
+  userRegisterDtoClass?: Type;
 }
 
 @Global()
@@ -99,6 +102,18 @@ export class AuthModule {
             }
           })
         }),
+        AccountModule.forRootAsync({
+          accountDetailsClass: options.userDetailsClass,
+          accountRegisterDtoClass: options.userRegisterDtoClass,
+          inject: [AUTH_MODULE_OPTIONS, ConfigService],
+          useFactory: async (authModuleOptions: AuthModuleOptions, config: ConfigService) => ({
+            accountDetailsService: authModuleOptions.userDetailsService,
+            accountDetailsClass: authModuleOptions.userDetailsClass,
+            accountRegisterDtoClass: authModuleOptions.userRegisterDtoClass,
+            enabled: config.get('auth.accountEnabled'),
+            ...(authModuleOptions.accountOptions || {})
+          })
+        }),
         PassportModule,
         HttpModule
       ],
@@ -122,7 +137,7 @@ export class AuthModule {
         FacebookResolver,
         {
           provide: AuthResolver.name,
-          useClass: AuthResolver(options.userDetailsClass, options.userRegisterDtoClass)
+          useClass: AuthResolver(options.userDetailsClass)
         },
         {
           provide: APP_GUARD,
@@ -133,11 +148,7 @@ export class AuthModule {
           useClass: RecaptchaGuard
         }
       ],
-      controllers: [
-        AuthController(options.userDetailsClass, options.userRegisterDtoClass),
-        GoogleController,
-        FacebookController
-      ],
+      controllers: [AuthController(options.userDetailsClass), GoogleController, FacebookController],
       exports: [
         AUTH_MODULE_OPTIONS,
         AuthService,

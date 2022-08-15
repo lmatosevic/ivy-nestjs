@@ -80,7 +80,7 @@ export default () => {
       removeOnComplete: StringUtil.parseBool(process.env.QUEUE_REMOVE_ON_COMPLETE, true),
       removeOnFail: StringUtil.parseBool(process.env.QUEUE_REMOVE_ON_FAIL, false),
       retryAttempts: StringUtil.parseInteger(process.env.QUEUE_RETRY_ATTEMPTS, 3),
-      retryBackoff: StringUtil.parseInteger(process.env.QUEUE_RETRY_BACKOFF, 3000),
+      retryBackoff: StringUtil.parseInteger(process.env.QUEUE_RETRY_BACKOFF, 3000)
     },
     mail: {
       type: process.env.MAIL_TYPE || 'smtp',
@@ -109,17 +109,13 @@ export default () => {
     },
     auth: {
       route: process.env.AUTH_ROUTE || 'auth',
+      accountEnabled: StringUtil.parseBool(process.env.AUTH_ACCOUNT_ENABLED, true),
       login: {
         enabled: StringUtil.parseBool(process.env.AUTH_LOGIN_ENABLED, true),
         recaptcha: StringUtil.parseBool(process.env.AUTH_LOGIN_RECAPTCHA, false)
       },
-      registration: {
-        enabled: StringUtil.parseBool(process.env.AUTH_REGISTRATION_ENABLED, true),
-        recaptcha: StringUtil.parseBool(process.env.AUTH_REGISTRATION_RECAPTCHA, true)
-      },
-      identifierAvailable: {
-        enabled: StringUtil.parseBool(process.env.AUTH_IDENTIFIER_AVAILABLE_ENABLED, true),
-        recaptcha: StringUtil.parseBool(process.env.AUTH_IDENTIFIER_AVAILABLE_RECAPTCHA, false)
+      logout: {
+        enabled: StringUtil.parseBool(process.env.AUTH_LOGOUT_ENABLED, true)
       },
       admin: {
         create: docsOnly ? false : StringUtil.parseBool(process.env.AUTH_ADMIN_CREATE, false),
@@ -155,6 +151,36 @@ export default () => {
         enabled: StringUtil.parseBool(process.env.FACEBOOK_ENABLED, false),
         appId: process.env.FACEBOOK_APP_ID,
         appSecret: process.env.FACEBOOK_APP_SECRET
+      }
+    },
+    account: {
+      route: process.env.ACCOUNT_ROUTE || 'account',
+      registration: {
+        enabled: StringUtil.parseBool(process.env.ACCOUNT_REGISTRATION_ENABLED, true),
+        recaptcha: StringUtil.parseBool(process.env.ACCOUNT_REGISTRATION_RECAPTCHA, true),
+        sendVerifyEmail: StringUtil.parseBool(process.env.ACCOUNT_REGISTRATION_SEND_VERIFY_EMAIL, true)
+      },
+      identifierAvailable: {
+        enabled: StringUtil.parseBool(process.env.ACCOUNT_IDENTIFIER_AVAILABLE_ENABLED, true),
+        recaptcha: StringUtil.parseBool(process.env.ACCOUNT_IDENTIFIER_AVAILABLE_RECAPTCHA, false)
+      },
+      sendVerifyEmail: {
+        enabled: StringUtil.parseBool(process.env.ACCOUNT_SEND_VERIFY_EMAIL_ENABLED, true),
+        recaptcha: StringUtil.parseBool(process.env.ACCOUNT_SEND_VERIFY_EMAIL_RECAPTCHA, false),
+        expiresIn: StringUtil.parseInteger(process.env.ACCOUNT_SEND_VERIFY_EMAIL_EXPIRES_IN, 172800)
+      },
+      verifyEmail: {
+        enabled: StringUtil.parseBool(process.env.ACCOUNT_VERIFY_EMAIL_ENABLED, true),
+        recaptcha: StringUtil.parseBool(process.env.ACCOUNT_VERIFY_EMAIL_RECAPTCHA, false)
+      },
+      sendResetPassword: {
+        enabled: StringUtil.parseBool(process.env.ACCOUNT_SEND_RESET_PASSWORD_ENABLED, true),
+        recaptcha: StringUtil.parseBool(process.env.ACCOUNT_SEND_RESET_PASSWORD_RECAPTCHA, false),
+        expiresIn: StringUtil.parseInteger(process.env.ACCOUNT_SEND_RESET_PASSWORD_EXPIRES_IN, 7200)
+      },
+      resetPassword: {
+        enabled: StringUtil.parseBool(process.env.ACCOUNT_RESET_PASSWORD_ENABLED, true),
+        recaptcha: StringUtil.parseBool(process.env.ACCOUNT_RESET_PASSWORD_RECAPTCHA, false)
       }
     },
     rest: {

@@ -4,12 +4,13 @@ import { PartialDeep } from 'type-fest';
 import { AuthUser, UserDetailsService } from '../interfaces';
 import { AuthSource, Role } from '../../enums';
 import { ResourceEntity } from '../../resource';
+import { AccountDetailsService } from '../account/interfaces';
 import { TypeOrmResourceService } from '../../resource/services';
 import { FileManager } from '../../storage/file-manager';
 
 export abstract class TypeOrmUserDetailsService<T extends AuthUser>
   extends TypeOrmResourceService<T & ResourceEntity>
-  implements UserDetailsService<T>
+  implements UserDetailsService<T>, AccountDetailsService<T>
 {
   protected constructor(
     protected repository: Repository<T & ResourceEntity>,
@@ -61,13 +62,6 @@ export abstract class TypeOrmUserDetailsService<T extends AuthUser>
     return await bcrypt.hash(password, salt);
   }
 
-  async registerUser(userData: PartialDeep<T>, source: AuthSource = AuthSource.Local): Promise<T> {
-    userData['authSource'] = source;
-    userData['roles'] = [Role.User];
-    userData['role'] = Role.User;
-    return await this.create(userData as PartialDeep<T & ResourceEntity>);
-  }
-
   async createAdmin(username: string, password: string): Promise<T> {
     return this.create({
       firstName: 'Admin',
@@ -78,6 +72,13 @@ export abstract class TypeOrmUserDetailsService<T extends AuthUser>
       roles: [Role.Admin],
       role: Role.Admin
     } as any);
+  }
+
+  async registerUser(userData: PartialDeep<T>, source: AuthSource = AuthSource.Local): Promise<T> {
+    userData['authSource'] = source;
+    userData['roles'] = [Role.User];
+    userData['role'] = Role.User;
+    return await this.create(userData as PartialDeep<T & ResourceEntity>);
   }
 
   async identifierAvailable(field: string, value: any): Promise<boolean> {

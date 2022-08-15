@@ -2,17 +2,16 @@ import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { Inject, Type } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Authorized, CurrentUser, ReCaptcha } from './decorators';
-import { ReflectionUtil, RequestUtil } from '../utils';
 import { StatusResponse } from '../resource';
 import { AuthSource, AuthType } from '../enums';
 import { JwtToken } from './strategy/jwt/jwt.dto';
 import { AuthService } from './auth.service';
 import { AuthUser } from './interfaces';
 import { AuthorizationError } from './errors';
-import { AUTH_MODULE_OPTIONS } from '../auth/auth.constants';
-import { AuthModuleOptions, AuthRouteOptions } from '../auth/auth.module';
+import { AuthModuleOptions } from './auth.module';
+import { AUTH_MODULE_OPTIONS } from './auth.constants';
 
-export function AuthResolver<T extends Type<unknown>>(authUserRef: T, registerUserRef: T): any {
+export function AuthResolver<T extends Type<unknown>>(authUserRef: T): any {
   @Resolver()
   class AuthResolver {
     constructor(
@@ -20,14 +19,7 @@ export function AuthResolver<T extends Type<unknown>>(authUserRef: T, registerUs
       private configService: ConfigService,
       private authService: AuthService
     ) {
-      const registration =
-        authModuleOptions.registration ?? configService.get<AuthRouteOptions>('auth.registration');
-      const login = authModuleOptions.login ?? configService.get<AuthRouteOptions>('auth.login');
-      const identifierAvailable =
-        authModuleOptions.identifierAvailable ??
-        configService.get<AuthRouteOptions>('auth.identifierAvailable');
-
-      ReflectionUtil.updateAuthRoutes(AuthResolver.prototype, { registration, login, identifierAvailable });
+      authService.updateAuthRoutes(AuthResolver.prototype);
     }
 
     @ReCaptcha()
@@ -44,22 +36,6 @@ export function AuthResolver<T extends Type<unknown>>(authUserRef: T, registerUs
         throw new AuthorizationError('User account is not from local source', 403);
       }
       return this.authService.login(user);
-    }
-
-    @ReCaptcha()
-    @Mutation(() => authUserRef)
-    async registration(@Args('data', { type: () => registerUserRef }) data: any): Promise<AuthUser> {
-      const instance = await RequestUtil.deserializeAndValidate(registerUserRef, data);
-      return await this.authService.register(instance);
-    }
-
-    @ReCaptcha()
-    @Query(() => StatusResponse)
-    async identifierAvailable(
-      @Args('field', { type: () => String }) field: string,
-      @Args('value', { type: () => String }) value: string
-    ): Promise<StatusResponse> {
-      return await this.authService.identifierAvailable(field, value);
     }
 
     @Authorized(AuthType.Jwt, AuthType.OAuth2)

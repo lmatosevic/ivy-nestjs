@@ -7,6 +7,7 @@ import { AuthSource } from '../../../enums';
 import { GoogleAuth } from './google-auth.dto';
 import { JwtToken } from '../../strategy/jwt/jwt.dto';
 import { AUTH_MODULE_OPTIONS } from '../../auth.constants';
+import { AccountService } from '../../account';
 
 @Injectable()
 export class GoogleService {
@@ -17,7 +18,8 @@ export class GoogleService {
   constructor(
     @Inject(AUTH_MODULE_OPTIONS) private authModuleOptions: AuthModuleOptions,
     private configService: ConfigService,
-    private authService: AuthService
+    private authService: AuthService,
+    private accountService: AccountService
   ) {
     this.clientId = authModuleOptions.google?.clientId || configService.get('auth.google.clientId');
     this.client = new OAuth2Client(this.clientId);
@@ -51,7 +53,7 @@ export class GoogleService {
     let user = await this.authService.findUser(payload.email);
 
     if (!user) {
-      user = await this.authService.register(
+      user = await this.accountService.register(
         {
           email: payload.email,
           firstName: payload.given_name,

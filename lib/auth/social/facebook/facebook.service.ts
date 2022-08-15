@@ -10,6 +10,7 @@ import { AuthService } from '../../auth.service';
 import { FacebookAuth } from './facebook-auth.dto';
 import { JwtToken } from '../../strategy/jwt/jwt.dto';
 import { AUTH_MODULE_OPTIONS } from '../../auth.constants';
+import { AccountService } from '../../account';
 
 @Injectable()
 export class FacebookService {
@@ -24,6 +25,7 @@ export class FacebookService {
     @Inject(AUTH_MODULE_OPTIONS) private authModuleOptions: AuthModuleOptions,
     private configService: ConfigService,
     private authService: AuthService,
+    private accountService: AccountService,
     private httpService: HttpService
   ) {
     this.appId = authModuleOptions.facebook?.appId || configService.get('auth.facebook.appId');
@@ -79,7 +81,7 @@ export class FacebookService {
     let user = await this.authService.findUser(profile.data.email);
 
     if (!user) {
-      user = await this.authService.register(
+      user = await this.accountService.register(
         {
           email: profile.data.email,
           firstName: profile.data.first_name,

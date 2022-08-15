@@ -4,12 +4,13 @@ import { PartialDeep } from 'type-fest';
 import { AuthUser, UserDetailsService } from '../interfaces';
 import { AuthSource, Role } from '../../enums';
 import { ResourceSchema } from '../../resource';
+import { AccountDetailsService } from '../account/interfaces';
 import { MongoResourceService } from '../../resource/services';
 import { FileManager } from '../../storage/file-manager';
 
 export abstract class MongoUserDetailsService<T extends AuthUser>
   extends MongoResourceService<T>
-  implements UserDetailsService<T>
+  implements UserDetailsService<T>, AccountDetailsService<T>
 {
   protected constructor(protected model: Model<T & ResourceSchema>, protected fileManager?: FileManager) {
     super(model, fileManager);
@@ -54,13 +55,6 @@ export abstract class MongoUserDetailsService<T extends AuthUser>
     return await bcrypt.hash(password, salt);
   }
 
-  async registerUser(userData: PartialDeep<T>, source: AuthSource = AuthSource.Local): Promise<T> {
-    userData['authSource'] = source;
-    userData['roles'] = [Role.User];
-    userData['role'] = Role.User;
-    return await this.create(userData);
-  }
-
   async createAdmin(username: string, password: string): Promise<T> {
     return this.create({
       firstName: 'Admin',
@@ -71,6 +65,13 @@ export abstract class MongoUserDetailsService<T extends AuthUser>
       roles: [Role.Admin],
       role: Role.Admin
     } as any);
+  }
+
+  async registerUser(userData: PartialDeep<T>, source: AuthSource = AuthSource.Local): Promise<T> {
+    userData['authSource'] = source;
+    userData['roles'] = [Role.User];
+    userData['role'] = Role.User;
+    return await this.create(userData);
   }
 
   async identifierAvailable(field: string, value: any): Promise<boolean> {
