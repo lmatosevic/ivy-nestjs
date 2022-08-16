@@ -14,9 +14,8 @@ export class MailerController {
     const result = await this.mailService.send(
       sendMailDto.to,
       sendMailDto.subject,
-      sendMailDto.text,
-      sendMailDto.html,
-      sendMailDto.attachments,
+      sendMailDto.content,
+      sendMailDto.attachments
     );
     return {
       success: result,

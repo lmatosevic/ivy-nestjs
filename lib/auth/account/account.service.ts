@@ -68,11 +68,9 @@ export class AccountService {
   }
 
   async sendVerifyEmail(user: AuthUser): Promise<StatusResponse> {
-    const result = await this.mailService.send(
-      user.getEmail(),
-      'Verify email',
-      'Please verify your email by visiting following link: {link}'
-    );
+    const result = await this.mailService.send(user.getEmail(), 'Verify email', {
+      text: 'Please verify your email by visiting following link: ${link}'
+    });
     return {
       success: result,
       message: result ? 'Verification email sent' : 'Sending verification email failed'
@@ -93,11 +91,9 @@ export class AccountService {
       };
     }
 
-    const result = await this.mailService.send(
-      user.getEmail(),
-      'Verify email',
-      'Please verify your email by visiting following link: {link}'
-    );
+    const result = await this.mailService.send(user.getEmail(), 'Verify email', {
+      text: 'Please verify your email by visiting following link: ${link}'
+    });
     return {
       success: result,
       message: result ? 'Reset password email sent' : 'Sending password reset email failed'

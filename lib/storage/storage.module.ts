@@ -72,7 +72,7 @@ export class StorageModule {
       ],
       providers: [...providers, FileManager, metaServiceProvider, this.storageServiceProvider()],
       controllers: [StorageController],
-      exports: [STORAGE_MODULE_OPTIONS, MulterModule, FileManager]
+      exports: [STORAGE_MODULE_OPTIONS, STORAGE_SERVICE, MulterModule, FileManager]
     };
   }
 

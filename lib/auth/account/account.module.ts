@@ -1,7 +1,7 @@
 import { DynamicModule, Global, Module, Type } from '@nestjs/common';
 import { AuthUser, UserDetailsService } from '../interfaces';
 import { ModuleAsyncOptions, ModuleUtil } from '../../utils';
-import { MailModule } from '../../mail';
+import { MailContent, MailModule } from '../../mail';
 import { AccountDetailsService } from './interfaces';
 import { AccountService } from './account.service';
 import { AccountController } from './account.controller';
@@ -15,8 +15,7 @@ export type AccountRouteOptions = {
 
 export type EmailOptions = {
   subject?: string;
-  text?: string;
-  html?: string;
+  content?: MailContent;
   expiresIn?: number;
 }
 

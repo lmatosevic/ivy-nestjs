@@ -6667,6 +6667,34 @@
                     "environment"
                 ]
             },
+            "MailTemplateDto": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "content": {
+                        "type": "string"
+                    },
+                    "context": {
+                        "type": "object"
+                    }
+                }
+            },
+            "MailContentDto": {
+                "type": "object",
+                "properties": {
+                    "text": {
+                        "type": "string"
+                    },
+                    "html": {
+                        "type": "string"
+                    },
+                    "template": {
+                        "$ref": "#/components/schemas/MailTemplateDto"
+                    }
+                }
+            },
             "MailAttachmentDto": {
                 "type": "object",
                 "properties": {
@@ -6693,11 +6721,8 @@
                     "subject": {
                         "type": "string"
                     },
-                    "text": {
-                        "type": "string"
-                    },
-                    "html": {
-                        "type": "string"
+                    "content": {
+                        "$ref": "#/components/schemas/MailContentDto"
                     },
                     "attachments": {
                         "type": "array",
@@ -6709,7 +6734,7 @@
                 "required": [
                     "to",
                     "subject",
-                    "text"
+                    "content"
                 ]
             },
             "IntegerIdDto": {

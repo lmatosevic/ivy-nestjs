@@ -1,8 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as Sib from 'sib-api-v3-sdk';
-import { Attachment, MailIntegrationService } from './mail-integration.service';
+import { MailIntegrationService } from './mail-integration.service';
 import { MailModuleOptions } from '../mail.module';
+import { MailAttachment } from '../mail.service';
 import { MAIL_MODULE_OPTIONS } from '../mail.constants';
 
 @Injectable()
@@ -29,7 +30,7 @@ export class SendinblueService implements MailIntegrationService {
     subject: string,
     text: string,
     html?: string,
-    attachments?: Attachment[]
+    attachments?: MailAttachment[]
   ): Promise<boolean> {
     const result = await this.transactionalEmailsApi.sendTransacEmail({
       sender: {
@@ -39,7 +40,7 @@ export class SendinblueService implements MailIntegrationService {
       to: [{ email: to }],
       subject: subject,
       textContent: text,
-      htmlContent: html ? html : `<p>${text}</p>`,
+      htmlContent: html,
       attachment: attachments?.map((a) => ({
         name: a.filename,
         content: a.content ? Buffer.from(a.content).toString('base64') : undefined,

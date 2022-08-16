@@ -1,9 +1,11 @@
-export type Attachment = {
-  filename: string;
-  path?: string;
-  content?: string;
-};
+import { MailAttachment } from '../mail.service';
 
 export interface MailIntegrationService {
-  sendMail(to: string, subject: string, text: string, html?: string, attachments?: Attachment[]): Promise<boolean>;
+  sendMail(
+    to: string,
+    subject: string,
+    text: string,
+    html?: string,
+    attachments?: MailAttachment[]
+  ): Promise<boolean>;
 }

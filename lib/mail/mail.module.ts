@@ -1,17 +1,36 @@
 import { DynamicModule, Global, Module, Provider } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { ModuleAsyncOptions, ModuleUtil } from '../utils';
 import { QueueModule } from '../queue';
 import { MailService } from './mail.service';
 import { MailJob } from './mail.job';
 import { MailIntegrationService, SendinblueService, SmtpService } from './integrations';
-import { MAIL_INTEGRATION_SERVICE, MAIL_MODULE_OPTIONS, MAIL_QUEUE_NAME } from './mail.constants';
-import { ConfigService } from '@nestjs/config';
+import { HandlebarsAdapter, TemplateAdapter } from './template-adapters';
+import {
+  MAIL_INTEGRATION_SERVICE,
+  MAIL_MODULE_OPTIONS,
+  MAIL_QUEUE_NAME,
+  MAIL_TEMPLATE_ADAPTER
+} from './mail.constants';
+
+export type TemplateAdapterConfig = {
+  inlineCssOptions?: { url?: string };
+  inlineCssEnabled?: boolean;
+};
 
 export interface MailModuleOptions {
   type?: 'smtp' | 'sendinblue' | 'custom';
   queueEnabled?: boolean;
   senderName?: string;
   senderAddress?: string;
+  template?: {
+    type?: 'handlebars' | 'custom';
+    rootDir?: string;
+    options?: Record<string, any>;
+    adapterConfig?: TemplateAdapterConfig;
+    templateAdapter?: TemplateAdapter;
+    enabled?: boolean;
+  };
   smtp?: {
     host?: string;
     port?: number;
@@ -54,8 +73,13 @@ export class MailModule {
     return {
       module: MailModule,
       imports: [...imports],
-      providers: [...providers, MailService, this.integrationServiceProvider()],
-      exports: [MAIL_MODULE_OPTIONS, MailService]
+      providers: [
+        ...providers,
+        MailService,
+        this.integrationServiceProvider(),
+        this.templateAdatperProvider()
+      ],
+      exports: [MAIL_MODULE_OPTIONS, MAIL_INTEGRATION_SERVICE, MAIL_TEMPLATE_ADAPTER, MailService]
     };
   }
 
@@ -72,6 +96,22 @@ export class MailModule {
             return new SendinblueService(options, config);
           default:
             return options.integrationService;
+        }
+      }
+    };
+  }
+
+  private static templateAdatperProvider(): Provider {
+    return {
+      provide: MAIL_TEMPLATE_ADAPTER,
+      inject: [MAIL_MODULE_OPTIONS, ConfigService],
+      useFactory: async (options: MailModuleOptions, config: ConfigService) => {
+        const mailType = options.template?.type ?? config.get('mail.template.type');
+        switch (mailType) {
+          case 'handlebars':
+            return new HandlebarsAdapter(options);
+          default:
+            return options.template?.templateAdapter;
         }
       }
     };

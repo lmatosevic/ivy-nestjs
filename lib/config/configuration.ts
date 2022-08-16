@@ -87,6 +87,11 @@ export default () => {
       queueEnabled: StringUtil.parseBool(process.env.MAIL_QUEUE_ENABLED, true),
       senderName: process.env.MAIL_SENDER_NAME,
       senderAddress: process.env.MAIL_SENDER_ADDRESS,
+      template: {
+        type: process.env.MAIL_TEMPLATE_TYPE || 'handlebars',
+        rootDir: process.env.MAIL_TEMPLATE_ROOT_DIR || './templates',
+        enabled: StringUtil.parseBool(process.env.MAIL_TEMPLATE_ENABLED, true),
+      },
       smtp: {
         host: process.env.MAIL_SMTP_HOST || '127.0.0.1',
         port: StringUtil.parseInteger(process.env.MAIL_SMTP_PORT, 587),

@@ -1,8 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Transporter, createTransport } from 'nodemailer';
-import { Attachment, MailIntegrationService } from './mail-integration.service';
+import { createTransport, Transporter } from 'nodemailer';
+import { MailIntegrationService } from './mail-integration.service';
 import { MailModuleOptions } from '../mail.module';
+import { MailAttachment } from '../mail.service';
 import { MAIL_MODULE_OPTIONS } from '../mail.constants';
 
 @Injectable()
@@ -37,15 +38,15 @@ export class SmtpService implements MailIntegrationService {
     subject: string,
     text: string,
     html?: string,
-    attachments?: Attachment[]
+    attachments?: MailAttachment[]
   ): Promise<boolean> {
     const result = await this.transporter.sendMail({
       from: `"${this.senderName}" <${this.senderAddress}>`,
-      to: to,
-      subject: subject,
-      text: text,
-      html: html ? html : `<p>${text}</p>`,
-      attachments: attachments
+      to,
+      subject,
+      text,
+      html,
+      attachments
     });
     return !!result;
   }
