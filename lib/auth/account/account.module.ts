@@ -1,7 +1,9 @@
 import { DynamicModule, Global, Module, Type } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { AuthUser, UserDetailsService } from '../interfaces';
 import { ModuleAsyncOptions, ModuleUtil } from '../../utils';
 import { MailContent, MailModule } from '../../mail';
+import { VerificationModule, VerificationModuleOptions } from './verification';
 import { AccountDetailsService } from './interfaces';
 import { AccountService } from './account.service';
 import { AccountController } from './account.controller';
@@ -17,7 +19,8 @@ export type EmailOptions = {
   subject?: string;
   content?: MailContent;
   expiresIn?: number;
-}
+  linkUrl?: string;
+};
 
 export interface AccountModuleOptions {
   accountDetailsService:
@@ -32,6 +35,7 @@ export interface AccountModuleOptions {
   verifyEmail?: AccountRouteOptions;
   sendResetPassword?: AccountRouteOptions & EmailOptions;
   resetPassword?: AccountRouteOptions;
+  verification?: Partial<VerificationModuleOptions>;
   enabled?: boolean;
 }
 
@@ -65,7 +69,17 @@ export class AccountModule {
   ): DynamicModule {
     return {
       module: AccountModule,
-      imports: [...imports, MailModule],
+      imports: [
+        ...imports,
+        VerificationModule.forRootAsync({
+          inject: [ACCOUNT_MODULE_OPTIONS, ConfigService],
+          useFactory: async (accountModuleOptions: AccountModuleOptions, conf: ConfigService) => ({
+            enabled: conf.get('account.verification.enabled'),
+            ...(accountModuleOptions.verification || {})
+          })
+        }),
+        MailModule
+      ],
       providers: [
         ...providers,
         AccountService,

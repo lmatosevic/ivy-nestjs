@@ -25,7 +25,7 @@ export class Category extends ResourceEntity {
   @ManyToOne(() => Category, (category) => category.children, { onDelete: 'SET NULL' })
   parent?: Category;
 
-  @Column()
+  @Column({ nullable: true })
   parentId?: number;
 
   @PopulateRelation({ excludeRelations: ['parent'], maxDepth: 5 })

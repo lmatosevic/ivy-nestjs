@@ -105,11 +105,14 @@ export class MailService {
       };
     }
 
+    const isFile = !content.template?.content;
+
     const templateConfig = this.mailModuleOptions.template ?? this.configService.get('mail.template');
     const html = await this.templateAdapter.compile(
       content.template?.name,
       content.template?.context || {},
-      templateConfig
+      templateConfig,
+      isFile
     );
 
     return { text: TemplateUtil.textFromHtml(html), html };

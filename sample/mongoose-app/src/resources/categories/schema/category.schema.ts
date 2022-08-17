@@ -20,7 +20,7 @@ export class Category extends Document {
     excludeFields: ['children', 'parent'],
     populate: true
   })
-  parent: Category;
+  parent?: Category;
 
   @VirtualProp({
     ref: 'Category',

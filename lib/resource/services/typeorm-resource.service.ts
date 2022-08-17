@@ -27,6 +27,12 @@ type JoinOptions = {
   innerJoin: Record<string, string>;
 };
 
+type RelationInfo = {
+  name: string;
+  isMany?: boolean;
+  isEager?: boolean;
+};
+
 export abstract class TypeOrmResourceService<T extends ResourceEntity>
   extends ResourcePolicyService
   implements ResourceService<T>
@@ -372,7 +378,11 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     }
 
     for (const [alias, path] of Object.entries(joins.leftJoinAndSelect)) {
-      if (this.isInternalCall() || (hasProjections && !mappedProjections.includes(alias))) {
+      const relation = this.relationMetadata(alias);
+      if (
+        (this.isInternalCall() && !relation?.isEager) ||
+        (hasProjections && !mappedProjections.includes(alias))
+      ) {
         queryBuilder.leftJoin(path, alias);
       } else {
         queryBuilder.leftJoinAndSelect(path, alias);
@@ -466,7 +476,19 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
 
     const filterKeys = ObjectUtil.nestedKeys(filter, RequestUtil.filterQueryKeys);
     if (this.isInternalCall() && filter) {
-      relations = relations.filter((r) => filterKeys.includes(r.name));
+      const isEagerChain = (name: string): boolean => {
+        const parts = name.split('.');
+        let relName = '';
+        for (const part of parts) {
+          relName = relName + (relName ? '.' : '') + part;
+          const rel = relations.find((r) => r.name === relName);
+          if (!rel || !rel.isEager) {
+            return false;
+          }
+        }
+        return true;
+      };
+      relations = relations.filter((r) => filterKeys.includes(r.name) || (r.isEager && isEagerChain(r.name)));
     }
 
     for (const relation of relations) {
@@ -544,7 +566,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     modelName?: string,
     level: number = 0,
     excludeFields: string[] = []
-  ): { name: string; isMany?: boolean }[] {
+  ): RelationInfo[] {
     const fields = [];
 
     const relationPopulation = this.relationPopulationList(modelName);
@@ -562,7 +584,8 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
 
       fields.push({
         name: relation,
-        isMany: subRelationMetadata.isOneToMany || subRelationMetadata.isManyToMany
+        isMany: subRelationMetadata.isOneToMany || subRelationMetadata.isManyToMany,
+        isEager: subRelationMetadata.isEager
       });
 
       if (config.populateChildren !== false && config.maxDepth > 0) {
@@ -596,7 +619,8 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
           ...subRelations
             .map((sr) => ({
               name: `${relation}.${sr.name}`,
-              isMany: sr.isMany
+              isMany: sr.isMany,
+              isEager: sr.isEager
             }))
             .filter((f) => !excludeFields?.includes(f.name))
         );

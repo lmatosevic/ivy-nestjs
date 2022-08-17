@@ -47,7 +47,9 @@ export function Resource(config?: ResourceConfig) {
     }
 
     for (const [extraOperation, operation] of Object.entries(extraOperations)) {
-      config[extraOperation] = config[operation];
+      if (!config[extraOperation]) {
+        config[extraOperation] = config[operation];
+      }
     }
 
     applyOperationsConfig(config, target);

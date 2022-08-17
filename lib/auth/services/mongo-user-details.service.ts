@@ -79,4 +79,12 @@ export abstract class MongoUserDetailsService<T extends AuthUser>
     const resp = await this.query({ filter });
     return resp.resultCount === 0;
   }
+
+  async updatePassword(id: string, password: string): Promise<boolean> {
+    return !!(await this.update(id, { password } as PartialDeep<T>));
+  }
+
+  async verifyAccount(id: string): Promise<boolean> {
+    return !!(await super.update(id, { verified: true } as PartialDeep<T>));
+  }
 }

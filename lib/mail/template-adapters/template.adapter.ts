@@ -4,5 +4,10 @@ export type CompileConfig = {
 };
 
 export interface TemplateAdapter {
-  compile(template: string, context: Record<string, any>, config?: CompileConfig): Promise<string>;
+  compile(
+    template: string,
+    context: Record<string, any>,
+    config?: CompileConfig,
+    isFile?: boolean
+  ): Promise<string>;
 }

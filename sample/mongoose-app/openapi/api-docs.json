@@ -274,7 +274,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/LoginBody"
+                                "$ref": "#/components/schemas/LoginDto"
                             }
                         }
                     }
@@ -1637,7 +1637,7 @@
                 ]
             }
         },
-        "/account/identifier/available": {
+        "/account/identifier-available": {
             "get": {
                 "operationId": "AccountController_identifierAvailable",
                 "parameters": [
@@ -1654,6 +1654,378 @@
                         "required": true,
                         "in": "query",
                         "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "X-RECAPTCHA-TOKEN",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "recaptcha_token",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Account"
+                ]
+            }
+        },
+        "/account/send-verify-email": {
+            "post": {
+                "operationId": "AccountController_sendVerifyEmail",
+                "parameters": [
+                    {
+                        "name": "X-RECAPTCHA-TOKEN",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "recaptcha_token",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ShortErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ShortErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Account"
+                ],
+                "security": [
+                    {
+                        "basic": []
+                    },
+                    {
+                        "bearer": []
+                    },
+                    {
+                        "oauth2": [
+                            "*"
+                        ]
+                    }
+                ]
+            }
+        },
+        "/account/verify-email": {
+            "post": {
+                "operationId": "AccountController_verifyEmail",
+                "parameters": [
+                    {
+                        "name": "X-RECAPTCHA-TOKEN",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "recaptcha_token",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/VerifyEmailDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Account"
+                ]
+            },
+            "get": {
+                "operationId": "AccountController_verifyEmailGet",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "required": true,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "X-RECAPTCHA-TOKEN",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "recaptcha_token",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Account"
+                ]
+            }
+        },
+        "/account/send-reset-password": {
+            "post": {
+                "operationId": "AccountController_sendResetPassword",
+                "parameters": [
+                    {
+                        "name": "X-RECAPTCHA-TOKEN",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "recaptcha_token",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SendResetPasswordDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Account"
+                ]
+            }
+        },
+        "/account/reset-password": {
+            "post": {
+                "operationId": "AccountController_resetPassword",
+                "parameters": [
+                    {
+                        "name": "X-RECAPTCHA-TOKEN",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "recaptcha_token",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ResetPasswordDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Account"
+                ]
+            },
+            "get": {
+                "operationId": "AccountController_resetPasswordGet",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "required": true,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "password",
+                        "required": true,
+                        "in": "query",
+                        "schema": {
+                            "minLength": 6,
                             "type": "string"
                         }
                     },
@@ -5601,7 +5973,7 @@
                     "code"
                 ]
             },
-            "LoginBody": {
+            "LoginDto": {
                 "type": "object",
                 "properties": {
                     "username": {
@@ -5795,8 +6167,7 @@
                 },
                 "required": [
                     "id",
-                    "name",
-                    "parent"
+                    "name"
                 ]
             },
             "Application": {
@@ -6662,6 +7033,44 @@
                     "password"
                 ]
             },
+            "VerifyEmailDto": {
+                "type": "object",
+                "properties": {
+                    "token": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "token"
+                ]
+            },
+            "SendResetPasswordDto": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "email"
+                ]
+            },
+            "ResetPasswordDto": {
+                "type": "object",
+                "properties": {
+                    "token": {
+                        "type": "string"
+                    },
+                    "password": {
+                        "type": "string",
+                        "minLength": 6
+                    }
+                },
+                "required": [
+                    "token",
+                    "password"
+                ]
+            },
             "InfoDto": {
                 "type": "object",
                 "properties": {
@@ -6683,6 +7092,34 @@
                     "version",
                     "environment"
                 ]
+            },
+            "MailTemplateDto": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "content": {
+                        "type": "string"
+                    },
+                    "context": {
+                        "type": "object"
+                    }
+                }
+            },
+            "MailContentDto": {
+                "type": "object",
+                "properties": {
+                    "text": {
+                        "type": "string"
+                    },
+                    "html": {
+                        "type": "string"
+                    },
+                    "template": {
+                        "$ref": "#/components/schemas/MailTemplateDto"
+                    }
+                }
             },
             "MailAttachmentDto": {
                 "type": "object",
@@ -6710,11 +7147,8 @@
                     "subject": {
                         "type": "string"
                     },
-                    "text": {
-                        "type": "string"
-                    },
-                    "html": {
-                        "type": "string"
+                    "content": {
+                        "$ref": "#/components/schemas/MailContentDto"
                     },
                     "attachments": {
                         "type": "array",
@@ -6726,7 +7160,7 @@
                 "required": [
                     "to",
                     "subject",
-                    "text"
+                    "content"
                 ]
             },
             "CreateProjectDto": {

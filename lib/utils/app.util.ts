@@ -37,7 +37,8 @@ export class AppUtil {
       app.use(
         helmet({
           contentSecurityPolicy: false,
-          crossOriginEmbedderPolicy: false
+          crossOriginEmbedderPolicy: false,
+          crossOriginResourcePolicy: false
         })
       );
       logger.log('Helmet security rules enabled');

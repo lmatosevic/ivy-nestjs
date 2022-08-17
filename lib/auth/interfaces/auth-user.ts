@@ -6,6 +6,7 @@ export interface AuthUser {
   role?: Role;
   authSource?: AuthSource;
   enabled?: boolean;
+  verified?: boolean;
   loginAt?: Date;
   logoutAt?: Date;
 

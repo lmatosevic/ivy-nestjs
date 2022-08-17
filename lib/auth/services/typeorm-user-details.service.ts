@@ -86,4 +86,12 @@ export abstract class TypeOrmUserDetailsService<T extends AuthUser>
     const resp = await this.query({ filter });
     return resp.resultCount === 0;
   }
+
+  async updatePassword(id: string, password: string): Promise<boolean> {
+    return !!(await this.update(id, { password } as PartialDeep<T & ResourceEntity>));
+  }
+
+  async verifyAccount(id: string): Promise<boolean> {
+    return !!(await super.update(id, { verified: true } as PartialDeep<T & ResourceEntity>));
+  }
 }

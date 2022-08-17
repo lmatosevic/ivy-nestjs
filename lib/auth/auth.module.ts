@@ -55,7 +55,7 @@ export interface AuthModuleOptions {
   };
   google?: { clientId: string; enabled?: boolean };
   facebook?: { appId: string; appSecret: string; enabled?: boolean };
-  accountOptions?: Partial<AccountModuleOptions> & { enabled?: boolean };
+  accountOptions?: Partial<AccountModuleOptions>;
 }
 
 export interface AuthModuleAsyncOptions
@@ -106,11 +106,11 @@ export class AuthModule {
           accountDetailsClass: options.userDetailsClass,
           accountRegisterDtoClass: options.userRegisterDtoClass,
           inject: [AUTH_MODULE_OPTIONS, ConfigService],
-          useFactory: async (authModuleOptions: AuthModuleOptions, config: ConfigService) => ({
+          useFactory: async (authModuleOptions: AuthModuleOptions, conf: ConfigService) => ({
             accountDetailsService: authModuleOptions.userDetailsService,
             accountDetailsClass: authModuleOptions.userDetailsClass,
             accountRegisterDtoClass: authModuleOptions.userRegisterDtoClass,
-            enabled: config.get('auth.accountEnabled'),
+            enabled: conf.get('auth.accountEnabled'),
             ...(authModuleOptions.accountOptions || {})
           })
         }),

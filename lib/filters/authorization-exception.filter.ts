@@ -1,12 +1,12 @@
 import { ArgumentsHost, Catch, ExceptionFilter, Logger } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { AuthorizationError } from '../auth';
+import { AccountError, AuthorizationError } from '../auth';
 
-@Catch(AuthorizationError)
+@Catch(AuthorizationError, AccountError)
 export class AuthorizationExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(AuthorizationExceptionFilter.name);
 
-  catch(exception: AuthorizationError, host: ArgumentsHost) {
+  catch(exception: AuthorizationError | AccountError, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();

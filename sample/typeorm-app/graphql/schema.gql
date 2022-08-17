@@ -265,6 +265,9 @@ type Mutation {
   logout: StatusResponse!
   refresh: JwtToken!
   registration(data: RegisterUserDto!): User!
+  resetPassword(data: ResetPasswordDto!): StatusResponse!
+  sendResetPassword(data: SendResetPasswordDto!): StatusResponse!
+  sendVerifyEmail: StatusResponse!
   updateApplication(data: UpdateApplicationDto!, id: ID!): Application!
   updateBulkApplications(data: [UpdateApplicationDto!]!): [Application!]!
   updateBulkCategories(data: [UpdateCategoryDto!]!): [Category!]!
@@ -275,6 +278,7 @@ type Mutation {
   updatePlan(data: UpdatePlanDto!, id: ID!): Plan!
   updateProject(data: UpdateProjectDto!, id: ID!): Project!
   updateUser(data: UpdateUserDto!, id: ID!): User!
+  verifyEmail(data: VerifyEmailDto!): StatusResponse!
 }
 
 type Plan {
@@ -369,9 +373,18 @@ input RegisterUserDto {
   password: String!
 }
 
+input ResetPasswordDto {
+  password: String!
+  token: String!
+}
+
 enum Role {
   Admin
   User
+}
+
+input SendResetPasswordDto {
+  email: String!
 }
 
 type StatusDto {
@@ -482,4 +495,8 @@ type UsersResponse {
   items: [User!]!
   resultCount: Int!
   totalCount: Int!
+}
+
+input VerifyEmailDto {
+  token: String!
 }

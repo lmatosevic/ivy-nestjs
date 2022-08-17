@@ -45,7 +45,7 @@ export class StorageModule {
     const env = ModuleUtil.getCurrentEnv();
     const dbType = env.DB_TYPE || 'mongoose';
 
-    const { databaseModule, metaServiceProvider } = this.databaseModuleAndMetaServiceProviders(dbType);
+    const { databaseModule, serviceProvider } = this.databaseModuleAndServiceProviders(dbType);
 
     return {
       module: StorageModule,
@@ -70,15 +70,15 @@ export class StorageModule {
         }),
         databaseModule
       ],
-      providers: [...providers, FileManager, metaServiceProvider, this.storageServiceProvider()],
+      providers: [...providers, FileManager, serviceProvider, this.storageServiceProvider()],
       controllers: [StorageController],
       exports: [STORAGE_MODULE_OPTIONS, STORAGE_SERVICE, MulterModule, FileManager]
     };
   }
 
-  private static databaseModuleAndMetaServiceProviders(dbType: string): {
+  private static databaseModuleAndServiceProviders(dbType: string): {
     databaseModule: DynamicModule;
-    metaServiceProvider: Provider;
+    serviceProvider: Provider;
   } {
     let databaseModule;
     let databaseFileMetaService;
@@ -99,7 +99,7 @@ export class StorageModule {
 
     return {
       databaseModule,
-      metaServiceProvider: {
+      serviceProvider: {
         provide: FILE_META_SERVICE,
         useClass: databaseFileMetaService
       }

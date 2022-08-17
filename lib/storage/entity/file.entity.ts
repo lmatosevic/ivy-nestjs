@@ -1,7 +1,7 @@
 import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from 'typeorm';
 import { ObjectType } from '@nestjs/graphql';
 import { FileMeta } from './file-meta.entity';
-import { PopulateRelation } from '../../resource';
+import { PopulateRelation } from '../../resource/decorators/populate-relation.decorator';
 
 @ObjectType()
 @Entity({ name: '_file' })

@@ -90,7 +90,7 @@ export default () => {
       template: {
         type: process.env.MAIL_TEMPLATE_TYPE || 'handlebars',
         rootDir: process.env.MAIL_TEMPLATE_ROOT_DIR || './templates',
-        enabled: StringUtil.parseBool(process.env.MAIL_TEMPLATE_ENABLED, true),
+        enabled: StringUtil.parseBool(process.env.MAIL_TEMPLATE_ENABLED, true)
       },
       smtp: {
         host: process.env.MAIL_SMTP_HOST || '127.0.0.1',
@@ -160,6 +160,12 @@ export default () => {
     },
     account: {
       route: process.env.ACCOUNT_ROUTE || 'account',
+      verification: {
+        enabled: StringUtil.parseBool(process.env.ACCOUNT_VERIFICATION_ENABLED, true),
+        tokenType: process.env.ACCOUNT_VERIFICATION_TOKEN_TYPE || 'base62',
+        tokenLength: StringUtil.parseInteger(process.env.ACCOUNT_VERIFICATION_TOKEN_LENGTH, 16),
+        tokenPrefix: process.env.ACCOUNT_VERIFICATION_TOKEN_PREFIX
+      },
       registration: {
         enabled: StringUtil.parseBool(process.env.ACCOUNT_REGISTRATION_ENABLED, true),
         recaptcha: StringUtil.parseBool(process.env.ACCOUNT_REGISTRATION_RECAPTCHA, true),
@@ -172,7 +178,8 @@ export default () => {
       sendVerifyEmail: {
         enabled: StringUtil.parseBool(process.env.ACCOUNT_SEND_VERIFY_EMAIL_ENABLED, true),
         recaptcha: StringUtil.parseBool(process.env.ACCOUNT_SEND_VERIFY_EMAIL_RECAPTCHA, false),
-        expiresIn: StringUtil.parseInteger(process.env.ACCOUNT_SEND_VERIFY_EMAIL_EXPIRES_IN, 172800)
+        expiresIn: StringUtil.parseInteger(process.env.ACCOUNT_SEND_VERIFY_EMAIL_EXPIRES_IN, 172800),
+        linkUrl: process.env.ACCOUNT_SEND_VERIFY_EMAIL_LINK_URL,
       },
       verifyEmail: {
         enabled: StringUtil.parseBool(process.env.ACCOUNT_VERIFY_EMAIL_ENABLED, true),
@@ -181,7 +188,8 @@ export default () => {
       sendResetPassword: {
         enabled: StringUtil.parseBool(process.env.ACCOUNT_SEND_RESET_PASSWORD_ENABLED, true),
         recaptcha: StringUtil.parseBool(process.env.ACCOUNT_SEND_RESET_PASSWORD_RECAPTCHA, false),
-        expiresIn: StringUtil.parseInteger(process.env.ACCOUNT_SEND_RESET_PASSWORD_EXPIRES_IN, 7200)
+        expiresIn: StringUtil.parseInteger(process.env.ACCOUNT_SEND_RESET_PASSWORD_EXPIRES_IN, 7200),
+        linkUrl: process.env.ACCOUNT_SEND_RESET_PASSWORD_LINK_URL,
       },
       resetPassword: {
         enabled: StringUtil.parseBool(process.env.ACCOUNT_RESET_PASSWORD_ENABLED, true),

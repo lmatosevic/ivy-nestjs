@@ -12,7 +12,7 @@ import { AuthModuleOptions } from './auth.module';
 import { AUTH_MODULE_OPTIONS } from './auth.constants';
 
 export function AuthController<T extends Type<unknown>>(authUserRef: T): any {
-  class LoginBody {
+  class LoginDto {
     @ApiProperty()
     username: string;
 
@@ -38,7 +38,7 @@ export function AuthController<T extends Type<unknown>>(authUserRef: T): any {
     @Public()
     @ReCaptcha()
     @UseGuards(LocalAuthGuard)
-    @ApiBody({ type: () => LoginBody })
+    @ApiBody({ type: () => LoginDto })
     @ApiBadRequestResponse({ description: 'Invalid credentials', type: ErrorResponse })
     @HttpCode(200)
     @Post('login')
