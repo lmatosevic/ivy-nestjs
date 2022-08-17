@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.5](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.4...v0.3.5) (2022-08-17)
+
+
+### Features
+
+* add check for email service import ([df942d5](https://github.com/Lujo5/ivy-nestjs/commit/df942d5c29981e2090448b987c60c6436d9692b8))
+* add query params sanitization ([625c153](https://github.com/Lujo5/ivy-nestjs/commit/625c1530d0c258f9947058904b96c97ff3af9112))
+
+
+### Bug Fixes
+
+* **graphql:** fix graphql authorized endpoints user object resolving ([6817562](https://github.com/Lujo5/ivy-nestjs/commit/6817562c5cecdefc312dca6827db4ffff75e5928))
+
 ### [0.3.4](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.3...v0.3.4) (2022-08-17)
 
 
