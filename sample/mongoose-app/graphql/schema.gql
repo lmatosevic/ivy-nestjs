@@ -221,6 +221,7 @@ type HealthDto {
 
 type HealthStatusDto {
   database: StatusDto!
+  mail: StatusDto
   memory: StatusDto!
   storage: StatusDto!
 }

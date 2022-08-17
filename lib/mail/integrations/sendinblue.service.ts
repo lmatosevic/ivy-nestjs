@@ -9,6 +9,7 @@ import { MAIL_MODULE_OPTIONS } from '../mail.constants';
 @Injectable()
 export class SendinblueService implements MailIntegrationService {
   private readonly transactionalEmailsApi: any;
+  private readonly accountApi: any;
   private readonly senderName: string;
   private readonly senderAddress: string;
 
@@ -20,6 +21,7 @@ export class SendinblueService implements MailIntegrationService {
     let apiKey = client.authentications['api-key'];
     apiKey.apiKey = mailModuleOptions.sendinblue?.apiKey ?? configService.get('mail.sendinblue.apiKey');
     this.transactionalEmailsApi = new Sib.TransactionalEmailsApi();
+    this.accountApi = new Sib.AccountApi();
 
     this.senderName = mailModuleOptions.senderName ?? configService.get('mail.senderName');
     this.senderAddress = mailModuleOptions.senderAddress ?? configService.get('mail.senderAddress');
@@ -48,5 +50,14 @@ export class SendinblueService implements MailIntegrationService {
       }))
     });
     return !!result;
+  }
+
+  async checkConnection(): Promise<boolean> {
+    try {
+      await this.accountApi.getAccount();
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 }

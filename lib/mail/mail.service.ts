@@ -117,4 +117,13 @@ export class MailService {
 
     return { text: TemplateUtil.textFromHtml(html), html };
   }
+
+  async checkConnection(): Promise<{ status: string, error?: string }> {
+    const result = await this.mailIntegrationService.checkConnection();
+    const status = { status: result ? 'up' : 'down' };
+    if (!result) {
+      status['error'] = 'Mail server connection failed';
+    }
+    return status;
+  }
 }

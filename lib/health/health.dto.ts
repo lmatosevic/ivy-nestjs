@@ -13,6 +13,7 @@ export class HealthStatusDto {
   database: StatusDto;
   memory: StatusDto;
   storage: StatusDto;
+  mail?: StatusDto;
 }
 
 @ObjectType()

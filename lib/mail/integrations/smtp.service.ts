@@ -50,4 +50,12 @@ export class SmtpService implements MailIntegrationService {
     });
     return !!result;
   }
+
+  async checkConnection(): Promise<boolean> {
+    try {
+      return await this.transporter.verify();
+    } catch (e) {
+      return false;
+    }
+  }
 }

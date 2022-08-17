@@ -8,4 +8,6 @@ export interface MailIntegrationService {
     html?: string,
     attachments?: MailAttachment[]
   ): Promise<boolean>;
+
+  checkConnection(): Promise<boolean>;
 }

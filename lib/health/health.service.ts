@@ -1,4 +1,4 @@
-import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable, OnModuleInit, Optional } from '@nestjs/common';
 import { ContextIdFactory, ModuleRef } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import * as path from 'path';
@@ -13,6 +13,7 @@ import {
 } from '@nestjs/terminus';
 import { HealthModuleOptions } from './health.module';
 import { HEALTH_MODULE_OPTIONS } from './health.constants';
+import { MailService } from '../mail';
 
 @Injectable()
 export class HealthService implements OnModuleInit {
@@ -28,7 +29,8 @@ export class HealthService implements OnModuleInit {
     private moduleRef: ModuleRef,
     private health: HealthCheckService,
     private memory: MemoryHealthIndicator,
-    private disk: DiskHealthIndicator
+    private disk: DiskHealthIndicator,
+    @Optional() private mailService: MailService
   ) {
     this.memoryThreshold =
       healthModuleOptions.memoryThreshold ?? configService.get('health.memoryThreshold') ?? 512;
@@ -47,10 +49,17 @@ export class HealthService implements OnModuleInit {
   }
 
   public async allCheck(): Promise<HealthCheckResult> {
+    const optionalChecks = [];
+
+    if (this.mailService) {
+      optionalChecks.push(() => this.mailConnectionCheck());
+    }
+
     return this.health.check([
       () => this.databaseCheck(),
       () => this.memoryCheck(),
-      () => this.storageCheck()
+      () => this.storageCheck(),
+      ...optionalChecks
     ]);
   }
 
@@ -67,5 +76,18 @@ export class HealthService implements OnModuleInit {
       thresholdPercent: this.diskThreshold,
       path: path.resolve(this.diskPath)
     });
+  }
+
+  public async mailConnectionCheck(): Promise<HealthIndicatorResult> {
+    let status;
+    if (this.mailService) {
+      status = await this.mailService?.checkConnection();
+    } else {
+      status = {
+        status: 'down',
+        error: 'Mail service is not defined'
+      };
+    }
+    return { mail: status };
   }
 }
