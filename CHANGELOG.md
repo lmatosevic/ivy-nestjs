@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.6](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.5...v0.3.6) (2022-08-17)
+
+
+### Features
+
+* add mail connection health checks ([2f14301](https://github.com/Lujo5/ivy-nestjs/commit/2f14301fafa1523130d7cc9965384d027400817c))
+
 ### [0.3.5](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.4...v0.3.5) (2022-08-17)
 
 
