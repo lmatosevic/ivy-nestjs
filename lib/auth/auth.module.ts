@@ -27,6 +27,7 @@ import {
 } from './social';
 import { AUTH_MODULE_OPTIONS } from './auth.constants';
 
+
 export type AuthRouteOptions = {
   enabled?: boolean;
   recaptcha?: boolean;
@@ -135,10 +136,7 @@ export class AuthModule {
         FacebookService,
         GoogleResolver,
         FacebookResolver,
-        {
-          provide: AuthResolver.name,
-          useClass: AuthResolver(options.userDetailsClass)
-        },
+        AuthResolver(options.userDetailsClass),
         {
           provide: APP_GUARD,
           useClass: RolesGuard

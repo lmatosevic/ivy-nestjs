@@ -83,10 +83,7 @@ export class AccountModule {
       providers: [
         ...providers,
         AccountService,
-        {
-          provide: AccountResolver.name,
-          useClass: AccountResolver(options.accountDetailsClass, options.accountRegisterDtoClass)
-        }
+        AccountResolver(options.accountDetailsClass, options.accountRegisterDtoClass)
       ],
       controllers: [AccountController(options.accountDetailsClass, options.accountRegisterDtoClass)],
       exports: [ACCOUNT_MODULE_OPTIONS, AccountService]

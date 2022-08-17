@@ -46,25 +46,19 @@ export function AccountResolver<T extends Type<unknown>>(accountRef: T, register
 
     @ReCaptcha()
     @Mutation(() => StatusResponse)
-    async verifyEmail(
-      @Args('data', { type: () => VerifyEmailDto }) data: VerifyEmailDto
-    ): Promise<StatusResponse> {
+    async verifyEmail(@Args() data: VerifyEmailDto): Promise<StatusResponse> {
       return await this.accountService.verifyEmail(data.token);
     }
 
     @ReCaptcha()
     @Mutation(() => StatusResponse)
-    async sendResetPassword(
-      @Args('data', { type: () => SendResetPasswordDto }) data: SendResetPasswordDto
-    ): Promise<StatusResponse> {
+    async sendResetPassword(@Args() data: SendResetPasswordDto): Promise<StatusResponse> {
       return await this.accountService.sendResetPassword(data.email);
     }
 
     @ReCaptcha()
     @Mutation(() => StatusResponse)
-    async resetPassword(
-      @Args('data', { type: () => ResetPasswordDto }) data: ResetPasswordDto
-    ): Promise<StatusResponse> {
+    async resetPassword(@Args() data: ResetPasswordDto): Promise<StatusResponse> {
       return await this.accountService.resetPassword(data.token, data.password);
     }
   }

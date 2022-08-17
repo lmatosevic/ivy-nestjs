@@ -1,8 +1,8 @@
-import { InputType } from '@nestjs/graphql';
+import { ArgsType } from '@nestjs/graphql';
 import { Expose } from 'class-transformer';
 import { IsEmail, IsNotEmpty } from 'class-validator';
 
-@InputType()
+@ArgsType()
 export class SendResetPasswordDto {
   @Expose()
   @IsEmail()
