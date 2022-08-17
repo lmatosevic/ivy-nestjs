@@ -80,8 +80,8 @@ export class AccountService {
   }
 
   async sendVerifyEmail(user: AuthUser): Promise<StatusResponse> {
-    if (!this.verificationService) {
-      throw new AccountError('Email verification is not supported');
+    if (!this.verificationService || !this.mailService) {
+      throw new AccountError('Email verification sending is not supported');
     }
 
     if (!user) {
@@ -131,8 +131,8 @@ export class AccountService {
   }
 
   async sendResetPassword(email: string): Promise<StatusResponse> {
-    if (!this.verificationService) {
-      throw new AccountError('Password reset is not supported');
+    if (!this.verificationService || !this.mailService) {
+      throw new AccountError('Password reset sending is not supported');
     }
 
     const user = await this.accountDetailsService.findByUsername(email);
