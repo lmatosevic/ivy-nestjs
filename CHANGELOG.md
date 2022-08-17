@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.3](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.2...v0.3.3) (2022-08-17)
+
+
+### Features
+
+* add account module and transfer the registration and identifier available routes ([9767284](https://github.com/Lujo5/ivy-nestjs/commit/9767284e05ddd3024e17232b1701b9009e7d1f38))
+* add email module with SMTP and Sendinblue integrations, updated queue settings ([a511045](https://github.com/Lujo5/ivy-nestjs/commit/a511045c7fb355cc159210e471a8e71cd1ce8e71))
+* add handlebars support for email template ([15d4935](https://github.com/Lujo5/ivy-nestjs/commit/15d49355574d1ade4cdf7713abf3768e1a92f221))
+* add support for providing custom file storage and email service implementations ([7a054fe](https://github.com/Lujo5/ivy-nestjs/commit/7a054fefbb47c0e301a7b9e50c7df860f32f1ec0))
+* add verification token functionality and new account routes ([aba8d25](https://github.com/Lujo5/ivy-nestjs/commit/aba8d252ada4729190b10bb7e7c6aba30f0dd6a4))
+
 ### [0.3.2](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.1...v0.3.2) (2022-08-14)
 
 
