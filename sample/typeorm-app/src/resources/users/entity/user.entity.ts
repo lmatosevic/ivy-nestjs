@@ -77,7 +77,7 @@ export class User extends ResourceEntity implements AuthUser {
   projectIds?: number[];
 
   @PopulateRelation()
-  @ManyToMany(() => Application, (application) => application.reviewers)
+  @ManyToMany(() => Application, (application) => application.reviewers, { eager: true })
   @JoinTable()
   reviewedApps?: Application[];
 

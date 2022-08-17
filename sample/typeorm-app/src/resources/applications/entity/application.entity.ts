@@ -29,7 +29,7 @@ export class Application extends ResourceEntity {
   @Column({ type: 'timestamptz', nullable: true })
   scheduledAt?: Date;
 
-  @ManyToOne(() => Project, (project) => project.applications, { cascade: ['update'] })
+  @ManyToOne(() => Project, (project) => project.applications, { cascade: ['update'], eager: true })
   project: Project;
 
   @Column()

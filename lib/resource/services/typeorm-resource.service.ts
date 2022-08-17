@@ -377,12 +377,12 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
       }
     }
 
+    const eagerRelations = this.eagerRelationsList();
+
     for (const [alias, path] of Object.entries(joins.leftJoinAndSelect)) {
-      const relation = this.relationMetadata(alias);
-      if (
-        (this.isInternalCall() && !relation?.isEager) ||
-        (hasProjections && !mappedProjections.includes(alias))
-      ) {
+      const relationName = alias.replace(/_/g, '.');
+      const isEager = eagerRelations.find((e) => e.name === relationName);
+      if ((this.isInternalCall() && !isEager) || (hasProjections && !mappedProjections.includes(alias))) {
         queryBuilder.leftJoin(path, alias);
       } else {
         queryBuilder.leftJoinAndSelect(path, alias);
@@ -476,19 +476,15 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
 
     const filterKeys = ObjectUtil.nestedKeys(filter, RequestUtil.filterQueryKeys);
     if (this.isInternalCall() && filter) {
-      const isEagerChain = (name: string): boolean => {
-        const parts = name.split('.');
-        let relName = '';
-        for (const part of parts) {
-          relName = relName + (relName ? '.' : '') + part;
-          const rel = relations.find((r) => r.name === relName);
-          if (!rel || !rel.isEager) {
-            return false;
-          }
+      // Remove relations with populate relation decorator
+      relations = relations.filter((r) => filterKeys.includes(r.name));
+      // Add eager relations to population array
+      const eagerRelations = this.eagerRelationsList();
+      for (const eagerRelation of eagerRelations) {
+        if (!relations.find((r) => r.name === eagerRelation.name)) {
+          relations.push(eagerRelation);
         }
-        return true;
-      };
-      relations = relations.filter((r) => filterKeys.includes(r.name) || (r.isEager && isEagerChain(r.name)));
+      }
     }
 
     for (const relation of relations) {
@@ -580,16 +576,16 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
         continue;
       }
 
-      const subRelationMetadata = this.relationMetadata(relation, modelName);
+      const relationMetadata = this.relationMetadata(relation, modelName);
 
       fields.push({
         name: relation,
-        isMany: subRelationMetadata.isOneToMany || subRelationMetadata.isManyToMany,
-        isEager: subRelationMetadata.isEager
+        isMany: relationMetadata.isOneToMany || relationMetadata.isManyToMany,
+        isEager: relationMetadata.isEager
       });
 
       if (config.populateChildren !== false && config.maxDepth > 0) {
-        const subRelationModelName = subRelationMetadata.type['name'];
+        const subRelationModelName = relationMetadata.type['name'];
 
         if (level >= config.maxDepth) {
           continue;
@@ -625,6 +621,39 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
             .filter((f) => !excludeFields?.includes(f.name))
         );
       }
+    }
+
+    return fields;
+  }
+
+  private eagerRelationsList(modelName?: string): RelationInfo[] {
+    const fields = [];
+
+    const relations = this.relationMetadataList(modelName);
+
+    for (const [relation, metadata] of Object.entries(relations || {})) {
+      if (!metadata.isEager) {
+        continue;
+      }
+
+      const relationMetadata = this.relationMetadata(relation, modelName);
+      const relationModelName = metadata.type['name'];
+
+      fields.push({
+        name: relation,
+        isMany: relationMetadata.isOneToMany || relationMetadata.isManyToMany,
+        isEager: true
+      });
+
+      let subRelations = this.eagerRelationsList(relationModelName);
+
+      fields.push(
+        ...subRelations.map((sr) => ({
+          name: `${relation}.${sr.name}`,
+          isMany: sr.isMany,
+          isEager: true
+        }))
+      );
     }
 
     return fields;
