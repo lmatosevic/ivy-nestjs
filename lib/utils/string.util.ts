@@ -59,6 +59,7 @@ export class StringUtil {
 
   static sanitizeText(text: string, replacement = '********'): string {
     const sensitiveDataRules = [
+      { regex: 'password=([^&]*)'},
       { regex: '"password":\\s?"(.*?)"' },
       { regex: 'password:\\s?\\"(.*?)\\"' },
       { regex: 'password:\\s?\\\\"(.*?)\\\\"' },

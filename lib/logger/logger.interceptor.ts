@@ -16,7 +16,7 @@ export class LoggerInterceptor implements NestInterceptor {
       '[%s] %s %s%s => %j',
       handler?.name,
       request.method,
-      request.originalUrl,
+      StringUtil.sanitizeText(request.originalUrl),
       ContextUtil.isGraphQL(context) ? ' {' + ctx.switchToHttp()['args'][3]?.['fieldName'] + '}' : '',
       {
         body: StringUtil.sanitizeData(request.body),
