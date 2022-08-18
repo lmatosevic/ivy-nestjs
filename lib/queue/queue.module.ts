@@ -3,12 +3,17 @@ import { ConfigService } from '@nestjs/config';
 import { BullModule, BullModuleOptions } from '@nestjs/bull';
 import { BullModuleAsyncOptions } from '@nestjs/bull/dist/interfaces/bull-module-options.interface';
 import { ModuleAsyncOptions, ModuleUtil } from '../utils';
+import { QueueService } from './queue.service';
 import { QUEUE_MODULE_OPTIONS } from './queue.constant';
+
+export type QueueModuleOptions = BullModuleOptions;
+
+export type QueueModuleAsyncOptions = BullModuleAsyncOptions;
 
 @Global()
 @Module({})
 export class QueueModule {
-  static forRoot(options: BullModuleOptions = {}): DynamicModule {
+  static forRoot(options: QueueModuleOptions = {}): DynamicModule {
     return this.createModule([
       {
         provide: QUEUE_MODULE_OPTIONS,
@@ -17,16 +22,16 @@ export class QueueModule {
     ]);
   }
 
-  static forRootAsync(options: ModuleAsyncOptions<BullModuleOptions>): DynamicModule {
+  static forRootAsync(options: ModuleAsyncOptions<QueueModuleOptions>): DynamicModule {
     const { providers, imports } = ModuleUtil.makeAsyncImportsAndProviders(options, QUEUE_MODULE_OPTIONS);
     return this.createModule(providers, imports);
   }
 
-  static registerQueue(...options: BullModuleOptions[]): DynamicModule {
+  static registerQueue(...options: QueueModuleOptions[]): DynamicModule {
     return BullModule.registerQueue(...options);
   }
 
-  static registerQueueAsync(...options: BullModuleAsyncOptions[]): DynamicModule {
+  static registerQueueAsync(...options: QueueModuleAsyncOptions[]): DynamicModule {
     return BullModule.registerQueueAsync(...options);
   }
 
@@ -37,7 +42,7 @@ export class QueueModule {
         ...imports,
         BullModule.forRootAsync({
           inject: [QUEUE_MODULE_OPTIONS, ConfigService],
-          useFactory: async (queueModuleOptions: BullModuleOptions, conf: ConfigService) => ({
+          useFactory: async (queueModuleOptions: QueueModuleOptions, conf: ConfigService) => ({
             defaultJobOptions: {
               removeOnComplete: conf.get('queue.removeOnComplete'),
               removeOnFail: conf.get('queue.removeOnFail'),
@@ -58,8 +63,8 @@ export class QueueModule {
           })
         })
       ],
-      providers: [...providers],
-      exports: [QUEUE_MODULE_OPTIONS, BullModule]
+      providers: [...providers, QueueService],
+      exports: [QUEUE_MODULE_OPTIONS, BullModule, QueueService]
     };
   }
 }

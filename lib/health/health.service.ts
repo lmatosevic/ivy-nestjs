@@ -1,4 +1,4 @@
-import { Inject, Injectable, OnModuleInit, Optional } from '@nestjs/common';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { ContextIdFactory, ModuleRef } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import * as path from 'path';
@@ -11,9 +11,9 @@ import {
   MongooseHealthIndicator,
   TypeOrmHealthIndicator
 } from '@nestjs/terminus';
+import { MailHealthIndicator, QueueHealthIndicator } from './indicators';
 import { HealthModuleOptions } from './health.module';
 import { HEALTH_MODULE_OPTIONS } from './health.constants';
-import { MailService } from '../mail';
 
 @Injectable()
 export class HealthService implements OnModuleInit {
@@ -30,7 +30,8 @@ export class HealthService implements OnModuleInit {
     private health: HealthCheckService,
     private memory: MemoryHealthIndicator,
     private disk: DiskHealthIndicator,
-    @Optional() private mailService: MailService
+    private mail: MailHealthIndicator,
+    private queue: QueueHealthIndicator
   ) {
     this.memoryThreshold =
       healthModuleOptions.memoryThreshold ?? configService.get('health.memoryThreshold') ?? 512;
@@ -51,8 +52,12 @@ export class HealthService implements OnModuleInit {
   public async allCheck(): Promise<HealthCheckResult> {
     const optionalChecks = [];
 
-    if (this.mailService) {
-      optionalChecks.push(() => this.mailConnectionCheck());
+    if (this.mail.isConfigured()) {
+      optionalChecks.push(() => this.mailCheck());
+    }
+
+    if (this.queue.isConfigured()) {
+      optionalChecks.push(() => this.queueCheck());
     }
 
     return this.health.check([
@@ -78,16 +83,11 @@ export class HealthService implements OnModuleInit {
     });
   }
 
-  public async mailConnectionCheck(): Promise<HealthIndicatorResult> {
-    let status;
-    if (this.mailService) {
-      status = await this.mailService?.checkConnection();
-    } else {
-      status = {
-        status: 'down',
-        error: 'Mail service is not defined'
-      };
-    }
-    return { mail: status };
+  public async mailCheck(): Promise<HealthIndicatorResult> {
+    return this.mail.checkConnection('mail');
+  }
+
+  public async queueCheck(): Promise<HealthIndicatorResult> {
+    return this.queue.checkConnection('queue');
   }
 }
