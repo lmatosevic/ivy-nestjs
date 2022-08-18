@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.7](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.6...v0.3.7) (2022-08-18)
+
+
+### Features
+
+* add mail and queue health indicator services ([e09569a](https://github.com/Lujo5/ivy-nestjs/commit/e09569a8bee72ff9a392518d2c7f55b567b39de7))
+
+
+### Bug Fixes
+
+* fix logger service with level checking and use logger interceptor sanitization for verbose log only ([1d7a428](https://github.com/Lujo5/ivy-nestjs/commit/1d7a4289bf53fb7addf867090f8f398ac7a2eb0c))
+
 ### [0.3.6](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.5...v0.3.6) (2022-08-17)
 
 
