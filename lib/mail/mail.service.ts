@@ -13,6 +13,7 @@ import {
 } from './mail.constants';
 import { TemplateAdapter } from './template-adapters';
 import { TemplateUtil } from '../utils';
+import * as _ from 'lodash';
 
 export type MailContent = {
   text?: string;
@@ -107,7 +108,10 @@ export class MailService {
 
     const isFile = !content.template?.content;
 
-    const templateConfig = this.mailModuleOptions.template ?? this.configService.get('mail.template');
+    const templateConfig = _.merge(
+      { ...this.configService.get('mail.template') },
+      this.mailModuleOptions.template
+    );
     const html = await this.templateAdapter.compile(
       content.template?.name,
       content.template?.context || {},

@@ -85,12 +85,12 @@ export class HandlebarsAdapter implements TemplateAdapter {
     isFile: boolean = true
   ): Promise<TemplateInfo> {
     const { templateExt, templateName, templateDir, templatePath } = isFile
-      ? this.templateContentInfo()
-      : this.templateFileInfo(template, config);
+      ? this.templateFileInfo(template, config)
+      : this.templateContentInfo();
 
     if (!this.precompiledTemplates[templateName]) {
       try {
-        const content = isFile ? template : await fsp.readFile(templatePath, 'utf-8');
+        const content = isFile ? await fsp.readFile(templatePath, 'utf-8') : template;
         const options = get(config, 'options', {});
         this.precompiledTemplates[templateName] = handlebars.compile(content, options);
       } catch (e) {

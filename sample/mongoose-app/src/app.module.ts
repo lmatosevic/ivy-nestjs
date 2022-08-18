@@ -35,14 +35,31 @@ import { CategoriesModule } from '@resources/categories';
     MongooseModule.forRoot(),
     GraphQLModule.forRoot(),
     QueueModule.forRoot(),
-    MailModule.forRoot(),
+    MailModule.forRoot({
+      template: {
+        options: {
+          helpers: {
+            hours: (expiresIn: number) => expiresIn / 60 / 60
+          }
+        }
+      }
+    }),
     AuthModule.forRootAsync({
       userDetailsClass: User,
       userRegisterDtoClass: RegisterUserDto,
       imports: [UsersModule],
       inject: [UsersService],
       useFactory: async (usersService: UsersService) => ({
-        userDetailsService: usersService
+        userDetailsService: usersService,
+        accountOptions: {
+          sendVerifyEmail: {
+            content: {
+              template: {
+                name: 'verify-email'
+              }
+            }
+          }
+        }
       })
     }),
     RequestContextModule,

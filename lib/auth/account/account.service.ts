@@ -95,9 +95,7 @@ export class AccountService {
     const { subject, mailContent } = await this.prepareEmailData(
       'sendVerifyEmail',
       VerificationType.Email,
-      user.getId(),
-      `[${this.appName}] Verify your email address`,
-      'Please verify your email address by visiting following link: {{link}}'
+      user
     );
 
     const result = await this.mailService.send(user.getEmail(), subject, mailContent);
@@ -147,9 +145,7 @@ export class AccountService {
     const { subject, mailContent } = await this.prepareEmailData(
       'sendResetPassword',
       VerificationType.Password,
-      user.getId(),
-      `[${this.appName}] Reset your password`,
-      'Reset your password by visiting following secure link: {{link}}'
+      user
     );
 
     const result = await this.mailService.send(user.getEmail(), subject, mailContent);
@@ -185,21 +181,22 @@ export class AccountService {
   private async prepareEmailData(
     configKey: string,
     type: VerificationType,
-    userId: string | number,
-    defaultSubject: string,
-    defaultEmailText: string
+    user: AuthUser
   ): Promise<{ subject: string; mailContent: MailContent }> {
+    const defaultValues = this.defaultMailValues(configKey);
+
     const expiresIn = this.configValue<number>('expiresIn', configKey);
     const linkUrl = this.configValue<string>('linkUrl', configKey);
-    const subject = this.configValue<string>('subject', configKey) ?? defaultSubject;
+    const subject = this.configValue<string>('subject', configKey) ?? defaultValues.subject;
 
     const expiresAt = new Date(Date.now() + expiresIn * 1000);
-    const verificationToken = await this.verificationService.createToken(type, userId, expiresAt);
+    const verificationToken = await this.verificationService.createToken(type, user.getId(), expiresAt);
 
     const link = this.createLink(linkUrl, verificationToken.token, type);
-    const content = this.accountModuleOptions.sendResetPassword?.content;
+    const content = this.accountModuleOptions[configKey]?.content;
 
-    const mailContent = this.createMailContent(content, link, defaultEmailText);
+    const mailContext = { link, user, expiresIn, expiresAt };
+    const mailContent = this.createMailContent(content, mailContext, defaultValues.text);
 
     return { subject, mailContent };
   }
@@ -223,15 +220,23 @@ export class AccountService {
     return `${linkUrl}${addSlash ? '/' : ''}${token}`;
   }
 
-  private createMailContent(content: MailContent, link: string, defaultText: string): MailContent {
+  private createMailContent(
+    content: MailContent,
+    context: { link: string, user: AuthUser, expiresIn: number, expiresAt: Date },
+    defaultText?: string
+  ): MailContent {
     if (content && content.template) {
       if (!content.template.context) {
-        content.template.context = { link };
-      } else if (!content.template.context?.['link']) {
-        content.template.context['link'] = link;
+        content.template.context = { ...context };
+      } else {
+        for (const [key, value] of Object.entries(context)) {
+          if (!content.template.context?.[key]) {
+            content.template.context[key] = value;
+          }
+        }
       }
     }
-    return content ?? { text: defaultText.replace('{{link}}', link) };
+    return content ?? { text: defaultText?.replace('{{link}}', context.link) };
   }
 
   private configValue<T>(name: string, prefix?: string): T {
@@ -239,5 +244,19 @@ export class AccountService {
       return this.accountModuleOptions[name] ?? this.configService.get(`account.${name}`);
     }
     return this.accountModuleOptions[prefix]?.[name] ?? this.configService.get(`account.${prefix}.${name}`);
+  }
+
+  private defaultMailValues(key: string): { subject: string; text: string } {
+    const defaults = {
+      sendVerifyEmail: {
+        subject: `[${this.appName}] Verify your email address`,
+        text: 'Please verify your email address by visiting following link: {{link}}'
+      },
+      sendResetPassword: {
+        subject: `[${this.appName}] Reset your password`,
+        text: 'Reset your password by visiting following secure link: {{link}}'
+      }
+    };
+    return defaults[key] || {};
   }
 }
