@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.9](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.8...v0.3.9) (2022-08-18)
+
+
+### Bug Fixes
+
+* **verification:** renamed verification enum to start without underscore character to prevent recreation of enum on every migration:generate call ([a60e722](https://github.com/Lujo5/ivy-nestjs/commit/a60e72274eb1bd2685add99caf4fd6b8b7c6c2c5))
+
 ### [0.3.8](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.7...v0.3.8) (2022-08-18)
 
 
