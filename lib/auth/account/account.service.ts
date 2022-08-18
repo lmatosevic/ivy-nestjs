@@ -222,7 +222,7 @@ export class AccountService {
 
   private createMailContent(
     content: MailContent,
-    context: { link: string, user: AuthUser, expiresIn: number, expiresAt: Date },
+    context: { link: string; user: AuthUser; expiresIn: number; expiresAt: Date },
     defaultText?: string
   ): MailContent {
     if (content && content.template) {

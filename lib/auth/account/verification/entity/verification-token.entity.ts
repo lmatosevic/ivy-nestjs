@@ -13,7 +13,12 @@ export class VerificationToken extends ResourceEntity {
   @Column({ unique: true })
   token: string;
 
-  @Column({ type: 'enum', enum: VerificationType, default: VerificationType.Other })
+  @Column({
+    type: 'enum',
+    enum: VerificationType,
+    enumName: 'token_verification_type_enum',
+    default: VerificationType.Other
+  })
   type?: VerificationType;
 
   @Column({ type: 'int', unsigned: true })
