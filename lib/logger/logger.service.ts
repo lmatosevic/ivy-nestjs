@@ -1,4 +1,5 @@
-import { Inject, Injectable, LoggerService as NestLoggerService } from '@nestjs/common';
+import { Inject, Injectable, LoggerService as NestLoggerService, Logger } from '@nestjs/common';
+import { LogLevel } from '@nestjs/common/services/logger.service';
 import { ConfigService } from '@nestjs/config';
 import * as winston from 'winston';
 import * as DailyRotateFile from 'winston-daily-rotate-file';
@@ -17,7 +18,21 @@ export class LoggerService implements NestLoggerService {
       return;
     }
 
-    const logLevel = loggerModuleOptions.level || configService.get('log.level');
+    const logLevel = loggerModuleOptions.level || configService.get('log.level') || 'info';
+
+    if (!Logger['logLevels']) {
+      Logger['logLevels'] = [];
+      for (const level of ['error', 'warn', 'log', 'info', 'verbose', 'debug']) {
+        Logger['logLevels'].push(level as LogLevel);
+        if (level === logLevel.toLowerCase()) {
+          break;
+        }
+      }
+      Logger['isLevelEnabled'] = (level: LogLevel & 'info') => {
+        return Logger['logLevels']?.includes(level);
+      };
+    }
+
     const logPath = loggerModuleOptions.path || configService.get('log.path');
     const appName = loggerModuleOptions.appName || configService.get('app.name');
     const rotate = loggerModuleOptions.rotate || configService.get('log.rotate');

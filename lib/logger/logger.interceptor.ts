@@ -12,21 +12,23 @@ export class LoggerInterceptor implements NestInterceptor {
     const request = ctx.switchToHttp().getRequest();
     const handler = ctx.getHandler();
 
-    this.logger.verbose(
-      '[%s] %s %s%s => %j',
-      handler?.name,
-      request.method,
-      StringUtil.sanitizeText(request.originalUrl),
-      ContextUtil.isGraphQL(context) ? ' {' + ctx.switchToHttp()['args'][3]?.['fieldName'] + '}' : '',
-      {
-        body: StringUtil.sanitizeData(request.body),
-        query: StringUtil.sanitizeData(request.query),
-        params: StringUtil.sanitizeData(request.params),
-        headers: StringUtil.sanitizeData(request.headers),
-        userId: request.user?.id,
-        userRoles: Array.isArray(request.user?.roles) ? request.user?.roles : request.user?.role
-      }
-    );
+    if (Logger.isLevelEnabled('verbose')) {
+      this.logger.verbose(
+        '[%s] %s %s%s => %j',
+        handler?.name,
+        request.method,
+        StringUtil.sanitizeText(request.originalUrl),
+        ContextUtil.isGraphQL(context) ? ' {' + ctx.switchToHttp()['args'][3]?.['fieldName'] + '}' : '',
+        {
+          body: StringUtil.sanitizeData(request.body),
+          query: StringUtil.sanitizeData(request.query),
+          params: StringUtil.sanitizeData(request.params),
+          headers: StringUtil.sanitizeData(request.headers),
+          userId: request.user?.id,
+          userRoles: Array.isArray(request.user?.roles) ? request.user?.roles : request.user?.role
+        }
+      );
+    }
 
     const startTime = Date.now();
 
