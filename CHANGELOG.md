@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.10](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.9...v0.3.10) (2022-08-18)
+
+
+### Bug Fixes
+
+* **queue:** add ioredis dependency to fix queue service errors ([d6be1e9](https://github.com/Lujo5/ivy-nestjs/commit/d6be1e985bb84048f439bb80cf619a542efc68c9))
+
 ### [0.3.9](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.8...v0.3.9) (2022-08-18)
 
 
