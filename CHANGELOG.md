@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.8](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.7...v0.3.8) (2022-08-18)
+
+
+### Features
+
+* update mail service templating config ([9a00807](https://github.com/Lujo5/ivy-nestjs/commit/9a00807bd5607b8ec9adcc2de50ef57732110382))
+
 ### [0.3.7](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.6...v0.3.7) (2022-08-18)
 
 
