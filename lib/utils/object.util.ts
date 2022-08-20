@@ -194,6 +194,14 @@ export class ObjectUtil {
             .filter((k) => !excludeKeys.includes(k))
             .map((k) => (!excludeKeys.includes(key) ? `${key}.${k}` : k))
         );
+      } else if (value && Array.isArray(value)) {
+        for (const subValue of value) {
+          keys.push(
+            ...this.nestedKeys(subValue, excludeKeys)
+              .filter((k) => !excludeKeys.includes(k))
+              .map((k) => (!excludeKeys.includes(key) ? `${key}.${k}` : k))
+          );
+        }
       }
     }
 

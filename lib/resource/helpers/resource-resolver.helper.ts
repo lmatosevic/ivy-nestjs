@@ -97,14 +97,14 @@ function initializeFilterModel(classRef: Type<unknown>): any {
 
   @InputType(`${pluralName}Filter`)
   class QueryFilter extends PartialType(OperatorInputType(classRef), InputType) {
-    @Field(() => QueryFilter, { nullable: true })
-    _and?: QueryFilter;
+    @Field(() => [QueryFilter], { nullable: true })
+    _and?: QueryFilter[];
 
-    @Field(() => QueryFilter, { nullable: true })
-    _or?: QueryFilter;
+    @Field(() => [QueryFilter], { nullable: true })
+    _or?: QueryFilter[];
 
-    @Field(() => QueryFilter, { nullable: true })
-    _nor?: QueryFilter;
+    @Field(() => [QueryFilter], { nullable: true })
+    _nor?: QueryFilter[];
   }
 
   // Required for dynamic QueryFilter type resolution in OperatorInputType function

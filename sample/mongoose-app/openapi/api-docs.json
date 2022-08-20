@@ -6545,13 +6545,22 @@
                 "type": "object",
                 "properties": {
                     "_and": {
-                        "$ref": "#/components/schemas/FileMetaFilter"
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/FileMetaFilter"
+                        }
                     },
                     "_or": {
-                        "$ref": "#/components/schemas/FileMetaFilter"
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/FileMetaFilter"
+                        }
                     },
                     "_nor": {
-                        "$ref": "#/components/schemas/FileMetaFilter"
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/FileMetaFilter"
+                        }
                     },
                     "mimeType": {
                         "$ref": "#/components/schemas/FilterOperator"
@@ -6568,13 +6577,22 @@
                 "type": "object",
                 "properties": {
                     "_and": {
-                        "$ref": "#/components/schemas/FileFilter"
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/FileFilter"
+                        }
                     },
                     "_or": {
-                        "$ref": "#/components/schemas/FileFilter"
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/FileFilter"
+                        }
                     },
                     "_nor": {
-                        "$ref": "#/components/schemas/FileFilter"
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/FileFilter"
+                        }
                     },
                     "meta": {
                         "$ref": "#/components/schemas/FileMetaFilter"
@@ -6619,13 +6637,22 @@
                         "$ref": "#/components/schemas/FilterOperator"
                     },
                     "_and": {
-                        "$ref": "#/components/schemas/CategoriesFilter"
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CategoriesFilter"
+                        }
                     },
                     "_or": {
-                        "$ref": "#/components/schemas/CategoriesFilter"
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CategoriesFilter"
+                        }
                     },
                     "_nor": {
-                        "$ref": "#/components/schemas/CategoriesFilter"
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CategoriesFilter"
+                        }
                     }
                 }
             },
@@ -6661,13 +6688,22 @@
                         "$ref": "#/components/schemas/FilterOperator"
                     },
                     "_and": {
-                        "$ref": "#/components/schemas/ApplicationsFilter"
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ApplicationsFilter"
+                        }
                     },
                     "_or": {
-                        "$ref": "#/components/schemas/ApplicationsFilter"
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ApplicationsFilter"
+                        }
                     },
                     "_nor": {
-                        "$ref": "#/components/schemas/ApplicationsFilter"
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ApplicationsFilter"
+                        }
                     }
                 }
             },
@@ -6724,13 +6760,22 @@
                         "$ref": "#/components/schemas/FilterOperator"
                     },
                     "_and": {
-                        "$ref": "#/components/schemas/UsersFilter"
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/UsersFilter"
+                        }
                     },
                     "_or": {
-                        "$ref": "#/components/schemas/UsersFilter"
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/UsersFilter"
+                        }
                     },
                     "_nor": {
-                        "$ref": "#/components/schemas/UsersFilter"
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/UsersFilter"
+                        }
                     }
                 }
             },
@@ -6757,13 +6802,22 @@
                         "$ref": "#/components/schemas/FilterOperator"
                     },
                     "_and": {
-                        "$ref": "#/components/schemas/FeaturesFilter"
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/FeaturesFilter"
+                        }
                     },
                     "_or": {
-                        "$ref": "#/components/schemas/FeaturesFilter"
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/FeaturesFilter"
+                        }
                     },
                     "_nor": {
-                        "$ref": "#/components/schemas/FeaturesFilter"
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/FeaturesFilter"
+                        }
                     }
                 }
             },
@@ -6796,13 +6850,22 @@
                         "$ref": "#/components/schemas/FilterOperator"
                     },
                     "_and": {
-                        "$ref": "#/components/schemas/PlansFilter"
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PlansFilter"
+                        }
                     },
                     "_or": {
-                        "$ref": "#/components/schemas/PlansFilter"
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PlansFilter"
+                        }
                     },
                     "_nor": {
-                        "$ref": "#/components/schemas/PlansFilter"
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PlansFilter"
+                        }
                     }
                 }
             },
@@ -6841,13 +6904,22 @@
                         "$ref": "#/components/schemas/FilterOperator"
                     },
                     "_and": {
-                        "$ref": "#/components/schemas/ProjectsFilter"
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ProjectsFilter"
+                        }
                     },
                     "_or": {
-                        "$ref": "#/components/schemas/ProjectsFilter"
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ProjectsFilter"
+                        }
                     },
                     "_nor": {
-                        "$ref": "#/components/schemas/ProjectsFilter"
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ProjectsFilter"
+                        }
                     }
                 }
             },

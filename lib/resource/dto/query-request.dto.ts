@@ -9,13 +9,13 @@ type FilterQuerySubType<T> =
   | T
   | Record<string, any>
   | FilterOperatorType<T>
-  | Record<'_and' | '_or' | '_nor', FilterOperatorType<T>>;
+  | Record<'_and' | '_or' | '_nor', FilterOperatorType<T> | FilterOperatorType<T>[]>;
 
 export type FilterQueryType<T> =
   | T
   | Record<string, any>
   | FilterOperatorType<T>
-  | Record<'_and' | '_or' | '_nor', FilterQuerySubType<T>>;
+  | Record<'_and' | '_or' | '_nor', FilterQuerySubType<T> | FilterQuerySubType<T>[]>;
 
 export type SortType = 'asc' | 'desc';
 

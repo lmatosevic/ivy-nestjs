@@ -14,9 +14,9 @@ type Application {
 }
 
 input ApplicationsFilter {
-  _and: ApplicationsFilter
-  _nor: ApplicationsFilter
-  _or: ApplicationsFilter
+  _and: [ApplicationsFilter!]
+  _nor: [ApplicationsFilter!]
+  _or: [ApplicationsFilter!]
   category: CategoriesFilter
   createdAt: FilterOperator
   id: FilterOperator
@@ -40,9 +40,9 @@ enum AuthSource {
 }
 
 input CategoriesFilter {
-  _and: CategoriesFilter
-  _nor: CategoriesFilter
-  _or: CategoriesFilter
+  _and: [CategoriesFilter!]
+  _nor: [CategoriesFilter!]
+  _or: [CategoriesFilter!]
   children: CategoriesFilter
   createdAt: FilterOperator
   id: FilterOperator
@@ -126,9 +126,9 @@ type Feature {
 }
 
 input FeaturesFilter {
-  _and: FeaturesFilter
-  _nor: FeaturesFilter
-  _or: FeaturesFilter
+  _and: [FeaturesFilter!]
+  _nor: [FeaturesFilter!]
+  _or: [FeaturesFilter!]
   createdAt: FilterOperator
   file: FileFilter
   id: FilterOperator
@@ -152,12 +152,12 @@ input FileDto {
 }
 
 input FileFilter {
-  _and: FileFilter
-  _nor: FileFilter
-  _or: FileFilter
+  _and: [FileFilter!]
+  _nor: [FileFilter!]
+  _or: [FileFilter!]
   data: FilterOperator
   description: FilterOperator
-  meta: FileMetaFilter
+  meta: [FileFilter!]
   originalName: FilterOperator
   title: FilterOperator
 }
@@ -166,15 +166,6 @@ type FileMeta {
   createdAt: DateTime
   mimeType: String
   size: Float
-}
-
-input FileMetaFilter {
-  _and: FileMetaFilter
-  _nor: FileMetaFilter
-  _or: FileMetaFilter
-  createdAt: FilterOperator
-  mimeType: FilterOperator
-  size: FilterOperator
 }
 
 type FileMetaSchema {
@@ -296,9 +287,9 @@ type Plan {
 }
 
 input PlansFilter {
-  _and: PlansFilter
-  _nor: PlansFilter
-  _or: PlansFilter
+  _and: [PlansFilter!]
+  _nor: [PlansFilter!]
+  _or: [PlansFilter!]
   createdAt: FilterOperator
   features: FeaturesFilter
   files: FileFilter
@@ -327,9 +318,9 @@ type Project {
 }
 
 input ProjectsFilter {
-  _and: ProjectsFilter
-  _nor: ProjectsFilter
-  _or: ProjectsFilter
+  _and: [ProjectsFilter!]
+  _nor: [ProjectsFilter!]
+  _or: [ProjectsFilter!]
   applications: ApplicationsFilter
   createdAt: FilterOperator
   description: FilterOperator
@@ -456,9 +447,9 @@ type User {
 }
 
 input UsersFilter {
-  _and: UsersFilter
-  _nor: UsersFilter
-  _or: UsersFilter
+  _and: [UsersFilter!]
+  _nor: [UsersFilter!]
+  _or: [UsersFilter!]
   avatar: FileFilter
   consent: FilterOperator
   createdAt: FilterOperator

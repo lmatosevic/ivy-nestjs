@@ -155,7 +155,7 @@ function initializeFilterModel(classRef: Type<unknown>): any {
   const queryFilter = queryFilterProxy[`${pluralName}Filter`];
 
   const field = ApiProperty({
-    type: () => queryFilter,
+    type: () => [queryFilter],
     required: false
   });
 

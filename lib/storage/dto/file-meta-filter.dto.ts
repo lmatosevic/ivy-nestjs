@@ -1,6 +1,6 @@
-import { InputType } from '@nestjs/graphql';
-import { FilterOperator } from '../../resource';
+import { Field, InputType } from '@nestjs/graphql';
 import { ApiPropertyOptional } from '@nestjs/swagger';
+import { FilterOperator } from '../../resource';
 
 @InputType()
 export class FileMetaFilter {
@@ -10,12 +10,15 @@ export class FileMetaFilter {
 
   createdAt?: FilterOperator;
 
-  @ApiPropertyOptional({ type: () => FileMetaFilter })
-  _and?: FileMetaFilter;
+  @Field(() => [FileMetaFilter], { nullable: true })
+  @ApiPropertyOptional({ type: () => [FileMetaFilter] })
+  _and?: FileMetaFilter | FileMetaFilter[];
 
-  @ApiPropertyOptional({ type: () => FileMetaFilter })
-  _or?: FileMetaFilter;
+  @Field(() => [FileMetaFilter], { nullable: true })
+  @ApiPropertyOptional({ type: () => [FileMetaFilter] })
+  _or?: FileMetaFilter | FileMetaFilter[];
 
-  @ApiPropertyOptional({ type: () => FileMetaFilter })
-  _nor?: FileMetaFilter;
+  @Field(() => [FileMetaFilter], { nullable: true })
+  @ApiPropertyOptional({ type: () => [FileMetaFilter] })
+  _nor?: FileMetaFilter | FileMetaFilter[];
 }

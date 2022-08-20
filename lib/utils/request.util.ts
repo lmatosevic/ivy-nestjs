@@ -155,7 +155,7 @@ export class RequestUtil {
               : `${propertyKeys.slice(0, -1).join('_')}.${propertyKeys[propertyKeys.length - 1]}`;
 
           for (const [subKey, subVal] of Object.entries(value)) {
-            if (this.filterQueryKeys.includes(subKey)) {
+            if (this.filterQueryKeys.includes(subKey) && !this.filterQueryBrackets.includes(subKey)) {
               if (propertyKeys?.length >= 2) {
                 subPath = subPath.replace(`_${key}.`, '.');
               }
@@ -180,9 +180,23 @@ export class RequestUtil {
   }
 
   static mapIdKeys(filter: any, newIdKey: string = '_id'): any {
-    return _.transform(filter, (result, value, key) => {
-      result[key === 'id' ? newIdKey : key] = _.isPlainObject(value) ? this.mapIdKeys(value) : value;
-    });
+    return _.transform(
+      filter,
+      (result, value, key) => {
+        const newKey = key === 'id' ? newIdKey : key;
+        if (_.isPlainObject(value)) {
+          result[newKey] = this.mapIdKeys(value);
+        } else if (Array.isArray(value)) {
+          for (let i = 0; i < value.length; i++) {
+            value[i] = this.mapIdKeys(value[i]);
+          }
+          result[newKey] = value;
+        } else {
+          result[newKey] = value;
+        }
+      },
+      {}
+    );
   }
 
   static normalizeSort(sort: any): any {
