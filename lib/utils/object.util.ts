@@ -31,13 +31,14 @@ export class ObjectUtil {
         if (!Array.isArray(val)) {
           keyList.push(key);
           val = this.transfromKeysAndValues(val, newKey, newValue, mergeKeyValue, keyList);
+          keyList.pop();
         } else {
           const items = [];
+          keyList.push(key);
           for (let item of val) {
-            keyList.push(key);
             items.push(this.transfromKeysAndValues(item, newKey, newValue, mergeKeyValue, keyList));
-            keyList.pop();
           }
+          keyList.pop();
           val = items;
         }
       }
@@ -81,8 +82,6 @@ export class ObjectUtil {
       }
     }
 
-    keyList.pop();
-
     return acc;
   }
 
@@ -119,15 +118,16 @@ export class ObjectUtil {
         if (!Array.isArray(val)) {
           keyList.push(key);
           val = await this.transfromKeysAndValuesAsync(val, newKey, newValue, mergeKeyValue, keyList);
+          keyList.pop();
         } else {
           const items = [];
+          keyList.push(key);
           for (let item of val) {
-            keyList.push(key);
             items.push(
               await this.transfromKeysAndValuesAsync(item, newKey, newValue, mergeKeyValue, keyList)
             );
-            keyList.pop();
           }
+          keyList.pop();
           val = items;
         }
       }
@@ -170,8 +170,6 @@ export class ObjectUtil {
         }
       }
     }
-
-    keyList.pop();
 
     return acc;
   }

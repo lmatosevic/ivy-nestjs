@@ -131,7 +131,7 @@ export class RequestUtil {
         return value;
       }
     );
-    return this.mapIdKeys(newFilter);
+    return this.mapIdKeys(newFilter, '_id');
   }
 
   static transformTypeormFilter(filter: any, modelName: string): any {
@@ -179,16 +179,19 @@ export class RequestUtil {
     );
   }
 
-  static mapIdKeys(filter: any, newIdKey: string = '_id'): any {
+  static mapIdKeys(filter: any, newIdKey: string, oldIdKey: string = 'id'): any {
+    if (newIdKey === oldIdKey) {
+      return { ...filter };
+    }
     return _.transform(
       filter,
       (result, value, key) => {
-        const newKey = key === 'id' ? newIdKey : key;
+        const newKey = key === oldIdKey ? newIdKey : key;
         if (_.isPlainObject(value)) {
-          result[newKey] = this.mapIdKeys(value);
+          result[newKey] = this.mapIdKeys(value, newIdKey);
         } else if (Array.isArray(value)) {
           for (let i = 0; i < value.length; i++) {
-            value[i] = this.mapIdKeys(value[i]);
+            value[i] = this.mapIdKeys(value[i], newIdKey);
           }
           result[newKey] = value;
         } else {

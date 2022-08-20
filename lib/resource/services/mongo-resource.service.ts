@@ -175,7 +175,6 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     delete updateDto['id'];
 
     let intersectedDto = this.intersectFields(updateDto);
-    intersectedDto = RequestUtil.mapIdKeys(intersectedDto);
 
     const resource = await this.findResource(id, false, false);
     const currentResource = _.cloneDeep(resource);
@@ -691,14 +690,12 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
 
   private modelNameFromFieldList(fieldList: string[]): string {
     const fields = [...fieldList];
-    let previousModelName = this.model.modelName;
     let currentModelName = this.model.modelName;
 
     while (fields.length > 0) {
       const field = fields.shift();
       const fieldRef = this.refProp(field, currentModelName);
       if (fieldRef && fieldRef.ref) {
-        previousModelName = currentModelName;
         currentModelName = fieldRef.ref;
       }
     }

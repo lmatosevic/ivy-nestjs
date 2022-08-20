@@ -1,14 +1,16 @@
-import { RequestContext } from '../../context';
 import { PolicyRules } from './resource-policy.interceptor';
-import * as _ from 'lodash';
+import { RequestContext } from '../../context';
 import { AuthUser } from '../../auth';
-import { ObjectUtil } from '../../utils';
+import { RequestUtil } from '../../utils';
+import * as _ from 'lodash';
 
 export abstract class ResourcePolicyService {
-  protected constructor(private idFieldName?: string) {}
+  protected constructor(protected idFieldName?: string) {}
 
   intersectFields(object: any): any {
     const allowedFields = this.policyProjection(true, false);
+
+    object = RequestUtil.mapIdKeys(object, this.idFieldName);
 
     if (!object || !allowedFields || Object.keys(allowedFields).length === 0) {
       return object;
@@ -53,10 +55,8 @@ export abstract class ResourcePolicyService {
   getPolicyRules(forceReadPolicy: boolean = false): PolicyRules {
     let policyRules =
       RequestContext.currentContext?.req?.[forceReadPolicy ? 'policyReadRules' : 'policyRules'] || null;
-    if (policyRules && this.idFieldName && this.idFieldName !== 'id') {
-      policyRules = ObjectUtil.transfromKeysAndValues(policyRules, (key: string) =>
-        key === 'id' ? this.idFieldName : key
-      );
+    if (policyRules && this.idFieldName) {
+      policyRules = RequestUtil.mapIdKeys(policyRules, this.idFieldName);
     }
     return policyRules;
   }

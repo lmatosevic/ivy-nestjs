@@ -207,7 +207,6 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     delete updateDto.id;
 
     let intersectedDto = this.intersectFields(updateDto);
-    intersectedDto = RequestUtil.mapIdKeys(intersectedDto);
 
     let resource = await this.findResource(id, false);
     const currentResource = _.cloneDeep(resource);
@@ -547,7 +546,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
 
     // Add all relations excluded from population but used in where query as inner join statements. As in filter
     // relations mapping, relations are also supported as multiple innter join statements for every filter occurance.
-    const filterRelations = this.filterAliasAndPaths(filterKeys, modelName);
+    const filterRelations = this.filtersAliasAndPaths(filterKeys, modelName);
     for (const filterRelation of filterRelations) {
       const { alias, path, name } = filterRelation;
       if (alias && path && name) {
@@ -633,7 +632,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     return { alias, path };
   }
 
-  private filterAliasAndPaths(
+  private filtersAliasAndPaths(
     filterKeys: string[],
     modelName: string,
     parentKey?: string
@@ -655,7 +654,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
         }
 
         items.push(
-          ...this.filterAliasAndPaths(
+          ...this.filtersAliasAndPaths(
             filterKeys
               .filter((fk) => fk.startsWith(filterKey + '.'))
               .map((fk) => fk.replace(filterKey + '.', '')),
