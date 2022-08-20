@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.11](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.10...v0.3.11) (2022-08-20)
+
+
+### Features
+
+* add support for array query object for _and, _or and _nor operators ([2fc9038](https://github.com/Lujo5/ivy-nestjs/commit/2fc90384acfa873d57a8b918c0138bec6ee4c7ca))
+
+
+### Bug Fixes
+
+* fix query resolving for filtering relation fields ([785dfc6](https://github.com/Lujo5/ivy-nestjs/commit/785dfc64697d16afc9f9d843dd0208dfbb49dee8))
+
 ### [0.3.10](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.9...v0.3.10) (2022-08-18)
 
 
