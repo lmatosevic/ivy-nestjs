@@ -86,6 +86,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
 
       if (Object.keys(filter).length > 0) {
         filter = RequestUtil.transformMongooseFilter(filter);
+        this.logger.debug('Transformed filter: %j', filter);
       }
 
       filter = await this.resolveFilterSubReferences(filter);
@@ -628,12 +629,12 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
         if (value !== null && typeof value === 'object') {
           const model = this.model.db.models[this.refProp(key, modelName)?.ref];
 
-          // Make referenced fields query as an array of matching ids
+          // Transform referenced fields query object to an array of matching ids
           if (model && !Array.isArray(value) && this.referencedFields(modelName).includes(key)) {
             return model.distinct('_id', value).session(this.session).exec();
           }
 
-          // Make array of allowed reverse id references by virtual properties
+          // Transform virtual fields query object to allowed reverse id references by virtual properties
           if (model && this.virtualFields(modelName).includes(key)) {
             const query = Array.isArray(value) ? { _id: value } : value;
             const fieldRefs = this.refProps(model.modelName);
@@ -644,7 +645,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
             }
           }
 
-          // Make keys for nested properties in format key.subKey = value and resolved FileMeta subqueries
+          // Transform keys for nested properties in format key.subKey = value and resolved FileMeta subqueries
           if (
             !Array.isArray(value) &&
             (this.fileFields(modelName).includes(key) || this.embeddedFields(modelName).includes(key))
@@ -702,7 +703,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
       }
     }
 
-    return fieldList.length > 1 ? previousModelName : currentModelName;
+    return currentModelName;
   }
 
   private fields(modelName?: string): string[] {

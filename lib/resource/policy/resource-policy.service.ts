@@ -27,16 +27,16 @@ export abstract class ResourcePolicyService {
     return _.pick(dtoObject, fields);
   }
 
-  policyFilter(useReadPolicy: boolean = true): any {
-    const policyRules = this.getPolicyRules(useReadPolicy);
+  policyFilter(forceReadPolicy: boolean = true): any {
+    const policyRules = this.getPolicyRules(forceReadPolicy);
     if (!policyRules || Object.keys(policyRules).length === 0) {
       return {};
     }
     return policyRules.filter;
   }
 
-  policyProjection(excludeSubFields = true, useReadPolicy: boolean = true): any {
-    const policyRules = this.getPolicyRules(useReadPolicy);
+  policyProjection(excludeSubFields = true, forceReadPolicy: boolean = true): any {
+    const policyRules = this.getPolicyRules(forceReadPolicy);
     if (!policyRules || Object.keys(policyRules).length === 0) {
       return {};
     }
@@ -50,9 +50,9 @@ export abstract class ResourcePolicyService {
     }
   }
 
-  getPolicyRules(useReadPolicy: boolean = false): PolicyRules {
+  getPolicyRules(forceReadPolicy: boolean = false): PolicyRules {
     let policyRules =
-      RequestContext.currentContext?.req?.[useReadPolicy ? 'policyReadRules' : 'policyRules'] || null;
+      RequestContext.currentContext?.req?.[forceReadPolicy ? 'policyReadRules' : 'policyRules'] || null;
     if (policyRules && this.idFieldName && this.idFieldName !== 'id') {
       policyRules = ObjectUtil.transfromKeysAndValues(policyRules, (key: string) =>
         key === 'id' ? this.idFieldName : key
@@ -67,5 +67,9 @@ export abstract class ResourcePolicyService {
 
   isInternalCall(): boolean {
     return !RequestContext.currentContext?.req;
+  }
+
+  isExternalCall(): boolean {
+    return !this.isInternalCall();
   }
 }
