@@ -174,7 +174,12 @@ export class ObjectUtil {
     return acc;
   }
 
-  static nestedKeys(object: any, excludeKeys: string[] = []): string[] {
+  static nestedKeys(
+    object: any,
+    excludeKeys: string[] = [],
+    onObject?: (key: string, value: any, keys: string[]) => void,
+    onArray?: (key: string, value: any, keys: string[]) => void
+  ): string[] {
     if (!object || typeof object !== 'object' || Object.keys(object).length === 0) {
       return [];
     }
@@ -188,18 +193,20 @@ export class ObjectUtil {
 
       if (value && typeof value === 'object' && !Array.isArray(value)) {
         keys.push(
-          ...this.nestedKeys(value, excludeKeys)
+          ...this.nestedKeys(value, excludeKeys, onObject)
             .filter((k) => !excludeKeys.includes(k))
             .map((k) => (!excludeKeys.includes(key) ? `${key}.${k}` : k))
         );
+        onObject?.(key, value, keys);
       } else if (value && Array.isArray(value)) {
         for (const subValue of value) {
           keys.push(
-            ...this.nestedKeys(subValue, excludeKeys)
+            ...this.nestedKeys(subValue, excludeKeys, onObject)
               .filter((k) => !excludeKeys.includes(k))
               .map((k) => (!excludeKeys.includes(key) ? `${key}.${k}` : k))
           );
         }
+        onArray?.(key, value, keys);
       }
     }
 

@@ -506,7 +506,18 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
       innerJoin: {}
     };
 
-    const filterKeys = ObjectUtil.nestedKeys(filter, RequestUtil.filterQueryKeys);
+    const filterKeys = ObjectUtil.nestedKeys(filter, RequestUtil.filterQueryKeys, (key, value, keys) => {
+      let totalCount = 0;
+      for (const bracketKey of RequestUtil.filterQueryBrackets) {
+        const bracketValue = value[bracketKey];
+        if (bracketValue && Array.isArray(bracketValue)) {
+          totalCount += bracketValue.length;
+        }
+      }
+      for (let i = 0; i < totalCount - 1; i++) {
+        keys.push(key);
+      }
+    });
     const filterKeysCount = _.countBy(filterKeys);
 
     if (this.isInternalCall() && filter) {
