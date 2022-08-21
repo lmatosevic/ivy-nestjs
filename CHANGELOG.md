@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.14](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.13...v0.3.14) (2022-08-21)
+
+
+### Features
+
+* increased query filter supported native types ([b1c7bfd](https://github.com/Lujo5/ivy-nestjs/commit/b1c7bfddcdf9c8e26d4c40497638226323d2bdc5))
+
 ### [0.3.13](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.12...v0.3.13) (2022-08-21)
 
 
