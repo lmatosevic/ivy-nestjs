@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.13](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.12...v0.3.13) (2022-08-21)
+
+
+### Bug Fixes
+
+* fix filter keys list extraction method ([e19fc29](https://github.com/Lujo5/ivy-nestjs/commit/e19fc29efa6d16b4054c0676e6ded0a050a0a338))
+
 ### [0.3.12](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.11...v0.3.12) (2022-08-20)
 
 
