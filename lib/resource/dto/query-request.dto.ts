@@ -3,7 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { FilterOperator } from './filter-operator.dto';
 import { Transform } from 'class-transformer';
 
-type FilterOperatorType<T> = Record<keyof T, FilterOperator>;
+type FilterOperatorType<T> = Record<keyof T, FilterOperator | string | number | boolean>;
 
 type FilterQuerySubType<T> =
   | T
