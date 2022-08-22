@@ -29,22 +29,20 @@ export class Application extends ResourceEntity {
   @Column({ type: 'timestamptz', nullable: true })
   scheduledAt?: Date;
 
-  @ManyToOne(() => Project, (project) => project.applications, { cascade: ['update'], eager: true })
+  @ManyToOne(() => Project, (project) => project.applications, { eager: true })
   project: Project;
 
   @Column()
   projectId: number;
 
-  @ManyToMany(() => User, (user) => user.reviewedApps, { cascade: ['update'] })
+  @ManyToMany(() => User, (user) => user.reviewedApps)
   reviewers?: User[];
 
   @RelationId((app: Application) => app.reviewers)
   reviewerIds?: number[];
 
   @PopulateRelation()
-  @ManyToOne(() => Category, (category) => category.applications, {
-    cascade: ['update']
-  })
+  @ManyToOne(() => Category, (category) => category.applications)
   category?: Category;
 
   @ApiHideProperty()

@@ -50,11 +50,11 @@ export class Project extends ResourceEntity {
   @Column()
   planId: number;
 
-  @ManyToOne(() => User, (user) => user.projects, { cascade: ['update'] })
+  @ManyToOne(() => User, (user) => user.projects)
   owner: User;
 
   @PopulateRelation()
-  @OneToOne(() => Plan, (plan) => plan.project, { cascade: ['update'] })
+  @OneToOne(() => Plan, (plan) => plan.project)
   @JoinColumn()
   plan: Plan;
 
