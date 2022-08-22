@@ -2060,58 +2060,6 @@
                 ]
             }
         },
-        "/worker/store/{key}": {
-            "post": {
-                "operationId": "WorkerController_put",
-                "parameters": [
-                    {
-                        "name": "key",
-                        "required": true,
-                        "in": "path",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "boolean"
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            "get": {
-                "operationId": "WorkerController_get",
-                "parameters": [
-                    {
-                        "name": "key",
-                        "required": true,
-                        "in": "path",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/mail/send": {
             "post": {
                 "operationId": "MailerController_send",

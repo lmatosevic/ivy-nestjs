@@ -18,7 +18,7 @@ export class RedisService {
 
   async getValue<T>(key: string): Promise<T> {
     const value = await this.connection.get(key);
-    return parse(value) as T;
+    return value ? parse(value) as T : null;
   }
 
   async putValue(key: string, value: any, expireMs?: number): Promise<boolean> {
