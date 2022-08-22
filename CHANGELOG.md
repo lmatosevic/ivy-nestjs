@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.21](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.20...v0.3.21) (2022-08-22)
+
+
+### Features
+
+* update http exception filter error message and reason fields ([60b9af2](https://github.com/Lujo5/ivy-nestjs/commit/60b9af21e105034ff9e90ebd62288c6b5cb7e3f1))
+
 ### [0.3.20](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.19...v0.3.20) (2022-08-22)
 
 
