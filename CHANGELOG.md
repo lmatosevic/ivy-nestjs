@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.15](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.14...v0.3.15) (2022-08-22)
+
+
+### Features
+
+* add redis module and removed config from queue to separate redis config ([7a34d01](https://github.com/Lujo5/ivy-nestjs/commit/7a34d019daf21e23d813b376dd75f85561c81c1e))
+* add redis service basic get, put and delete commands ([f379f45](https://github.com/Lujo5/ivy-nestjs/commit/f379f4564f497f39e7431af3e3493d050c165753))
+* add redis service basic get, put and delete commands ([9d84f90](https://github.com/Lujo5/ivy-nestjs/commit/9d84f9021fa27dbbd596f7a237ad517235a03e54))
+
 ### [0.3.14](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.13...v0.3.14) (2022-08-21)
 
 
