@@ -5,7 +5,7 @@ import { RequestUtil } from '../../utils';
 import * as _ from 'lodash';
 
 export abstract class ResourcePolicyService {
-  protected constructor(protected idFieldName?: string) {}
+  protected constructor(protected idFieldName?: string, protected isProtected?: boolean) {}
 
   intersectFields(object: any): any {
     const allowedFields = this.policyProjection(true, false);
@@ -53,6 +53,9 @@ export abstract class ResourcePolicyService {
   }
 
   getPolicyRules(forceReadPolicy: boolean = false): PolicyRules {
+    if (!this.isProtected) {
+      return {};
+    }
     let policyRules =
       RequestContext.currentContext?.req?.[forceReadPolicy ? 'policyReadRules' : 'policyRules'] || null;
     if (policyRules && this.idFieldName) {
@@ -63,13 +66,5 @@ export abstract class ResourcePolicyService {
 
   getAuthUser(): AuthUser {
     return (RequestContext.currentContext?.req?.['user'] as AuthUser) || null;
-  }
-
-  isInternalCall(): boolean {
-    return !RequestContext.currentContext?.req;
-  }
-
-  isExternalCall(): boolean {
-    return !this.isInternalCall();
   }
 }

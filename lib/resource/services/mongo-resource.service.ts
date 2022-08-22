@@ -27,6 +27,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
   private static modelReferences: Record<string, ModelReferences>;
   private static replicationEnabled: boolean;
   private readonly logger = new Logger(MongoResourceService.name);
+  protected isProtected: boolean = false;
 
   protected constructor(
     protected model: Model<T & ResourceSchema>,
@@ -45,14 +46,30 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     }
   }
 
-  public useWith(sessionManager: ClientSession): ResourceService<T> {
+  async startTransaction(options?: any): Promise<{ session: ClientSession }> {
+    const session = await this.model.db.startSession();
+    session.startTransaction(options);
+    return { session };
+  }
+
+  useWith(sessionManager: ClientSession): MongoResourceService<T> {
     class ManagedMongoResourceService extends MongoResourceService<T> {}
 
-    return new ManagedMongoResourceService(
+    const managedService = new ManagedMongoResourceService(
       this.model,
       this.fileManager,
       MongoResourceService.replicationEnabled ? sessionManager : undefined
     );
+    managedService.setProtected(this.isProtected);
+    return managedService;
+  }
+
+  asProtected(): ResourceService<T> {
+    class ExternalMongoResourceService extends MongoResourceService<T> {}
+
+    const externalService = new ExternalMongoResourceService(this.model, this.fileManager, this.session);
+    externalService.setProtected(true);
+    return externalService;
   }
 
   async find(id: string): Promise<T> {
@@ -815,5 +832,9 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     this.logger.debug('%s virtual fields: %j', model.modelName, virtuals);
 
     return { fields, references, virtuals, embedded, files, fileProps, refProps, embeddedTypes };
+  }
+
+  private setProtected(value: boolean): void {
+    this.isProtected = value;
   }
 }

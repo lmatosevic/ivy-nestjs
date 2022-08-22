@@ -1,7 +1,16 @@
 import { Logger } from '@nestjs/common';
-import { Brackets, EntityManager, NotBrackets, Repository, SelectQueryBuilder } from 'typeorm';
+import {
+  Brackets,
+  EntityManager,
+  NotBrackets,
+  QueryRunner,
+  ReplicationMode,
+  Repository,
+  SelectQueryBuilder
+} from 'typeorm';
 import { PartialDeep } from 'type-fest';
 import { RelationMetadata } from 'typeorm/metadata/RelationMetadata';
+import { IsolationLevel } from 'typeorm/driver/types/IsolationLevel';
 import { ResourceError } from '../../resource/errors';
 import { FILE_PROPS_KEY, FileError, FileManager, FileProps } from '../../storage';
 import { POPULATE_RELATION_KEY, PopulateRelationConfig } from '../decorators';
@@ -40,6 +49,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
 {
   private static modelReferences: Record<string, ModelReferences>;
   private readonly logger = new Logger(TypeOrmResourceService.name);
+  protected isProtected: boolean = false;
 
   protected constructor(
     protected repository: Repository<T & ResourceEntity>,
@@ -53,13 +63,38 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     }
   }
 
-  public useWith(sessionManager: EntityManager): ResourceService<T> {
+  async startTransaction(
+    isolationLevel?: IsolationLevel,
+    replicationMode?: ReplicationMode
+  ): Promise<{ queryRunner: QueryRunner; manager: EntityManager }> {
+    const queryRunner = this.repository.metadata.connection.createQueryRunner(replicationMode);
+    const manager = queryRunner.manager;
+    await queryRunner.connect();
+    await queryRunner.startTransaction(isolationLevel);
+    return { manager, queryRunner };
+  }
+
+  useWith(sessionManager: EntityManager): TypeOrmResourceService<T> {
     class ManagedTypeOrmResourceService extends TypeOrmResourceService<T> {}
 
     const repository: Repository<T & ResourceEntity> = sessionManager.getRepository(
       this.repository.metadata.name
     );
-    return new ManagedTypeOrmResourceService(repository, this.fileManager, sessionManager);
+    const managedService = new ManagedTypeOrmResourceService(repository, this.fileManager, sessionManager);
+    managedService.setProtected(this.isProtected);
+    return managedService;
+  }
+
+  asProtected(): TypeOrmResourceService<T> {
+    class ExternalTypeOrmResourceService extends TypeOrmResourceService<T> {}
+
+    const externalService = new ExternalTypeOrmResourceService(
+      this.repository,
+      this.fileManager,
+      this.entityManager
+    );
+    externalService.setProtected(true);
+    return externalService;
   }
 
   async find(id: string | number): Promise<T> {
@@ -384,8 +419,8 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
       const relationInfo = joins.relations.find((rel) => rel.name === relationName);
       const isEager = eagerRelations.find((e) => e.name === relationName);
       if (
-        (this.isInternalCall() && !isEager) ||
-        (this.isExternalCall() && !relationInfo) ||
+        (!this.isProtected && !isEager) ||
+        (this.isProtected && !relationInfo) ||
         (hasProjections && !mappedProjections.includes(alias))
       ) {
         queryBuilder.leftJoin(path, alias);
@@ -520,7 +555,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     });
     const filterKeysCount = _.countBy(filterKeys);
 
-    if (this.isInternalCall() && filter) {
+    if (!this.isProtected && filter) {
       // Remove relations with populate relation decorator
       relations = relations.filter((r) => filterKeys.includes(r.name));
       // Add eager relations to population array
@@ -1045,5 +1080,9 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     );
 
     return { fields, files, relations, relationMetadata, relationPopulation, fileProps };
+  }
+
+  private setProtected(value: boolean): void {
+    this.isProtected = value;
   }
 }

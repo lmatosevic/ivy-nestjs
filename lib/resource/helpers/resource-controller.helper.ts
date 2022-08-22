@@ -227,10 +227,13 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
   @ApiTags(pluralName)
   @Resource(config)
   abstract class ResourceController {
+    private readonly protectedService: ResourceService<T>;
+
     protected constructor(
       protected service: ResourceService<T>,
       protected policy?: ResourcePolicy<any, any>
     ) {
+      this.protectedService = service.asProtected();
       if (policy) {
         UseInterceptors(new ResourcePolicyInterceptor(policy))(ResourceController);
       }
@@ -245,7 +248,7 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
     @HttpCode(200)
     @Get('/:id')
     find(@Param('id', ...idValidationPipes()) id: string): Promise<T> {
-      return this.service.find(id);
+      return this.protectedService.find(id);
     }
 
     @ApiOkResponse({
@@ -274,7 +277,7 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
     ): Promise<QueryResponse<T>> {
       const { page, size, sort, ...queryParams } = queryDto;
       const filter = RequestUtil.transformQueryParamsToFilter(queryParams);
-      return this.service.query({
+      return this.protectedService.query({
         filter,
         ...RequestUtil.prepareQueryParams(
           { page, size, sort },
@@ -319,7 +322,7 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
     @Post('/query')
     query(@Body() queryDto: QueryRequest<T>, @Config() config: ConfigService): Promise<QueryResponse<T>> {
       const { filter, ...options } = queryDto;
-      return this.service.query({
+      return this.protectedService.query({
         filter,
         ...RequestUtil.prepareQueryParams(
           options,
@@ -337,7 +340,7 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
     @Post()
     async create(@Body() createDto: C): Promise<T> {
       const instance = await RequestUtil.deserializeAndValidate(createDtoRef, createDto);
-      return this.service.create(instance);
+      return this.protectedService.create(instance);
     }
 
     @ApiBody({ type: updateDtoProxy[updateDtoRef.name] })
@@ -352,7 +355,7 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
     @Put('/:id')
     async update(@Param('id', ...idValidationPipes()) id: string, @Body() updateDto: U): Promise<T> {
       const instance = await RequestUtil.deserializeAndValidate(updateDtoRef, updateDto);
-      return this.service.update(id, instance);
+      return this.protectedService.update(id, instance);
     }
 
     @ApiOkResponse({ type: () => resourceRef })
@@ -364,7 +367,7 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
     @HttpCode(200)
     @Delete('/:id')
     async delete(@Param('id', ...idValidationPipes()) id: string | number): Promise<T> {
-      return this.service.delete(id);
+      return this.protectedService.delete(id);
     }
 
     @ApiBody({ type: [createDtoRef] })
@@ -379,7 +382,7 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
         createDtoRef,
         config.get('bulk.maxSize')
       );
-      return this.service.createBulk(instances);
+      return this.protectedService.createBulk(instances);
     }
 
     @ApiBody({ type: [updateDtoProxy[updateDtoRef.name]] })
@@ -394,7 +397,7 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
         updateDtoRef,
         config.get('bulk.maxSize')
       );
-      return this.service.updateBulk(instances);
+      return this.protectedService.updateBulk(instances);
     }
 
     @ApiBody({ type: [idParamType()] })
@@ -408,7 +411,7 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
         null,
         config.get('bulk.maxSize')
       );
-      return this.service.deleteBulk(instances);
+      return this.protectedService.deleteBulk(instances);
     }
 
     @ApiOkResponse({
@@ -442,7 +445,7 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
       try {
         const updateDto = FilesUtil.createFilesUpdateDto(files, filePropsMap);
         const instance = await RequestUtil.deserializeAndValidate(updateDtoRef, updateDto);
-        const updated = await this.service.update(id, instance, true);
+        const updated = await this.protectedService.update(id, instance, true);
         return FilesUtil.createFilesResponseDto(files, updated);
       } catch (e) {
         throw e;
@@ -463,12 +466,12 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
       @Body() deleteDto: any
     ): Promise<StatusResponse> {
       const deleteFilesInstance = await RequestUtil.deserializeAndValidate(deleteFilesDto, deleteDto);
-      const resource = await this.service.find(id);
+      const resource = await this.protectedService.find(id);
       const deleteFilesRequest = RequestUtil.transformDeleteFilesRequest(resource, deleteFilesInstance);
       if (deleteFilesRequest.count === 0) {
         return { success: false, message: 'No files for deletion are provided' };
       }
-      await this.service.update(id, deleteFilesRequest.dto as any);
+      await this.protectedService.update(id, deleteFilesRequest.dto as any);
       return {
         success: true,
         message: `Deleted ${deleteFilesRequest.count} file${deleteFilesRequest.count > 1 ? 's' : ''}`

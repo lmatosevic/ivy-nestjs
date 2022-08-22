@@ -2,7 +2,11 @@ import { PartialDeep } from 'type-fest';
 import { QueryRequest, QueryResponse } from '../dto';
 
 export interface ResourceService<T> {
+  startTransaction?(...options: any[]): Promise<any>;
+
   useWith?(sessionManager: any): ResourceService<T>;
+
+  asProtected?(): ResourceService<T>;
 
   find(id: string | number): Promise<T>;
 

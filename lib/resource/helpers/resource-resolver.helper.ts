@@ -165,10 +165,13 @@ export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown
   @Resource(config)
   @Resolver({ isAbstract: true })
   abstract class ResourceResolver {
+    private readonly protectedService: ResourceService<T>;
+
     protected constructor(
       protected service: ResourceService<T>,
       protected policy?: ResourcePolicy<any, any>
     ) {
+      this.protectedService = service.asProtected();
       if (policy) {
         UseInterceptors(new ResourcePolicyInterceptor(policy))(ResourceResolver);
       }
@@ -176,13 +179,13 @@ export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown
 
     @Query(() => resourceRef, { name: findOperationName })
     async find(@Args('id', { type: () => ID }) id: string | number): Promise<T> {
-      return this.service.find(id);
+      return this.protectedService.find(id);
     }
 
     @Query(() => QueryResponse, { name: queryOperationName })
     async query(@Args() queryOptions: QueryOptions, @Config() config: ConfigService): Promise<QueryResponse> {
       const { filter, ...options } = queryOptions;
-      return await this.service.query({
+      return await this.protectedService.query({
         filter,
         ...RequestUtil.prepareQueryParams(
           options,
@@ -196,7 +199,7 @@ export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown
     @Mutation(() => resourceRef, { name: `create${resourceRef.name}` })
     async create(@Args('data', { type: () => createDtoRef }) createDto: C): Promise<T> {
       const instance = await RequestUtil.deserializeAndValidate(createDtoRef, createDto);
-      return this.service.create(instance);
+      return this.protectedService.create(instance);
     }
 
     @Mutation(() => resourceRef, { name: `update${resourceRef.name}` })
@@ -205,12 +208,12 @@ export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown
       @Args('data', { type: () => updateDtoRef }) updateDto: U
     ): Promise<T> {
       const instance = await RequestUtil.deserializeAndValidate(updateDtoRef, updateDto);
-      return this.service.update(id, instance);
+      return this.protectedService.update(id, instance);
     }
 
     @Mutation(() => resourceRef, { name: `delete${resourceRef.name}` })
     async delete(@Args('id', { type: () => ID }) id: string | number): Promise<T> {
-      return this.service.delete(id);
+      return this.protectedService.delete(id);
     }
 
     @Mutation(() => [resourceRef], { name: `createBulk${pluralName}` })
@@ -224,7 +227,7 @@ export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown
         createDtoRef,
         config.get('bulk.maxSize')
       );
-      return this.service.createBulk(instances);
+      return this.protectedService.createBulk(instances);
     }
 
     @Mutation(() => [resourceRef], { name: `updateBulk${pluralName}` })
@@ -238,7 +241,7 @@ export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown
         updateDtoRef,
         config.get('bulk.maxSize')
       );
-      return this.service.updateBulk(instances);
+      return this.protectedService.updateBulk(instances);
     }
 
     @Mutation(() => [resourceRef], { name: `deleteBulk${pluralName}` })
@@ -252,19 +255,19 @@ export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown
         null,
         config.get('bulk.maxSize')
       );
-      return this.service.deleteBulk(instances);
+      return this.protectedService.deleteBulk(instances);
     }
 
     @Mutation(() => StatusResponse, { name: `delete${resourceRef.name}Files` })
     async unlink(@Args() deleteFiles: DeleteFilesArgs): Promise<StatusResponse> {
       const deleteFilesInstance = await RequestUtil.deserializeAndValidate(DeleteFilesArgs, deleteFiles);
-      const resource = await this.service.find(deleteFiles['id']);
+      const resource = await this.protectedService.find(deleteFiles['id']);
       delete deleteFilesInstance['id'];
       const deleteFilesRequest = RequestUtil.transformDeleteFilesRequest(resource, deleteFilesInstance);
       if (deleteFilesRequest.count === 0) {
         return { success: false, message: 'No files for deletion are provided' };
       }
-      await this.service.update(deleteFiles['id'], deleteFilesRequest.dto as any);
+      await this.protectedService.update(deleteFiles['id'], deleteFilesRequest.dto as any);
       return {
         success: true,
         message: `Deleted ${deleteFilesRequest.count} file${deleteFilesRequest.count > 1 ? 's' : ''}`
