@@ -48,7 +48,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
   implements ResourceService<T>
 {
   private static modelReferences: Record<string, ModelReferences>;
-  private readonly logger = new Logger(TypeOrmResourceService.name);
+  private readonly log = new Logger(TypeOrmResourceService.name);
   protected isProtected: boolean = false;
 
   protected constructor(
@@ -160,7 +160,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
       if (!this.entityManager) {
         await queryRunner.rollbackTransaction();
       }
-      this.logger.debug(e);
+      this.log.debug(e);
       throw new ResourceError(repository.metadata.name, {
         message: 'Bad request',
         reason: e.message,
@@ -208,7 +208,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
         this.repository as Repository<ResourceEntity>
       );
     } catch (e) {
-      this.logger.debug(e);
+      this.log.debug(e);
       await this.fileManager?.deleteFileArray(storedFiles);
       if (e instanceof FileError) {
         throw e;
@@ -275,7 +275,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
       );
       await this.fileManager?.deleteFileArray(filesToDelete);
     } catch (e) {
-      this.logger.debug(e);
+      this.log.debug(e);
       await this.fileManager?.deleteFileArray(storedFiles);
       if (e instanceof FileError) {
         throw e;
@@ -317,7 +317,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
 
       await this.fileManager?.deleteFileArray(filesToDelete);
     } catch (e) {
-      this.logger.debug(e);
+      this.log.debug(e);
       throw new ResourceError(this.repository.metadata.name, {
         message: e.message,
         reason: e.detail,
@@ -351,7 +351,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
 
       result = await queryBuilder.getOne();
     } catch (e) {
-      this.logger.debug(e);
+      this.log.debug(e);
       throw new ResourceError(this.repository.metadata.name, {
         message: 'Bad request',
         reason: e.message,
@@ -389,7 +389,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
 
     if (Object.keys(filter).length > 0) {
       filter = RequestUtil.transformTypeormFilter(filter, repository.metadata.name);
-      this.logger.debug('Transformed filter: %j', filter);
+      this.log.debug('Transformed filter: %j', filter);
     }
 
     const whereQuery = this.buildWhereQuery(filter, joins);
@@ -633,7 +633,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
       delete joinOptions.innerJoin[alias];
     }
 
-    this.logger.debug('Join options: %j', joinOptions);
+    this.log.debug('Join options: %j', joinOptions);
 
     return joinOptions;
   }
@@ -1071,9 +1071,9 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
       }
     }
 
-    this.logger.debug('%s file fields: %j', repository.metadata?.name, files);
-    this.logger.debug('%s relation fields: %j', repository.metadata?.name, relations);
-    this.logger.debug(
+    this.log.debug('%s file fields: %j', repository.metadata?.name, files);
+    this.log.debug('%s relation fields: %j', repository.metadata?.name, relations);
+    this.log.debug(
       '%s populate relation fields: %j',
       repository.metadata?.name,
       Object.keys(relationPopulation)

@@ -17,7 +17,7 @@ type AbilityCheck = {
 };
 
 export class ResourcePolicyInterceptor<T extends Ability> implements NestInterceptor {
-  private readonly logger = new Logger(ResourcePolicyInterceptor.name);
+  private readonly log = new Logger(ResourcePolicyInterceptor.name);
 
   constructor(protected readonly resourcePolicy: ResourcePolicy<T, any>) {}
 
@@ -38,7 +38,7 @@ export class ResourcePolicyInterceptor<T extends Ability> implements NestInterce
     try {
       ability = this.resourcePolicy.createAbilityForUser(user);
     } catch (e) {
-      this.logger.error(`Error while creating ability for subject ${sub}`, e);
+      this.log.error(`Error while creating ability for subject ${sub}`, e);
       throw new ForbiddenException('The user does not meet policy requirements for this operation');
     }
 

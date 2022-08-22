@@ -26,7 +26,7 @@ type ModelReferences = {
 export abstract class MongoResourceService<T> extends ResourcePolicyService implements ResourceService<T> {
   private static modelReferences: Record<string, ModelReferences>;
   private static replicationEnabled: boolean;
-  private readonly logger = new Logger(MongoResourceService.name);
+  private readonly log = new Logger(MongoResourceService.name);
   protected isProtected: boolean = false;
 
   protected constructor(
@@ -38,7 +38,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
 
     if (MongoResourceService.replicationEnabled === undefined) {
       MongoResourceService.replicationEnabled = !!this.model.db['_connectionOptions'].replicaSet;
-      this.logger.log('Database replication enabled');
+      this.log.log('Database replication enabled');
     }
 
     if (!MongoResourceService.modelReferences) {
@@ -103,7 +103,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
 
       if (Object.keys(filter).length > 0) {
         filter = RequestUtil.transformMongooseFilter(filter);
-        this.logger.debug('Transformed filter: %j', filter);
+        this.log.debug('Transformed filter: %j', filter);
       }
 
       filter = await this.resolveFilterSubReferences(filter);
@@ -128,7 +128,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
       if (!this.session && session) {
         await session.abortTransaction();
       }
-      this.logger.debug(e);
+      this.log.debug(e);
       throw new ResourceError(this.model.modelName, {
         message: 'Bad request',
         reason: e.reason?.message || e.message,
@@ -161,7 +161,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
       storedFiles = await this.persistResourceFiles(model, null, false);
       createdModel = await model.save();
     } catch (e) {
-      this.logger.debug(e);
+      this.log.debug(e);
       await this.fileManager?.deleteFileArray(storedFiles);
       if (e instanceof FileError) {
         throw e;
@@ -212,7 +212,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
       const filesToDelete = await this.resourceFilesToDelete(currentResource, updatedModel);
       await this.fileManager?.deleteFileArray(filesToDelete);
     } catch (e) {
-      this.logger.debug(e);
+      this.log.debug(e);
       await this.fileManager?.deleteFileArray(storedFiles);
       if (e instanceof FileError) {
         throw e;
@@ -260,7 +260,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
 
       await this.fileManager?.deleteFileArray(filesToDelete);
     } catch (e) {
-      this.logger.debug(e);
+      this.log.debug(e);
       await session.abortTransaction();
       throw new ResourceError(this.model.modelName, {
         message: e.message,
@@ -304,7 +304,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
       }
       resource = await findQuery.session(this.session).exec();
     } catch (e) {
-      this.logger.debug(e);
+      this.log.debug(e);
       throw new ResourceError(this.model.modelName, {
         message: 'Bad request',
         reason: e.reason?.message || e.message,
@@ -418,7 +418,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     }
 
     if (level === 0) {
-      this.logger.debug('Populated objects: %j', populations);
+      this.log.debug('Populated objects: %j', populations);
     }
 
     return populations;
@@ -437,7 +437,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     const virtuals = this.virtualFields(deletedModelName);
 
     if (virtuals.length > 0) {
-      this.logger.verbose('Cascade virtuals: %j', virtuals);
+      this.log.verbose('Cascade virtuals: %j', virtuals);
     }
 
     for (const virtualField of virtuals) {
@@ -461,7 +461,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
 
         if (fieldProp.onDelete === 'cascade') {
           await referencedResource.remove();
-          this.logger.verbose('Cascade delete for %s, %j', fieldProp.ref, logData);
+          this.log.verbose('Cascade delete for %s, %j', fieldProp.ref, logData);
           const populatedRefModel = await this.populateModelAllFields(referencedResource, fieldProp.ref);
           await this.cascadeRelations(populatedRefModel);
           continue;
@@ -477,9 +477,9 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
               );
             }
             await referencedResource.save();
-            this.logger.verbose('Cascaded to null value for %s.%s, %j', fieldProp.ref, field.name, logData);
+            this.log.verbose('Cascaded to null value for %s.%s, %j', fieldProp.ref, field.name, logData);
           } else {
-            this.logger.verbose('Do nothing on cascade for %s.%s, %j', fieldProp.ref, field.name, logData);
+            this.log.verbose('Do nothing on cascade for %s.%s, %j', fieldProp.ref, field.name, logData);
           }
         }
       }
@@ -616,7 +616,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
   }
 
   private async resolveFilterSubReferences(filter: any): Promise<any> {
-    this.logger.debug('Before filter resolve: %j', filter);
+    this.log.debug('Before filter resolve: %j', filter);
 
     const resolvedFilter = await ObjectUtil.transfromKeysAndValuesAsync(
       filter,
@@ -700,7 +700,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
       }
     );
 
-    this.logger.debug('After filter resolve: %j', resolvedFilter);
+    this.log.debug('After filter resolve: %j', resolvedFilter);
 
     return resolvedFilter;
   }
@@ -826,10 +826,10 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
       }
     }
 
-    this.logger.debug('%s file fields: %j', model.modelName, files);
-    this.logger.debug('%s referenced fields: %j', model.modelName, references);
-    this.logger.debug('%s embedded fields: %j', model.modelName, embedded);
-    this.logger.debug('%s virtual fields: %j', model.modelName, virtuals);
+    this.log.debug('%s file fields: %j', model.modelName, files);
+    this.log.debug('%s referenced fields: %j', model.modelName, references);
+    this.log.debug('%s embedded fields: %j', model.modelName, embedded);
+    this.log.debug('%s virtual fields: %j', model.modelName, virtuals);
 
     return { fields, references, virtuals, embedded, files, fileProps, refProps, embeddedTypes };
   }
