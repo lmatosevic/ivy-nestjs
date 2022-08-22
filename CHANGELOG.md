@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.18](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.17...v0.3.18) (2022-08-22)
+
+
+### Bug Fixes
+
+* fix policy read enforcement for unmatched CRUD handlers ([e0a5493](https://github.com/Lujo5/ivy-nestjs/commit/e0a54933828b9354854a226bc1a17b3fa8a7d0ad))
+
 ### [0.3.17](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.16...v0.3.17) (2022-08-22)
 
 
