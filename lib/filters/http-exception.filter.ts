@@ -11,12 +11,13 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
 
     const statusCode = exception.getStatus() || 500;
+    const resp = exception.getResponse();
     const data = {
       timestamp: new Date().toISOString(),
       path: request?.url || ctx['args'][3]?.['fieldName'],
-      message: exception.getResponse()?.['error'] || undefined,
+      message: resp?.['error'] || statusCode < 500 ? 'Bad Request' : 'Server error',
       code: statusCode,
-      reason: exception.message || 'Server error'
+      reason: resp?.['message'] || exception.message || undefined
     };
 
     this.logger[statusCode < 500 ? 'verbose' : 'error']('%j', data);
