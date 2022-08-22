@@ -3,6 +3,7 @@ import { APP_FILTER } from '@nestjs/core';
 import { ModuleAsyncOptions, ModuleUtil } from '../utils';
 import { MongoExceptionFilter } from './mongo-exception.filter';
 import { ResourceExceptionFilter } from './resource-exception.filter';
+import { HttpExceptionFilter } from './http-exception.filter';
 import { FileExceptionFilter } from './file-exception.filter';
 import { AuthorizationExceptionFilter } from './authorization-exception.filter';
 import { FILTERS_MODULE_OPTIONS } from './filters.constants';
@@ -44,6 +45,10 @@ export class FiltersModule {
               }
             ]
           : []),
+        {
+          provide: APP_FILTER,
+          useClass: HttpExceptionFilter
+        },
         {
           provide: APP_FILTER,
           useClass: ResourceExceptionFilter
