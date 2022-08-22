@@ -165,7 +165,7 @@ export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown
   @Resource(config)
   @Resolver({ isAbstract: true })
   abstract class ResourceResolver {
-    private readonly protectedService: ResourceService<T>;
+    protected readonly protectedService: ResourceService<T>;
 
     protected constructor(
       protected service: ResourceService<T>,
