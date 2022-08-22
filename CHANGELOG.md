@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.22](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.21...v0.3.22) (2022-08-22)
+
+
+### Features
+
+* enable both Public and Authorized decorators on any endpoint ([922c64c](https://github.com/Lujo5/ivy-nestjs/commit/922c64c8ae232d26d44c104645b2bf23bd179807))
+
 ### [0.3.21](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.20...v0.3.21) (2022-08-22)
 
 
