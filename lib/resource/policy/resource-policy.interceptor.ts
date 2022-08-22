@@ -43,6 +43,7 @@ export class ResourcePolicyInterceptor<T extends Ability> implements NestInterce
     }
 
     let allowed = true;
+    let handlerMatched = true;
     let rules = [];
     switch (handlerName) {
       case Operation.Find:
@@ -60,6 +61,8 @@ export class ResourcePolicyInterceptor<T extends Ability> implements NestInterce
       case Operation.Delete:
         ({ allowed, rules } = this.checkAbility(ability, Action.Delete, sub));
         break;
+      default:
+        handlerMatched = false;
     }
 
     if (!allowed) {
@@ -71,7 +74,7 @@ export class ResourcePolicyInterceptor<T extends Ability> implements NestInterce
     }
 
     const readRules = ability.rulesFor(Action.Read as any, sub);
-    if (readRules.length > 0) {
+    if (handlerMatched && readRules.length > 0) {
       request.policyReadRules = this.aggregatePolicyRules(readRules, request.policyReadRules);
     }
 
