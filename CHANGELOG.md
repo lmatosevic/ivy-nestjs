@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.17](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.16...v0.3.17) (2022-08-22)
+
+
+### Features
+
+* add default http exception filter ([0d42796](https://github.com/Lujo5/ivy-nestjs/commit/0d427961128448dafb7663ed50c89c5a8b6a67fe))
+
 ### [0.3.16](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.15...v0.3.16) (2022-08-22)
 
 
