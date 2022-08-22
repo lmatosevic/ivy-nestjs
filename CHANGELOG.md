@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.19](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.18...v0.3.19) (2022-08-22)
+
+
+### Features
+
+* add resource service protected mode for external API calls, and createTransaction method ([4067c38](https://github.com/Lujo5/ivy-nestjs/commit/4067c38d75a3168c232c863a33372bd784801a38))
+
 ### [0.3.18](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.17...v0.3.18) (2022-08-22)
 
 
