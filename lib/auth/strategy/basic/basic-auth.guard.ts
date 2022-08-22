@@ -2,7 +2,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { ExecutionContext, Injectable } from '@nestjs/common';
 import { ContextUtil } from '../../../utils';
 import { Reflector } from '@nestjs/core';
-import { IS_PUBLIC_KEY } from '../../decorators';
+import { HAS_AUTH_KEY, IS_PUBLIC_KEY } from '../../decorators';
 
 @Injectable()
 export class BasicAuthGuard extends AuthGuard('basic') {
@@ -15,7 +15,12 @@ export class BasicAuthGuard extends AuthGuard('basic') {
       context.getHandler(),
       context.getClass()
     ]);
-    if (isPublic) {
+    const isAuth = this.reflector.getAllAndOverride<boolean>(HAS_AUTH_KEY, [
+      context.getHandler(),
+      context.getClass()
+    ]);
+
+    if (isPublic && !isAuth) {
       return true;
     }
 

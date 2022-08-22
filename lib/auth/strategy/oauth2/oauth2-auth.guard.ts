@@ -2,7 +2,7 @@ import { ExecutionContext, Injectable } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Reflector } from '@nestjs/core';
 import { ContextUtil } from '../../../utils';
-import { IS_PUBLIC_KEY } from '../../decorators';
+import { HAS_AUTH_KEY, IS_PUBLIC_KEY } from '../../decorators';
 
 @Injectable()
 export class OAuth2AuthGuard extends AuthGuard('oauth2') {
@@ -15,7 +15,12 @@ export class OAuth2AuthGuard extends AuthGuard('oauth2') {
       context.getHandler(),
       context.getClass()
     ]);
-    if (isPublic) {
+    const isAuth = this.reflector.getAllAndOverride<boolean>(HAS_AUTH_KEY, [
+      context.getHandler(),
+      context.getClass()
+    ]);
+
+    if (isPublic && !isAuth) {
       return true;
     }
 

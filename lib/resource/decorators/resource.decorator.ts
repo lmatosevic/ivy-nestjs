@@ -1,5 +1,5 @@
 import { AuthType, DeliveryMethod, Operation, Role } from '../../enums';
-import { AUTH_KEY, Authorized, ReCaptcha, RECAPTCHA_KEY, Roles, ROLES_KEY } from '../../auth';
+import { AUTH_KEY, Authorized, Public, ReCaptcha, RECAPTCHA_KEY, Roles, ROLES_KEY } from '../../auth';
 import { ReflectionUtil } from '../../utils';
 
 export const RESOURCE_CONFIG_KEY = 'resourceConfig';
@@ -68,7 +68,7 @@ function applyOperationsConfig(config: ResourceConfig, target: Function) {
       continue;
     }
 
-    if (conf.public !== true) {
+    if (conf.public !== true || conf.auth) {
       authorizedOperation(target, operation, conf);
     }
 
@@ -96,6 +96,9 @@ function authorizedOperation(target: Function, operation: string, conf: Operatio
   let authorize = Authorized(...currentAuths);
   if (conf.auth && Array.isArray(conf.auth)) {
     authorize = Authorized(...currentAuths, ...conf.auth);
+  }
+  if (conf.public === true) {
+    Public()(parent, operationName(operation), descriptor);
   }
   authorize(parent, operationName(operation), descriptor);
 }

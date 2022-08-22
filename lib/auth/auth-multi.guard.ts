@@ -10,7 +10,7 @@ import { JwtAuthGuard } from './strategy/jwt';
 import { ApikeyAuthGuard } from './strategy/apikey';
 import { OAuth2AuthGuard } from './strategy/oauth2';
 import { AuthorizationError } from './errors';
-import { AUTH_KEY, IS_PUBLIC_KEY } from './decorators';
+import { AUTH_KEY, HAS_AUTH_KEY, IS_PUBLIC_KEY } from './decorators';
 import { AUTH_MODULE_OPTIONS } from './auth.constants';
 
 @Injectable()
@@ -35,7 +35,14 @@ export class AuthMultiGuard implements CanActivate {
       context.getHandler(),
       context.getClass()
     ]);
-    if (isPublic) {
+    const isAuth = this.reflector.getAllAndOverride<boolean>(HAS_AUTH_KEY, [
+      context.getHandler(),
+      context.getClass()
+    ]);
+
+    // If both Public and Authorized decorators are present, first try to resolve AuthUser object, but if
+    // unsuccessful then allow unauthorized user access anyway.
+    if (isPublic && !isAuth) {
       return true;
     }
 
@@ -81,6 +88,11 @@ export class AuthMultiGuard implements CanActivate {
           }
           break;
       }
+    }
+
+    // Allow unauthorized user to access endpoint
+    if (isPublic) {
+      return true;
     }
 
     throw new AuthorizationError('Unauthorized', 401);

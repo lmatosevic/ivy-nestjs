@@ -10,6 +10,7 @@ import { AuthType } from '../../enums';
 import { ShortErrorResponse } from '../../resource';
 import { AuthMultiGuard } from '../auth-multi.guard';
 
+export const HAS_AUTH_KEY = 'hasAuth';
 export const AUTH_KEY = 'authType';
 export const SCOPE_KEY = 'scopes';
 
@@ -48,6 +49,7 @@ export const Authorized = (...types: AuthType[] | string[]) => {
   return applyDecorators(
     SetMetadata(AUTH_KEY, types),
     SetMetadata(SCOPE_KEY, scopes),
+    SetMetadata(HAS_AUTH_KEY, true),
     UseGuards(AuthMultiGuard),
     ApiUnauthorizedResponse({ description: 'Unauthorized', type: ShortErrorResponse }),
     ApiForbiddenResponse({ description: 'Forbidden', type: ShortErrorResponse }),
