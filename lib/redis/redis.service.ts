@@ -6,13 +6,33 @@ import { REDIS_MODULE_OPTIONS } from './redis.constants';
 
 @Injectable()
 export class RedisService {
-  public readonly connection: Redis.Redis;
+  private readonly connection: Redis.Redis;
 
   constructor(
     @Inject(REDIS_MODULE_OPTIONS) private redisModuleOptions: RedisModuleOptions,
     private configService: ConfigService
   ) {
     this.connection = this.createConnection();
+  }
+
+  async getValue(key: string): Promise<string> {
+    return this.connection.get(key);
+  }
+
+  async putValue(key: string, value: any, expireMs?: number): Promise<boolean> {
+    const result = expireMs
+      ? await this.connection.set(key, value, 'PX', expireMs)
+      : await this.connection.set(key, value);
+    return result === 'OK';
+  }
+
+  async deleteEntry(key: string): Promise<boolean> {
+    const result = await this.connection.del(key);
+    return result > 0;
+  }
+
+  getConnection(): Redis.Redis {
+    return this.connection;
   }
 
   async checkConnection(): Promise<{ status: boolean; message?: string }> {
