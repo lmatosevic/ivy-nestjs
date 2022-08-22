@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Redis, { RedisOptions } from 'ioredis';
+import { parse, stringify } from 'flatted';
 import { RedisModuleOptions } from './redis.module';
 import { REDIS_MODULE_OPTIONS } from './redis.constants';
 
@@ -15,14 +16,16 @@ export class RedisService {
     this.connection = this.createConnection();
   }
 
-  async getValue(key: string): Promise<string> {
-    return this.connection.get(key);
+  async getValue<T>(key: string): Promise<T> {
+    const value = await this.connection.get(key);
+    return parse(value) as T;
   }
 
   async putValue(key: string, value: any, expireMs?: number): Promise<boolean> {
+    const jsonValue = stringify(value);
     const result = expireMs
-      ? await this.connection.set(key, value, 'PX', expireMs)
-      : await this.connection.set(key, value);
+      ? await this.connection.set(key, jsonValue, 'PX', expireMs)
+      : await this.connection.set(key, jsonValue);
     return result === 'OK';
   }
 
