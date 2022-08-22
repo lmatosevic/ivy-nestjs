@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.23](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.22...v0.3.23) (2022-08-22)
+
+
+### Features
+
+* expose protected service in resource controller and resolver ([1f486b8](https://github.com/Lujo5/ivy-nestjs/commit/1f486b88110ce89d70a14bab2881ee4d331ed83a))
+
 ### [0.3.22](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.21...v0.3.22) (2022-08-22)
 
 
