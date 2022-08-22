@@ -11,7 +11,7 @@ import {
   MongooseHealthIndicator,
   TypeOrmHealthIndicator
 } from '@nestjs/terminus';
-import { MailHealthIndicator, QueueHealthIndicator } from './indicators';
+import { MailHealthIndicator, RedisHealthIndicator } from './indicators';
 import { HealthModuleOptions } from './health.module';
 import { HEALTH_MODULE_OPTIONS } from './health.constants';
 
@@ -31,7 +31,7 @@ export class HealthService implements OnModuleInit {
     private memory: MemoryHealthIndicator,
     private disk: DiskHealthIndicator,
     private mail: MailHealthIndicator,
-    private queue: QueueHealthIndicator
+    private redis: RedisHealthIndicator
   ) {
     this.memoryThreshold =
       healthModuleOptions.memoryThreshold ?? configService.get('health.memoryThreshold') ?? 512;
@@ -56,8 +56,8 @@ export class HealthService implements OnModuleInit {
       optionalChecks.push(() => this.mailCheck());
     }
 
-    if (this.queue.isConfigured()) {
-      optionalChecks.push(() => this.queueCheck());
+    if (this.redis.isConfigured()) {
+      optionalChecks.push(() => this.redisCheck());
     }
 
     return this.health.check([
@@ -87,7 +87,7 @@ export class HealthService implements OnModuleInit {
     return this.mail.checkConnection('mail');
   }
 
-  public async queueCheck(): Promise<HealthIndicatorResult> {
-    return this.queue.checkConnection('queue');
+  public async redisCheck(): Promise<HealthIndicatorResult> {
+    return this.redis.checkConnection('redis');
   }
 }

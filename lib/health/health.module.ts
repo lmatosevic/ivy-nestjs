@@ -4,7 +4,7 @@ import { ModuleAsyncOptions, ModuleUtil } from '../utils';
 import { HealthController } from './health.controller';
 import { HealthResolver } from './health.resolver';
 import { HealthService } from './health.service';
-import { MailHealthIndicator, QueueHealthIndicator } from './indicators';
+import { MailHealthIndicator, RedisHealthIndicator } from './indicators';
 import { HEALTH_MODULE_OPTIONS } from './health.constants';
 
 export interface HealthModuleOptions {
@@ -34,7 +34,7 @@ export class HealthModule {
     return {
       module: HealthModule,
       imports: [...imports, TerminusModule],
-      providers: [...providers, HealthResolver, HealthService, MailHealthIndicator, QueueHealthIndicator],
+      providers: [...providers, HealthResolver, HealthService, MailHealthIndicator, RedisHealthIndicator],
       controllers: [HealthController],
       exports: [HEALTH_MODULE_OPTIONS]
     };

@@ -69,13 +69,16 @@ export default () => {
         extraMigrations: StringUtil.parseArray(process.env.DB_MIGRATION_EXTRA_MIGRATIONS, [], ';')
       }
     },
+    redis: {
+      host: process.env.REDIS_HOST || '127.0.0.1',
+      port: StringUtil.parseInteger(process.env.REDIS_PORT, 6379),
+      db: process.env.REDIS_DB,
+      user: process.env.REDIS_USER,
+      password: process.env.REDIS_PASSWORD,
+      keyPrefix: process.env.REDIS_KEY_PREFIX,
+    },
     queue: {
       type: process.env.QUEUE_TYPE || 'redis',
-      host: process.env.QUEUE_HOST || '127.0.0.1',
-      port: StringUtil.parseInteger(process.env.QUEUE_PORT, 6379),
-      db: process.env.QUEUE_DB,
-      user: process.env.QUEUE_USER,
-      password: process.env.QUEUE_PASSWORD,
       prefix: process.env.QUEUE_PREFIX,
       removeOnComplete: StringUtil.parseBool(process.env.QUEUE_REMOVE_ON_COMPLETE, true),
       removeOnFail: StringUtil.parseBool(process.env.QUEUE_REMOVE_ON_FAIL, false),

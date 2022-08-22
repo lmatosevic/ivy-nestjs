@@ -3,8 +3,8 @@ import { ConfigService } from '@nestjs/config';
 import { BullModule, BullModuleOptions } from '@nestjs/bull';
 import { BullModuleAsyncOptions } from '@nestjs/bull/dist/interfaces/bull-module-options.interface';
 import { ModuleAsyncOptions, ModuleUtil } from '../utils';
-import { QueueService } from './queue.service';
 import { QUEUE_MODULE_OPTIONS } from './queue.constant';
+import { RedisModule } from '../redis';
 
 export type QueueModuleOptions = BullModuleOptions;
 
@@ -40,6 +40,17 @@ export class QueueModule {
       module: QueueModule,
       imports: [
         ...imports,
+        RedisModule.forRootAsync({
+          inject: [ConfigService],
+          useFactory: async (conf: ConfigService) => ({
+            host: conf.get('redis.host'),
+            port: conf.get('redis.port'),
+            db: conf.get('redis.db'),
+            username: conf.get('redis.user'),
+            password: conf.get('redis.password'),
+            keyPrefix: conf.get('redis.keyPrefix')
+          })
+        }),
         BullModule.forRootAsync({
           inject: [QUEUE_MODULE_OPTIONS, ConfigService],
           useFactory: async (queueModuleOptions: QueueModuleOptions, conf: ConfigService) => ({
@@ -53,18 +64,19 @@ export class QueueModule {
             prefix: conf.get('queue.prefix'),
             ...queueModuleOptions,
             redis: {
-              host: conf.get('queue.host'),
-              port: conf.get('queue.port'),
-              db: conf.get('queue.db'),
-              username: conf.get('queue.user'),
-              password: conf.get('queue.password'),
+              host: conf.get('redis.host'),
+              port: conf.get('redis.port'),
+              db: conf.get('redis.db'),
+              username: conf.get('redis.user'),
+              password: conf.get('redis.password'),
+              keyPrefix: conf.get('redis.keyPrefix'),
               ...(queueModuleOptions.redis || {})
             }
           })
         })
       ],
-      providers: [...providers, QueueService],
-      exports: [QUEUE_MODULE_OPTIONS, BullModule, QueueService]
+      providers: [...providers],
+      exports: [QUEUE_MODULE_OPTIONS, BullModule]
     };
   }
 }

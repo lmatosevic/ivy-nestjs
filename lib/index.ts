@@ -9,6 +9,7 @@ export * from './logger';
 export * from './mail';
 export * from './mongoose';
 export * from './queue';
+export * from './redis';
 export * from './resource';
 export * from './storage';
 export * from './typeorm';
