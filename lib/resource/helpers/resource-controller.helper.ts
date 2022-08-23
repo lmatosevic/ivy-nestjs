@@ -227,7 +227,7 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
   @ApiTags(pluralName)
   @Resource(config)
   abstract class ResourceController {
-    protected readonly protectedService: ResourceService<T>;
+    private readonly protectedService: ResourceService<T>;
 
     protected constructor(
       protected service: ResourceService<T>,
