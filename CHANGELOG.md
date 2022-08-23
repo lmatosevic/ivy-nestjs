@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.24](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.23...v0.3.24) (2022-08-23)
+
+
+### Features
+
+* enable email template name config through env variables ([7233298](https://github.com/Lujo5/ivy-nestjs/commit/723329823be5a51ed4e2b176c60cf285a5ff505c))
+
 ### [0.3.23](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.22...v0.3.23) (2022-08-22)
 
 
