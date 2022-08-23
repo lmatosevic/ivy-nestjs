@@ -10,6 +10,7 @@ import { AccountModuleOptions, AccountRouteOptions } from './account.module';
 import { AccountDetailsService } from './interfaces';
 import { VerificationService } from './verification';
 import { ACCOUNT_MODULE_OPTIONS } from './account.constants';
+import * as _ from 'lodash';
 
 @Injectable()
 export class AccountService {
@@ -92,7 +93,7 @@ export class AccountService {
       return { success: false, message: 'Account is already verified' };
     }
 
-    const { subject, mailContent } = await this.prepareEmailData(
+    const { subject, mailContent } = await this.makeMailSubjectAndContent(
       'sendVerifyEmail',
       VerificationType.Email,
       user
@@ -142,7 +143,7 @@ export class AccountService {
       };
     }
 
-    const { subject, mailContent } = await this.prepareEmailData(
+    const { subject, mailContent } = await this.makeMailSubjectAndContent(
       'sendResetPassword',
       VerificationType.Password,
       user
@@ -178,7 +179,7 @@ export class AccountService {
     return { success: result, message: result ? 'Pasword updated' : 'Password update failed' };
   }
 
-  private async prepareEmailData(
+  private async makeMailSubjectAndContent(
     configKey: string,
     type: VerificationType,
     user: AuthUser
@@ -193,7 +194,18 @@ export class AccountService {
     const verificationToken = await this.verificationService.createToken(type, user.getId(), expiresAt);
 
     const link = this.createLink(linkUrl, verificationToken.token, type);
-    const content = this.accountModuleOptions[configKey]?.content;
+    let content = this.accountModuleOptions[configKey]?.content;
+
+    const templateName = this.configService.get(`account.${configKey}.templateName`);
+    if (
+      templateName &&
+      !content?.text &&
+      !content?.html &&
+      !content?.template?.content &&
+      !content?.template?.name
+    ) {
+      content = _.merge(content || {}, { template: { name: templateName } });
+    }
 
     const mailContext = { link, user, expiresIn, expiresAt };
     const mailContent = this.createMailContent(content, mailContext, defaultValues.text);

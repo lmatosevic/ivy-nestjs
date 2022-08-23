@@ -183,6 +183,7 @@ export default () => {
         recaptcha: StringUtil.parseBool(process.env.ACCOUNT_SEND_VERIFY_EMAIL_RECAPTCHA, false),
         expiresIn: StringUtil.parseInteger(process.env.ACCOUNT_SEND_VERIFY_EMAIL_EXPIRES_IN, 172800),
         linkUrl: process.env.ACCOUNT_SEND_VERIFY_EMAIL_LINK_URL,
+        templateName: process.env.ACCOUNT_SEND_VERIFY_EMAIL_TEMPLATE_NAME
       },
       verifyEmail: {
         enabled: StringUtil.parseBool(process.env.ACCOUNT_VERIFY_EMAIL_ENABLED, true),
@@ -193,6 +194,7 @@ export default () => {
         recaptcha: StringUtil.parseBool(process.env.ACCOUNT_SEND_RESET_PASSWORD_RECAPTCHA, false),
         expiresIn: StringUtil.parseInteger(process.env.ACCOUNT_SEND_RESET_PASSWORD_EXPIRES_IN, 7200),
         linkUrl: process.env.ACCOUNT_SEND_RESET_PASSWORD_LINK_URL,
+        templateName: process.env.ACCOUNT_SEND_RESET_PASSWORD_TEMPLATE_NAME
       },
       resetPassword: {
         enabled: StringUtil.parseBool(process.env.ACCOUNT_RESET_PASSWORD_ENABLED, true),

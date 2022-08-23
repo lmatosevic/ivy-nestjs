@@ -50,16 +50,7 @@ import { CategoriesModule } from '@resources/categories';
       imports: [UsersModule],
       inject: [UsersService],
       useFactory: async (usersService: UsersService) => ({
-        userDetailsService: usersService,
-        accountOptions: {
-          sendVerifyEmail: {
-            content: {
-              template: {
-                name: 'verify-email'
-              }
-            }
-          }
-        }
+        userDetailsService: usersService
       })
     }),
     RequestContextModule,
