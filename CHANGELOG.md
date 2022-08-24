@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.25](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.24...v0.3.25) (2022-08-24)
+
+
+### Bug Fixes
+
+* fix instantiation of new resource service variants by useWith or asProtected to extend original service class ([8eaa81d](https://github.com/Lujo5/ivy-nestjs/commit/8eaa81d6bc5f4f8d6ba887fd04c41288b365b1fe))
+
 ### [0.3.24](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.23...v0.3.24) (2022-08-23)
 
 
