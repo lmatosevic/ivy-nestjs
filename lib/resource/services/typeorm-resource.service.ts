@@ -1,4 +1,4 @@
-import { Logger } from '@nestjs/common';
+import { Logger, Type } from '@nestjs/common';
 import {
   Brackets,
   EntityManager,
@@ -75,7 +75,9 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
   }
 
   useWith(sessionManager: EntityManager): TypeOrmResourceService<T> {
-    class ManagedTypeOrmResourceService extends TypeOrmResourceService<T> {}
+    const servicePrototype = this.constructor as Type<TypeOrmResourceService<T>>;
+
+    class ManagedTypeOrmResourceService extends servicePrototype {}
 
     const repository: Repository<T & ResourceEntity> = sessionManager.getRepository(
       this.repository.metadata.name
@@ -86,7 +88,9 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
   }
 
   asProtected(): TypeOrmResourceService<T> {
-    class ExternalTypeOrmResourceService extends TypeOrmResourceService<T> {}
+    const servicePrototype = this.constructor as Type<TypeOrmResourceService<T>>;
+
+    class ExternalTypeOrmResourceService extends servicePrototype {}
 
     const externalService = new ExternalTypeOrmResourceService(
       this.repository,

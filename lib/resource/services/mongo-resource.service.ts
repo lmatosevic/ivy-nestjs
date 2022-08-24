@@ -1,4 +1,4 @@
-import { Logger } from '@nestjs/common';
+import { Logger, Type } from '@nestjs/common';
 import { ClientSession, Document, Model } from 'mongoose';
 import { PartialDeep } from 'type-fest';
 import { ResourceError } from '../../resource/errors';
@@ -53,7 +53,9 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
   }
 
   useWith(sessionManager: ClientSession): MongoResourceService<T> {
-    class ManagedMongoResourceService extends MongoResourceService<T> {}
+    const servicePrototype = this.constructor as Type<MongoResourceService<T>>;
+
+    class ManagedMongoResourceService extends servicePrototype {}
 
     const managedService = new ManagedMongoResourceService(
       this.model,
@@ -65,7 +67,9 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
   }
 
   asProtected(): ResourceService<T> {
-    class ExternalMongoResourceService extends MongoResourceService<T> {}
+    const servicePrototype = this.constructor as Type<MongoResourceService<T>>;
+
+    class ExternalMongoResourceService extends servicePrototype {}
 
     const externalService = new ExternalMongoResourceService(this.model, this.fileManager, this.session);
     externalService.setProtected(true);
