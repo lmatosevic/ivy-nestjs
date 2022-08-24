@@ -1,4 +1,4 @@
-import { Logger, Type } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { ClientSession, Document, Model } from 'mongoose';
 import { PartialDeep } from 'type-fest';
 import { ResourceError } from '../../resource/errors';
@@ -28,12 +28,9 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
   private static replicationEnabled: boolean;
   private readonly log = new Logger(MongoResourceService.name);
   protected isProtected: boolean = false;
+  protected session?: ClientSession;
 
-  protected constructor(
-    protected model: Model<T & ResourceSchema>,
-    protected fileManager?: FileManager,
-    private session?: ClientSession
-  ) {
+  protected constructor(protected model: Model<T & ResourceSchema>, protected fileManager?: FileManager) {
     super('_id');
 
     if (MongoResourceService.replicationEnabled === undefined) {
@@ -53,27 +50,29 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
   }
 
   useWith(sessionManager: ClientSession): MongoResourceService<T> {
-    const servicePrototype = this.constructor as Type<MongoResourceService<T>>;
+    const managedService = Object.assign(
+      Object.create(Object.getPrototypeOf(this)),
+      this
+    ) as MongoResourceService<T>;
 
-    class ManagedMongoResourceService extends servicePrototype {}
-
-    const managedService = new ManagedMongoResourceService(
-      this.model,
-      this.fileManager,
-      MongoResourceService.replicationEnabled ? sessionManager : undefined
-    );
     managedService.setProtected(this.isProtected);
+    managedService.setModel(this.model);
+    managedService.setSession(MongoResourceService.replicationEnabled ? sessionManager : undefined);
+
     return managedService;
   }
 
   asProtected(): ResourceService<T> {
-    const servicePrototype = this.constructor as Type<MongoResourceService<T>>;
+    const protectedService = Object.assign(
+      Object.create(Object.getPrototypeOf(this)),
+      this
+    ) as MongoResourceService<T>;
 
-    class ExternalMongoResourceService extends servicePrototype {}
+    protectedService.setProtected(true);
+    protectedService.setModel(this.model);
+    protectedService.setSession(this.session);
 
-    const externalService = new ExternalMongoResourceService(this.model, this.fileManager, this.session);
-    externalService.setProtected(true);
-    return externalService;
+    return protectedService;
   }
 
   async find(id: string): Promise<T> {
@@ -838,7 +837,15 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     return { fields, references, virtuals, embedded, files, fileProps, refProps, embeddedTypes };
   }
 
+  private setModel(model: Model<T & ResourceSchema>): void {
+    this.model = model;
+  }
+
   private setProtected(value: boolean): void {
     this.isProtected = value;
+  }
+
+  private setSession(session: ClientSession): void {
+    this.session = session;
   }
 }

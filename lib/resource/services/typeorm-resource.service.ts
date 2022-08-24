@@ -1,4 +1,4 @@
-import { Logger, Type } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import {
   Brackets,
   EntityManager,
@@ -50,11 +50,11 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
   private static modelReferences: Record<string, ModelReferences>;
   private readonly log = new Logger(TypeOrmResourceService.name);
   protected isProtected: boolean = false;
+  protected entityManager?: EntityManager;
 
   protected constructor(
     protected repository: Repository<T & ResourceEntity>,
-    protected fileManager?: FileManager,
-    private entityManager?: EntityManager
+    protected fileManager?: FileManager
   ) {
     super('id');
 
@@ -75,30 +75,33 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
   }
 
   useWith(sessionManager: EntityManager): TypeOrmResourceService<T> {
-    const servicePrototype = this.constructor as Type<TypeOrmResourceService<T>>;
-
-    class ManagedTypeOrmResourceService extends servicePrototype {}
+    const managedService = Object.assign(
+      Object.create(Object.getPrototypeOf(this)),
+      this
+    ) as TypeOrmResourceService<T>;
 
     const repository: Repository<T & ResourceEntity> = sessionManager.getRepository(
       this.repository.metadata.name
     );
-    const managedService = new ManagedTypeOrmResourceService(repository, this.fileManager, sessionManager);
+
     managedService.setProtected(this.isProtected);
+    managedService.setRepository(repository);
+    managedService.setEntityManager(sessionManager);
+
     return managedService;
   }
 
   asProtected(): TypeOrmResourceService<T> {
-    const servicePrototype = this.constructor as Type<TypeOrmResourceService<T>>;
+    const protectedService = Object.assign(
+      Object.create(Object.getPrototypeOf(this)),
+      this
+    ) as TypeOrmResourceService<T>;
 
-    class ExternalTypeOrmResourceService extends servicePrototype {}
+    protectedService.setProtected(true);
+    protectedService.setRepository(this.repository);
+    protectedService.setEntityManager(this.entityManager);
 
-    const externalService = new ExternalTypeOrmResourceService(
-      this.repository,
-      this.fileManager,
-      this.entityManager
-    );
-    externalService.setProtected(true);
-    return externalService;
+    return protectedService;
   }
 
   async find(id: string | number): Promise<T> {
@@ -1086,7 +1089,15 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     return { fields, files, relations, relationMetadata, relationPopulation, fileProps };
   }
 
+  private setRepository(repository: Repository<T & ResourceEntity>): void {
+    this.repository = repository;
+  }
+
   private setProtected(value: boolean): void {
     this.isProtected = value;
+  }
+
+  private setEntityManager(manager: EntityManager): void {
+    this.entityManager = manager;
   }
 }
