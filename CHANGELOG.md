@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.26](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.25...v0.3.26) (2022-08-24)
+
+
+### Bug Fixes
+
+* update resource services transformation methods to clone original service instance ([d9edd99](https://github.com/Lujo5/ivy-nestjs/commit/d9edd99a5c5257e78059bb65c3a82febc065e91e))
+
 ### [0.3.25](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.24...v0.3.25) (2022-08-24)
 
 
