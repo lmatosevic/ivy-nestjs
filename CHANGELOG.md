@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.27](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.26...v0.3.27) (2022-08-25)
+
+
+### Features
+
+* separate templating from mail to new module ([f37b433](https://github.com/Lujo5/ivy-nestjs/commit/f37b433352dc64d25442b569f54a4e001e8cc972))
+
 ### [0.3.26](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.25...v0.3.26) (2022-08-24)
 
 
