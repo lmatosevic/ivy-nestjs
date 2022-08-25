@@ -2,18 +2,12 @@ import { Inject, Injectable, Logger, Optional } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectQueue } from '@nestjs/bull';
 import { Job, Queue } from 'bull';
+import { TemplateUtil } from '../utils';
+import { TemplateService } from '../template';
 import { MailIntegrationService } from './integrations';
 import { MailModuleOptions } from './mail.module';
 import { SendMailData } from './mail.job';
-import {
-  MAIL_INTEGRATION_SERVICE,
-  MAIL_MODULE_OPTIONS,
-  MAIL_QUEUE_NAME,
-  MAIL_TEMPLATE_ADAPTER
-} from './mail.constants';
-import { TemplateAdapter } from './template-adapters';
-import { TemplateUtil } from '../utils';
-import * as _ from 'lodash';
+import { MAIL_INTEGRATION_SERVICE, MAIL_MODULE_OPTIONS, MAIL_QUEUE_NAME } from './mail.constants';
 
 export type MailContent = {
   text?: string;
@@ -41,14 +35,14 @@ export class MailService {
     @Inject(MAIL_INTEGRATION_SERVICE) private mailIntegrationService: MailIntegrationService,
     @Inject(MAIL_MODULE_OPTIONS) private mailModuleOptions: MailModuleOptions,
     @InjectQueue(MAIL_QUEUE_NAME) private mailQueue: Queue<SendMailData>,
-    @Optional() @Inject(MAIL_TEMPLATE_ADAPTER) private templateAdapter: TemplateAdapter,
+    @Optional() private templateService: TemplateService,
     private configService: ConfigService
   ) {
     if (!this.mailIntegrationService) {
       throw Error('Mail integration service implementation is not provided');
     }
     this.queueEnabled = mailModuleOptions.queueEnabled ?? configService.get('mail.queueEnabled');
-    this.templateEnabled = mailModuleOptions.template?.enabled ?? configService.get('mail.template.enabled');
+    this.templateEnabled = mailModuleOptions?.templateEnabled ?? configService.get('mail.templateEnabled');
   }
 
   async send(
@@ -93,7 +87,7 @@ export class MailService {
   async compileContent(content: MailContent): Promise<{ text: string; html: string }> {
     if (
       !this.templateEnabled ||
-      !this.templateAdapter ||
+      !this.templateService ||
       !content.template ||
       (!content.template?.content && !content.template?.name)
     ) {
@@ -108,15 +102,11 @@ export class MailService {
 
     const isFile = !content.template?.content;
 
-    const templateConfig = _.merge(
-      { ...this.configService.get('mail.template') },
-      this.mailModuleOptions.template
-    );
-    const html = await this.templateAdapter.compile(
+    const html = await this.templateService.compile(
       content.template?.name,
       content.template?.context || {},
-      templateConfig,
-      isFile
+      isFile,
+      { inlineCss: { enabled: true, url: '_' } }
     );
 
     return { text: TemplateUtil.textFromHtml(html), html };

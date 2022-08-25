@@ -10,7 +10,7 @@ import {
   MongooseModule,
   QueueModule,
   RequestContextModule,
-  StorageModule
+  StorageModule, TemplateModule
 } from 'ivy-nestjs';
 import { AppService } from './app.service';
 import { InfoModule } from '@modules/info';
@@ -35,15 +35,14 @@ import { CategoriesModule } from '@resources/categories';
     MongooseModule.forRoot(),
     GraphQLModule.forRoot(),
     QueueModule.forRoot(),
-    MailModule.forRoot({
-      template: {
-        options: {
-          helpers: {
-            hours: (expiresIn: number) => expiresIn / 60 / 60
-          }
+    TemplateModule.forRoot({
+      options: {
+        helpers: {
+          hours: (expiresIn: number) => expiresIn / 60 / 60
         }
       }
     }),
+    MailModule.forRoot(),
     AuthModule.forRootAsync({
       userDetailsClass: User,
       userRegisterDtoClass: RegisterUserDto,

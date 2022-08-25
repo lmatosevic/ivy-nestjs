@@ -7,8 +7,8 @@ import * as inlineCss from 'inline-css';
 import * as glob from 'glob';
 import { get } from 'lodash';
 import { CompileConfig, TemplateAdapter } from './template.adapter';
-import { MAIL_MODULE_OPTIONS } from '../mail.constants';
-import { MailModuleOptions, TemplateAdapterConfig } from '../mail.module';
+import { TemplateModuleOptions } from '../template.module';
+import { TEMPLATE_MODULE_OPTIONS } from '../template.constants';
 
 export type TemplateInfo = {
   templateExt: string;
@@ -22,27 +22,20 @@ export class HandlebarsAdapter implements TemplateAdapter {
   private readonly logger = new Logger(HandlebarsAdapter.name);
   private precompiledTemplates: { [name: string]: handlebars.TemplateDelegate } = {};
 
-  private config: TemplateAdapterConfig = {
-    inlineCssOptions: { url: ' ' },
-    inlineCssEnabled: true
-  };
-
-  constructor(@Inject(MAIL_MODULE_OPTIONS) private mailModuleOptions: MailModuleOptions) {
-    const options = mailModuleOptions.template?.options || {};
-    const config = mailModuleOptions.template?.adapterConfig || {};
+  constructor(@Inject(TEMPLATE_MODULE_OPTIONS) private templateModuleOptions: TemplateModuleOptions) {
+    const options = templateModuleOptions.options || {};
     handlebars.registerHelper('concat', (...args) => {
       args.pop();
       return args.join('');
     });
     handlebars.registerHelper(options.helpers || {});
-    Object.assign(this.config, config);
   }
 
   async compile(
     template: string,
     context: Record<string, any>,
-    config?: CompileConfig,
-    isFile: boolean = true
+    isFile: boolean = true,
+    config?: CompileConfig
   ): Promise<string> {
     const { templateName } = await this.precompile(template, config, isFile);
 
@@ -66,10 +59,15 @@ export class HandlebarsAdapter implements TemplateAdapter {
       partials: this.precompiledTemplates
     });
 
+    const inlineCssOptions = get(config, 'inlineCss', {
+      enabled: false,
+      url: '_'
+    });
+
     let html = rendered;
-    if (this.config.inlineCssEnabled) {
+    if (inlineCssOptions.enabled) {
       try {
-        html = await inlineCss(rendered, this.config.inlineCssOptions);
+        html = await inlineCss(rendered, inlineCssOptions);
       } catch (e) {
         this.logger.error('Error while inlining css in templates: %j', e);
         throw e;

@@ -10,6 +10,7 @@ import {
   QueueModule,
   RequestContextModule,
   StorageModule,
+  TemplateModule,
   TypeOrmModule
 } from 'ivy-nestjs';
 import { AppService } from './app.service';
@@ -35,15 +36,14 @@ import { CategoriesModule } from '@resources/categories';
     TypeOrmModule.forRoot(),
     GraphQLModule.forRoot(),
     QueueModule.forRoot(),
-    MailModule.forRoot({
-      template: {
-        options: {
-          helpers: {
-            hours: (expiresIn: number) => expiresIn / 60 / 60
-          }
+    TemplateModule.forRoot({
+      options: {
+        helpers: {
+          hours: (expiresIn: number) => expiresIn / 60 / 60
         }
       }
     }),
+    MailModule.forRoot(),
     AuthModule.forRootAsync({
       userDetailsClass: User,
       userRegisterDtoClass: RegisterUserDto,

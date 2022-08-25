@@ -12,5 +12,6 @@ export * from './queue';
 export * from './redis';
 export * from './resource';
 export * from './storage';
+export * from './template';
 export * from './typeorm';
 export * from './utils';

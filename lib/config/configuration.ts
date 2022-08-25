@@ -75,7 +75,7 @@ export default () => {
       db: process.env.REDIS_DB,
       user: process.env.REDIS_USER,
       password: process.env.REDIS_PASSWORD,
-      keyPrefix: process.env.REDIS_KEY_PREFIX,
+      keyPrefix: process.env.REDIS_KEY_PREFIX
     },
     queue: {
       type: process.env.QUEUE_TYPE || 'redis',
@@ -85,16 +85,20 @@ export default () => {
       retryAttempts: StringUtil.parseInteger(process.env.QUEUE_RETRY_ATTEMPTS, 3),
       retryBackoff: StringUtil.parseInteger(process.env.QUEUE_RETRY_BACKOFF, 3000)
     },
+    template: {
+      type: process.env.MAIL_TEMPLATE_TYPE || 'handlebars',
+      rootDir: process.env.MAIL_TEMPLATE_ROOT_DIR || './templates',
+      inlineCss: {
+        url: process.env.TEMPLATE_INLINE_CSS_URL || '_',
+        enabled: StringUtil.parseBool(process.env.TEMPLATE_INLINE_CSS_ENABLED, false)
+      }
+    },
     mail: {
       type: process.env.MAIL_TYPE || 'smtp',
       queueEnabled: StringUtil.parseBool(process.env.MAIL_QUEUE_ENABLED, true),
+      templateEnabled: StringUtil.parseBool(process.env.MAIL_TEMPLATE_ENABLED, true),
       senderName: process.env.MAIL_SENDER_NAME,
       senderAddress: process.env.MAIL_SENDER_ADDRESS,
-      template: {
-        type: process.env.MAIL_TEMPLATE_TYPE || 'handlebars',
-        rootDir: process.env.MAIL_TEMPLATE_ROOT_DIR || './templates',
-        enabled: StringUtil.parseBool(process.env.MAIL_TEMPLATE_ENABLED, true)
-      },
       smtp: {
         host: process.env.MAIL_SMTP_HOST || '127.0.0.1',
         port: StringUtil.parseInteger(process.env.MAIL_SMTP_PORT, 587),

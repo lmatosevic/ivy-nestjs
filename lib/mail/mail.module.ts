@@ -5,32 +5,15 @@ import { QueueModule } from '../queue';
 import { MailService } from './mail.service';
 import { MailJob } from './mail.job';
 import { MailIntegrationService, SendinblueService, SmtpService } from './integrations';
-import { HandlebarsAdapter, TemplateAdapter } from './template-adapters';
-import {
-  MAIL_INTEGRATION_SERVICE,
-  MAIL_MODULE_OPTIONS,
-  MAIL_QUEUE_NAME,
-  MAIL_TEMPLATE_ADAPTER
-} from './mail.constants';
-
-export type TemplateAdapterConfig = {
-  inlineCssOptions?: { url?: string };
-  inlineCssEnabled?: boolean;
-};
+import { MAIL_INTEGRATION_SERVICE, MAIL_MODULE_OPTIONS, MAIL_QUEUE_NAME } from './mail.constants';
+import { TemplateModule } from '../template';
 
 export interface MailModuleOptions {
   type?: 'smtp' | 'sendinblue' | 'custom';
   queueEnabled?: boolean;
+  templateEnabled?: boolean;
   senderName?: string;
   senderAddress?: string;
-  template?: {
-    type?: 'handlebars' | 'custom';
-    rootDir?: string;
-    options?: Record<string, any>;
-    adapterConfig?: TemplateAdapterConfig;
-    templateAdapter?: TemplateAdapter;
-    enabled?: boolean;
-  };
   smtp?: {
     host?: string;
     port?: number;
@@ -64,22 +47,22 @@ export class MailModule {
   static createModule(providers: any[] = [], imports: any[] = []): DynamicModule {
     const env = ModuleUtil.getCurrentEnv();
     const queueEnabled = env.MAIL_QUEUE_ENABLED !== 'false';
+    const templateEnabled = env.MAIL_TEMPLATE_ENABLED !== 'false';
 
     if (queueEnabled) {
       imports.push(QueueModule.registerQueue({ name: MAIL_QUEUE_NAME }));
       providers.push(MailJob);
     }
 
+    if (templateEnabled) {
+      imports.push(TemplateModule);
+    }
+
     return {
       module: MailModule,
       imports: [...imports],
-      providers: [
-        ...providers,
-        MailService,
-        this.integrationServiceProvider(),
-        this.templateAdatperProvider()
-      ],
-      exports: [MAIL_MODULE_OPTIONS, MAIL_INTEGRATION_SERVICE, MAIL_TEMPLATE_ADAPTER, MailService]
+      providers: [...providers, MailService, this.integrationServiceProvider()],
+      exports: [MAIL_MODULE_OPTIONS, MAIL_INTEGRATION_SERVICE, MailService]
     };
   }
 
@@ -96,22 +79,6 @@ export class MailModule {
             return new SendinblueService(options, config);
           default:
             return options.integrationService;
-        }
-      }
-    };
-  }
-
-  private static templateAdatperProvider(): Provider {
-    return {
-      provide: MAIL_TEMPLATE_ADAPTER,
-      inject: [MAIL_MODULE_OPTIONS, ConfigService],
-      useFactory: async (options: MailModuleOptions, config: ConfigService) => {
-        const mailType = options.template?.type ?? config.get('mail.template.type');
-        switch (mailType) {
-          case 'handlebars':
-            return new HandlebarsAdapter(options);
-          default:
-            return options.template?.templateAdapter;
         }
       }
     };
