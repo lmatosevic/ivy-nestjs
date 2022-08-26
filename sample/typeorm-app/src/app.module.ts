@@ -40,6 +40,9 @@ import { CategoriesModule } from '@resources/categories';
       options: {
         helpers: {
           hours: (expiresIn: number) => expiresIn / 60 / 60
+        },
+        data: {
+          blockText: 'Lorem ipsum'
         }
       }
     }),

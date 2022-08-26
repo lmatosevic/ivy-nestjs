@@ -42,24 +42,31 @@ export class HandlebarsAdapter implements TemplateAdapter {
     const { templateName } = await this.precompile(template, config, isFile);
 
     const runtimeOptions = get(config, 'options', {
-      partials: false,
+      partials: true,
       data: {}
     });
 
-    if (runtimeOptions.partials) {
-      const files = glob.sync(path.join(runtimeOptions.partials.dir, '**', '*.hbs'));
+    if (runtimeOptions.partials !== false) {
+      const rootDir = get(config, 'rootDir', '');
+      const files = glob.sync(path.join(rootDir, '**', '*.hbs'));
       for (const file of files) {
-        const { templateName, templatePath } = await this.precompile(file, runtimeOptions.partials);
-        const templateDir = path.relative(runtimeOptions.partials.dir, path.dirname(templatePath));
-        const fileContent = await fsp.readFile(templatePath, 'utf-8');
-        handlebars.registerPartial(path.join(templateDir, templateName), fileContent);
+        const { templateName, templatePath } = await this.precompile(file);
+        const templateDir = path.relative(rootDir, path.dirname(file));
+        const partialName = path.join(templateDir, templateName).replace(/\\/g, '.').replace(/\//g, '.');
+        if (!handlebars.partials[partialName]) {
+          const fileContent = await fsp.readFile(templatePath, 'utf-8');
+          handlebars.registerPartial(partialName, fileContent);
+        }
       }
     }
 
-    const rendered = this.precompiledTemplates[templateName](context, {
-      ...runtimeOptions,
-      partials: this.precompiledTemplates
-    });
+    const rendered = this.precompiledTemplates[templateName](
+      { ...(runtimeOptions.data || {}), ...context },
+      {
+        ...runtimeOptions,
+        partials: runtimeOptions.partials !== false ? this.precompiledTemplates : {}
+      }
+    );
 
     const inlineCssOptions = get(config, 'inlineCss', {
       enabled: false,

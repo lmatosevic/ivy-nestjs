@@ -10,7 +10,8 @@ import {
   MongooseModule,
   QueueModule,
   RequestContextModule,
-  StorageModule, TemplateModule
+  StorageModule,
+  TemplateModule
 } from 'ivy-nestjs';
 import { AppService } from './app.service';
 import { InfoModule } from '@modules/info';
@@ -39,6 +40,9 @@ import { CategoriesModule } from '@resources/categories';
       options: {
         helpers: {
           hours: (expiresIn: number) => expiresIn / 60 / 60
+        },
+        data: {
+          blockText: 'Lorem ipsum'
         }
       }
     }),
