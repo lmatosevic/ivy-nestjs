@@ -1,7 +1,6 @@
-export type InlineCssOptions = {
-  url?: string;
-  enabled?: boolean;
-};
+import * as InlineCss from 'inline-css';
+
+export type InlineCssOptions = InlineCss.Options & { enabled?: boolean };
 
 export type CompileConfig = {
   rootDir?: string;
