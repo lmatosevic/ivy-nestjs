@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.31](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.30...v0.3.31) (2022-08-26)
+
+
+### Bug Fixes
+
+* fix handlebars adapter partials registration by default ([7dc8c25](https://github.com/Lujo5/ivy-nestjs/commit/7dc8c253b97f8e5692cf6514ccb37866189bfff1))
+
 ### [0.3.30](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.29...v0.3.30) (2022-08-26)
 
 
