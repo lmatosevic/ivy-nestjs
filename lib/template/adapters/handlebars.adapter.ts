@@ -1,6 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import * as handlebars from 'handlebars';
+import * as handlebarsHelpers from 'handlebars-helpers';
 import { promises as fsp } from 'fs';
 import * as path from 'path';
 import * as inlineCss from 'inline-css';
@@ -24,6 +25,7 @@ export class HandlebarsAdapter implements TemplateAdapter {
 
   constructor(@Inject(TEMPLATE_MODULE_OPTIONS) private templateModuleOptions: TemplateModuleOptions) {
     const options = templateModuleOptions.options || {};
+    handlebars.registerHelper(handlebarsHelpers());
     handlebars.registerHelper('concat', (...args) => {
       args.pop();
       return args.join('');

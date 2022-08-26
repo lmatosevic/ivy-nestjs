@@ -86,8 +86,8 @@ export default () => {
       retryBackoff: StringUtil.parseInteger(process.env.QUEUE_RETRY_BACKOFF, 3000)
     },
     template: {
-      type: process.env.MAIL_TEMPLATE_TYPE || 'handlebars',
-      rootDir: process.env.MAIL_TEMPLATE_ROOT_DIR || './templates',
+      type: process.env.TEMPLATE_TYPE || 'handlebars',
+      rootDir: process.env.TEMPLATE_ROOT_DIR || './templates',
       inlineCss: {
         url: process.env.TEMPLATE_INLINE_CSS_URL || '_',
         enabled: StringUtil.parseBool(process.env.TEMPLATE_INLINE_CSS_ENABLED, false)
