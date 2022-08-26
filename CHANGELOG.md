@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.28](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.27...v0.3.28) (2022-08-26)
+
+
+### Features
+
+* add default handlebars helpers ([e0ced7a](https://github.com/Lujo5/ivy-nestjs/commit/e0ced7a7701108331dde575530ab3b2c817b7a3f))
+
 ### [0.3.27](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.26...v0.3.27) (2022-08-25)
 
 
