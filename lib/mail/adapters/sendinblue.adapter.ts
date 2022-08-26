@@ -1,13 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as Sib from 'sib-api-v3-sdk';
-import { MailIntegrationService } from './mail-integration.service';
+import { MailAdapter } from './mail.adapter';
 import { MailModuleOptions } from '../mail.module';
 import { MailAttachment } from '../mail.service';
 import { MAIL_MODULE_OPTIONS } from '../mail.constants';
 
 @Injectable()
-export class SendinblueService implements MailIntegrationService {
+export class SendinblueAdapter implements MailAdapter {
   private readonly transactionalEmailsApi: any;
   private readonly accountApi: any;
   private readonly senderName: string;

@@ -1,13 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createTransport, Transporter } from 'nodemailer';
-import { MailIntegrationService } from './mail-integration.service';
+import { MailAdapter } from './mail.adapter';
 import { MailModuleOptions } from '../mail.module';
 import { MailAttachment } from '../mail.service';
 import { MAIL_MODULE_OPTIONS } from '../mail.constants';
 
 @Injectable()
-export class SmtpService implements MailIntegrationService {
+export class SmtpAdapter implements MailAdapter {
   private readonly transporter: Transporter;
   private readonly senderName: string;
   private readonly senderAddress: string;

@@ -5,13 +5,13 @@ import { MulterModule } from '@nestjs/platform-express';
 import { ConfigService } from '@nestjs/config';
 import { FilesUtil, ModuleAsyncOptions, ModuleUtil } from '../utils';
 import { diskStorage } from 'multer';
-import { FilesystemStorageService, StorageService } from './services';
+import { FilesystemAdapter, StorageAdapter } from './adapters';
 import { FileMeta, FileMetaSchema } from './schema';
 import { File, FileMeta as FileMetaEntity } from './entity';
 import { StorageController } from './storage.controller';
 import { FileManager } from './file-manager';
 import { MongoFileMetaService, TypeOrmFileMetaService } from './file-meta';
-import { FILE_META_SERVICE, STORAGE_MODULE_OPTIONS, STORAGE_SERVICE } from './storage.constants';
+import { FILE_META_SERVICE, STORAGE_MODULE_OPTIONS, STORAGE_ADAPTER } from './storage.constants';
 
 export interface StorageModuleOptions {
   type?: 'filesystem' | 'custom';
@@ -21,7 +21,7 @@ export interface StorageModuleOptions {
   filesRoute?: string;
   filesAccess?: 'all' | 'public' | 'protected' | 'none';
   cacheDuration?: number;
-  storageService?: StorageService;
+  storageAdapter?: StorageAdapter;
 }
 
 @Global()
@@ -70,9 +70,9 @@ export class StorageModule {
         }),
         databaseModule
       ],
-      providers: [...providers, FileManager, serviceProvider, this.storageServiceProvider()],
+      providers: [...providers, FileManager, serviceProvider, this.storageAdapterProvider()],
       controllers: [StorageController],
-      exports: [STORAGE_MODULE_OPTIONS, STORAGE_SERVICE, MulterModule, FileManager]
+      exports: [STORAGE_MODULE_OPTIONS, STORAGE_ADAPTER, MulterModule, FileManager]
     };
   }
 
@@ -106,17 +106,17 @@ export class StorageModule {
     };
   }
 
-  private static storageServiceProvider(): Provider {
+  private static storageAdapterProvider(): Provider {
     return {
-      provide: STORAGE_SERVICE,
+      provide: STORAGE_ADAPTER,
       inject: [STORAGE_MODULE_OPTIONS, ConfigService],
       useFactory: async (options: StorageModuleOptions, config: ConfigService) => {
         const storageType = options.type ?? config.get('storage.type');
         switch (storageType) {
           case 'filesystem':
-            return new FilesystemStorageService(options, config);
+            return new FilesystemAdapter(options, config);
           default:
-            return options.storageService;
+            return options.storageAdapter;
         }
       }
     };

@@ -4,8 +4,8 @@ import { ModuleAsyncOptions, ModuleUtil } from '../utils';
 import { QueueModule } from '../queue';
 import { MailService } from './mail.service';
 import { MailJob } from './mail.job';
-import { MailIntegrationService, SendinblueService, SmtpService } from './integrations';
-import { MAIL_INTEGRATION_SERVICE, MAIL_MODULE_OPTIONS, MAIL_QUEUE_NAME } from './mail.constants';
+import { MailAdapter, SendinblueAdapter, SmtpAdapter } from './adapters';
+import { MAIL_ADAPTER, MAIL_MODULE_OPTIONS, MAIL_QUEUE_NAME } from './mail.constants';
 import { TemplateModule } from '../template';
 
 export interface MailModuleOptions {
@@ -24,7 +24,7 @@ export interface MailModuleOptions {
   sendinblue?: {
     apiKey: string;
   };
-  integrationService?: MailIntegrationService;
+  mailAdapter?: MailAdapter;
 }
 
 @Global()
@@ -62,23 +62,23 @@ export class MailModule {
       module: MailModule,
       imports: [...imports],
       providers: [...providers, MailService, this.integrationServiceProvider()],
-      exports: [MAIL_MODULE_OPTIONS, MAIL_INTEGRATION_SERVICE, MailService]
+      exports: [MAIL_MODULE_OPTIONS, MAIL_ADAPTER, MailService]
     };
   }
 
   private static integrationServiceProvider(): Provider {
     return {
-      provide: MAIL_INTEGRATION_SERVICE,
+      provide: MAIL_ADAPTER,
       inject: [MAIL_MODULE_OPTIONS, ConfigService],
       useFactory: async (options: MailModuleOptions, config: ConfigService) => {
         const mailType = options.type ?? config.get('mail.type');
         switch (mailType) {
           case 'smtp':
-            return new SmtpService(options, config);
+            return new SmtpAdapter(options, config);
           case 'sendinblue':
-            return new SendinblueService(options, config);
+            return new SendinblueAdapter(options, config);
           default:
-            return options.integrationService;
+            return options.mailAdapter;
         }
       }
     };

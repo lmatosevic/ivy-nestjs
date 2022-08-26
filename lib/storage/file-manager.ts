@@ -4,12 +4,12 @@ import { fromBuffer } from 'file-type';
 import { FilesUtil } from '../utils';
 import { File } from './schema';
 import { FileError } from './errors';
-import { StorageService } from './services';
+import { StorageAdapter } from './adapters';
 import { StorageModuleOptions } from './storage.module';
 import { FileProps } from './decorators';
 import { FileMetadata, FileMetaService } from './file-meta';
 import { AuthUser } from '../auth';
-import { FILE_META_SERVICE, STORAGE_MODULE_OPTIONS, STORAGE_SERVICE } from './storage.constants';
+import { FILE_META_SERVICE, STORAGE_MODULE_OPTIONS, STORAGE_ADAPTER } from './storage.constants';
 
 export type AccessMeta = {
   allowed: boolean;
@@ -30,11 +30,11 @@ export class FileManager {
   constructor(
     @Inject(STORAGE_MODULE_OPTIONS) private storageModuleOptions: StorageModuleOptions,
     @Inject(FILE_META_SERVICE) private fileMetaService: FileMetaService,
-    @Inject(STORAGE_SERVICE) private storageService: StorageService,
+    @Inject(STORAGE_ADAPTER) private storageAdapter: StorageAdapter,
     private configService: ConfigService
   ) {
-    if (!this.storageService) {
-      throw Error('Storage service implementation is not provided');
+    if (!this.storageAdapter) {
+      throw Error('Storage adapter implementation is not provided');
     }
     this.dirname = storageModuleOptions.filesDirname || configService.get('storage.filesDirname') || 'files';
     this.tempDirname = storageModuleOptions.tempDirname || configService.get('storage.tempDirname') || 'temp';
@@ -69,7 +69,7 @@ export class FileManager {
 
   async storeFile(name: string, data: Buffer, meta?: FileMetadata): Promise<StoredFile | null> {
     const fileName = FilesUtil.generateFileName(name);
-    const res = await this.storageService.store(fileName, data, this.dirname);
+    const res = await this.storageAdapter.store(fileName, data, this.dirname);
 
     if (res) {
       this.logger.verbose('Stored file "%s"', fileName);
@@ -84,20 +84,20 @@ export class FileManager {
   }
 
   async loadFile(name: string): Promise<Buffer | null> {
-    return await this.storageService.load(name, this.dirname);
+    return await this.storageAdapter.load(name, this.dirname);
   }
 
   async streamFile(name: string): Promise<StreamableFile | null> {
-    if (!(await this.storageService.exists(name, this.dirname))) {
+    if (!(await this.storageAdapter.exists(name, this.dirname))) {
       return null;
     }
 
-    const stream = await this.storageService.stream(name, this.dirname);
+    const stream = await this.storageAdapter.stream(name, this.dirname);
     return stream ? new StreamableFile(stream) : null;
   }
 
   async deleteFile(name: string): Promise<boolean> {
-    const result = await this.storageService.delete(name, this.dirname);
+    const result = await this.storageAdapter.delete(name, this.dirname);
 
     if (result) {
       this.logger.verbose('Deleted file "%s"', name);
@@ -108,7 +108,7 @@ export class FileManager {
   }
 
   async moveFromTemp(name: string, meta?: FileMetadata): Promise<StoredFile | null> {
-    const result = await this.storageService.move(name, this.tempDirname, this.dirname);
+    const result = await this.storageAdapter.move(name, this.tempDirname, this.dirname);
     let metaId;
 
     if (result) {

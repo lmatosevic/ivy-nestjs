@@ -1,6 +1,6 @@
 import { ReadStream } from 'fs';
 
-export interface StorageService {
+export interface StorageAdapter {
   store(fileName: string, data: Buffer, dirname?: string): Promise<boolean>;
 
   load(fileName: string, dirname?: string): Promise<Buffer | null>;

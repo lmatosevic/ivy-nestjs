@@ -3,13 +3,13 @@ import { constants, promises as fsp, ReadStream } from 'fs';
 import * as path from 'path';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { StorageService } from './storage.service';
+import { StorageAdapter } from './storage.adapter';
 import { StorageModuleOptions } from '../storage.module';
 import { STORAGE_MODULE_OPTIONS } from '../storage.constants';
 
 @Injectable()
-export class FilesystemStorageService implements StorageService {
-  private readonly logger = new Logger(FilesystemStorageService.name);
+export class FilesystemAdapter implements StorageAdapter {
+  private readonly logger = new Logger(FilesystemAdapter.name);
   private readonly rootDir: string;
 
   constructor(

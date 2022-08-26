@@ -1,6 +1,6 @@
 import { MailAttachment } from '../mail.service';
 
-export interface MailIntegrationService {
+export interface MailAdapter {
   sendMail(
     to: string,
     subject: string,

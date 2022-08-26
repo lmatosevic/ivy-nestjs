@@ -4,10 +4,10 @@ import { InjectQueue } from '@nestjs/bull';
 import { Job, Queue } from 'bull';
 import { TemplateUtil } from '../utils';
 import { TemplateService } from '../template';
-import { MailIntegrationService } from './integrations';
+import { MailAdapter } from './adapters';
 import { MailModuleOptions } from './mail.module';
 import { SendMailData } from './mail.job';
-import { MAIL_INTEGRATION_SERVICE, MAIL_MODULE_OPTIONS, MAIL_QUEUE_NAME } from './mail.constants';
+import { MAIL_ADAPTER, MAIL_MODULE_OPTIONS, MAIL_QUEUE_NAME } from './mail.constants';
 
 export type MailContent = {
   text?: string;
@@ -32,14 +32,14 @@ export class MailService {
   private readonly templateEnabled: boolean;
 
   constructor(
-    @Inject(MAIL_INTEGRATION_SERVICE) private mailIntegrationService: MailIntegrationService,
+    @Inject(MAIL_ADAPTER) private mailAdapter: MailAdapter,
     @Inject(MAIL_MODULE_OPTIONS) private mailModuleOptions: MailModuleOptions,
     @InjectQueue(MAIL_QUEUE_NAME) private mailQueue: Queue<SendMailData>,
     @Optional() private templateService: TemplateService,
     private configService: ConfigService
   ) {
-    if (!this.mailIntegrationService) {
-      throw Error('Mail integration service implementation is not provided');
+    if (!this.mailAdapter) {
+      throw Error('Mail integration adapter implementation is not provided');
     }
     this.queueEnabled = mailModuleOptions.queueEnabled ?? configService.get('mail.queueEnabled');
     this.templateEnabled = mailModuleOptions?.templateEnabled ?? configService.get('mail.templateEnabled');
@@ -79,7 +79,7 @@ export class MailService {
     attachments?: MailAttachment[]
   ): Promise<boolean> {
     const { text, html } = await this.compileContent(content);
-    const result = await this.mailIntegrationService.sendMail(to, subject, text, html, attachments);
+    const result = await this.mailAdapter.sendMail(to, subject, text, html, attachments);
     this.logger.verbose('Email sent');
     return result;
   }
@@ -113,7 +113,7 @@ export class MailService {
   }
 
   async checkConnection(): Promise<{ status: boolean; message?: string }> {
-    const result = await this.mailIntegrationService.checkConnection();
+    const result = await this.mailAdapter.checkConnection();
     return { status: result, message: !result ? 'Mail server connection failed' : undefined };
   }
 }
