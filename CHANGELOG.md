@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.29](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.28...v0.3.29) (2022-08-26)
+
+
+### Features
+
+* add template inline css typing support ([62bf983](https://github.com/Lujo5/ivy-nestjs/commit/62bf9831dd95fb339c5d7a99593f3e7e45bd2617))
+
 ### [0.3.28](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.27...v0.3.28) (2022-08-26)
 
 
