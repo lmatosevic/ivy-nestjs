@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.30](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.29...v0.3.30) (2022-08-26)
+
+
+### Features
+
+* refactor and export all modules adapters ([ef3af60](https://github.com/Lujo5/ivy-nestjs/commit/ef3af60f87895b8b4d93951fce528705161f0eee))
+
 ### [0.3.29](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.28...v0.3.29) (2022-08-26)
 
 
