@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.32](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.31...v0.3.32) (2022-08-30)
+
+
+### Bug Fixes
+
+* fix duplicate GraphQL ObjectType names due to TypeORM loading existing entities from dist folder ([91cebd5](https://github.com/Lujo5/ivy-nestjs/commit/91cebd5c405a7d5b371d144aa448063571efcc11))
+
 ### [0.3.31](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.30...v0.3.31) (2022-08-26)
 
 
