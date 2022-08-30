@@ -6,6 +6,7 @@
   "private": true,
   "license": "MIT",
   "scripts": {
+    "clean": "rimraf dist coverage reports",
     "prebuild": "rimraf dist",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
@@ -35,6 +36,14 @@
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
+    "reporters": [
+      "default",
+      "jest-junit"
+    ],
+    "coverageReporters": [
+      "cobertura",
+      "text"
+    ],
     "collectCoverageFrom": [
       "**/*.(t|j)s"
     ],
@@ -48,5 +57,9 @@
       "^@modules(|/.*)$": "<rootDir>/src/modules/$1",
       "^ivy-nestjs(|/.*)$": "<rootDir>/../../lib/$1"
     }
+  },
+  "jest-junit": {
+    "outputDirectory": "reports",
+    "outputName": "junit.xml"
   }
 }

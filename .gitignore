@@ -12,11 +12,18 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 
+# Local environment files
+.env
+
+# Storage
+/storage
+
 # OS
 .DS_Store
 
 # Tests
 /coverage
+/reports
 /.nyc_output
 
 # IDEs and editors

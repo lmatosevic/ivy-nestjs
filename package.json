@@ -48,6 +48,7 @@
     "template"
   ],
   "scripts": {
+    "clean": "rimraf dist coverage reports build",
     "prebuild": "rimraf dist",
     "build": "nest build",
     "postbuild": "npm run copy-prepare",
@@ -149,7 +150,7 @@
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.2.1",
     "jest": "^28.1.3",
-    "jest-junit": "^14.0.0",
+    "jest-junit": "14.0.1",
     "jest-mock-process": "^2.0.0",
     "prettier": "^2.7.1",
     "supertest": "^6.2.4",
@@ -179,14 +180,26 @@
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
+    "reporters": [
+      "default",
+      "jest-junit"
+    ],
+    "coverageReporters": [
+      "cobertura",
+      "text"
+    ],
     "collectCoverageFrom": [
       "**/*.(t|j)s"
     ],
-    "coverageDirectory": "../coverage",
+    "coverageDirectory": "./coverage",
     "testEnvironment": "node",
     "roots": [
       "<rootDir>/test"
     ]
+  },
+  "jest-junit": {
+    "outputDirectory": "reports",
+    "outputName": "junit.xml"
   },
   "standard-version": {
     "types": [
