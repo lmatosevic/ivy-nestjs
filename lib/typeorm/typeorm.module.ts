@@ -1,13 +1,13 @@
 import { DynamicModule, Global, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule as NestjsTypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { DataSource, DataSourceOptions, LoggerOptions } from 'typeorm';
-import { ModuleAsyncOptions, ModuleUtil } from '../utils';
-import { EntityClassOrSchema } from '@nestjs/typeorm/dist/interfaces/entity-class-or-schema.type';
 import { DEFAULT_DATA_SOURCE_NAME } from '@nestjs/typeorm/dist/typeorm.constants';
+import { DataSource, DataSourceOptions, LoggerOptions } from 'typeorm';
+import { EntityClassOrSchema } from '@nestjs/typeorm/dist/interfaces/entity-class-or-schema.type';
+import { ModuleAsyncOptions, ModuleUtil } from '../utils';
 import { TypeOrmLogger } from './logger';
-import { TYPEORM_MODULE_OPTIONS } from './typeorm.constant';
 import { MigrationService } from './migration.service';
+import { TYPEORM_MODULE_OPTIONS } from './typeorm.constant';
 
 @Global()
 @Module({})
@@ -49,7 +49,6 @@ export class TypeOrmModule {
             database: conf.get<string>('db.name'),
             schema: conf.get<string>('db.schema'),
             entities: [
-              `${conf.get('db.migration.distRoot')}/**/*.entity{.ts,.js}`,
               './node_modules/ivy-nestjs/**/*.entity.js'
             ],
             subscribers: [`${conf.get('db.migration.distRoot')}/**/*.subscriber{.ts,.js}`],

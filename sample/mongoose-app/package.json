@@ -21,7 +21,8 @@
     "create-resource": "node ../../cli/create-resource.js mongoose"
   },
   "devDependencies": {
-    "randomstring": "1.2.2"
+    "randomstring": "1.2.2",
+    "tsconfig-paths": "4.1.0"
   },
   "jest": {
     "moduleFileExtensions": [

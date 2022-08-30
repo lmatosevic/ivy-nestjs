@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable, Logger } from '@nestjs/common';
 import { FileMetadata, FileMetaService, FilePropsMeta } from './file-meta.service';
 import { FileMeta } from '../entity';
-import { FILE_PROPS_KEY } from '../decorators';
+import { FILE_PROPS_KEY } from '../../storage';
 
 @Injectable()
 export class TypeOrmFileMetaService implements FileMetaService {

@@ -6,7 +6,7 @@ import { MongooseSchemaFactory, VirtualProp } from 'ivy-nestjs/resource';
 import { Project } from '@resources/projects/schema';
 import { Feature, FeatureSchema } from '@resources/features/schema';
 import { FileProp } from 'ivy-nestjs';
-import { File } from 'ivy-nestjs/storage/entity';
+import { File } from 'ivy-nestjs/storage/schema';
 
 @ObjectType()
 @Schema({ timestamps: true })

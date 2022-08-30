@@ -12,7 +12,7 @@ import {
 import { Field, HideField, ID, ObjectType } from '@nestjs/graphql';
 import { CreatorColumn, PopulateRelation, ResourceEntity } from 'ivy-nestjs/resource';
 import { User } from '@resources/users/entity';
-import { File } from 'ivy-nestjs/storage/schema';
+import { File } from 'ivy-nestjs/storage/entity';
 import { FileColumn, Role } from 'ivy-nestjs';
 import { Application } from '@resources/applications/entity';
 import { ApiHideProperty } from '@nestjs/swagger';

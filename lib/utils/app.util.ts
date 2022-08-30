@@ -67,7 +67,7 @@ export class AppUtil {
     this.resolveRestControllerOperations(app, configService);
     this.resolveGraphqlResolverOperations(app, configService);
 
-    if (configService.get('rest.enabled') && configService.get('rest.swagger')) {
+    if (configService.get('rest.enabled') && configService.get('rest.swagger') && env !== 'test') {
       const builder = new DocumentBuilder()
         .setTitle(configService.get('app.name'))
         .setDescription(
@@ -116,7 +116,7 @@ export class AppUtil {
       });
     }
 
-    if (configService.get('graphql.enabled') && configService.get('graphql.playground')) {
+    if (configService.get('graphql.enabled') && configService.get('graphql.playground') && env !== 'test') {
       try {
         await app.resolve(GRAPHQL_MODULE_OPTIONS, undefined, { strict: false });
         logger.log(`GraphQL playground available on: ${address}/graphql`);

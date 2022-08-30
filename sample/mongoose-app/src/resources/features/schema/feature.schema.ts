@@ -4,7 +4,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { MongooseSchemaFactory } from 'ivy-nestjs/resource';
 import { FileProp } from 'ivy-nestjs';
-import { File } from 'ivy-nestjs/storage/entity';
+import { File } from 'ivy-nestjs/storage/schema';
 
 @ObjectType()
 @Schema({ timestamps: true, autoCreate: false })

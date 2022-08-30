@@ -180,14 +180,6 @@ type FileMetaSchema {
   size: Float
 }
 
-type FileSchema {
-  data: String!
-  description: String
-  meta: FileMetaSchema
-  originalName: String
-  title: String
-}
-
 input FilterOperator {
   _all: [String!]
   _any: [String!]
@@ -307,7 +299,7 @@ type Project {
   createdAt: DateTime
   createdBy: User!
   description: String
-  documents: [FileSchema!]
+  documents: [File!]
   id: ID!
   name: String!
   owner: User!

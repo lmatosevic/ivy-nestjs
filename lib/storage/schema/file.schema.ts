@@ -1,13 +1,13 @@
-import { Document, Schema as MongooseSchema } from 'mongoose';
+import { Schema as MongooseSchema } from 'mongoose';
 import { Prop, Schema } from '@nestjs/mongoose';
 import { ApiHideProperty } from '@nestjs/swagger';
 import { HideField, ObjectType } from '@nestjs/graphql';
-import { MongooseSchemaFactory } from '../../resource/schema';
 import { FileMeta } from './file-meta.schema';
+import { MongooseSchemaFactory, ResourceSchema } from '../../resource/schema';
 
 @ObjectType('FileSchema')
 @Schema({ timestamps: false })
-export class File extends Document {
+export class File extends ResourceSchema {
   @ApiHideProperty()
   @HideField()
   @Prop({ toJSON: false })

@@ -1,11 +1,12 @@
 import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from 'typeorm';
 import { ObjectType } from '@nestjs/graphql';
 import { FileMeta } from './file-meta.entity';
+import { ResourceEntity } from '../../resource/entity';
 import { PopulateRelation } from '../../resource/decorators/populate-relation.decorator';
 
 @ObjectType()
 @Entity({ name: '_file' })
-export class File {
+export class File extends ResourceEntity {
   @PrimaryColumn()
   data: string;
 

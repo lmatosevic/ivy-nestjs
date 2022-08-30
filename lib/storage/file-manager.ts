@@ -2,7 +2,7 @@ import { Inject, Injectable, Logger, StreamableFile } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { fromBuffer } from 'file-type';
 import { FilesUtil } from '../utils';
-import { File } from './schema';
+import { FileDto } from './dto';
 import { FileError } from './errors';
 import { StorageAdapter } from './adapters';
 import { StorageModuleOptions } from './storage.module';
@@ -11,7 +11,7 @@ import { FileMetadata, FileMetaService } from './file-meta';
 import { AuthUser } from '../auth';
 import { FILE_META_SERVICE, STORAGE_MODULE_OPTIONS, STORAGE_ADAPTER } from './storage.constants';
 
-export type AccessMeta = {
+type AccessMeta = {
   allowed: boolean;
   meta: FileMetadata;
 };
@@ -202,7 +202,7 @@ export class FileManager {
     return fileNames;
   }
 
-  async persistFile(file: File, isUpdate = false, meta?: FileMetadata): Promise<StoredFile | null> {
+  async persistFile(file: FileDto, isUpdate = false, meta?: FileMetadata): Promise<StoredFile | null> {
     if (!file) {
       return null;
     }
