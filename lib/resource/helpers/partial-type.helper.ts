@@ -44,8 +44,8 @@ export function PartialType<T extends Type<unknown>>(resourceRef: T, config: Par
     return config.keepRequired ? gqlType : GqlPartialType(gqlType);
   }
 
-  if (!graphqlEnabled && restEnabled) {
-    return config.keepRequired ? swaggerType : SwaggerPartialType(swaggerType);
+  if ((!graphqlEnabled && restEnabled) || (!graphqlEnabled && !restEnabled)) {
+    return config.keepRequired ? swaggerType || resourceRef : SwaggerPartialType(swaggerType || resourceRef);
   }
 
   const classType = config.keepRequired ? gqlType : GqlPartialType(gqlType);

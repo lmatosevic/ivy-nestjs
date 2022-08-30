@@ -31,13 +31,21 @@
     "nestjs",
     "web",
     "api",
+    "rest",
     "graphql",
     "auth",
     "logging",
     "config",
-    "mongoDB",
+    "nosql",
+    "mongodb",
+    "mongoose",
     "sql",
-    "typeorm"
+    "typeorm",
+    "redis",
+    "queue",
+    "mail",
+    "storage",
+    "template"
   ],
   "scripts": {
     "prebuild": "rimraf dist",
