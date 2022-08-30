@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.33](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.32...v0.3.33) (2022-08-30)
+
+
+### Bug Fixes
+
+* fix partial type helper when running e2e tests without graphql module enabled ([ae828e1](https://github.com/Lujo5/ivy-nestjs/commit/ae828e13762ad3b6dec7784dbcaf40132d0f2d9b))
+
 ### [0.3.32](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.31...v0.3.32) (2022-08-30)
 
 
