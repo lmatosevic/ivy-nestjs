@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.34](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.33...v0.3.34) (2022-09-01)
+
+
+### Bug Fixes
+
+* fix file mime type simple rules validation ([a1ac6bc](https://github.com/Lujo5/ivy-nestjs/commit/a1ac6bcfdc6757904398aa4e5ca2efcc85d22836))
+
 ### [0.3.33](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.32...v0.3.33) (2022-08-30)
 
 
