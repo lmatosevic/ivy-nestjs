@@ -66,10 +66,12 @@ export class FilesUtil {
 
     if (fileProps.mimeType) {
       let match;
-      if (fileProps instanceof RegExp) {
+      if (fileProps.mimeType instanceof RegExp) {
         match = mimetype.match(fileProps.mimeType);
       } else {
-        match = mimetype.match((fileProps.mimeType as string).replace('*', '.*'));
+        match = mimetype.match(
+          (fileProps.mimeType as string).replace(/[.+?^$]/g, '\\$&').replace(/\*/g, '.*')
+        );
       }
 
       if (!match) {
