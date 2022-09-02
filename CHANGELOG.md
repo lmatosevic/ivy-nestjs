@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.35](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.34...v0.3.35) (2022-09-02)
+
+
+### Features
+
+* add useWith method for file manager and file meta services ([8469b2a](https://github.com/Lujo5/ivy-nestjs/commit/8469b2a98757f1eab4124aa31ce7e81b939dd058))
+
 ### [0.3.34](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.33...v0.3.34) (2022-09-01)
 
 
