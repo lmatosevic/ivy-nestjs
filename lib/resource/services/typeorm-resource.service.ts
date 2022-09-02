@@ -75,10 +75,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
   }
 
   useWith(sessionManager: EntityManager): TypeOrmResourceService<T> {
-    const managedService = Object.assign(
-      Object.create(Object.getPrototypeOf(this)),
-      this
-    ) as TypeOrmResourceService<T>;
+    const managedService = ObjectUtil.duplicate<TypeOrmResourceService<T>>(this);
 
     const repository: Repository<T & ResourceEntity> = sessionManager.getRepository(
       this.repository.metadata.name
@@ -93,10 +90,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
   }
 
   asProtected(): TypeOrmResourceService<T> {
-    const protectedService = Object.assign(
-      Object.create(Object.getPrototypeOf(this)),
-      this
-    ) as TypeOrmResourceService<T>;
+    const protectedService = ObjectUtil.duplicate<TypeOrmResourceService<T>>(this);
 
     protectedService.setProtected(true);
     protectedService.setRepository(this.repository);

@@ -1,7 +1,7 @@
 import { Inject, Injectable, Optional } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AuthSource, VerificationType } from '../../enums';
-import { ReflectionUtil } from '../../utils';
+import { ObjectUtil, ReflectionUtil } from '../../utils';
 import { StatusResponse } from '../../resource';
 import { MailContent, MailService } from '../../mail';
 import { AccountError, AuthorizationError } from '../errors';
@@ -26,6 +26,14 @@ export class AccountService {
     this.accountDetailsService = this.accountModuleOptions
       .accountDetailsService as AccountDetailsService<AuthUser>;
     this.appName = this.configService.get('app.name');
+  }
+
+  useWith(sessionManager: any): AccountService {
+    const managedService = ObjectUtil.duplicate<AccountService>(this);
+
+    managedService.setVerificationService(this.verificationService.useWith(sessionManager));
+
+    return managedService;
   }
 
   updateAccountRoutes(prototype: any): void {
@@ -270,5 +278,9 @@ export class AccountService {
       }
     };
     return defaults[key] || {};
+  }
+
+  private setVerificationService(service: VerificationService): void {
+    this.verificationService = service;
   }
 }

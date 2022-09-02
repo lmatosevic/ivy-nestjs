@@ -1,6 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { generateApiKey } from 'generate-api-key';
+import { ObjectUtil } from '../../../utils';
 import { VerificationType } from '../../../enums';
 import { VerificationTokenData, VerificationTokenService } from './services';
 import { VerificationModuleOptions } from './verification.module';
@@ -25,6 +26,14 @@ export class VerificationService {
       verificationModuleOptions.tokenLength ?? configService.get('account.verification.tokenLength');
     this.tokenPrefix =
       verificationModuleOptions.tokenPrefix ?? configService.get('account.verification.tokenPrefix');
+  }
+
+  useWith(sessionManager: any): VerificationService {
+    const managedService = ObjectUtil.duplicate<VerificationService>(this);
+
+    managedService.setVerificationTokenService(this.verificationTokenService.useWith(sessionManager));
+
+    return managedService;
   }
 
   async createToken(
@@ -96,5 +105,9 @@ export class VerificationService {
       length: this.tokenLength,
       prefix: this.tokenPrefix
     }) as string;
+  }
+
+  private setVerificationTokenService(service: VerificationTokenService<VerificationTokenData>): void {
+    this.verificationTokenService = service;
   }
 }

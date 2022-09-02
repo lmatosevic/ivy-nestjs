@@ -10,6 +10,8 @@ export type VerificationTokenData = {
 };
 
 export interface VerificationTokenService<T> {
+  useWith?(sessionManager: any): VerificationTokenService<T>;
+
   find(token: string, type?: VerificationType): Promise<T>;
 
   create(token: string, type: VerificationType, accountId: string | number, expiresAt?: Date): Promise<T>;

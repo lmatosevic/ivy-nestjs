@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger, StreamableFile } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { fromBuffer } from 'file-type';
-import { FilesUtil } from '../utils';
+import { FilesUtil, ObjectUtil } from '../utils';
 import { FileDto } from './dto';
 import { FileError } from './errors';
 import { StorageAdapter } from './adapters';
@@ -41,7 +41,7 @@ export class FileManager {
   }
 
   useWith(sessionManager: any): FileManager {
-    const managedService = Object.assign(Object.create(Object.getPrototypeOf(this)), this) as FileManager;
+    const managedService = ObjectUtil.duplicate<FileManager>(this);
 
     managedService.setFileMetaService(this.fileMetaService.useWith(sessionManager) || this.fileMetaService);
 

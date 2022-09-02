@@ -212,4 +212,8 @@ export class ObjectUtil {
 
     return keys;
   }
+
+  static duplicate<T>(object: any): T {
+    return Object.assign(Object.create(Object.getPrototypeOf(object)), object) as T;
+  }
 }

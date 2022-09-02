@@ -2,6 +2,7 @@ import { ClientSession, Model } from 'mongoose';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FileMetadata, FileMetaService, FilePropsMeta } from './file-meta.service';
+import { ObjectUtil } from '../../utils';
 import { FileMeta } from '../schema';
 import { FILE_PROPS_KEY } from '../../storage';
 
@@ -13,10 +14,7 @@ export class MongoFileMetaService implements FileMetaService {
   constructor(@InjectModel(FileMeta.name) protected fileMetaModel: Model<FileMeta>) {}
 
   useWith(sessionManager: ClientSession): FileMetaService {
-    const managedService = Object.assign(
-      Object.create(Object.getPrototypeOf(this)),
-      this
-    ) as MongoFileMetaService;
+    const managedService = ObjectUtil.duplicate<MongoFileMetaService>(this);
 
     managedService.setFileMetaModel(this.fileMetaModel);
     managedService.setSession(sessionManager);

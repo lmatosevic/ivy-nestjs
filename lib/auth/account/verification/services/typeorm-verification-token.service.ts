@@ -1,17 +1,32 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { VerificationType } from '../../../../enums';
+import { ObjectUtil } from '../../../../utils';
 import { VerificationToken } from '../entity';
 import { VerificationTokenData, VerificationTokenService } from './verification-token.service';
 
 @Injectable()
 export class TypeOrmVerificationTokenService implements VerificationTokenService<VerificationToken> {
   private readonly logger: Logger = new Logger(TypeOrmVerificationTokenService.name);
+  protected entityManager?: EntityManager;
 
   constructor(
     @InjectRepository(VerificationToken) private verificationTokenRepository: Repository<VerificationToken>
   ) {}
+
+  useWith(sessionManager: EntityManager): VerificationTokenService<VerificationToken> {
+    const managedService = ObjectUtil.duplicate<TypeOrmVerificationTokenService>(this);
+
+    const repository: Repository<VerificationToken> = sessionManager.getRepository(
+      this.verificationTokenRepository.metadata.name
+    );
+
+    managedService.setVerificationTokenRepository(repository);
+    managedService.setEntityManager(sessionManager);
+
+    return managedService;
+  }
 
   async find(token: string, type?: VerificationType): Promise<VerificationToken> {
     const filter = { token };
@@ -67,5 +82,13 @@ export class TypeOrmVerificationTokenService implements VerificationTokenService
       this.logger.error('Error deleting verification token with id "%s", %j', id, e);
       return false;
     }
+  }
+
+  private setVerificationTokenRepository(repository: Repository<VerificationToken>): void {
+    this.verificationTokenRepository = repository;
+  }
+
+  private setEntityManager(manager: EntityManager): void {
+    this.entityManager = manager;
   }
 }

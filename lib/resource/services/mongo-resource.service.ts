@@ -50,10 +50,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
   }
 
   useWith(sessionManager: ClientSession): MongoResourceService<T> {
-    const managedService = Object.assign(
-      Object.create(Object.getPrototypeOf(this)),
-      this
-    ) as MongoResourceService<T>;
+    const managedService = ObjectUtil.duplicate<MongoResourceService<T>>(this);
 
     const session = MongoResourceService.replicationEnabled ? sessionManager : undefined;
 
@@ -66,10 +63,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
   }
 
   asProtected(): ResourceService<T> {
-    const protectedService = Object.assign(
-      Object.create(Object.getPrototypeOf(this)),
-      this
-    ) as MongoResourceService<T>;
+    const protectedService = ObjectUtil.duplicate<MongoResourceService<T>>(this);
 
     protectedService.setProtected(true);
     protectedService.setModel(this.model);
