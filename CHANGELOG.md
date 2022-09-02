@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.36](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.35...v0.3.36) (2022-09-02)
+
+
+### Features
+
+* add useWith method for account verification and token services ([157b1e1](https://github.com/Lujo5/ivy-nestjs/commit/157b1e15d4671a5ae2c6eb9cceb294160a9729d8))
+
 ### [0.3.35](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.34...v0.3.35) (2022-09-02)
 
 
