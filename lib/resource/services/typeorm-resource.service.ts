@@ -87,6 +87,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     managedService.setProtected(this.isProtected);
     managedService.setRepository(repository);
     managedService.setEntityManager(sessionManager);
+    managedService.setFileManager(this.fileManager.useWith(sessionManager));
 
     return managedService;
   }
@@ -1099,5 +1100,9 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
 
   private setEntityManager(manager: EntityManager): void {
     this.entityManager = manager;
+  }
+
+  private setFileManager(fileManager: FileManager): void {
+    this.fileManager = fileManager;
   }
 }

@@ -55,9 +55,12 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
       this
     ) as MongoResourceService<T>;
 
+    const session = MongoResourceService.replicationEnabled ? sessionManager : undefined;
+
     managedService.setProtected(this.isProtected);
     managedService.setModel(this.model);
-    managedService.setSession(MongoResourceService.replicationEnabled ? sessionManager : undefined);
+    managedService.setSession(session);
+    managedService.setFileManager(this.fileManager.useWith(session));
 
     return managedService;
   }
@@ -847,5 +850,9 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
 
   private setSession(session: ClientSession): void {
     this.session = session;
+  }
+
+  private setFileManager(fileManager: FileManager): void {
+    this.fileManager = fileManager;
   }
 }

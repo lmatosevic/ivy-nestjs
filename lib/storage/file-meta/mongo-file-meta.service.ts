@@ -1,4 +1,4 @@
-import { Model } from 'mongoose';
+import { ClientSession, Model } from 'mongoose';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FileMetadata, FileMetaService, FilePropsMeta } from './file-meta.service';
@@ -8,12 +8,25 @@ import { FILE_PROPS_KEY } from '../../storage';
 @Injectable()
 export class MongoFileMetaService implements FileMetaService {
   private readonly logger: Logger = new Logger(MongoFileMetaService.name);
+  protected session?: ClientSession;
 
   constructor(@InjectModel(FileMeta.name) protected fileMetaModel: Model<FileMeta>) {}
 
+  useWith(sessionManager: ClientSession): FileMetaService {
+    const managedService = Object.assign(
+      Object.create(Object.getPrototypeOf(this)),
+      this
+    ) as MongoFileMetaService;
+
+    managedService.setFileMetaModel(this.fileMetaModel);
+    managedService.setSession(sessionManager);
+
+    return managedService;
+  }
+
   async find(name: string): Promise<FileMetadata> {
     try {
-      return await this.fileMetaModel.findOne({ name }).exec();
+      return await this.fileMetaModel.findOne({ name }).session(this.session).exec();
     } catch (e) {
       this.logger.error('Error finding file metadata "%s", %j', name, e);
       return null;
@@ -33,7 +46,7 @@ export class MongoFileMetaService implements FileMetaService {
   }
 
   async update(name: string, metadata: Partial<FileMetadata>): Promise<boolean> {
-    const meta = await this.find(name) as FileMeta;
+    const meta = (await this.find(name)) as FileMeta;
 
     try {
       meta.set(metadata);
@@ -47,7 +60,7 @@ export class MongoFileMetaService implements FileMetaService {
 
   async delete(name: string): Promise<boolean> {
     try {
-      const metadata = await this.fileMetaModel.findOne({ name }).exec();
+      const metadata = await this.fileMetaModel.findOne({ name }).session(this.session).exec();
       await metadata.remove();
     } catch (e) {
       this.logger.error('Error deleting file metadata "%s", %j', name, e);
@@ -78,7 +91,7 @@ export class MongoFileMetaService implements FileMetaService {
   async filesResource(meta: FileMetadata): Promise<any> {
     const model = this.fileMetaModel?.db?.models?.[meta?.resource];
     try {
-      return await model.findOne({ _id: meta.resourceId }).exec();
+      return await model.findOne({ _id: meta.resourceId }).session(this.session).exec();
     } catch (e) {
       this.logger.error('Error finding file\'s resource model "%s", %j', meta.resource, e);
       return null;
@@ -92,8 +105,16 @@ export class MongoFileMetaService implements FileMetaService {
   modelName(model: any): string {
     let modelName = model?.constructor?.modelName;
     if (!modelName || modelName === 'EmbeddedDocument') {
-      modelName = model?.schema?.['classRef']?.name
+      modelName = model?.schema?.['classRef']?.name;
     }
     return modelName;
+  }
+
+  private setFileMetaModel(model: Model<FileMeta>): void {
+    this.fileMetaModel = model;
+  }
+
+  private setSession(session: ClientSession): void {
+    this.session = session;
   }
 }

@@ -15,6 +15,8 @@ export type FilePropsMeta = {
 };
 
 export interface FileMetaService {
+  useWith?(sessionManager: any): FileMetaService;
+
   find(name: string): Promise<FileMetadata>;
 
   save(meta: FileMetadata): Promise<string | number>;

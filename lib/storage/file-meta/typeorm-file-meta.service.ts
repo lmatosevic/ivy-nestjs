@@ -1,4 +1,4 @@
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable, Logger } from '@nestjs/common';
 import { FileMetadata, FileMetaService, FilePropsMeta } from './file-meta.service';
@@ -8,8 +8,25 @@ import { FILE_PROPS_KEY } from '../../storage';
 @Injectable()
 export class TypeOrmFileMetaService implements FileMetaService {
   private readonly logger: Logger = new Logger(TypeOrmFileMetaService.name);
+  protected entityManager?: EntityManager;
 
   constructor(@InjectRepository(FileMeta) private fileMetaRepository: Repository<FileMeta>) {}
+
+  useWith(sessionManager: EntityManager): FileMetaService {
+    const managedService = Object.assign(
+      Object.create(Object.getPrototypeOf(this)),
+      this
+    ) as TypeOrmFileMetaService;
+
+    const repository: Repository<FileMeta> = sessionManager.getRepository(
+      this.fileMetaRepository.metadata.name
+    );
+
+    managedService.setFileMetaRepository(repository);
+    managedService.setEntityManager(sessionManager);
+
+    return managedService;
+  }
 
   async find(name: string): Promise<FileMetadata> {
     try {
@@ -90,5 +107,13 @@ export class TypeOrmFileMetaService implements FileMetaService {
   modelName(model: any): string {
     const repository = this.fileMetaRepository.manager.getRepository(model.constructor.name);
     return repository?.metadata?.name;
+  }
+
+  private setFileMetaRepository(repository: Repository<FileMeta>): void {
+    this.fileMetaRepository = repository;
+  }
+
+  private setEntityManager(manager: EntityManager): void {
+    this.entityManager = manager;
   }
 }

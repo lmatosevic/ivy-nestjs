@@ -9,7 +9,7 @@ import { StorageModuleOptions } from './storage.module';
 import { FileProps } from './decorators';
 import { FileMetadata, FileMetaService } from './file-meta';
 import { AuthUser } from '../auth';
-import { FILE_META_SERVICE, STORAGE_MODULE_OPTIONS, STORAGE_ADAPTER } from './storage.constants';
+import { FILE_META_SERVICE, STORAGE_ADAPTER, STORAGE_MODULE_OPTIONS } from './storage.constants';
 
 type AccessMeta = {
   allowed: boolean;
@@ -38,6 +38,14 @@ export class FileManager {
     }
     this.dirname = storageModuleOptions.filesDirname || configService.get('storage.filesDirname') || 'files';
     this.tempDirname = storageModuleOptions.tempDirname || configService.get('storage.tempDirname') || 'temp';
+  }
+
+  useWith(sessionManager: any): FileManager {
+    const managedService = Object.assign(Object.create(Object.getPrototypeOf(this)), this) as FileManager;
+
+    managedService.setFileMetaService(this.fileMetaService.useWith(sessionManager) || this.fileMetaService);
+
+    return managedService;
   }
 
   async checkFileAccess(name: string, user: AuthUser): Promise<AccessMeta> {
@@ -363,5 +371,9 @@ export class FileManager {
     }
 
     return storedFiles;
+  }
+
+  private setFileMetaService(service: FileMetaService): void {
+    this.fileMetaService = service;
   }
 }
