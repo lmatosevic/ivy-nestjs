@@ -72,6 +72,10 @@ Send emails using SMTP or other 3rd party APIs.
 
 Bootstraping logic for Mongoose library usage with MongoDB.
 
+### Queue
+
+The queue connection for asynchronous task processing and job execution, also used by Mail module.
+
 ### Redis
 
 Access and management functionality for the Redis storage, also used in Queue, Mail and Cache modules.
