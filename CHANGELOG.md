@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.38](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.37...v0.3.38) (2022-09-03)
+
+
+### Features
+
+* update GraphQL caching Date type with custom Data scalar implementation ([076438f](https://github.com/Lujo5/ivy-nestjs/commit/076438f18d5947a11b87cee91501ca4482ad8c16))
+
 ### [0.3.37](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.36...v0.3.37) (2022-09-03)
 
 
