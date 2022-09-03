@@ -32,6 +32,10 @@ import { ConfigModule } from 'ivy-nestjs/config';
 
 User authentication and authorization logic.
 
+### Cache
+
+Caching HTTP interceptor and cache management functionality.
+
 ### Config
 
 Application global configuration values.
@@ -50,11 +54,11 @@ Exception handling logic.
 
 ### GraphQL
 
-Bootstraping logic for GraphQL usage.
+Bootstraping functionality for GraphQL usage.
 
 ### Health
 
-Health monitoring logic and endpoints.
+Health monitoring functionality and endpoints.
 
 ### Logger
 
@@ -68,13 +72,21 @@ Send emails using SMTP or other 3rd party APIs.
 
 Bootstraping logic for Mongoose library usage with MongoDB.
 
+### Redis
+
+Access and management functionality for the Redis storage, also used in Queue, Mail and Cache modules.
+
 ### Resource
 
 The main logic for resource management, model definition, and endpoints creation.
 
 ### Storage
 
-File persistence and access logic.
+File persistence and access endpoints through various adapter implementations.
+
+### Template
+
+The template compilation using multiple templating adapters, also used by Mail module.
 
 ### Typeorm
 
