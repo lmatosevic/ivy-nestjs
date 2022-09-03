@@ -4,13 +4,13 @@
 
 type Application {
   category: Category!
-  createdAt: DateTime
+  createdAt: Date
   id: ID!
   project: Project!
   reviewers: [User!]
-  scheduledAt: DateTime
+  scheduledAt: Date
   title: String!
-  updatedAt: DateTime
+  updatedAt: Date
 }
 
 input ApplicationsFilter {
@@ -59,18 +59,18 @@ type CategoriesResponse {
 
 type Category {
   children: [Category!]
-  createdAt: DateTime
+  createdAt: Date
   id: ID!
   name: String!
   parent: Category
-  updatedAt: DateTime
+  updatedAt: Date
 }
 
 input CreateApplicationDto {
   category: String
   project: String!
   reviewers: [String!]
-  scheduledAt: DateTime
+  scheduledAt: Date
   title: String!
 }
 
@@ -107,9 +107,9 @@ input CreateUserDto {
 }
 
 """
-A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+A date-time string at UTC, such as 2022-08-27T09:54:281Z, compliant with the date-time format.
 """
-scalar DateTime
+scalar Date
 
 input FacebookAuth {
   accessToken: String!
@@ -118,11 +118,11 @@ input FacebookAuth {
 }
 
 type Feature {
-  createdAt: DateTime
+  createdAt: Date
   file: FileSchema
   id: ID!
   name: String!
-  updatedAt: DateTime
+  updatedAt: Date
 }
 
 input FeaturesFilter {
@@ -155,13 +155,13 @@ input FileFilter {
 }
 
 type FileMeta {
-  createdAt: DateTime
+  createdAt: Date
   mimeType: String
   size: Float
 }
 
 type FileMetaSchema {
-  createdAt: DateTime
+  createdAt: Date
   mimeType: String
   size: Float
 }
@@ -269,13 +269,13 @@ type Mutation {
 }
 
 type Plan {
-  createdAt: DateTime
+  createdAt: Date
   features: [Feature!]
   files: [FileSchema!]
   id: ID!
   name: String!
   project: Project
-  updatedAt: DateTime
+  updatedAt: Date
 }
 
 input PlansFilter {
@@ -299,14 +299,14 @@ type PlansResponse {
 
 type Project {
   applications: [Application!]
-  createdAt: DateTime
+  createdAt: Date
   description: String
   documents: [FileSchema!]
   id: ID!
   name: String!
   owner: User
   plan: Plan!
-  updatedAt: DateTime
+  updatedAt: Date
 }
 
 input ProjectsFilter {
@@ -375,7 +375,7 @@ input UpdateApplicationDto {
   id: String
   project: String
   reviewers: [String!]
-  scheduledAt: DateTime
+  scheduledAt: Date
   title: String
 }
 
@@ -423,18 +423,18 @@ input UpdateUserDto {
 type User {
   avatar: FileSchema
   consent: Boolean
-  createdAt: DateTime
+  createdAt: Date
   email: String
   enabled: Boolean
   firstName: String
   id: ID!
   lastName: String
-  loginAt: DateTime
-  logoutAt: DateTime
+  loginAt: Date
+  logoutAt: Date
   projects: [Project!]
   reviewedApps: [Application!]
   roles: [Role!]
-  updatedAt: DateTime
+  updatedAt: Date
   verified: Boolean
 }
 

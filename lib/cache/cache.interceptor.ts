@@ -2,7 +2,8 @@ import {
   CacheInterceptor as NestjsCacheInterceptor,
   ExecutionContext,
   Inject,
-  Injectable
+  Injectable,
+  Optional
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import * as hash from 'object-hash';
@@ -14,21 +15,24 @@ import { CACHE_SERVICE } from './cache.constants';
 export class CacheInterceptor extends NestjsCacheInterceptor {
   protected allowedMethods = ['GET', 'POST'];
 
-  constructor(@Inject(CACHE_SERVICE) private cacheService: CacheService, protected reflector: Reflector) {
-    super(cacheService.getCacheManager(), reflector);
+  constructor(
+    @Optional() @Inject(CACHE_SERVICE) private cacheService: CacheService,
+    protected reflector: Reflector
+  ) {
+    super(cacheService?.getCacheManager(), reflector);
   }
 
   trackBy(context: ExecutionContext): string | undefined {
-    if (!this.cacheService.isEnabled()) {
+    if (!this.cacheService?.isEnabled()) {
       return;
     }
 
     const ctx = ContextUtil.normalizeContext(context);
-    const req = context.switchToHttp().getRequest();
+    const req = ctx.switchToHttp().getRequest();
 
     let key = super.trackBy(ctx);
 
-    if (req.method === 'POST') {
+    if (req.method === 'POST' && req.body) {
       const bodyHash = hash(req.body);
       key = `${key}_${bodyHash}`;
     }

@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { GraphQLModule as NestjsGraphQLModule, GqlModuleOptions } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { ModuleAsyncOptions, ModuleUtil } from '../utils';
+import { DateScalar } from './scalars';
 import { MONGOOSE_MODULE_OPTIONS } from '../mongoose/mongoose.constant';
 import { GRAPHQL_MODULE_OPTIONS } from './graphql.constant';
 
@@ -46,7 +47,7 @@ export class GraphQLModule {
           })
         })
       ],
-      providers: [...providers],
+      providers: [...providers, DateScalar],
       exports: [GRAPHQL_MODULE_OPTIONS, NestjsGraphQLModule]
     };
   }
