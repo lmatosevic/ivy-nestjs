@@ -85,6 +85,19 @@ export default () => {
       retryAttempts: StringUtil.parseInteger(process.env.QUEUE_RETRY_ATTEMPTS, 3),
       retryBackoff: StringUtil.parseInteger(process.env.QUEUE_RETRY_BACKOFF, 3000)
     },
+    cache: {
+      type: process.env.CACHE_TYPE || 'redis',
+      prefix: process.env.CACHE_PREFIX,
+      enabled: StringUtil.parseBool(process.env.CACHE_ENABLED, true),
+      cleanStart: StringUtil.parseBool(process.env.CACHE_CLEAN_START, false),
+      ttl: StringUtil.parseInteger(process.env.CACHE_TTL, 5),
+      maxItems: StringUtil.parseInteger(process.env.CACHE_MAX_ITEMS, 100),
+      filesystem: {
+        rootDir: process.env.CACHE_FILESYSTEM_ROOT_DIR || './storage/cache',
+        subdirsEnabled: StringUtil.parseBool(process.env.CACHE_FILESYSTEM_SUBDIRS_ENABLED, false),
+        maxSize: StringUtil.parseInteger(process.env.CACHE_FILESYSTEM_MAX_SIZE, 0)
+      }
+    },
     template: {
       type: process.env.TEMPLATE_TYPE || 'handlebars',
       rootDir: process.env.TEMPLATE_ROOT_DIR || './templates',

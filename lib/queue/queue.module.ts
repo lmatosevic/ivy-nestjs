@@ -3,8 +3,8 @@ import { ConfigService } from '@nestjs/config';
 import { BullModule, BullModuleOptions } from '@nestjs/bull';
 import { BullModuleAsyncOptions } from '@nestjs/bull/dist/interfaces/bull-module-options.interface';
 import { ModuleAsyncOptions, ModuleUtil } from '../utils';
-import { QUEUE_MODULE_OPTIONS } from './queue.constant';
 import { RedisModule } from '../redis';
+import { QUEUE_MODULE_OPTIONS } from './queue.constant';
 
 export type QueueModuleOptions = BullModuleOptions;
 

@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import {
   AuthModule,
+  CacheModule,
   ConfigModule,
   FiltersModule,
   GraphQLModule,
@@ -36,6 +37,7 @@ import { CategoriesModule } from '@resources/categories';
     TypeOrmModule.forRoot(),
     GraphQLModule.forRoot(),
     QueueModule.forRoot(),
+    CacheModule.forRoot(),
     TemplateModule.forRoot({
       options: {
         helpers: {

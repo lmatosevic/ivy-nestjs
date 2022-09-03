@@ -18,7 +18,7 @@ export class RedisService {
 
   async getValue<T>(key: string): Promise<T> {
     const value = await this.connection.get(key);
-    return value ? parse(value) as T : null;
+    return value ? (parse(value) as T) : null;
   }
 
   async putValue(key: string, value: any, expireMs?: number): Promise<boolean> {
@@ -32,6 +32,27 @@ export class RedisService {
   async deleteEntry(key: string): Promise<boolean> {
     const result = await this.connection.del(key);
     return result > 0;
+  }
+
+  async keys(pattern: string = '*'): Promise<Set<string>> {
+    return new Promise((resolve) => {
+      const stream = this.connection.scanStream({
+        match: pattern,
+        count: 1000
+      });
+
+      const keysSet = new Set<string>();
+
+      stream.on('data', (keys) => {
+        stream.pause();
+        keys.forEach((key) => keysSet.add(key));
+        stream.resume();
+      });
+
+      stream.on('end', () => {
+        resolve(keysSet);
+      });
+    });
   }
 
   getConnection(): Redis.Redis {
