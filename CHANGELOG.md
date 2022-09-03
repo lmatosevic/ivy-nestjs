@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.37](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.36...v0.3.37) (2022-09-03)
+
+
+### Features
+
+* add caching module and update redis service ([0ed9021](https://github.com/Lujo5/ivy-nestjs/commit/0ed902169717f653aadf07101e522b79e0f1dde8))
+
 ### [0.3.36](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.35...v0.3.36) (2022-09-02)
 
 
