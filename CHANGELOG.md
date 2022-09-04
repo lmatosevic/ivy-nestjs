@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.39](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.38...v0.3.39) (2022-09-04)
+
+
+### Features
+
+* implement cache expiration on resource actions ([4d0a568](https://github.com/Lujo5/ivy-nestjs/commit/4d0a568bc6ac125bd8bd3cc9848c899852bd80b1))
+
 ### [0.3.38](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.37...v0.3.38) (2022-09-03)
 
 
