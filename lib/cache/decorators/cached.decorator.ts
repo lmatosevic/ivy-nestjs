@@ -8,7 +8,7 @@ export interface CacheConfig {
   key?: string;
 }
 
-export function Cached(config: CacheConfig) {
+export function Cached(config: CacheConfig = {}) {
   const decorators = [];
 
   if (typeof config.ttl === 'number') {
