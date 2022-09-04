@@ -38,7 +38,7 @@ export class CacheService implements OnModuleInit {
     ) {
       CacheService.cleanStart = true;
       await this.expire();
-      this.logger.log('Cache cleaned');
+      this.logger.verbose('Cache cleaned');
     }
   }
 
