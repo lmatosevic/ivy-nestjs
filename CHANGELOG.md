@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.42](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.41...v0.3.42) (2022-09-04)
+
+
+### Bug Fixes
+
+* fix circular dependency for basic auth guard ([e94b03b](https://github.com/Lujo5/ivy-nestjs/commit/e94b03b0fa4ef6179d1b24cf6cc335f2e314830e))
+
 ### [0.3.41](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.40...v0.3.41) (2022-09-04)
 
 
