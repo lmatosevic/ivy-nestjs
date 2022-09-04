@@ -1,8 +1,9 @@
 import { ExecutionContext, Injectable } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Reflector } from '@nestjs/core';
-import { ContextUtil } from '../../../utils';
-import { HAS_AUTH_KEY, IS_PUBLIC_KEY } from '../../decorators';
+import { ContextUtil } from '../../../utils/context.util';
+import { HAS_AUTH_KEY } from '../../decorators/authorize.decorator';
+import { IS_PUBLIC_KEY } from '../../decorators/public.decorator';
 
 @Injectable()
 export class BasicAuthGuard extends AuthGuard('basic') {
