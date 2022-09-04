@@ -5,7 +5,7 @@ import { firstValueFrom, isObservable } from 'rxjs';
 import { ContextUtil } from '../utils';
 import { AuthType } from '../enums';
 import { AuthModuleOptions } from './auth.module';
-import { BasicAuthGuard } from './strategy/basic/basic-auth.guard';
+import { BasicAuthGuard } from './strategy/basic';
 import { JwtAuthGuard } from './strategy/jwt';
 import { ApikeyAuthGuard } from './strategy/apikey';
 import { OAuth2AuthGuard } from './strategy/oauth2';
