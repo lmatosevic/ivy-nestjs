@@ -4,6 +4,7 @@ import { PartialDeep } from 'type-fest';
 import { ResourceError } from '../../resource/errors';
 import { FILE_PROPS_KEY, FileProps } from '../../storage/decorators';
 import { FileError, FileManager } from '../../storage';
+import { Action } from '../../enums';
 import { FileMeta } from '../../storage/schema';
 import { FilesUtil, ObjectUtil, RequestUtil } from '../../utils';
 import { QueryRequest, QueryResponse, ValidationError } from '../dto';
@@ -173,6 +174,8 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
       });
     }
 
+    await this.expireCache(this.model.modelName, Action.Create);
+
     return this.populateModelDeep(createdModel);
   }
 
@@ -224,6 +227,8 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
       });
     }
 
+    await this.expireCache(this.model.modelName, Action.Update);
+
     return this.populateModelDeep(updatedModel);
   }
 
@@ -270,6 +275,8 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     } finally {
       await session.endSession();
     }
+
+    await this.expireCache(this.model.modelName, Action.Delete);
 
     return populatedModel;
   }

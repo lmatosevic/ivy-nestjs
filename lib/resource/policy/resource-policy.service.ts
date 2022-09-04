@@ -1,6 +1,7 @@
 import { PolicyRules } from './resource-policy.interceptor';
 import { RequestContext } from '../../context';
 import { AuthUser } from '../../auth';
+import { Action } from '../../enums';
 import { RequestUtil } from '../../utils';
 import * as _ from 'lodash';
 
@@ -66,5 +67,12 @@ export abstract class ResourcePolicyService {
 
   getAuthUser(): AuthUser {
     return (RequestContext.currentContext?.req?.['user'] as AuthUser) || null;
+  }
+
+  async expireCache(resource: string, action: Action): Promise<void> {
+    const cacheManager = RequestContext.currentContext?.req?.['cacheManager'];
+    if (cacheManager) {
+      await cacheManager.expireOnChange(resource, action);
+    }
   }
 }

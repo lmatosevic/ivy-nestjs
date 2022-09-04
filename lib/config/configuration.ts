@@ -88,10 +88,11 @@ export default () => {
     cache: {
       type: process.env.CACHE_TYPE || 'redis',
       prefix: process.env.CACHE_PREFIX,
-      enabled: StringUtil.parseBool(process.env.CACHE_ENABLED, true),
-      cleanStart: StringUtil.parseBool(process.env.CACHE_CLEAN_START, false),
       ttl: StringUtil.parseInteger(process.env.CACHE_TTL, 5),
       maxItems: StringUtil.parseInteger(process.env.CACHE_MAX_ITEMS, 100),
+      enabled: StringUtil.parseBool(process.env.CACHE_ENABLED, true),
+      cleanStart: StringUtil.parseBool(process.env.CACHE_CLEAN_START, true),
+      changeStrategy: process.env.CACHE_CHANGE_STRATEGY || 'expire',
       filesystem: {
         rootDir: process.env.CACHE_FILESYSTEM_ROOT_DIR || './storage/cache',
         subdirsEnabled: StringUtil.parseBool(process.env.CACHE_FILESYSTEM_SUBDIRS_ENABLED, false),

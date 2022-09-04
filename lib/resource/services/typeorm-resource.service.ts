@@ -14,6 +14,7 @@ import { IsolationLevel } from 'typeorm/driver/types/IsolationLevel';
 import { ResourceError } from '../../resource/errors';
 import { FILE_PROPS_KEY, FileError, FileManager, FileProps } from '../../storage';
 import { POPULATE_RELATION_KEY, PopulateRelationConfig } from '../decorators';
+import { Action } from '../../enums';
 import { QueryRequest, QueryResponse } from '../dto';
 import { FilesUtil, ObjectUtil, RequestUtil } from '../../utils';
 import { ResourceService } from './resource.service';
@@ -222,6 +223,8 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
       });
     }
 
+    await this.expireCache(this.repository.metadata.name, Action.Create);
+
     return this.findResource(createdModel.id);
   }
 
@@ -289,6 +292,8 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
       });
     }
 
+    await this.expireCache(this.repository.metadata.name, Action.Update);
+
     return this.findResource(updatedModel.id);
   }
 
@@ -326,6 +331,8 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
         status: e.constraint ? 400 : 500
       });
     }
+
+    await this.expireCache(this.repository.metadata.name, Action.Delete);
 
     return currentResource;
   }

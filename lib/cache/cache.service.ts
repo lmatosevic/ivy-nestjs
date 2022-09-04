@@ -3,15 +3,19 @@ import { ConfigService } from '@nestjs/config';
 import { Cache } from 'cache-manager';
 import * as glob from 'glob';
 import { promises as fsp } from 'fs';
-import { CacheModuleOptions } from './cache.module';
+import { CacheChangeStrategy, CacheModuleOptions, CacheType } from './cache.module';
 import { CACHE_MODULE_OPTIONS } from './cache.constants';
+import { Action } from '../enums';
 
 @Injectable()
 export class CacheService implements OnModuleInit {
   private readonly logger = new Logger(CacheService.name);
-  private readonly storeType: string;
+  private readonly storeType: CacheType;
   private readonly cachePrefix: string;
+  private readonly changeStrategy: CacheChangeStrategy;
   private readonly enabled: boolean;
+
+  private static cleanStart: boolean = false;
 
   constructor(
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
@@ -20,6 +24,7 @@ export class CacheService implements OnModuleInit {
   ) {
     this.storeType = cacheModuleOptions.type ?? configService.get('cache.type') ?? 'memory';
     this.cachePrefix = cacheModuleOptions.prefix ?? configService.get('cache.prefix') ?? '';
+    this.changeStrategy = cacheModuleOptions.changeStrategy ?? configService.get('cache.changeStrategy');
     this.enabled = cacheModuleOptions.enabled ?? configService.get('cache.enabled') ?? true;
     if (!this.enabled) {
       this.logger.warn('Caching is disabled');
@@ -27,10 +32,30 @@ export class CacheService implements OnModuleInit {
   }
 
   async onModuleInit(): Promise<void> {
-    if (this.cacheModuleOptions.cleanStart ?? this.configService.get('cache.cleanStart')) {
-      await this.reset();
+    if (
+      !CacheService.cleanStart &&
+      (this.cacheModuleOptions.cleanStart ?? this.configService.get('cache.cleanStart'))
+    ) {
+      CacheService.cleanStart = true;
+      await this.expire();
       this.logger.log('Cache cleaned');
     }
+  }
+
+  getCacheManager(): Cache {
+    return this.cacheManager;
+  }
+
+  isEnabled(): boolean {
+    return this.enabled;
+  }
+
+  prefixedKey(key: string): string {
+    const prefix = `${this.cachePrefix ? this.cachePrefix + ':' : ''}_cache:`;
+    if (key.startsWith(prefix)) {
+      return key;
+    }
+    return `${prefix}${key}`;
   }
 
   async get<T>(key: string): Promise<T | null> {
@@ -51,28 +76,22 @@ export class CacheService implements OnModuleInit {
     }
   }
 
-  async reset(): Promise<void> {
+  async expire(pattern: string = '*'): Promise<void> {
     if (this.enabled) {
-      await this.deleteBy('*');
+      const keySet = await this.keys(this.prefixedKey(pattern));
+      await Promise.all(Array.from(keySet).map((key) => this.del(key)));
+      this.logger.debug('Cache expired with pattern: %s', pattern);
     }
   }
 
-  getCacheManager(): Cache {
-    return this.cacheManager;
-  }
-
-  isEnabled(): boolean {
-    return this.enabled;
-  }
-
-  prefixedKey(key: string): string {
-    return `${this.cachePrefix ? this.cachePrefix + ':' : ''}_cache:${key}`;
-  }
-
-  async deleteBy(pattern: string = '*'): Promise<void> {
-    if (this.enabled) {
-      const keySet = await this.keys(this.prefixedKey(pattern));
-      await Promise.all(Array.from(keySet).map((key) => this.cacheManager.del(key)));
+  async expireOnChange(resource: string, action: Action): Promise<void> {
+    if (this.enabled && this.changeStrategy !== 'none') {
+      this.logger.verbose('Expiring cache on %s %s', resource, action);
+      if (this.changeStrategy === 'expire') {
+        await this.expire();
+      } else if (this.changeStrategy === 'expire-defer') {
+        this.expire().finally();
+      }
     }
   }
 

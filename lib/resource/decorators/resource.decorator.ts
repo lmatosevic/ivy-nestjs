@@ -1,8 +1,6 @@
-import { INTERCEPTORS_METADATA } from '@nestjs/common/constants';
-import { CacheTTL, UseInterceptors } from '@nestjs/common';
 import { ReflectionUtil } from '../../utils';
 import { AuthType, DeliveryMethod, Operation, Role } from '../../enums';
-import { CacheInterceptor } from '../../cache';
+import { CacheConfig, Cached } from '../../cache';
 import { AUTH_KEY, Authorized, Public, ReCaptcha, RECAPTCHA_KEY, Roles, ROLES_KEY } from '../../auth';
 
 export const RESOURCE_CONFIG_KEY = 'resourceConfig';
@@ -24,7 +22,7 @@ export type OperationConfig = {
   public?: boolean;
   roles?: Role[] | Role;
   recaptcha?: DeliveryMethod[] | boolean;
-  cache?: boolean | { ttl?: number };
+  cache?: boolean | CacheConfig;
 };
 
 export function Resource(config?: ResourceConfig) {
@@ -86,7 +84,7 @@ function applyOperationsConfig(config: ResourceConfig, target: Function) {
 
     if (
       [Operation.Find, Operation.Query, 'QueryGet'].includes(operation as Operation) &&
-      (conf.cache === undefined || conf.cache === true || conf.cache?.['ttl'])
+      (conf.cache === undefined || conf.cache)
     ) {
       cacheOperation(target, operation, conf);
     }
@@ -152,13 +150,8 @@ function cacheOperation(target: Function, operation: string, conf: OperationConf
     return;
   }
 
-  const currentInterceptors = Reflect.getMetadata(INTERCEPTORS_METADATA, descriptor.value) || [];
-  const cacheInterceptor = UseInterceptors(...currentInterceptors, CacheInterceptor);
-  cacheInterceptor(parent, operationName(operation), descriptor);
-
-  if (conf.cache?.['ttl'] && typeof conf.cache?.['ttl'] === 'number') {
-    CacheTTL(conf.cache['ttl'])(parent, operationName(operation), descriptor);
-  }
+  const cached = Cached(typeof conf.cache === 'object' ? conf.cache : {});
+  cached(parent, operationName(operation), descriptor);
 }
 
 function parentAndDescriptor(

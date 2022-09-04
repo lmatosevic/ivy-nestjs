@@ -1,4 +1,11 @@
-import { CacheModule as NestjsCacheModule, DynamicModule, Global, Module } from '@nestjs/common';
+import {
+  CacheModule as NestjsCacheModule,
+  DynamicModule,
+  Global,
+  MiddlewareConsumer,
+  Module,
+  NestModule
+} from '@nestjs/common';
 import { CacheStore, CacheStoreFactory } from '@nestjs/common/cache/interfaces/cache-manager.interface';
 import { ConfigService } from '@nestjs/config';
 import * as fileStore from 'cache-manager-fs-hash';
@@ -8,15 +15,21 @@ import { ModuleAsyncOptions, ModuleUtil } from '../utils';
 import { RedisModule, RedisService } from '../redis';
 import { CacheService } from './cache.service';
 import { CacheInterceptor } from './cache.interceptor';
+import { CacheMiddleware } from './cache.middleware';
 import { CACHE_MODULE_OPTIONS, CACHE_SERVICE } from './cache.constants';
 
+export type CacheType = 'redis' | 'filesystem' | 'memory' | 'custom';
+
+export type CacheChangeStrategy = 'expire' | 'expire-defer' | 'none';
+
 export interface CacheModuleOptions {
-  type?: 'redis' | 'filesystem' | 'memory' | 'custom';
+  type?: CacheType;
   prefix?: string;
   ttl?: number;
   maxItems?: number;
   enabled?: boolean;
   cleanStart?: boolean;
+  changeStrategy?: CacheChangeStrategy;
   redis?: RedisOptions;
   filesystem?: { rootDir?: string; subdirsEnabled?: boolean; maxSize?: number };
   store?: string | CacheStoreFactory | CacheStore;
@@ -26,7 +39,7 @@ export interface CacheModuleOptions {
 
 @Global()
 @Module({})
-export class CacheModule {
+export class CacheModule implements NestModule {
   static forRoot(options: CacheModuleOptions = {}): DynamicModule {
     return this.createModule([
       {
@@ -51,10 +64,18 @@ export class CacheModule {
       providers: [
         ...providers,
         CacheInterceptor,
+        CacheMiddleware,
         CacheService,
         { provide: CACHE_SERVICE, useClass: CacheService }
       ],
-      exports: [CACHE_MODULE_OPTIONS, CACHE_SERVICE, NestjsCacheModule, CacheInterceptor, CacheService]
+      exports: [
+        CACHE_MODULE_OPTIONS,
+        CACHE_SERVICE,
+        NestjsCacheModule,
+        CacheInterceptor,
+        CacheMiddleware,
+        CacheService
+      ]
     };
   }
 
@@ -118,5 +139,9 @@ export class CacheModule {
         ...(cacheModuleOptions.options || {})
       })
     });
+  }
+
+  configure(consumer: MiddlewareConsumer): any {
+    consumer.apply(CacheMiddleware).forRoutes('*');
   }
 }

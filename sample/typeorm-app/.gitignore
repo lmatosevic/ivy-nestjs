@@ -1,6 +1,10 @@
-# compiled output
+# Compiled output
 /dist
 /node_modules
+
+# Docs
+/graphql
+/openapi
 
 # Logs
 logs
