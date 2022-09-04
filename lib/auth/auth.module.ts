@@ -26,6 +26,7 @@ import {
   GoogleService
 } from './social';
 import { AUTH_MODULE_OPTIONS } from './auth.constants';
+import { AuthMultiGuard } from './auth-multi.guard';
 
 
 export type AuthRouteOptions = {
@@ -131,6 +132,7 @@ export class AuthModule {
         JwtAuthGuard,
         OAuth2AuthGuard,
         ApikeyAuthGuard,
+        AuthMultiGuard,
         RecaptchaService,
         GoogleService,
         FacebookService,
@@ -155,6 +157,7 @@ export class AuthModule {
         JwtAuthGuard,
         OAuth2AuthGuard,
         ApikeyAuthGuard,
+        AuthMultiGuard,
         RecaptchaService,
         GoogleService,
         FacebookService
