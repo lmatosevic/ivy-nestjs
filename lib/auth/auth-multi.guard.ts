@@ -1,4 +1,4 @@
-import { CanActivate, ExecutionContext, Inject, Injectable, Optional } from '@nestjs/common';
+import { CanActivate, ExecutionContext, forwardRef, Inject, Injectable, Optional } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom, isObservable } from 'rxjs';
@@ -19,10 +19,10 @@ export class AuthMultiGuard implements CanActivate {
     @Optional() @Inject(AUTH_MODULE_OPTIONS) private authModuleOptions: AuthModuleOptions,
     private configService: ConfigService,
     private reflector: Reflector,
-    @Optional() private basicGuard: BasicAuthGuard,
-    @Optional() private jwtGuard: JwtAuthGuard,
-    @Optional() private apikeyGuard: ApikeyAuthGuard,
-    @Optional() private oauth2Guard: OAuth2AuthGuard
+    @Optional() @Inject(forwardRef(() => BasicAuthGuard)) private basicGuard: BasicAuthGuard,
+    @Optional() @Inject(forwardRef(() => JwtAuthGuard)) private jwtGuard: JwtAuthGuard,
+    @Optional() @Inject(forwardRef(() => ApikeyAuthGuard)) private apikeyGuard: ApikeyAuthGuard,
+    @Optional() @Inject(forwardRef(() => OAuth2AuthGuard)) private oauth2Guard: OAuth2AuthGuard
   ) {}
 
   getRequest(context: ExecutionContext) {
