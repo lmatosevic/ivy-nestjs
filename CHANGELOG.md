@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.43](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.42...v0.3.43) (2022-09-04)
+
+
+### Features
+
+* export auth multi guard ([d267d09](https://github.com/Lujo5/ivy-nestjs/commit/d267d0945bd04e1a4f9585eeaacd96f4063c5400))
+
 ### [0.3.42](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.41...v0.3.42) (2022-09-04)
 
 
