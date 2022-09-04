@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.40](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.39...v0.3.40) (2022-09-04)
+
+
+### Features
+
+* add optional cache decorator config ([1f2bbb7](https://github.com/Lujo5/ivy-nestjs/commit/1f2bbb7a824dc7dc48c95ec3987308480384ed03))
+
 ### [0.3.39](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.38...v0.3.39) (2022-09-04)
 
 
