@@ -11,6 +11,7 @@ import { BasicAuthGuard, BasicStrategy } from './strategy/basic';
 import { JwtAuthGuard, JwtStrategy } from './strategy/jwt';
 import { ApikeyAuthGuard, ApikeyStrategy } from './strategy/apikey';
 import { OAuth2AuthGuard, OAuth2Strategy } from './strategy/oauth2';
+import { AuthMultiGuard } from './auth-multi.guard';
 import { RecaptchaGuard, RecaptchaService } from './recaptcha';
 import { RolesGuard } from './roles.guard';
 import { AuthService } from './auth.service';
@@ -26,8 +27,6 @@ import {
   GoogleService
 } from './social';
 import { AUTH_MODULE_OPTIONS } from './auth.constants';
-import { AuthMultiGuard } from './auth-multi.guard';
-
 
 export type AuthRouteOptions = {
   enabled?: boolean;
