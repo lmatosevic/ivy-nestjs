@@ -2,8 +2,8 @@ import { BasicStrategy as PassportBasicStrategy } from 'passport-http';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
 import { AuthUser } from '../../interfaces/auth-user';
-import { AuthorizationError } from '../../errors/authorization.error';
-import { AuthSource } from '../../../enums/auth-source.enum';
+import { AuthorizationError } from '../../errors';
+import { AuthSource } from '../../../enums';
 import { AuthService } from '../../auth.service';
 
 @Injectable()
