@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.45](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.44...v0.3.45) (2022-09-04)
+
+
+### Bug Fixes
+
+* use forward reference to resolve auth multi guard dependencies ([4888d20](https://github.com/Lujo5/ivy-nestjs/commit/4888d207c4fc555be54cddcfbb81a6982a7c7039))
+
 ### [0.3.44](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.43...v0.3.44) (2022-09-04)
 
 ### [0.3.43](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.42...v0.3.43) (2022-09-04)
