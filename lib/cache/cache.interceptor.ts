@@ -44,11 +44,14 @@ export class CacheInterceptor extends NestjsCacheInterceptor {
 
     const cachedRelations = this.cachedRelations(ctx);
     const name = this.resourceName(ctx);
-    if (name && cachedRelations.length === 0) {
-      const relations = [name, ...this.resourceRelationNames(name)].join('!');
-      key = `${key}_!${relations}!`;
-    } else if (cachedRelations.length > 0) {
+    if (cachedRelations.length > 0) {
       key = `${key}_!${cachedRelations.join('!')}!`;
+    } else if (name) {
+      const relations = this.resourceRelationNames(name);
+      if (!relations.includes(name)) {
+        relations.push(name);
+      }
+      key = `${key}_!${relations.join('!')}!`;
     }
 
     const request = ctx.switchToHttp().getRequest();
