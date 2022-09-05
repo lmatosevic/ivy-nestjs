@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.47](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.46...v0.3.47) (2022-09-05)
+
+
+### Features
+
+* update cache relation keys name ([259a9f2](https://github.com/Lujo5/ivy-nestjs/commit/259a9f21cff8add323e2d7981b36082424064785))
+
 ### [0.3.46](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.45...v0.3.46) (2022-09-05)
 
 
