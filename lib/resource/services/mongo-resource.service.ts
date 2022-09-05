@@ -25,9 +25,12 @@ type ModelReferences = {
 };
 
 export abstract class MongoResourceService<T> extends ResourcePolicyService implements ResourceService<T> {
-  private static modelReferences: Record<string, ModelReferences>;
+  public static modelRelationNames: Record<string, string[]>;
+  public static modelReferences: Record<string, ModelReferences>;
   private static replicationEnabled: boolean;
+
   private readonly log = new Logger(MongoResourceService.name);
+
   protected isProtected: boolean = false;
   protected session?: ClientSession;
 
@@ -40,7 +43,10 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     }
 
     if (!MongoResourceService.modelReferences) {
-      MongoResourceService.modelReferences = this.fetchAllReferences();
+      MongoResourceService.modelReferences = this.initAllReferences();
+    }
+    if (!MongoResourceService.modelRelationNames) {
+      MongoResourceService.modelRelationNames = this.initRelationModelNames();
     }
   }
 
@@ -718,13 +724,32 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
 
     while (fields.length > 0) {
       const field = fields.shift();
-      const fieldRef = this.refProp(field, currentModelName);
-      if (fieldRef && fieldRef.ref) {
-        currentModelName = fieldRef.ref;
+      const fieldProp = this.refProp(field, currentModelName);
+      if (fieldProp && fieldProp.ref) {
+        currentModelName = fieldProp.ref;
       }
     }
 
     return currentModelName;
+  }
+
+  private relationModelNames(modelName?: string, exclude: string[] = []): string[] {
+    const names: string[] = [];
+
+    const virtuals = this.virtualFields(modelName).map((f) => this.refProp(f, modelName)?.ref);
+    const refs = this.referencedFields(modelName).map((f) => this.refProp(f, modelName)?.ref);
+    const embedded = this.embeddedFields(modelName).map((f) => this.embeddedType(f, modelName));
+
+    for (const relationModelName of [...virtuals, ...refs, ...embedded]) {
+      if (exclude.includes(relationModelName) || names.includes(relationModelName)) {
+        continue;
+      }
+      names.push(relationModelName);
+      const childRelationNames = this.relationModelNames(relationModelName, [relationModelName, ...exclude]);
+      names.push(...childRelationNames.filter((crn) => !names.includes(crn)));
+    }
+
+    return Array.from(new Set<string>(names));
   }
 
   private fields(modelName?: string): string[] {
@@ -759,13 +784,32 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     return MongoResourceService.modelReferences[modelName || this.model.modelName]?.refProps?.[fieldName];
   }
 
-  private embeddedTypes(fieldName: string, modelName?: string): any {
+  private embeddedTypes(modelName?: string): any {
+    return MongoResourceService.modelReferences[modelName || this.model.modelName]?.embeddedTypes;
+  }
+
+  private embeddedType(fieldName: string, modelName?: string): string {
     return MongoResourceService.modelReferences[modelName || this.model.modelName]?.embeddedTypes?.[
       fieldName
     ];
   }
 
-  private fetchAllReferences(): Record<string, ModelReferences> {
+  private initRelationModelNames(): Record<string, string[]> {
+    const relationModelNames: Record<string, string[]> = {};
+
+    if (!this.model?.db?.models) {
+      return relationModelNames;
+    }
+
+    for (const modelName of Object.keys(this.model?.db?.models)) {
+      relationModelNames[modelName] = this.relationModelNames(modelName);
+      this.log.debug('%s relation names: %j', modelName, relationModelNames[modelName]);
+    }
+
+    return relationModelNames;
+  }
+
+  private initAllReferences(): Record<string, ModelReferences> {
     const referencesMap: Record<string, ModelReferences> = {};
 
     if (!this.model?.db?.models) {
@@ -774,13 +818,13 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
 
     for (const modelName of Object.keys(this.model?.db?.models)) {
       const model = this.model?.db?.models[modelName];
-      referencesMap[modelName] = this.fetchReferences(model);
+      referencesMap[modelName] = this.makeReferences(model);
     }
 
     return referencesMap;
   }
 
-  private fetchReferences(model: Model<T & Document>): ModelReferences {
+  private makeReferences(model: Model<T & Document>): ModelReferences {
     const references: string[] = [];
     const virtuals: string[] = [];
     const embedded: string[] = [];

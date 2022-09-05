@@ -225,7 +225,7 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
   })
   @ApiExtraModels(QueryResponse, QueryRequest, queryFilter, resourceRef)
   @ApiTags(pluralName)
-  @Resource(config)
+  @Resource(resourceRef, config)
   abstract class ResourceController {
     private readonly protectedService: ResourceService<T>;
 

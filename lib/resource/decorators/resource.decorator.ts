@@ -1,9 +1,11 @@
+import { Type } from '@nestjs/common';
 import { ReflectionUtil } from '../../utils';
 import { AuthType, DeliveryMethod, Operation, Role } from '../../enums';
 import { CacheConfig, Cached } from '../../cache';
 import { AUTH_KEY, Authorized, Public, ReCaptcha, RECAPTCHA_KEY, Roles, ROLES_KEY } from '../../auth';
 
 export const RESOURCE_CONFIG_KEY = 'resourceConfig';
+export const RESOURCE_REF_KEY = 'resourceReference';
 
 export const extraOperations = {
   QueryGet: Operation.Query,
@@ -25,7 +27,7 @@ export type OperationConfig = {
   cache?: boolean | CacheConfig;
 };
 
-export function Resource(config?: ResourceConfig) {
+export function Resource(classRef: Type<unknown>, config?: ResourceConfig) {
   return (target: Function) => {
     if (!config || Object.keys(config).length === 0) {
       config = { [Operation.All]: {} };
@@ -55,6 +57,8 @@ export function Resource(config?: ResourceConfig) {
     }
 
     applyOperationsConfig(config, target);
+
+    Reflect.defineMetadata(RESOURCE_REF_KEY, classRef, target);
     Reflect.defineMetadata(RESOURCE_CONFIG_KEY, config, target);
   };
 }

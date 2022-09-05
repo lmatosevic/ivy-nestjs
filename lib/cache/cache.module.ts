@@ -20,7 +20,7 @@ import { CACHE_MODULE_OPTIONS, CACHE_SERVICE } from './cache.constants';
 
 export type CacheType = 'redis' | 'filesystem' | 'memory' | 'custom';
 
-export type CacheChangeStrategy = 'expire' | 'expire-defer' | 'none';
+export type CacheChangeStrategy = 'expire-all' | 'expire-related' | 'none';
 
 export interface CacheModuleOptions {
   type?: CacheType;
@@ -30,6 +30,7 @@ export interface CacheModuleOptions {
   enabled?: boolean;
   cleanStart?: boolean;
   changeStrategy?: CacheChangeStrategy;
+  changeDeferred?: boolean;
   redis?: RedisOptions;
   filesystem?: { rootDir?: string; subdirsEnabled?: boolean; maxSize?: number };
   store?: string | CacheStoreFactory | CacheStore;

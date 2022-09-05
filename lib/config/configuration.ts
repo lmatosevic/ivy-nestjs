@@ -92,7 +92,8 @@ export default () => {
       maxItems: StringUtil.parseInteger(process.env.CACHE_MAX_ITEMS, 100),
       enabled: StringUtil.parseBool(process.env.CACHE_ENABLED, true),
       cleanStart: StringUtil.parseBool(process.env.CACHE_CLEAN_START, true),
-      changeStrategy: process.env.CACHE_CHANGE_STRATEGY || 'expire',
+      changeStrategy: process.env.CACHE_CHANGE_STRATEGY || 'expire-related',
+      changeDeferred: StringUtil.parseBool(process.env.CACHE_CHANGE_DEFERRED, false),
       filesystem: {
         rootDir: process.env.CACHE_FILESYSTEM_ROOT_DIR || './storage/cache',
         subdirsEnabled: StringUtil.parseBool(process.env.CACHE_FILESYSTEM_SUBDIRS_ENABLED, false),

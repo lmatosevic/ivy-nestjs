@@ -13,6 +13,7 @@ export class CacheService implements OnModuleInit {
   private readonly storeType: CacheType;
   private readonly cachePrefix: string;
   private readonly changeStrategy: CacheChangeStrategy;
+  private readonly changeDeferred: boolean;
   private readonly enabled: boolean;
 
   private static cleanStart: boolean = false;
@@ -25,6 +26,7 @@ export class CacheService implements OnModuleInit {
     this.storeType = cacheModuleOptions.type ?? configService.get('cache.type') ?? 'memory';
     this.cachePrefix = cacheModuleOptions.prefix ?? configService.get('cache.prefix') ?? '';
     this.changeStrategy = cacheModuleOptions.changeStrategy ?? configService.get('cache.changeStrategy');
+    this.changeDeferred = cacheModuleOptions.changeDeferred ?? configService.get('cache.changeDeferred');
     this.enabled = cacheModuleOptions.enabled ?? configService.get('cache.enabled') ?? true;
     if (!this.enabled) {
       this.logger.warn('Caching is disabled');
@@ -87,10 +89,18 @@ export class CacheService implements OnModuleInit {
   async expireOnChange(resource: string, action: Action): Promise<void> {
     if (this.enabled && this.changeStrategy !== 'none') {
       this.logger.verbose('Expiring cache on %s %s', resource, action);
-      if (this.changeStrategy === 'expire') {
-        await this.expire();
-      } else if (this.changeStrategy === 'expire-defer') {
-        this.expire().finally();
+
+      let pattern;
+      if (this.changeStrategy === 'expire-all') {
+        pattern = '*';
+      } else if (this.changeStrategy === 'expire-related') {
+        pattern = `*!${resource}!*`;
+      }
+
+      if (this.changeDeferred) {
+        this.expire(pattern).finally();
+      } else {
+        await this.expire(pattern);
       }
     }
   }

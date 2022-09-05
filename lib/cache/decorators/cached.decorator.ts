@@ -2,10 +2,12 @@ import { applyDecorators, CacheKey, CacheTTL, SetMetadata, UseInterceptors } fro
 import { CacheInterceptor } from '../cache.interceptor';
 
 export const IS_CACHED = 'isCached';
+export const CACHED_RELATIONS = 'cachedRelations';
 
 export interface CacheConfig {
   ttl?: number;
   key?: string;
+  relations?: string[];
 }
 
 export function Cached(config: CacheConfig = {}) {
@@ -17,6 +19,10 @@ export function Cached(config: CacheConfig = {}) {
 
   if (config.key) {
     decorators.push(CacheKey(config.key));
+  }
+
+  if (config.relations && config.relations.length > 0) {
+    decorators.push(SetMetadata(CACHED_RELATIONS, config.relations));
   }
 
   return applyDecorators(UseInterceptors(CacheInterceptor), SetMetadata(IS_CACHED, true), ...decorators);

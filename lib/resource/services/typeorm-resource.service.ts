@@ -48,8 +48,11 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
   extends ResourcePolicyService
   implements ResourceService<T>
 {
-  private static modelReferences: Record<string, ModelReferences>;
+  public static modelRelationNames: Record<string, string[]>;
+  public static modelReferences: Record<string, ModelReferences>;
+
   private readonly log = new Logger(TypeOrmResourceService.name);
+
   protected isProtected: boolean = false;
   protected entityManager?: EntityManager;
 
@@ -60,7 +63,10 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     super('id');
 
     if (!TypeOrmResourceService.modelReferences) {
-      TypeOrmResourceService.modelReferences = this.fetchAllReferences();
+      TypeOrmResourceService.modelReferences = this.initAllReferences();
+    }
+    if (!TypeOrmResourceService.modelRelationNames) {
+      TypeOrmResourceService.modelRelationNames = this.initRelationModelNames();
     }
   }
 
@@ -996,6 +1002,24 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     return filesToDelete;
   }
 
+  private relationModelNames(modelName?: string, exclude: string[] = ['File', 'FileMeta']): string[] {
+    const names: string[] = [];
+
+    const relations = this.relationMetadataList(modelName);
+
+    for (const metadata of Object.values(relations || {})) {
+      const relationModelName = metadata.type['name'];
+      if (exclude.includes(relationModelName) || names.includes(relationModelName)) {
+        continue;
+      }
+      names.push(relationModelName);
+      const childRelationNames = this.relationModelNames(relationModelName, [relationModelName, ...exclude]);
+      names.push(...childRelationNames.filter((crn) => !names.includes(crn)));
+    }
+
+    return Array.from(new Set<string>(names));
+  }
+
   private fields(modelName?: string): string[] {
     return TypeOrmResourceService.modelReferences[modelName || this.repository.metadata.name]?.fields;
   }
@@ -1032,7 +1056,24 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     return TypeOrmResourceService.modelReferences[modelName || this.repository.metadata.name]?.fileProps;
   }
 
-  private fetchAllReferences(): Record<string, ModelReferences> {
+  private initRelationModelNames(): Record<string, string[]> {
+    const relationModelNames: Record<string, string[]> = {};
+
+    const repositories = this.repository?.manager?.['repositories'];
+    if (!repositories) {
+      return relationModelNames;
+    }
+
+    for (const repo of repositories) {
+      const name = repo.metadata?.name;
+      relationModelNames[name] = this.relationModelNames(name);
+      this.log.debug('%s relation names: %j', name, relationModelNames[name]);
+    }
+
+    return relationModelNames;
+  }
+
+  private initAllReferences(): Record<string, ModelReferences> {
     const referencesMap: Record<string, ModelReferences> = {};
 
     const repositories = this.repository?.manager?.['repositories'];
@@ -1041,13 +1082,13 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     }
 
     for (const repo of repositories) {
-      referencesMap[repo.metadata.name] = this.fetchReferences(repo);
+      referencesMap[repo.metadata.name] = this.makeReferences(repo);
     }
 
     return referencesMap;
   }
 
-  private fetchReferences(repository: Repository<any>): ModelReferences {
+  private makeReferences(repository: Repository<any>): ModelReferences {
     const fields: string[] = [];
     const files: string[] = [];
     const relations: string[] = [];
