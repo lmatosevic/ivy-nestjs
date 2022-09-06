@@ -1,9 +1,12 @@
 import { v4 as uuidv4, validate as uuidValidate } from 'uuid';
-import { promises as fsp } from 'fs';
 import * as fs from 'fs';
+import { promises as fsp } from 'fs';
+import * as path from 'path';
 import * as dotenv from 'dotenv';
 import { FileDto, FileError, FileProps } from '../storage';
+import { FileMetadata } from '../storage/file-meta';
 import { ValidationError } from '../resource';
+import { DateUtil } from './date.util';
 import { StringUtil } from './string.util';
 import * as _ from 'lodash';
 
@@ -16,6 +19,33 @@ export class FilesUtil {
     } else {
       return `${originalName}_${uuid}`;
     }
+  }
+
+  static makeDirectoryName(pattern: string, meta?: FileMetadata): string {
+    const now = new Date();
+    const variables = {
+      year: now.getUTCFullYear(),
+      month: now.getUTCMonth(),
+      day: now.getUTCDate(),
+      weekDay: now.getUTCDay(),
+      yearWeek: DateUtil.getUTCWeekNumber(now),
+      hours: now.getUTCHours(),
+      minutes: now.getUTCMinutes(),
+      seconds: now.getUTCSeconds(),
+      milliseconds: now.getUTCMilliseconds(),
+      timestamp: now.getTime(),
+      uuid: uuidv4(),
+      hash: StringUtil.generateToken('bytes', 32),
+      fieldName: meta?.field,
+      resourceName: meta?.resource
+    };
+
+    let dirname = pattern;
+    for (const [key, value] of Object.entries(variables)) {
+      dirname = dirname.replace(`{{${key}}}`, value);
+    }
+
+    return dirname;
   }
 
   static isFileNameSuffixValid(suffix: string): boolean {
@@ -34,6 +64,28 @@ export class FilesUtil {
           // file already moved or deleted
         }
       }
+    }
+  }
+
+  static async removeEmptyDirectories(directory: string, level: number = 0) {
+    const fileStats = await fsp.lstat(directory);
+
+    if (!fileStats.isDirectory()) {
+      return;
+    }
+
+    let fileNames = await fsp.readdir(directory);
+
+    if (fileNames.length > 0) {
+      const recursiveRemovalPromises = fileNames.map((fileName) =>
+        this.removeEmptyDirectories(path.join(directory, fileName), level + 1)
+      );
+      await Promise.all(recursiveRemovalPromises);
+      fileNames = await fsp.readdir(directory);
+    }
+
+    if (fileNames.length === 0 && level > 0) {
+      await fsp.rmdir(directory);
     }
   }
 

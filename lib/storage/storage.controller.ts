@@ -37,7 +37,7 @@ export class StorageController {
 
   @ApiOkResponse({ description: 'Binary file content' })
   @ApiNotFoundResponse({ description: 'File not found' })
-  @Get('/public/:name')
+  @Get('/public/:name(*)?')
   @HttpCode(200)
   async publicFile(
     @Param('name') name: string,
@@ -49,7 +49,7 @@ export class StorageController {
   @Authorized()
   @ApiOkResponse({ description: 'Binary file content' })
   @ApiNotFoundResponse({ description: 'File not found' })
-  @Get('/protected/:name')
+  @Get('/protected/:name(*)?')
   @HttpCode(200)
   async protectedFile(
     @Param('name') name: string,
@@ -62,7 +62,11 @@ export class StorageController {
   private async validateAndMakeFileStream(name: string, res: any, user?: AuthUser): Promise<StreamableFile> {
     const { allowed, meta } = await this.fileManager.checkFileAccess(name, user);
     if (!allowed) {
-      throw new FileError(`File access forbidden`, 403);
+      if (meta && user) {
+        throw new FileError(`File access forbidden`, 403);
+      } else {
+        throw new FileError(`File not found: ${name}`, 404);
+      }
     }
 
     const stream = await this.fileManager.streamFile(name);

@@ -4,6 +4,7 @@ import * as path from 'path';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { StorageAdapter } from './storage.adapter';
+import { FilesUtil } from '../../utils';
 import { StorageModuleOptions } from '../storage.module';
 import { STORAGE_MODULE_OPTIONS } from '../storage.constants';
 
@@ -25,19 +26,19 @@ export class FilesystemAdapter implements StorageAdapter {
     this.logger.verbose('Storage root directory: %s', path.resolve(this.rootDir));
   }
 
-  async store(fileName: string, data: Buffer, dirname?: string): Promise<boolean> {
-    const filePath = this.filePath(fileName, dirname);
+  async store(fileName: string, data: Buffer, filesDir?: string): Promise<boolean> {
+    const filePath = await this.getFilePath(fileName, filesDir, true);
     try {
       await fsp.writeFile(filePath, data);
+      return true;
     } catch (e) {
       this.logger.error('Error storing file "%s", %j', filePath, e);
       return false;
     }
-    return true;
   }
 
-  async load(fileName: string, dirname?: string): Promise<Buffer | null> {
-    const filePath = this.filePath(fileName, dirname);
+  async load(fileName: string, filesDir?: string): Promise<Buffer | null> {
+    const filePath = await this.getFilePath(fileName, filesDir);
     try {
       return await fsp.readFile(filePath);
     } catch (e) {
@@ -46,8 +47,8 @@ export class FilesystemAdapter implements StorageAdapter {
     }
   }
 
-  async stream(fileName: string, dirname?: string): Promise<ReadStream | null> {
-    const filePath = this.filePath(fileName, dirname);
+  async stream(fileName: string, filesDir?: string): Promise<ReadStream | null> {
+    const filePath = await this.getFilePath(fileName, filesDir);
     try {
       return fs.createReadStream(filePath);
     } catch (e) {
@@ -56,19 +57,20 @@ export class FilesystemAdapter implements StorageAdapter {
     }
   }
 
-  async delete(fileName: string, dirname?: string): Promise<boolean> {
-    const filePath = this.filePath(fileName, dirname);
+  async delete(fileName: string, filesDir?: string): Promise<boolean> {
+    const filePath = await this.getFilePath(fileName, filesDir);
     try {
       await fsp.unlink(filePath);
+      await FilesUtil.removeEmptyDirectories(`${this.rootDir}/${filesDir ?? ''}`);
+      return true;
     } catch (e) {
       this.logger.error('Error deleting file "%s", %j', filePath, e);
       return false;
     }
-    return true;
   }
 
-  async exists(fileName: string, dirname?: string): Promise<boolean> {
-    const filePath = this.filePath(fileName, dirname);
+  async exists(fileName: string, filesDir?: string): Promise<boolean> {
+    const filePath = await this.getFilePath(fileName, filesDir);
     try {
       await fsp.access(filePath, constants.F_OK);
       return true;
@@ -78,8 +80,8 @@ export class FilesystemAdapter implements StorageAdapter {
   }
 
   async move(fileName: string, fromDir: string, toDir: string): Promise<boolean> {
-    const fromFilePath = this.filePath(fileName, fromDir);
-    const toFilePath = this.filePath(fileName, toDir);
+    const fromFilePath = await this.getFilePath(fileName, fromDir);
+    const toFilePath = await this.getFilePath(fileName, toDir, true);
     try {
       if (!(await this.exists(fileName, fromDir))) {
         return false;
@@ -99,12 +101,16 @@ export class FilesystemAdapter implements StorageAdapter {
     }
   }
 
-  private filePath(fileName: string, dirname?: string): string {
+  private async getFilePath(fileName: string, dirname: string, mkdir: boolean = false): Promise<string> {
     const filePath = `${this.rootDir}/${dirname ? dirname + '/' : ''}${fileName}`;
     const fileDirname = path.dirname(filePath);
-    if (!fs.existsSync(fileDirname)) {
-      fs.mkdirSync(fileDirname, { recursive: true });
-      this.logger.log('Created directory: %s', path.resolve(fileDirname));
+    if (mkdir) {
+      try {
+        await fsp.access(fileDirname, constants.F_OK);
+      } catch (e) {
+        await fsp.mkdir(fileDirname, { recursive: true });
+        this.logger.log('Created directory: %s', path.resolve(fileDirname));
+      }
     }
     return filePath;
   }

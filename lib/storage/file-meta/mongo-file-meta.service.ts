@@ -4,7 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { FileMetadata, FileMetaService, FilePropsMeta } from './file-meta.service';
 import { ObjectUtil } from '../../utils';
 import { FileMeta } from '../schema';
-import { FILE_PROPS_KEY } from '../../storage';
+import { FILE_PROPS_KEY, FileProps } from '../../storage';
 
 @Injectable()
 export class MongoFileMetaService implements FileMetaService {
@@ -67,6 +67,16 @@ export class MongoFileMetaService implements FileMetaService {
     return true;
   }
 
+  async filesResource(meta: FileMetadata): Promise<any> {
+    const model = this.fileMetaModel?.db?.models?.[meta?.resource];
+    try {
+      return await model.findOne({ _id: meta.resourceId }).session(this.session).exec();
+    } catch (e) {
+      this.logger.error('Error finding file\'s resource model "%s", %j', meta.resource, e);
+      return null;
+    }
+  }
+
   async filePropsMeta(name: string): Promise<FilePropsMeta> {
     const meta = await this.find(name);
 
@@ -86,14 +96,16 @@ export class MongoFileMetaService implements FileMetaService {
     return { props: null, meta };
   }
 
-  async filesResource(meta: FileMetadata): Promise<any> {
-    const model = this.fileMetaModel?.db?.models?.[meta?.resource];
-    try {
-      return await model.findOne({ _id: meta.resourceId }).session(this.session).exec();
-    } catch (e) {
-      this.logger.error('Error finding file\'s resource model "%s", %j', meta.resource, e);
-      return null;
+  fileProps(meta: FileMetadata): Promise<FileProps> {
+    for (const [modelName, model] of Object.entries(this.fileMetaModel?.db?.models)) {
+      if (modelName === meta.resource) {
+        const props = Reflect.getMetadata(FILE_PROPS_KEY, model.schema['classRef']?.prototype);
+        if (props && props[meta.field]) {
+          return props[meta.field];
+        }
+      }
     }
+    return null;
   }
 
   modelFields(model: any): string[] {

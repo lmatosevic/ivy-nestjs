@@ -3,9 +3,10 @@ import { ConfigService } from '@nestjs/config';
 import { Cache } from 'cache-manager';
 import * as glob from 'glob';
 import { promises as fsp } from 'fs';
+import { Action } from '../enums';
+import { FilesUtil } from '../utils';
 import { CacheChangeStrategy, CacheModuleOptions, CacheType } from './cache.module';
 import { CACHE_MODULE_OPTIONS } from './cache.constants';
-import { Action } from '../enums';
 
 @Injectable()
 export class CacheService implements OnModuleInit {
@@ -83,6 +84,9 @@ export class CacheService implements OnModuleInit {
       const keySet = await this.keys(this.prefixedKey(pattern));
       await Promise.all(Array.from(keySet).map((key) => this.del(key)));
       this.logger.debug('Cache expired with pattern: %s', pattern);
+      if (this.storeType === 'filesystem') {
+        await this.removeEmptyDirs();
+      }
     }
   }
 
@@ -182,5 +186,10 @@ export class CacheService implements OnModuleInit {
     const memoryKeys = await this.getCacheManager().store.keys();
     const regex = pattern.replace(/[.+?^$]/g, '\\$&').replace(/\*/g, '.*');
     return new Set<string>(memoryKeys.filter((mk) => mk.match(regex)));
+  }
+
+  private async removeEmptyDirs(): Promise<void> {
+    const options = this.getCacheManager().store['options'];
+    return FilesUtil.removeEmptyDirectories(options.path + '/');
   }
 }

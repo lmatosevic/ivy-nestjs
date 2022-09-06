@@ -11,7 +11,7 @@ import { File, FileMeta as FileMetaEntity } from './entity';
 import { StorageController } from './storage.controller';
 import { FileManager } from './file-manager';
 import { MongoFileMetaService, TypeOrmFileMetaService } from './file-meta';
-import { FILE_META_SERVICE, STORAGE_MODULE_OPTIONS, STORAGE_ADAPTER } from './storage.constants';
+import { FILE_META_SERVICE, STORAGE_ADAPTER, STORAGE_MODULE_OPTIONS } from './storage.constants';
 
 export interface StorageModuleOptions {
   type?: 'filesystem' | 'custom';
@@ -20,6 +20,7 @@ export interface StorageModuleOptions {
   tempDirname?: string;
   filesRoute?: string;
   filesAccess?: 'all' | 'public' | 'protected' | 'none';
+  filesDirPattern?: string;
   cacheDuration?: number;
   storageAdapter?: StorageAdapter;
 }
@@ -55,8 +56,8 @@ export class StorageModule {
           inject: [STORAGE_MODULE_OPTIONS, ConfigService],
           useFactory: async (storageModuleOptions: StorageModuleOptions, conf: ConfigService) => ({
             storage: diskStorage({
-              destination: `${storageModuleOptions.rootDir || conf.get('storage.rootDir') || './storage'}/${
-                storageModuleOptions.tempDirname || conf.get('storage.tempDirname') || 'temp'
+              destination: `${storageModuleOptions.rootDir ?? conf.get('storage.rootDir') ?? './storage'}/${
+                storageModuleOptions.tempDirname ?? conf.get('storage.tempDirname') ?? 'temp'
               }`,
               filename: (
                 req: any,

@@ -1,18 +1,17 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { generateApiKey } from 'generate-api-key';
-import { ObjectUtil } from '../../../utils';
+import { ObjectUtil, StringUtil } from '../../../utils';
 import { VerificationType } from '../../../enums';
 import { VerificationTokenData, VerificationTokenService } from './services';
-import { VerificationModuleOptions } from './verification.module';
+import { TokenMethodType, VerificationModuleOptions } from './verification.module';
 import { VERIFICATION_MODULE_OPTIONS, VERIFICATION_TOKEN_SERVICE } from './verification.constants';
 
 @Injectable()
 export class VerificationService {
   private readonly logger = new Logger(VerificationService.name);
-  private readonly tokenType;
-  private readonly tokenLength;
-  private readonly tokenPrefix;
+  private readonly tokenType: TokenMethodType;
+  private readonly tokenLength: number;
+  private readonly tokenPrefix: string;
 
   constructor(
     @Inject(VERIFICATION_MODULE_OPTIONS) private verificationModuleOptions: VerificationModuleOptions,
@@ -100,11 +99,7 @@ export class VerificationService {
   }
 
   generateToken(): string {
-    return generateApiKey({
-      method: this.tokenType,
-      length: this.tokenLength,
-      prefix: this.tokenPrefix
-    }) as string;
+    return StringUtil.generateToken(this.tokenType, this.tokenLength, this.tokenPrefix);
   }
 
   private setVerificationTokenService(service: VerificationTokenService<VerificationTokenData>): void {

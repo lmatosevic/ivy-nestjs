@@ -8,8 +8,10 @@ import { MongoVerificationTokenService, TypeOrmVerificationTokenService } from '
 import { VerificationService } from './verification.service';
 import { VERIFICATION_MODULE_OPTIONS, VERIFICATION_TOKEN_SERVICE } from './verification.constants';
 
+export type TokenMethodType = 'bytes' | 'string' | 'base32' | 'base62' | 'uuidv4' | 'uuidv5';
+
 export interface VerificationModuleOptions {
-  tokenType?: 'bytes' | 'string' | 'base32' | 'base62' | 'uuidv4' | 'uuidv5';
+  tokenType?: TokenMethodType;
   tokenLength?: number;
   tokenPrefix?: string;
   enabled?: boolean;

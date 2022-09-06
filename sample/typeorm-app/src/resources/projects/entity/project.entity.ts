@@ -39,7 +39,7 @@ export class Project extends ResourceEntity {
     maxCount: 8,
     isArray: true,
     policy: (user, meta, res) => {
-      return user.hasRole(Role.Admin) || user.getId().equals(res.createdBy);
+      return user.hasRole(Role.Admin) || user.getId() === res.createdById;
     }
   })
   documents?: File[];
@@ -67,6 +67,9 @@ export class Project extends ResourceEntity {
   @Exclude()
   @CreatorColumn({ type: () => User })
   createdBy?: User;
+
+  @Column({ nullable: true })
+  createdById: number;
 
   @CreateDateColumn()
   createdAt?: Date;

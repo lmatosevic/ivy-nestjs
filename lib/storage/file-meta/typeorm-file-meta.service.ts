@@ -4,7 +4,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { FileMetadata, FileMetaService, FilePropsMeta } from './file-meta.service';
 import { FileMeta } from '../entity';
 import { ObjectUtil } from '../../utils';
-import { FILE_PROPS_KEY } from '../../storage';
+import { FILE_PROPS_KEY, FileProps } from '../../storage';
 
 @Injectable()
 export class TypeOrmFileMetaService implements FileMetaService {
@@ -70,6 +70,16 @@ export class TypeOrmFileMetaService implements FileMetaService {
     }
   }
 
+  async filesResource(meta: FileMetadata): Promise<any> {
+    const repository = this.fileMetaRepository.manager.getRepository(meta.resource);
+    try {
+      return await repository.findOneBy({ id: meta.resourceId });
+    } catch (e) {
+      this.logger.error('Error finding file\'s resource model "%s", %j', meta.resource, e);
+      return null;
+    }
+  }
+
   async filePropsMeta(name: string): Promise<FilePropsMeta> {
     const meta = await this.find(name);
 
@@ -87,14 +97,15 @@ export class TypeOrmFileMetaService implements FileMetaService {
     return { props: null, meta };
   }
 
-  async filesResource(meta: FileMetadata): Promise<any> {
+  async fileProps(meta: FileMetadata): Promise<FileProps> {
     const repository = this.fileMetaRepository.manager.getRepository(meta.resource);
-    try {
-      return await repository.findOneBy({ id: meta.resourceId });
-    } catch (e) {
-      this.logger.error('Error finding file\'s resource model "%s", %j', meta.resource, e);
-      return null;
+
+    const props = Reflect.getMetadata(FILE_PROPS_KEY, repository.metadata?.target?.['prototype']);
+    if (props && props[meta.field]) {
+      return props[meta.field];
     }
+
+    return null;
   }
 
   modelFields(model: any): string[] {

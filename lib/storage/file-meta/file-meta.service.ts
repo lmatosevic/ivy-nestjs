@@ -25,9 +25,11 @@ export interface FileMetaService {
 
   delete(name: string): Promise<boolean>;
 
+  filesResource(meta: FileMetadata): Promise<any>;
+
   filePropsMeta(name: string): Promise<FilePropsMeta>;
 
-  filesResource(meta: FileMetadata): Promise<any>;
+  fileProps(meta: FileMetadata): Promise<FileProps>;
 
   modelName(model: any): string;
 

@@ -66,7 +66,11 @@ export class User extends ResourceEntity implements AuthUser {
   @Column({ type: 'timestamptz', nullable: true })
   logoutAt?: Date;
 
-  @FileColumn({ mimeType: 'image/(jpg|jpeg|png|gif)', maxSize: '1.23 MB' })
+  @FileColumn({
+    mimeType: 'image/(jpg|jpeg|png|gif)',
+    maxSize: '1.23 MB',
+    directory: () => '{{resourceName}}/{{fieldName}}'
+  })
   avatar?: File;
 
   @PopulateRelation()

@@ -1,4 +1,5 @@
 import * as pluralize from 'pluralize';
+import { DefaultGenerationOptions, generateApiKey } from 'generate-api-key';
 import { ObjectUtil } from './object.util';
 
 export class StringUtil {
@@ -59,7 +60,7 @@ export class StringUtil {
 
   static sanitizeText(text: string, replacement = '********'): string {
     const sensitiveDataRules = [
-      { regex: 'password=([^&]*)'},
+      { regex: 'password=([^&]*)' },
       { regex: '"password":\\s?"(.*?)"' },
       { regex: 'password:\\s?\\"(.*?)\\"' },
       { regex: 'password:\\s?\\\\"(.*?)\\\\"' },
@@ -137,15 +138,24 @@ export class StringUtil {
     return Math.round(sizeInBytes);
   }
 
-  static randomString(
-    length: number,
-    chars: string = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+  static randomString(length: number): string {
+    return this.generateToken('string', length, undefined, {
+      pool: '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    });
+  }
+
+  static generateToken(
+    method: 'bytes' | 'string' | 'base32' | 'base62' | 'uuidv4' | 'uuidv5' = 'base62',
+    length: number = 16,
+    prefix?: string,
+    options: DefaultGenerationOptions = {}
   ): string {
-    let result = '';
-    for (let i = length; i > 0; --i) {
-      result += chars[Math.floor(Math.random() * chars.length)];
-    }
-    return result;
+    return generateApiKey({
+      method,
+      length,
+      prefix,
+      ...options
+    }) as string;
   }
 
   static pluralize(name: string): string {

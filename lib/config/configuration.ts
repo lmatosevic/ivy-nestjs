@@ -34,8 +34,9 @@ export default () => {
       rootDir: process.env.STORAGE_ROOT_DIR || './storage',
       filesRoute: process.env.STORAGE_FILES_ROUTE || 'files',
       filesAccess: process.env.STORAGE_FILES_ACCESS || 'all',
-      filesDirname: process.env.STORAGE_FILES_DIRNAME || 'files',
-      tempDirname: process.env.STORAGE_TEMP_DIRNAME || 'temp',
+      filesDirname: process.env.STORAGE_FILES_DIRNAME ?? 'files',
+      tempDirname: process.env.STORAGE_TEMP_DIRNAME ?? 'temp',
+      filesDirPattern: process.env.STORAGE_FILES_DIR_PATTERN,
       cacheDuration: StringUtil.parseInteger(process.env.STORAGE_CACHE_DURATION, 86400)
     },
     db: {
