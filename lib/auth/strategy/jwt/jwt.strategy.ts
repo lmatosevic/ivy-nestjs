@@ -30,7 +30,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload: JwtPayload) {
     let user;
     try {
-      user = await this.authModuleOptions.userDetailsService.find(payload.sub);
+      user = await this.authModuleOptions.userDetailsService.findById(payload.sub);
     } catch (e) {
       this.logger.warn(e);
       throw new AuthorizationError('Unauthorized', 401);

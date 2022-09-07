@@ -30,6 +30,10 @@ export abstract class MongoUserDetailsService<T extends AuthUser>
     return super.update(id, updateDto, isFileUpload);
   }
 
+  async findById(id: string): Promise<T> {
+    return this.find(id);
+  }
+
   async findByUsername(username: string): Promise<T> {
     let resp = await this.query({ filter: { email: username } });
     return resp.resultCount > 0 ? resp.items[0] : null;

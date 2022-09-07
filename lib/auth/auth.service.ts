@@ -35,7 +35,7 @@ export class AuthService implements OnApplicationBootstrap {
   }
 
   async findUser(username: string): Promise<AuthUser> {
-    return await this.userDetailsService.findByUsername(username);
+    return this.userDetailsService.findByUsername(username);
   }
 
   async validateUser(username: string, password: string): Promise<AuthUser | null> {
