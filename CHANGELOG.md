@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.48](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.47...v0.3.48) (2022-09-07)
+
+
+### Features
+
+* implement files directory pattern for files persistence ([f39e4d7](https://github.com/Lujo5/ivy-nestjs/commit/f39e4d752b6ba652c5ee279b12e832306e67070e))
+* implement files name pattern generation ([498441d](https://github.com/Lujo5/ivy-nestjs/commit/498441dbbb1591b87ab41b4d06c2d29a0e26e151))
+
 ### [0.3.47](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.46...v0.3.47) (2022-09-05)
 
 
