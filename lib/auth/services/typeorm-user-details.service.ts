@@ -37,12 +37,8 @@ export abstract class TypeOrmUserDetailsService<T extends AuthUser>
     return super.update(id, updateDto as PartialDeep<T & ResourceEntity>, isFileUpload);
   }
 
-  async find(id: number): Promise<T & ResourceEntity> {
-    return super.asProtected().find(id);
-  }
-
   async findByUsername(username: string): Promise<T> {
-    let resp = await this.asProtected().query({ filter: { email: username } });
+    let resp = await this.query({ filter: { email: username } });
     return resp.resultCount > 0 ? resp.items[0] : null;
   }
 
