@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.49](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.48...v0.3.49) (2022-09-07)
+
+
+### Bug Fixes
+
+* add protected service when finding authorized user ([0711329](https://github.com/Lujo5/ivy-nestjs/commit/07113294d9e18ce9588965355e42f10fa96bdea0))
+
 ### [0.3.48](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.47...v0.3.48) (2022-09-07)
 
 
