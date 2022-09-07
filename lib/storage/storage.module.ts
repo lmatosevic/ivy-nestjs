@@ -21,6 +21,7 @@ export interface StorageModuleOptions {
   filesRoute?: string;
   filesAccess?: 'all' | 'public' | 'protected' | 'none';
   filesDirPattern?: string;
+  filesNamePattern?: string;
   cacheDuration?: number;
   storageAdapter?: StorageAdapter;
 }

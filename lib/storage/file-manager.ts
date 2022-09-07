@@ -27,6 +27,7 @@ export class FileManager {
   private readonly dirname: string;
   private readonly tempDirname: string;
   private readonly filesDirPattern: string;
+  private readonly filesNamePattern: string;
 
   constructor(
     @Inject(STORAGE_MODULE_OPTIONS) private storageModuleOptions: StorageModuleOptions,
@@ -40,7 +41,9 @@ export class FileManager {
     this.dirname = storageModuleOptions.filesDirname || configService.get('storage.filesDirname') || 'files';
     this.tempDirname = storageModuleOptions.tempDirname || configService.get('storage.tempDirname') || 'temp';
     this.filesDirPattern =
-      storageModuleOptions.filesDirPattern || configService.get('storage.filesDirPattern');
+      storageModuleOptions.filesDirPattern ?? configService.get('storage.filesDirPattern');
+    this.filesNamePattern =
+      storageModuleOptions.filesNamePattern ?? configService.get('storage.filesNamePattern');
   }
 
   useWith(sessionManager: any): FileManager {
@@ -79,8 +82,9 @@ export class FileManager {
   }
 
   async storeFile(name: string, data: Buffer, meta?: FileMetadata): Promise<StoredFile | null> {
-    const dirName = await this.directoryName(name, meta);
-    const fileName = `${dirName}${FilesUtil.generateFileName(name)}`;
+    const directory = await this.directoryName(name, meta);
+    const file = await this.fileName(name, meta);
+    const fileName = `${directory}${file}`;
 
     const res = await this.storageAdapter.store(fileName, data, this.dirname);
     if (res) {
@@ -120,14 +124,15 @@ export class FileManager {
   }
 
   async moveFromTemp(name: string, meta?: FileMetadata): Promise<StoredFile | null> {
-    const dirName = await this.directoryName(name, meta);
-    const fileName = `${dirName}${name}`;
+    const originalName = FilesUtil.originalNameFromGenerated(name.split('/').pop());
+    const directory = await this.directoryName(originalName, meta);
+    const file = await this.fileName(originalName, meta);
+    const fileName = `${directory}${file}`;
 
-    const result = await this.storageAdapter.move(
-      name,
-      this.tempDirname,
-      `${this.dirname.endsWith('/') ? this.dirname : this.dirname + '/'}${dirName}`
-    );
+    const fromFile = `${this.tempDirname.endsWith('/') ? this.tempDirname : this.tempDirname + '/'}${name}`;
+    const toFile = `${this.dirname.endsWith('/') ? this.dirname : this.dirname + '/'}${fileName}`;
+
+    const result = await this.storageAdapter.move(fromFile, toFile);
     let metaId;
 
     if (result) {
@@ -233,15 +238,9 @@ export class FileManager {
     const matches = file.data.matchAll(/^data:(.+)\/(.+);base64,(.+)/g);
     const match = matches.next();
 
-    // Data is existing file name
+    // Data is an existing file name
     if (!match || !match.value || match.value.length < 3) {
-      let fileUUID;
-      try {
-        fileUUID = file.data.split('.').slice(0, -1).join('').split('_').slice(-1)[0];
-      } catch (e) {
-        // invalid file format
-      }
-      if (isUpdate || FilesUtil.isFileNameSuffixValid(fileUUID)) {
+      if (isUpdate) {
         return null;
       } else {
         throw new FileError('Invalid file format', 400);
@@ -391,11 +390,11 @@ export class FileManager {
 
     if (meta) {
       const fileProps = await this.fileMetaService.fileProps(meta);
-      if (fileProps?.directory) {
-        if (typeof fileProps.directory === 'function') {
-          dirPattern = fileProps.directory(name, meta);
+      if (fileProps?.dirname) {
+        if (typeof fileProps.dirname === 'function') {
+          dirPattern = fileProps.dirname(name, meta);
         } else {
-          dirPattern = fileProps.directory;
+          dirPattern = fileProps.dirname;
         }
       }
     }
@@ -414,6 +413,35 @@ export class FileManager {
     }
 
     return dirName.endsWith('/') ? dirName : dirName + '/';
+  }
+
+  private async fileName(name: string, meta?: FileMetadata): Promise<string> {
+    let filePattern = this.filesNamePattern;
+
+    if (meta) {
+      const fileProps = await this.fileMetaService.fileProps(meta);
+      if (fileProps?.filename) {
+        if (typeof fileProps.filename === 'function') {
+          filePattern = fileProps.filename(name, meta);
+        } else {
+          filePattern = fileProps.filename;
+        }
+      }
+    }
+
+    let fileName;
+    if (filePattern) {
+      const nameParts = name.split('.');
+      let extension = '';
+      let originalName = name;
+      if (nameParts.length > 1) {
+        extension = nameParts.pop();
+        originalName = nameParts.join('.');
+      }
+      fileName = FilesUtil.makeFileName(filePattern, originalName, extension, meta);
+    }
+
+    return fileName || name;
   }
 
   private setFileMetaService(service: FileMetaService): void {

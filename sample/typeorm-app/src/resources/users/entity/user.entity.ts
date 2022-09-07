@@ -69,7 +69,8 @@ export class User extends ResourceEntity implements AuthUser {
   @FileColumn({
     mimeType: 'image/(jpg|jpeg|png|gif)',
     maxSize: '1.23 MB',
-    directory: () => '{{resourceName}}/{{fieldName}}'
+    dirname: () => '{{resourceName}}/{{fieldName}}',
+    filename: () => '{{name}}-{{hash}}.{{extension}}'
   })
   avatar?: File;
 

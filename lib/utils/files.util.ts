@@ -1,8 +1,8 @@
-import { v4 as uuidv4, validate as uuidValidate } from 'uuid';
 import * as fs from 'fs';
 import { promises as fsp } from 'fs';
 import * as path from 'path';
 import * as dotenv from 'dotenv';
+import { v4 as uuidv4 } from 'uuid';
 import { FileDto, FileError, FileProps } from '../storage';
 import { FileMetadata } from '../storage/file-meta';
 import { ValidationError } from '../resource';
@@ -15,41 +15,29 @@ export class FilesUtil {
     const nameParts = originalName.split('.');
     const uuid = uuidv4();
     if (nameParts.length > 1) {
-      return `${nameParts.slice(0, -1).join('')}_${uuid}.${nameParts.slice(-1)}`;
+      return `${nameParts.slice(0, -1).join('.')}_${uuid}.${nameParts.slice(-1)[0]}`;
     } else {
       return `${originalName}_${uuid}`;
     }
   }
 
-  static makeDirectoryName(pattern: string, meta?: FileMetadata): string {
-    const now = new Date();
-    const variables = {
-      year: now.getUTCFullYear(),
-      month: now.getUTCMonth(),
-      day: now.getUTCDate(),
-      weekDay: now.getUTCDay(),
-      yearWeek: DateUtil.getUTCWeekNumber(now),
-      hours: now.getUTCHours(),
-      minutes: now.getUTCMinutes(),
-      seconds: now.getUTCSeconds(),
-      milliseconds: now.getUTCMilliseconds(),
-      timestamp: now.getTime(),
-      uuid: uuidv4(),
-      hash: StringUtil.generateToken('bytes', 32),
-      fieldName: meta?.field,
-      resourceName: meta?.resource
-    };
-
-    let dirname = pattern;
-    for (const [key, value] of Object.entries(variables)) {
-      dirname = dirname.replace(`{{${key}}}`, value);
+  static originalNameFromGenerated(generatedName: string): string {
+    const nameParts = generatedName.split('.');
+    if (nameParts.length > 1) {
+      const extension = nameParts.pop();
+      return `${nameParts.join('.').split('_').slice(0, -1).join('_')}.${extension}`;
+    } else {
+      return generatedName.split('_').slice(0, -1).join('_');
     }
-
-    return dirname;
   }
 
-  static isFileNameSuffixValid(suffix: string): boolean {
-    return uuidValidate(suffix);
+  static makeDirectoryName(pattern: string, meta?: FileMetadata): string {
+    return this.replacePatternVariables(pattern, meta);
+  }
+
+  static makeFileName(pattern: string, name: string, extension: string, meta?: FileMetadata): string {
+    const fileName = this.replacePatternVariables(pattern, meta, { name, extension });
+    return fileName.endsWith('.') ? fileName.substring(0, fileName.length - 1) : fileName;
   }
 
   static async removeTemporaryFiles(files: Record<string, Express.Multer.File[]>): Promise<void> {
@@ -100,6 +88,16 @@ export class FilesUtil {
   ): ValidationError[] {
     if (!file) {
       return [{ value: null, property: field, constraints: { required: 'File is required' } }];
+    }
+
+    if (file['originalName'] && file['originalName'].includes('/')) {
+      return [
+        {
+          value: null,
+          property: field,
+          constraints: { originalName: 'File name contains invalid character: /' }
+        }
+      ];
     }
 
     let mimetype: string = file['mimetype'];
@@ -199,7 +197,9 @@ export class FilesUtil {
     for (const [fieldName, file] of Object.entries(files)) {
       const fileData = data[fieldName];
       if (Array.isArray(fileData) && Array.isArray(file)) {
-        filesResponseDto[fieldName] = fileData.splice(-1 * file.length);
+        filesResponseDto[fieldName] = _.orderBy(fileData, (f) => f.meta?.createdAt, ['asc']).splice(
+          -1 * file.length
+        );
       } else {
         filesResponseDto[fieldName] = fileData;
       }
@@ -235,5 +235,36 @@ export class FilesUtil {
       config = _.defaults(config, env);
     }
     return config;
+  }
+
+  private static replacePatternVariables(
+    pattern: string,
+    meta?: FileMetadata,
+    extraVariables: Record<string, any> = {}
+  ): string {
+    const now = new Date();
+    const variables = {
+      year: now.getUTCFullYear(),
+      month: now.getUTCMonth(),
+      day: now.getUTCDate(),
+      weekDay: now.getUTCDay(),
+      yearWeek: DateUtil.getUTCWeekNumber(now),
+      hours: now.getUTCHours(),
+      minutes: now.getUTCMinutes(),
+      seconds: now.getUTCSeconds(),
+      milliseconds: now.getUTCMilliseconds(),
+      timestamp: now.getTime(),
+      uuid: uuidv4(),
+      hash: StringUtil.generateToken('bytes', 32),
+      fieldName: meta?.field,
+      resourceName: meta?.resource
+    };
+
+    let name = pattern;
+    for (const [key, value] of Object.entries({ ...variables, ...extraVariables })) {
+      name = name.replace(`{{${key}}}`, `${value}`);
+    }
+
+    return name;
   }
 }

@@ -11,5 +11,5 @@ export interface StorageAdapter {
 
   exists(fileName: string, filesDir?: string): Promise<boolean>;
 
-  move(fileName: string, fromDir: string, toDir: string): Promise<boolean>;
+  move(sourceFile: string, destFile: string): Promise<boolean>;
 }

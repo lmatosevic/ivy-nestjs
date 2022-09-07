@@ -20,7 +20,7 @@ export class FilesystemAdapter implements StorageAdapter {
     this.rootDir = storageModuleOptions.rootDir || configService.get('storage.rootDir') || './storage';
     if (!fs.existsSync(this.rootDir)) {
       fs.mkdirSync(this.rootDir, { recursive: true });
-      this.logger.log('Created directory: %s', path.resolve(this.rootDir));
+      this.logger.log('Created root directory: %s', path.resolve(this.rootDir));
     }
 
     this.logger.verbose('Storage root directory: %s', path.resolve(this.rootDir));
@@ -79,11 +79,11 @@ export class FilesystemAdapter implements StorageAdapter {
     }
   }
 
-  async move(fileName: string, fromDir: string, toDir: string): Promise<boolean> {
-    const fromFilePath = await this.getFilePath(fileName, fromDir);
-    const toFilePath = await this.getFilePath(fileName, toDir, true);
+  async move(sourceFile: string, destFile: string): Promise<boolean> {
+    const fromFilePath = await this.getFilePath(sourceFile);
+    const toFilePath = await this.getFilePath(destFile, '', true);
     try {
-      if (!(await this.exists(fileName, fromDir))) {
+      if (!(await this.exists(sourceFile))) {
         return false;
       }
       await fsp.rename(fromFilePath, toFilePath);
@@ -101,7 +101,7 @@ export class FilesystemAdapter implements StorageAdapter {
     }
   }
 
-  private async getFilePath(fileName: string, dirname: string, mkdir: boolean = false): Promise<string> {
+  private async getFilePath(fileName: string, dirname?: string, mkdir: boolean = false): Promise<string> {
     const filePath = `${this.rootDir}/${dirname ? dirname + '/' : ''}${fileName}`;
     const fileDirname = path.dirname(filePath);
     if (mkdir) {
@@ -109,7 +109,7 @@ export class FilesystemAdapter implements StorageAdapter {
         await fsp.access(fileDirname, constants.F_OK);
       } catch (e) {
         await fsp.mkdir(fileDirname, { recursive: true });
-        this.logger.log('Created directory: %s', path.resolve(fileDirname));
+        this.logger.verbose('Created files directory: %s', path.resolve(fileDirname));
       }
     }
     return filePath;
