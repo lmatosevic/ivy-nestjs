@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.50](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.49...v0.3.50) (2022-09-07)
+
+
+### Bug Fixes
+
+* protected service find method ([986f079](https://github.com/Lujo5/ivy-nestjs/commit/986f079298dea065a69f5ce2333bc73b010f042e))
+
 ### [0.3.49](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.48...v0.3.49) (2022-09-07)
 
 
