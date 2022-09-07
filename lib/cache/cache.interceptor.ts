@@ -13,7 +13,7 @@ import { MongoResourceService, RESOURCE_REF_KEY, TypeOrmResourceService } from '
 import { CacheService } from './cache.service';
 import { ContextUtil } from '../utils';
 import { CACHE_SERVICE } from './cache.constants';
-import { CACHED_RELATIONS } from './decorators';
+import { CACHED_MODEL_NAME, CACHED_RELATIONS } from './decorators';
 
 @Injectable()
 export class CacheInterceptor extends NestjsCacheInterceptor {
@@ -37,14 +37,20 @@ export class CacheInterceptor extends NestjsCacheInterceptor {
 
     let key = super.trackBy(ctx);
 
+    // Create hash from post request body as a way to detect changes with requests with different body
     if (req.method === 'POST' && req.body) {
       const bodyHash = hash(req.body);
       key = `${key}_${bodyHash}`;
     }
 
+    // Create cache key suffix composed of all related resources names
     const cachedRelations = this.cachedRelations(ctx);
+    const cachedModelName = this.cachedModelName(ctx);
     const name = this.resourceName(ctx);
-    if (cachedRelations.length > 0) {
+    if ((cachedRelations.length === 1 && cachedRelations[0] === '*') || cachedModelName) {
+      const allRelations = this.resourceRelationNames(cachedModelName);
+      key = `${key}_!${allRelations.join('!')}!`;
+    } else if (cachedRelations.length > 0) {
       key = `${key}_!${cachedRelations.join('!')}!`;
     } else if (name) {
       const relations = this.resourceRelationNames(name);
@@ -54,6 +60,7 @@ export class CacheInterceptor extends NestjsCacheInterceptor {
       key = `${key}_!${relations.join('!')}!`;
     }
 
+    // Set authorized user id as cache key prefix
     const request = ctx.switchToHttp().getRequest();
     const { user } = request;
     const userId = user?.getId();
@@ -69,17 +76,29 @@ export class CacheInterceptor extends NestjsCacheInterceptor {
     return relations || [];
   }
 
+  private cachedModelName(context: ExecutionContext): string {
+    return this.reflector.getAllAndOverride<string>(CACHED_MODEL_NAME, [
+      context.getHandler(),
+      context.getClass()
+    ]);
+  }
+
   private resourceName(context: ExecutionContext): string {
     const resourceRef = this.reflector.get<Type<unknown>>(RESOURCE_REF_KEY, context.getClass());
     return resourceRef?.name || null;
   }
 
-  private resourceRelationNames(resourceName: string): string[] {
+  private resourceRelationNames(resourceName?: string): string[] {
     const dbType = this.configService.get('db.type');
-    if (dbType === 'mongoose') {
-      return MongoResourceService.modelRelationNames?.[resourceName] || [];
-    } else {
-      return TypeOrmResourceService.modelRelationNames?.[resourceName] || [];
+    const modelRelationNames =
+      dbType === 'mongoose'
+        ? MongoResourceService.modelRelationNames
+        : TypeOrmResourceService.modelRelationNames;
+
+    if (!resourceName) {
+      return Object.keys(modelRelationNames || {});
     }
+
+    return modelRelationNames?.[resourceName] || [];
   }
 }

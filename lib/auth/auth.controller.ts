@@ -10,6 +10,7 @@ import { AuthService } from './auth.service';
 import { JwtToken } from './strategy/jwt/jwt.dto';
 import { AuthModuleOptions } from './auth.module';
 import { AUTH_MODULE_OPTIONS } from './auth.constants';
+import { Cached } from '../cache';
 
 export function AuthController<T extends Type<unknown>>(authUserRef: T): any {
   class LoginDto {
@@ -61,6 +62,7 @@ export function AuthController<T extends Type<unknown>>(authUserRef: T): any {
       return this.authService.logout(user);
     }
 
+    @Cached({ modelName: authUserRef.name })
     @Authorized()
     @ApiOkResponse({ type: () => authUserRef })
     @Get('user')

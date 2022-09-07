@@ -10,6 +10,7 @@ import { AuthUser } from './interfaces';
 import { AuthorizationError } from './errors';
 import { AuthModuleOptions } from './auth.module';
 import { AUTH_MODULE_OPTIONS } from './auth.constants';
+import { Cached } from '../cache';
 
 export function AuthResolver<T extends Type<unknown>>(authUserRef: T): any {
   @Resolver()
@@ -50,6 +51,7 @@ export function AuthResolver<T extends Type<unknown>>(authUserRef: T): any {
       return await this.authService.logout(user);
     }
 
+    @Cached({ modelName: authUserRef.name })
     @Authorized()
     @Query(() => authUserRef)
     async authUser(@CurrentUser() user: AuthUser): Promise<AuthUser> {
