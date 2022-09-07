@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.51](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.50...v0.3.51) (2022-09-07)
+
+
+### Features
+
+* revert protected user details service methods ([84f4554](https://github.com/Lujo5/ivy-nestjs/commit/84f4554d0d89c43a71130f5fa013fcd67111d7dd))
+
 ### [0.3.50](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.49...v0.3.50) (2022-09-07)
 
 
