@@ -31,7 +31,7 @@ export abstract class MongoUserDetailsService<T extends AuthUser>
   }
 
   async findByUsername(username: string): Promise<T> {
-    let resp = await this.query({ filter: { email: username } });
+    let resp = await this.asProtected().query({ filter: { email: username } });
     return resp.resultCount > 0 ? resp.items[0] : null;
   }
 
