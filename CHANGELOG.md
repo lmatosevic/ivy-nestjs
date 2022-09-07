@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.52](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.51...v0.3.52) (2022-09-07)
+
+
+### Features
+
+* add cache by modelName relations resolving ([a6635fb](https://github.com/Lujo5/ivy-nestjs/commit/a6635fba5b7d28627416eaa577f17811711ed28a))
+* optimized auth service methods ([67ddb61](https://github.com/Lujo5/ivy-nestjs/commit/67ddb619c2771fa18e9dba75bc74e0391500236b))
+
 ### [0.3.51](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.50...v0.3.51) (2022-09-07)
 
 
