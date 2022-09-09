@@ -1,6 +1,7 @@
 import { ModuleMetadata } from '@nestjs/common/interfaces';
 import { Type } from '@nestjs/common';
 import { FilesUtil } from './files.util';
+import * as _ from 'lodash';
 
 export interface ModuleAsyncOptions<T> extends Pick<ModuleMetadata, 'imports'> {
   useExisting?: Type<ModuleOptionsFactory<T>>;
@@ -62,6 +63,6 @@ export class ModuleUtil {
       return this.currentEnv;
     }
     this.currentEnv = FilesUtil.parseEnvFiles(this.envFiles);
-    return this.currentEnv;
+    return _.defaults(this.currentEnv, process.env);
   }
 }
