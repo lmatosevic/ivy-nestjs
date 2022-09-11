@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.53](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.52...v0.3.53) (2022-09-11)
+
+
+### Features
+
+* add default env variables from process when resolving module ([093b0cc](https://github.com/Lujo5/ivy-nestjs/commit/093b0cc298891e7a16f0e03d8dca05af455f380a))
+* implement cache eviction strategy and auto expiration of cached entries ([6572d90](https://github.com/Lujo5/ivy-nestjs/commit/6572d9014986795b8031e18126de29a5e348e9c8))
+* implement file streaming using bytes range HTTP headers and file stream ([8a77909](https://github.com/Lujo5/ivy-nestjs/commit/8a77909174b0c0759c98f64f4893ee7bdbedb077))
+
 ### [0.3.52](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.51...v0.3.52) (2022-09-07)
 
 
