@@ -84,15 +84,18 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
 
   prefixedKey(key: string): string {
     const prefix = `${this.cachePrefix ? this.cachePrefix + ':' : ''}_cache:`;
+
     if (key.startsWith(prefix)) {
       return key;
     }
+
     return `${prefix}${key}`;
   }
 
   async get<T>(key: string): Promise<T | null> {
     if (this.enabled) {
       const data = await this.cacheManager.get<T>(this.prefixedKey(key));
+
       if (data) {
         const now = Date.now();
         const count = this.keysMeta[key]?.usedCount ?? 0;
@@ -102,6 +105,7 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
           lastUsedAt: now
         };
       }
+
       return data;
     }
   }
@@ -109,6 +113,7 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
   async set(key: string, value: any, ttl?: number | any): Promise<void> {
     if (this.enabled) {
       await this.cacheManager.set(this.prefixedKey(key), value, ttl);
+
       const now = Date.now();
       const expiresAt =
         ttl === 0
@@ -123,6 +128,7 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
         lastUsedAt: now,
         expiresAt
       };
+
       await this.evict();
     }
   }
@@ -135,6 +141,11 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
   }
 
   async loadKeysMeta(): Promise<void> {
+    const keySet = await this.keys(this.prefixedKey('*'));
+    if (keySet.size === 0) {
+      return;
+    }
+
     try {
       const data = await fsp.readFile(this.metadataPath);
       this.keysMeta = JSON.parse(data.toString());
