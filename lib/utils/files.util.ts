@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import { promises as fsp } from 'fs';
+import { constants, promises as fsp } from 'fs';
 import * as path from 'path';
 import * as dotenv from 'dotenv';
 import { v4 as uuidv4 } from 'uuid';
@@ -74,6 +74,17 @@ export class FilesUtil {
 
     if (fileNames.length === 0 && level > 0) {
       await fsp.rmdir(directory);
+    }
+  }
+
+  static async ensureDirectoryExists(filePath: string): Promise<{ created: boolean; dirname: string }> {
+    const fileDirname = path.dirname(filePath);
+    try {
+      await fsp.access(fileDirname, constants.F_OK);
+      return { created: false, dirname: fileDirname };
+    } catch (e) {
+      await fsp.mkdir(fileDirname, { recursive: true });
+      return { created: true, dirname: fileDirname };
     }
   }
 

@@ -28,12 +28,12 @@ export class AppUtil {
 
     const address = hostname.startsWith('http') ? hostname : `http://${hostname}:${port}`;
 
-    if (configService.get('app.shutdownHooks')) {
+    if (configService.get('app.shutdownHooksEnabled')) {
       app.enableShutdownHooks();
       logger.log('Shutdown hooks enabled');
     }
 
-    if (configService.get('app.helmet')) {
+    if (configService.get('app.helmetEnabled')) {
       app.use(
         helmet({
           contentSecurityPolicy: false,

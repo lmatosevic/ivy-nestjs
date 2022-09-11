@@ -12,7 +12,6 @@ import * as hash from 'object-hash';
 import { MongoResourceService, RESOURCE_REF_KEY, TypeOrmResourceService } from '../resource';
 import { CacheService } from './cache.service';
 import { ContextUtil } from '../utils';
-import { CACHE_SERVICE } from './cache.constants';
 import { CACHED_MODEL_NAME, CACHED_RELATIONS } from './decorators';
 
 @Injectable()
@@ -20,11 +19,11 @@ export class CacheInterceptor extends NestjsCacheInterceptor {
   protected allowedMethods = ['GET', 'POST'];
 
   constructor(
-    @Optional() @Inject(CACHE_SERVICE) private cacheService: CacheService,
+    @Optional() @Inject(CacheService) private cacheService: CacheService,
     protected reflector: Reflector,
     private configService: ConfigService
   ) {
-    super(cacheService?.getCacheManager(), reflector);
+    super(cacheService, reflector);
   }
 
   trackBy(context: ExecutionContext): string | undefined {
@@ -43,7 +42,7 @@ export class CacheInterceptor extends NestjsCacheInterceptor {
       key = `${key}_${bodyHash}`;
     }
 
-    // Create cache key suffix composed of all related resources names
+    // Create cache key suffix composed of all related resources names to enable on-change expiration
     const cachedRelations = this.cachedRelations(ctx);
     const cachedModelName = this.cachedModelName(ctx);
     const name = this.resourceName(ctx);
@@ -65,7 +64,7 @@ export class CacheInterceptor extends NestjsCacheInterceptor {
     const { user } = request;
     const userId = user?.getId();
 
-    return this.cacheService.prefixedKey(`${userId ? userId : ''}_${key}`);
+    return `${userId ? userId : ''}_${key}`;
   }
 
   private cachedRelations(context: ExecutionContext): string[] {

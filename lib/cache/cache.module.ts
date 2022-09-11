@@ -16,9 +16,11 @@ import { RedisModule, RedisService } from '../redis';
 import { CacheService } from './cache.service';
 import { CacheInterceptor } from './cache.interceptor';
 import { CacheMiddleware } from './cache.middleware';
-import { CACHE_MODULE_OPTIONS, CACHE_SERVICE } from './cache.constants';
+import { CACHE_MODULE_OPTIONS } from './cache.constants';
 
 export type CacheType = 'redis' | 'filesystem' | 'memory' | 'custom';
+
+export type CacheEvictionStrategy = 'LRU' | 'LFU' | 'FIFO';
 
 export type CacheChangeStrategy = 'expire-all' | 'expire-related' | 'none';
 
@@ -29,6 +31,8 @@ export interface CacheModuleOptions {
   maxItems?: number;
   enabled?: boolean;
   cleanStart?: boolean;
+  evictionStrategy?: CacheEvictionStrategy;
+  evictionDeferred?: boolean;
   changeStrategy?: CacheChangeStrategy;
   changeDeferred?: boolean;
   redis?: RedisOptions;
@@ -66,17 +70,9 @@ export class CacheModule implements NestModule {
         ...providers,
         CacheInterceptor,
         CacheMiddleware,
-        CacheService,
-        { provide: CACHE_SERVICE, useClass: CacheService }
+        { provide: CacheService, useClass: CacheService }
       ],
-      exports: [
-        CACHE_MODULE_OPTIONS,
-        CACHE_SERVICE,
-        NestjsCacheModule,
-        CacheInterceptor,
-        CacheMiddleware,
-        CacheService
-      ]
+      exports: [CACHE_MODULE_OPTIONS, NestjsCacheModule, CacheInterceptor, CacheMiddleware, CacheService]
     };
   }
 

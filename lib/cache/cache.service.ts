@@ -1,23 +1,38 @@
-import { CACHE_MANAGER, Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { CACHE_MANAGER, Inject, Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Cache } from 'cache-manager';
 import * as glob from 'glob';
 import { promises as fsp } from 'fs';
 import { Action } from '../enums';
 import { FilesUtil } from '../utils';
-import { CacheChangeStrategy, CacheModuleOptions, CacheType } from './cache.module';
+import { CacheChangeStrategy, CacheEvictionStrategy, CacheModuleOptions, CacheType } from './cache.module';
 import { CACHE_MODULE_OPTIONS } from './cache.constants';
 
+type KeyMeta = {
+  key: string;
+  usedCount: number;
+  createdAt: number;
+  lastUsedAt: number;
+  expiresAt?: number;
+};
+
 @Injectable()
-export class CacheService implements OnModuleInit {
+export class CacheService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(CacheService.name);
   private readonly storeType: CacheType;
   private readonly cachePrefix: string;
+  private readonly ttl: number;
+  private readonly maxItems: number;
+  private readonly evictionStrategy: CacheEvictionStrategy;
+  private readonly evictionDeferred: boolean;
   private readonly changeStrategy: CacheChangeStrategy;
   private readonly changeDeferred: boolean;
+  private readonly filesystemRootDir: string;
+  private readonly metadataPath: string;
+  private readonly cleanStart: boolean;
   private readonly enabled: boolean;
 
-  private static cleanStart: boolean = false;
+  private keysMeta: Record<string, KeyMeta> = {};
 
   constructor(
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
@@ -26,8 +41,18 @@ export class CacheService implements OnModuleInit {
   ) {
     this.storeType = cacheModuleOptions.type ?? configService.get('cache.type') ?? 'memory';
     this.cachePrefix = cacheModuleOptions.prefix ?? configService.get('cache.prefix') ?? '';
+    this.maxItems = cacheModuleOptions.maxItems ?? configService.get('cache.maxItems') ?? 100;
+    this.ttl = cacheModuleOptions.ttl ?? configService.get('cache.ttl') ?? 5;
+    this.evictionStrategy =
+      cacheModuleOptions.evictionStrategy ?? configService.get('cache.evictionStrategy');
+    this.evictionDeferred =
+      cacheModuleOptions.evictionDeferred ?? configService.get('cache.evictionDeferred');
     this.changeStrategy = cacheModuleOptions.changeStrategy ?? configService.get('cache.changeStrategy');
     this.changeDeferred = cacheModuleOptions.changeDeferred ?? configService.get('cache.changeDeferred');
+    this.filesystemRootDir =
+      cacheModuleOptions?.filesystem?.rootDir ?? configService.get('cache.filesystem.rootDir');
+    this.metadataPath = `${this.filesystemRootDir}/metadata.json`;
+    this.cleanStart = cacheModuleOptions.cleanStart ?? configService.get('cache.cleanStart') ?? true;
     this.enabled = cacheModuleOptions.enabled ?? configService.get('cache.enabled') ?? true;
     if (!this.enabled) {
       this.logger.warn('Caching is disabled');
@@ -35,13 +60,17 @@ export class CacheService implements OnModuleInit {
   }
 
   async onModuleInit(): Promise<void> {
-    if (
-      !CacheService.cleanStart &&
-      (this.cacheModuleOptions.cleanStart ?? this.configService.get('cache.cleanStart'))
-    ) {
-      CacheService.cleanStart = true;
+    if (this.cleanStart) {
       await this.expire();
       this.logger.verbose('Cache cleaned');
+    } else {
+      await this.loadKeysMeta();
+    }
+  }
+
+  async onModuleDestroy(): Promise<void> {
+    if (!this.cleanStart) {
+      await this.storeKeysMeta();
     }
   }
 
@@ -63,19 +92,69 @@ export class CacheService implements OnModuleInit {
 
   async get<T>(key: string): Promise<T | null> {
     if (this.enabled) {
-      return await this.cacheManager.get<T>(this.prefixedKey(key));
+      const data = await this.cacheManager.get<T>(this.prefixedKey(key));
+      if (data) {
+        const now = Date.now();
+        const count = this.keysMeta[key]?.usedCount ?? 0;
+        this.keysMeta[key] = {
+          ...(this.keysMeta[key] || { key, createdAt: now }),
+          usedCount: count + 1,
+          lastUsedAt: now
+        };
+      }
+      return data;
     }
   }
 
-  async set(key: string, value: any, ttl?: number): Promise<void> {
+  async set(key: string, value: any, ttl?: number | any): Promise<void> {
     if (this.enabled) {
-      await this.cacheManager.set(this.prefixedKey(key), value, ttl ? { ttl } : undefined);
+      await this.cacheManager.set(this.prefixedKey(key), value, ttl);
+      const now = Date.now();
+      const expiresAt =
+        ttl === 0
+          ? undefined
+          : ttl
+          ? now + (typeof ttl === 'object' ? ttl.ttl : ttl) * 1000
+          : now + this.ttl * 1000;
+      this.keysMeta[key] = {
+        key,
+        usedCount: 1,
+        createdAt: now,
+        lastUsedAt: now,
+        expiresAt
+      };
+      await this.evict();
     }
   }
 
   async del(key: string): Promise<void> {
     if (this.enabled) {
       await this.cacheManager.del(this.prefixedKey(key));
+      delete this.keysMeta[key];
+    }
+  }
+
+  async loadKeysMeta(): Promise<void> {
+    try {
+      const data = await fsp.readFile(this.metadataPath);
+      this.keysMeta = JSON.parse(data.toString());
+      await this.evict();
+      this.logger.verbose('Cache keys metadata loaded');
+    } catch (e) {
+      this.logger.warn('Unable to read cache metadata from file: %s', this.metadataPath);
+    }
+  }
+
+  async storeKeysMeta(): Promise<void> {
+    const { created, dirname } = await FilesUtil.ensureDirectoryExists(this.metadataPath);
+    if (created) {
+      this.logger.verbose('Created cache directory: %s', dirname);
+    }
+    try {
+      await fsp.writeFile(this.metadataPath, JSON.stringify(this.keysMeta, null, 2));
+      this.logger.verbose('Cache keys metadata saved');
+    } catch (e) {
+      this.logger.warn('Unable to write cache metadata to file: %s', this.metadataPath);
     }
   }
 
@@ -87,6 +166,14 @@ export class CacheService implements OnModuleInit {
       if (this.storeType === 'filesystem') {
         await this.removeEmptyDirs();
       }
+    }
+  }
+
+  async evict(): Promise<void> {
+    if (this.evictionDeferred) {
+      this.evictExcessEntries().finally();
+    } else {
+      await this.evictExcessEntries();
     }
   }
 
@@ -191,5 +278,73 @@ export class CacheService implements OnModuleInit {
   private async removeEmptyDirs(): Promise<void> {
     const options = this.getCacheManager().store['options'];
     return FilesUtil.removeEmptyDirectories(options.path + '/');
+  }
+
+  private async evictExcessEntries(): Promise<void> {
+    const expiredKeys = [];
+
+    for (const meta of Object.values(this.keysMeta)) {
+      if (meta.expiresAt && meta.expiresAt < Date.now()) {
+        expiredKeys.push(meta.key);
+      }
+    }
+
+    for (const expiredKey of expiredKeys) {
+      delete this.keysMeta[expiredKey];
+    }
+
+    const removeCount = Object.keys(this.keysMeta).length - this.maxItems;
+    if (removeCount <= 0) {
+      return;
+    }
+
+    let sortedKeys;
+    switch (this.evictionStrategy) {
+      case 'LRU':
+        sortedKeys = this.sortLRU();
+        break;
+      case 'LFU':
+        sortedKeys = this.sortLFU();
+        break;
+      case 'FIFO':
+        sortedKeys = this.sortFIFO();
+        break;
+      default:
+        sortedKeys = this.sortFIFO();
+    }
+
+    const deleteActions = [];
+    for (let i = 0; i < removeCount; i++) {
+      const key = sortedKeys[i];
+      if (key) {
+        deleteActions.push(this.del(key));
+      }
+    }
+
+    await Promise.all(deleteActions);
+
+    this.logger.verbose('Evicted %d entries from cache', deleteActions.length);
+  }
+
+  private sortLRU(): string[] {
+    return Object.values(this.keysMeta)
+      .sort((first: KeyMeta, second: KeyMeta) => (first.lastUsedAt ?? 0) - (second.lastUsedAt ?? 0))
+      .map((meta) => meta.key);
+  }
+
+  private sortLFU(): string[] {
+    const now = Date.now();
+    return Object.values(this.keysMeta)
+      .sort(
+        (first: KeyMeta, second: KeyMeta) =>
+          first.usedCount / (now - first.createdAt) - second.usedCount / (now - second.createdAt)
+      )
+      .map((meta) => meta.key);
+  }
+
+  private sortFIFO(): string[] {
+    return Object.values(this.keysMeta)
+      .sort((first: KeyMeta, second: KeyMeta) => first.createdAt - second.createdAt)
+      .map((meta) => meta.key);
   }
 }

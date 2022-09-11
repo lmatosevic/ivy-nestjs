@@ -5,7 +5,7 @@ export default () => {
 
   return {
     env: process.env.NODE_ENV || 'production',
-    docsOnly: docsOnly,
+    docsOnly,
     app: {
       name: process.env.APP_NAME || 'Ivy API',
       description: process.env.APP_DESCRIPTION || 'Ivy backend API service',
@@ -14,8 +14,8 @@ export default () => {
       host: process.env.APP_HOST || '0.0.0.0',
       hostname: process.env.APP_HOSTNAME || '127.0.0.1',
       port: StringUtil.parseInteger(process.env.APP_PORT, 80),
-      shutdownHooks: StringUtil.parseBool(process.env.APP_USE_SHUTDOWN_HOOKS, false),
-      helmet: StringUtil.parseBool(process.env.APP_USE_HELMET, true)
+      shutdownHooksEnabled: StringUtil.parseBool(process.env.APP_SHUTDOWN_HOOKS_ENABLED, true),
+      helmetEnabled: StringUtil.parseBool(process.env.APP_HELMET_ENABLED, true)
     },
     log: {
       level: process.env.LOG_LEVEL || 'info',
@@ -94,6 +94,8 @@ export default () => {
       maxItems: StringUtil.parseInteger(process.env.CACHE_MAX_ITEMS, 100),
       enabled: StringUtil.parseBool(process.env.CACHE_ENABLED, true),
       cleanStart: StringUtil.parseBool(process.env.CACHE_CLEAN_START, true),
+      evictionStrategy: process.env.CACHE_EVICTION_STRATEGY || 'LRU',
+      evictionDeferred: StringUtil.parseBool(process.env.CACHE_EVICTION_DEFERRED, false),
       changeStrategy: process.env.CACHE_CHANGE_STRATEGY || 'expire-related',
       changeDeferred: StringUtil.parseBool(process.env.CACHE_CHANGE_DEFERRED, false),
       filesystem: {

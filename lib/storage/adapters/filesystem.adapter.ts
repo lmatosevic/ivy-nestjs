@@ -108,13 +108,10 @@ export class FilesystemAdapter implements StorageAdapter {
 
   private async getFilePath(fileName: string, dirname?: string, mkdir: boolean = false): Promise<string> {
     const filePath = `${this.rootDir}/${dirname ? dirname + '/' : ''}${fileName}`;
-    const fileDirname = path.dirname(filePath);
     if (mkdir) {
-      try {
-        await fsp.access(fileDirname, constants.F_OK);
-      } catch (e) {
-        await fsp.mkdir(fileDirname, { recursive: true });
-        this.logger.verbose('Created files directory: %s', path.resolve(fileDirname));
+      const { created, dirname } = await FilesUtil.ensureDirectoryExists(filePath);
+      if (created) {
+        this.logger.verbose('Created files directory: %s', path.resolve(dirname));
       }
     }
     return filePath;
