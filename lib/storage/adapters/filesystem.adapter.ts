@@ -47,10 +47,15 @@ export class FilesystemAdapter implements StorageAdapter {
     }
   }
 
-  async stream(fileName: string, filesDir?: string): Promise<ReadStream | null> {
+  async stream(
+    fileName: string,
+    filesDir?: string,
+    start?: number,
+    end?: number
+  ): Promise<ReadStream | null> {
     const filePath = await this.getFilePath(fileName, filesDir);
     try {
-      return fs.createReadStream(filePath);
+      return fs.createReadStream(filePath, { start, end, highWaterMark: 64 });
     } catch (e) {
       this.logger.error('Error streaming file "%s", %j', filePath, e);
       return null;

@@ -94,7 +94,7 @@ yargs(helper.hideBin(process.argv))
   .parse();
 
 function createResource(name, type, outDir, moduleFile, noEndpoint, rest, graphql, uuid, overwrite) {
-  let modelName = name.replace(/-[a-z]/g, (match) => match.replace('-', '').toUpperCase());
+  let modelName = name.replace(/-[a-z0-9]/g, (match) => match.replace('-', '').toUpperCase());
   modelName = `${modelName.charAt(0).toUpperCase()}${modelName.substring(1)}`;
   const namePlural = pluralize(name);
   const modelNamePlural = pluralize(modelName);

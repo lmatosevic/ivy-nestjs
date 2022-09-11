@@ -103,12 +103,12 @@ export class FileManager {
     return await this.storageAdapter.load(name, this.dirname);
   }
 
-  async streamFile(name: string): Promise<StreamableFile | null> {
+  async streamFile(name: string, start?: number, end?: number): Promise<StreamableFile | null> {
     if (!(await this.storageAdapter.exists(name, this.dirname))) {
       return null;
     }
 
-    const stream = await this.storageAdapter.stream(name, this.dirname);
+    const stream = await this.storageAdapter.stream(name, this.dirname, start, end);
     return stream ? new StreamableFile(stream) : null;
   }
 
@@ -256,7 +256,7 @@ export class FileManager {
     const storedFile = await this.storeFile(fileName, fileData, {
       ...meta,
       mimeType: `${match.value[1]}/${match.value[2]}`,
-      size: FilesUtil.fileSizeInBytesFromBase64Length(fileData.length)
+      size: fileData.length
     });
 
     if (storedFile === null) {

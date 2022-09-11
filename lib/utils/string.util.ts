@@ -161,4 +161,13 @@ export class StringUtil {
   static pluralize(name: string): string {
     return pluralize && typeof pluralize === 'function' ? pluralize(name) : name + 's';
   }
+
+  static camelToSnakeCase(text: string, divider: string = '-'): string {
+    return text?.split(/(?=[A-Z])/g).join(divider).toLowerCase();
+  }
+
+  static snakeToCamelCase(text: string, divider: string = '-'): string {
+    const regex = new RegExp(`${divider}[a-z0-9]`, 'g')
+    return text?.replace(regex, (match) => match.replace(divider, '').toUpperCase());
+  }
 }

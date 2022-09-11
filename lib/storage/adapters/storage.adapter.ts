@@ -5,7 +5,7 @@ export interface StorageAdapter {
 
   load(fileName: string, filesDir?: string): Promise<Buffer | null>;
 
-  stream(fileName: string, filesDir?: string): Promise<ReadStream>;
+  stream(fileName: string,  filesDir?: string, start?: number, end?: number): Promise<ReadStream>;
 
   delete(fileName: string, filesDir?: string): Promise<boolean>;
 

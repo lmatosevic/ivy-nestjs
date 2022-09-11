@@ -77,10 +77,6 @@ export class FilesUtil {
     }
   }
 
-  static fileSizeInBytesFromBase64Length(length: number): number {
-    return Math.round(3 * (length / 4));
-  }
-
   static validateFile(
     field: string,
     file: Express.Multer.File | FileDto,
@@ -256,8 +252,8 @@ export class FilesUtil {
       timestamp: now.getTime(),
       uuid: uuidv4(),
       hash: StringUtil.generateToken('bytes', 32),
-      fieldName: meta?.field,
-      resourceName: meta?.resource
+      fieldName: StringUtil.camelToSnakeCase(meta?.field),
+      resourceName: StringUtil.camelToSnakeCase(meta?.resource)
     };
 
     let name = pattern;

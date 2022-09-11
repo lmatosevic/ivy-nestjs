@@ -1,6 +1,17 @@
-import { Controller, Get, HttpCode, Inject, Param, Response, StreamableFile } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Header,
+  Headers,
+  HttpStatus,
+  Inject,
+  Param,
+  Response,
+  StreamableFile
+} from '@nestjs/common';
 import { ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
+import { Response as ExpressResponse } from 'express';
 import { AuthUser } from '../auth';
 import { ReflectionUtil } from '../utils';
 import { Authorized, CurrentUser } from '../auth/decorators';
@@ -37,29 +48,36 @@ export class StorageController {
 
   @ApiOkResponse({ description: 'Binary file content' })
   @ApiNotFoundResponse({ description: 'File not found' })
+  @Header('Accept-Ranges', 'bytes')
   @Get('/public/:name(*)?')
-  @HttpCode(200)
   async publicFile(
     @Param('name') name: string,
-    @Response({ passthrough: true }) res
+    @Headers('Range') range: string,
+    @Response({ passthrough: true }) res: ExpressResponse
   ): Promise<StreamableFile> {
-    return await this.validateAndMakeFileStream(name, res);
+    return await this.validateAndMakeFileStream(name, res, range);
   }
 
   @Authorized()
   @ApiOkResponse({ description: 'Binary file content' })
   @ApiNotFoundResponse({ description: 'File not found' })
+  @Header('Accept-Ranges', 'bytes')
   @Get('/protected/:name(*)?')
-  @HttpCode(200)
   async protectedFile(
     @Param('name') name: string,
-    @Response({ passthrough: true }) res,
+    @Headers('Range') range: string,
+    @Response({ passthrough: true }) res: ExpressResponse,
     @CurrentUser() user: AuthUser
   ): Promise<StreamableFile> {
-    return await this.validateAndMakeFileStream(name, res, user);
+    return await this.validateAndMakeFileStream(name, res, range, user);
   }
 
-  private async validateAndMakeFileStream(name: string, res: any, user?: AuthUser): Promise<StreamableFile> {
+  private async validateAndMakeFileStream(
+    name: string,
+    res: ExpressResponse,
+    range?: string,
+    user?: AuthUser
+  ): Promise<StreamableFile> {
     const { allowed, meta } = await this.fileManager.checkFileAccess(name, user);
     if (!allowed) {
       if (meta && user) {
@@ -69,12 +87,30 @@ export class StorageController {
       }
     }
 
-    const stream = await this.fileManager.streamFile(name);
+    const headers = {};
+    let stream;
+    let code;
+    if (range) {
+      const parts = range.replace(/bytes=/, '').split('-');
+      const start = parseInt(parts[0], 10);
+      const end = parts[1] ? Math.min(parseInt(parts[1], 10), meta.size - 1) : meta.size - 1;
+      headers['Content-Length'] = end - start + 1;
+      headers['Content-Range'] = `bytes ${start}-${end}/${meta.size}`;
+      stream = await this.fileManager.streamFile(name, start, end);
+      code = HttpStatus.PARTIAL_CONTENT;
+    } else {
+      headers['Content-Length'] = meta.size;
+      stream = await this.fileManager.streamFile(name);
+      code = HttpStatus.OK;
+    }
+
     if (!stream) {
       throw new FileError(`File not found: ${name}`, 404);
     }
 
+    res.status(code);
     res.set({
+      ...headers,
       'Content-Type': meta?.mimeType || 'application/octet-stream',
       'Content-Disposition': 'inline; filename="' + name + '"',
       Pragma: 'public',
