@@ -56,7 +56,12 @@ export class FilesystemAdapter implements StorageAdapter {
     const filePath = await this.getFilePath(fileName, filesDir);
     try {
       const stats = await fsp.stat(filePath);
-      const readStream = fs.createReadStream(filePath, { start, end, highWaterMark: 64 });
+      const endIndex = start >= 0 && !end && end !== 0 ? stats.size - 1 : Math.min(end, stats.size - 1);
+      const readStream = fs.createReadStream(filePath, {
+        start,
+        end: !Number.isNaN(endIndex) ? endIndex : undefined,
+        highWaterMark: 64
+      });
       return new StreamableFile(readStream, { length: stats.size });
     } catch (e) {
       this.logger.error('Error streaming file "%s", %j', filePath, e);

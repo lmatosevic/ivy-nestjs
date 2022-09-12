@@ -141,8 +141,13 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
         false
       );
 
-      for (const [sort, order] of Object.entries(options.sort || {})) {
-        queryBuilder.addOrderBy(modelAlias + '.' + sort, order.toUpperCase());
+      const sortKeys = ObjectUtil.nestedKeys(options.sort || {});
+      for (const sortKey of sortKeys) {
+        const order = _.get(options.sort, sortKey);
+        if (typeof order !== 'object') {
+          const { path } = this.makeAliasAndPath(sortKey.split('.'), modelAlias);
+          queryBuilder.addOrderBy(path, order?.toUpperCase() ?? 'ASC');
+        }
       }
 
       results = await queryBuilder
