@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.56](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.55...v0.3.56) (2022-09-12)
+
+
+### Bug Fixes
+
+* fix sorting by resource relation fields ([75a075b](https://github.com/Lujo5/ivy-nestjs/commit/75a075bd320700cb621e929ca5aed7f5ec7e5a10))
+* fix sorting by resource relation fields ([1e7eae1](https://github.com/Lujo5/ivy-nestjs/commit/1e7eae1fa14cfcde12dd658fb425ce8f04593a24))
+
 ### [0.3.55](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.54...v0.3.55) (2022-09-12)
 
 
