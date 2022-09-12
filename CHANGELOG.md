@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.55](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.54...v0.3.55) (2022-09-12)
+
+
+### Features
+
+* add alternative file size reading from stats ([394bdc8](https://github.com/Lujo5/ivy-nestjs/commit/394bdc86004975930da5de277af7575762443af2))
+
 ### [0.3.54](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.53...v0.3.54) (2022-09-11)
 
 
