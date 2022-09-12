@@ -94,13 +94,13 @@ export class StorageController {
       const parts = range.replace(/bytes=/, '').split('-');
       const start = parseInt(parts[0], 10);
       const end = parts[1] ? Math.min(parseInt(parts[1], 10), meta.size - 1) : meta.size - 1;
-      headers['Content-Length'] = end - start + 1;
-      headers['Content-Range'] = `bytes ${start}-${end}/${meta.size}`;
       stream = await this.fileManager.streamFile(name, start, end);
+      headers['Content-Length'] = end - start + 1;
+      headers['Content-Range'] = `bytes ${start}-${end}/${stream.options.length ?? meta.size}`;
       code = HttpStatus.PARTIAL_CONTENT;
     } else {
-      headers['Content-Length'] = meta.size;
       stream = await this.fileManager.streamFile(name);
+      headers['Content-Length'] = stream.options.length ?? meta.size;
       code = HttpStatus.OK;
     }
 

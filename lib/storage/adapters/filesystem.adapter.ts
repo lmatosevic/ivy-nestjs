@@ -1,8 +1,8 @@
-import * as fs from 'fs';
-import { constants, promises as fsp, ReadStream } from 'fs';
-import * as path from 'path';
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger, StreamableFile } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import * as fs from 'fs';
+import { constants, promises as fsp } from 'fs';
+import * as path from 'path';
 import { StorageAdapter } from './storage.adapter';
 import { FilesUtil } from '../../utils';
 import { StorageModuleOptions } from '../storage.module';
@@ -52,10 +52,12 @@ export class FilesystemAdapter implements StorageAdapter {
     filesDir?: string,
     start?: number,
     end?: number
-  ): Promise<ReadStream | null> {
+  ): Promise<StreamableFile | null> {
     const filePath = await this.getFilePath(fileName, filesDir);
     try {
-      return fs.createReadStream(filePath, { start, end, highWaterMark: 64 });
+      const stats = await fsp.stat(filePath);
+      const readStream = fs.createReadStream(filePath, { start, end, highWaterMark: 64 });
+      return new StreamableFile(readStream, { length: stats.size });
     } catch (e) {
       this.logger.error('Error streaming file "%s", %j', filePath, e);
       return null;

@@ -109,7 +109,7 @@ export class FileManager {
     }
 
     const stream = await this.storageAdapter.stream(name, this.dirname, start, end);
-    return stream ? new StreamableFile(stream).setErrorHandler((err) => this.logger.debug(err)) : null;
+    return stream ? stream.setErrorHandler((err) => this.logger.debug(err)) : null;
   }
 
   async deleteFile(name: string): Promise<boolean> {
