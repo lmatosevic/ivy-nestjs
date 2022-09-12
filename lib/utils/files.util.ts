@@ -110,6 +110,13 @@ export class FilesUtil {
     let mimetype: string = file['mimetype'];
     let size: number = file['size'];
     if (!mimetype || !size) {
+      if (file['data'] && typeof file['data'] !== 'string') {
+        return [{
+          value: file['data'],
+          property: field,
+          constraints: { data: `Invalid file data format; expected: string, received: ${typeof file['data']}` }
+        }];
+      }
       const matches = file['data']?.matchAll(/^data:(.+);base64,(.+)/g);
       const match = matches && matches.next();
       if (!match || !match.value || match.value.length < 2) {

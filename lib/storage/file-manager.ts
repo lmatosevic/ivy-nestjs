@@ -235,6 +235,10 @@ export class FileManager {
       throw new FileError('File data is missing', 400);
     }
 
+    if (typeof file.data !== 'string') {
+      throw new FileError(`Invalid file data format; expected: string, received: ${typeof file.data}`, 400);
+    }
+
     const matches = file.data.matchAll(/^data:(.+)\/(.+);base64,(.+)/g);
     const match = matches.next();
 
