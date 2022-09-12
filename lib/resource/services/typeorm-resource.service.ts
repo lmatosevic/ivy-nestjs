@@ -141,7 +141,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
         false
       );
 
-      const sortKeys = ObjectUtil.nestedKeys(options.sort || {});
+      const sortKeys = ObjectUtil.nestedKeys(options.sort);
       for (const sortKey of sortKeys) {
         const order = _.get(options.sort, sortKey);
         if (typeof order !== 'object') {
