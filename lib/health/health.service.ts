@@ -34,7 +34,7 @@ export class HealthService implements OnModuleInit {
     private redis: RedisHealthIndicator
   ) {
     this.memoryThreshold =
-      healthModuleOptions.memoryThreshold ?? configService.get('health.memoryThreshold') ?? 512;
+      healthModuleOptions.memoryThreshold ?? configService.get('health.memoryThreshold') ?? 1024;
     this.diskThreshold =
       healthModuleOptions.diskThreshold ?? configService.get('health.diskThreshold') ?? 0.9;
     this.diskPath = healthModuleOptions.diskPath || configService.get('health.rootDir') || '/';

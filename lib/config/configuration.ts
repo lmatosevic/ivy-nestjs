@@ -247,7 +247,7 @@ export default () => {
     },
     health: {
       route: process.env.HEALTH_ROUTE || 'health',
-      memoryThreshold: StringUtil.parseInteger(process.env.HEALTH_MEMORY_THRESHOLD, 512),
+      memoryThreshold: StringUtil.parseInteger(process.env.HEALTH_MEMORY_THRESHOLD, 1024),
       diskThreshold: StringUtil.parseFloat(process.env.HEALTH_DISK_THRESHOLD, 0.9)
     }
   };

@@ -34,8 +34,8 @@ type ModelReferences = {
 type JoinOptions = {
   alias: string;
   relations: RelationInfo[];
-  leftJoin: Record<string, string>;
-  innerJoin: Record<string, string>;
+  relationJoin: Record<string, string>;
+  queryJoin: Record<string, string>;
 };
 
 type RelationInfo = {
@@ -157,12 +157,12 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
 
       const countQueryBuilder = repository.createQueryBuilder().where(whereQuery);
 
-      for (const [alias, path] of Object.entries(joins.leftJoin)) {
+      for (const [alias, path] of Object.entries(joins.relationJoin)) {
         countQueryBuilder.leftJoin(path, alias);
       }
 
-      for (const [alias, path] of Object.entries(joins.innerJoin)) {
-        countQueryBuilder.innerJoin(path, alias);
+      for (const [alias, path] of Object.entries(joins.queryJoin)) {
+        countQueryBuilder.leftJoin(path, alias);
       }
 
       totalCount = await countQueryBuilder.getCount();
@@ -434,7 +434,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
 
     const eagerRelations = this.eagerRelationsList();
 
-    for (const [alias, path] of Object.entries(joins.leftJoin)) {
+    for (const [alias, path] of Object.entries(joins.relationJoin)) {
       const relationName = alias.replace(/_/g, '.');
       const relationInfo = joins.relations.find((rel) => rel.name === relationName);
       const isEager = eagerRelations.find((e) => e.name === relationName);
@@ -449,8 +449,8 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
       }
     }
 
-    for (const [alias, path] of Object.entries(joins.innerJoin)) {
-      queryBuilder.innerJoin(path, alias);
+    for (const [alias, path] of Object.entries(joins.queryJoin)) {
+      queryBuilder.leftJoin(path, alias);
     }
 
     return [queryBuilder, whereQuery, joins, modelAlias];
@@ -469,7 +469,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
 
       let bracketUsedJoins = usedJoins;
       if (!bracketUsedJoins) {
-        bracketUsedJoins = Object.keys(joins.innerJoin).reduce((obj, alias) => {
+        bracketUsedJoins = Object.keys(joins.queryJoin).reduce((obj, alias) => {
           obj[alias] = false;
           return obj;
         }, {});
@@ -499,11 +499,11 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
           continue;
         }
 
-        // Add where statements for entity properties with single or multiple values and replace left join alias with
-        // inner join alias to prevent data exclusion from array relations caused by filtering by subrelations
+        // Add where statements for entity properties with single or multiple values and replace relation join alias
+        // with query join alias to prevent data exclusion from array relations caused by filtering by subrelations
         if (!RequestUtil.filterQueryKeys.includes(key) && Array.isArray(value)) {
           if (value.length === 2 && typeof value[0] === 'string' && typeof value[1] === 'object') {
-            let statement = this.replaceInnerJoinAlias(value[0], joins, bracketUsedJoins);
+            let statement = this.replaceQueryJoinAlias(value[0], joins, bracketUsedJoins);
             qb[whereKey](statement, value[1]);
             first = false;
           } else {
@@ -514,7 +514,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
                 typeof operatorValue[0] === 'string' &&
                 typeof operatorValue[1] === 'object'
               ) {
-                let statement = this.replaceInnerJoinAlias(operatorValue[0], joins, bracketUsedJoins);
+                let statement = this.replaceQueryJoinAlias(operatorValue[0], joins, bracketUsedJoins);
                 qb[whereKey](statement, operatorValue[1]);
                 first = false;
               }
@@ -532,20 +532,20 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     });
   }
 
-  private replaceInnerJoinAlias(
+  private replaceQueryJoinAlias(
     statement: string,
     joins: JoinOptions,
     usedJoins: Record<string, boolean>
   ): string {
-    const joinAlias = Object.entries(joins.leftJoin).find(([a, p]) => statement.startsWith(a + '.'));
+    const joinAlias = Object.entries(joins.relationJoin).find(([a, p]) => statement.startsWith(a + '.'));
     if (joinAlias) {
       const lookupAlias = `${joinAlias[0]}__${joins.alias}`;
-      const innerJoin = Object.entries(joins.innerJoin).find(
+      const queryJoin = Object.entries(joins.queryJoin).find(
         ([a, p]) => a.startsWith(lookupAlias) && usedJoins[a] === false
       );
-      if (innerJoin) {
-        statement = statement.replace(joinAlias[0], innerJoin[0]);
-        usedJoins[innerJoin[0]] = true;
+      if (queryJoin) {
+        statement = statement.replace(joinAlias[0], queryJoin[0]);
+        usedJoins[queryJoin[0]] = true;
       }
     }
     return statement;
@@ -557,8 +557,8 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     const joinOptions: JoinOptions = {
       alias: modelName,
       relations,
-      leftJoin: {},
-      innerJoin: {}
+      relationJoin: {},
+      queryJoin: {}
     };
 
     const filterKeys = ObjectUtil.nestedKeys(filter, RequestUtil.filterQueryKeys, (key, value, keys) => {
@@ -592,65 +592,65 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
 
       const { alias, path } = this.makeAliasAndPath(relationParts, modelName);
       if (alias && path) {
-        joinOptions.leftJoin[alias] = path;
+        joinOptions.relationJoin[alias] = path;
       }
 
-      // Inner join statements are used to separate data selection from where query filtering on manyTo relations
+      // Query join statements are used to separate data selection from where query filtering on manyTo relations
       // or any type of subrelations. If filter cotains an array of relational subfilters, every array
-      // item needs to have separate inner join with different name to avoid data loss.
+      // item needs to have separate query join with different name to avoid data loss.
       if (alias && path && filterKeys.includes(relation.name)) {
-        let innerJoins = this.makeRelationInnerJoins(
+        let queryJoins = this.makeRelationQueryJoins(
           relation.name,
           alias,
           path,
           filterKeysCount,
-          joinOptions.innerJoin
+          joinOptions.queryJoin
         );
-        Object.entries(innerJoins).forEach(([a, p]) => (joinOptions.innerJoin[a] = p));
+        Object.entries(queryJoins).forEach(([a, p]) => (joinOptions.queryJoin[a] = p));
       }
     }
 
-    // Add all relations excluded from population but used in where query as inner join statements. As in filter
+    // Add all relations excluded from population but used in where query as query join statements. As in filter
     // relations mapping, relations are also supported as multiple innter join statements for every filter occurance.
     const filterRelations = this.filtersAliasAndPaths(filterKeys, modelName);
     for (const filterRelation of filterRelations) {
       const { alias, path, name } = filterRelation;
       if (alias && path && name) {
-        let innerJoins = this.makeRelationInnerJoins(
+        let queryJoins = this.makeRelationQueryJoins(
           name,
           alias,
           path,
           filterKeysCount,
-          joinOptions.innerJoin
+          joinOptions.queryJoin
         );
-        Object.entries(innerJoins).forEach(([a, p]) => {
-          if (!joinOptions.leftJoin[a] && !joinOptions.innerJoin[a]) {
-            joinOptions.innerJoin[a] = p;
+        Object.entries(queryJoins).forEach(([a, p]) => {
+          if (!joinOptions.relationJoin[a] && !joinOptions.queryJoin[a]) {
+            joinOptions.queryJoin[a] = p;
           }
         });
-        if (!joinOptions.leftJoin[alias] && !joinOptions.innerJoin[alias]) {
-          joinOptions.leftJoin[alias] = path;
+        if (!joinOptions.relationJoin[alias] && !joinOptions.queryJoin[alias]) {
+          joinOptions.relationJoin[alias] = path;
         }
       }
     }
 
     const removeAliases = [];
-    for (const [alias, path] of Object.entries(joinOptions.innerJoin)) {
+    for (const [alias, path] of Object.entries(joinOptions.queryJoin)) {
       const parts = path.split('.');
       if (parts.length === 1 || parts[0] === modelName) {
         continue;
       }
       const pathAlias = parts[0];
-      const inInner = Object.keys(joinOptions.innerJoin).some((a) => a === pathAlias);
-      const inLeft = Object.values(joinOptions.leftJoin).some((p) => p === path);
-      if (!inInner && !inLeft) {
+      const inJoin = Object.keys(joinOptions.queryJoin).some((a) => a === pathAlias);
+      const inLeft = Object.values(joinOptions.relationJoin).some((p) => p === path);
+      if (!inJoin && !inLeft) {
         removeAliases.push(alias);
       }
     }
 
-    // Remove all inner join values that rely on non-existing aliases generated by duplicated filter array keys
+    // Remove all query join values that rely on non-existing aliases generated by duplicated filter array keys
     for (const alias of removeAliases) {
-      delete joinOptions.innerJoin[alias];
+      delete joinOptions.queryJoin[alias];
     }
 
     this.log.debug('Join options: %j', joinOptions);
@@ -658,12 +658,12 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     return joinOptions;
   }
 
-  private makeRelationInnerJoins(
+  private makeRelationQueryJoins(
     relationName: string,
     alias: string,
     path: string,
     filterKeysCount: Record<string, number>,
-    innerJoin: Record<string, string>,
+    queryJoin: Record<string, string>,
     modelName?: string
   ): Record<string, string> {
     modelName = modelName ?? this.repository.metadata.name;
@@ -673,7 +673,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     for (let i = 0; i < occurances; i++) {
       let suffix = i > 0 ? '_' + i : '';
       let newPath;
-      const childJoin = Object.entries(innerJoin).find(([a, p]) => p === parentPath);
+      const childJoin = Object.entries(queryJoin).find(([a, p]) => p === parentPath);
       if (childJoin) {
         const parts = path.split('.');
         if (parts.length > 1) {
