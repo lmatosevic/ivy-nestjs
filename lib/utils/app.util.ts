@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ResolverTypeMetadata } from '@nestjs/graphql/dist/schema-builder/metadata';
 import { TypeMetadataStorage } from '@nestjs/graphql';
+import { json, urlencoded } from 'body-parser';
 import helmet from 'helmet';
 import * as fs from 'fs/promises';
 import { LoggerService } from '../logger/logger.service';
@@ -18,6 +19,10 @@ export class AppUtil {
     app.flushLogs();
 
     const configService = app.get(ConfigService);
+
+    const bodySizeLimit = configService.get('app.bodySizeLimit');
+    app.use(json({ limit: bodySizeLimit }));
+    app.use(urlencoded({ limit: bodySizeLimit, extended: true }));
 
     const env = configService.get('env');
     logger.log('App running in %s', env);

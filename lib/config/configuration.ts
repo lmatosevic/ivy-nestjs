@@ -14,8 +14,9 @@ export default () => {
       host: process.env.APP_HOST || '0.0.0.0',
       hostname: process.env.APP_HOSTNAME || '127.0.0.1',
       port: StringUtil.parseInteger(process.env.APP_PORT, 80),
+      bodySizeLimit: process.env.APP_BODY_SIZE_LIMIT || '50mb',
       shutdownHooksEnabled: StringUtil.parseBool(process.env.APP_SHUTDOWN_HOOKS_ENABLED, true),
-      helmetEnabled: StringUtil.parseBool(process.env.APP_HELMET_ENABLED, true)
+      helmetEnabled: StringUtil.parseBool(process.env.APP_HELMET_ENABLED, true),
     },
     log: {
       level: process.env.LOG_LEVEL || 'info',
