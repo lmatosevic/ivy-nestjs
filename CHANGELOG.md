@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.60](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.59...v0.3.60) (2022-09-13)
+
+
+### Features
+
+* enable string boolean interpolation for exists query param ([6b0244a](https://github.com/Lujo5/ivy-nestjs/commit/6b0244a8bcdbcee21648d2b4f8a56463d1fc0b5d))
+
 ### [0.3.59](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.58...v0.3.59) (2022-09-13)
 
 
