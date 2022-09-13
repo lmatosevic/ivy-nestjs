@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.59](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.58...v0.3.59) (2022-09-13)
+
+
+### Features
+
+* add http body size limit config ([3d4b9fe](https://github.com/Lujo5/ivy-nestjs/commit/3d4b9fea7b86ebfa1e9d1ba192cca13efac1355f))
+
 ### [0.3.58](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.57...v0.3.58) (2022-09-13)
 
 
