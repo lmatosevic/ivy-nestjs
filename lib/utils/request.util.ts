@@ -24,7 +24,7 @@ export class RequestUtil {
     _nin: (k, v, p) => [`${k} NOT IN (:...${p})`, { [`${p}`]: v }],
     _like: (k, v, p) => [`${k} LIKE :${p}`, { [`${p}`]: v }],
     _ilike: (k, v, p) => [`${k} ILIKE :${p}`, { [`${p}`]: v }],
-    _exists: (k, v) => [`${k} IS ${!v ? '' : 'NOT '}NULL`, {}],
+    _exists: (k, v) => [`${k} IS ${!v || v === 'false' ? '' : 'NOT '}NULL`, {}],
     _all: (k, v, p) => [`${k} @> {:...${p}}`, { [`${p}`]: v }],
     _any: (k, v, p) => [`${k} = ANY(:...${p})`, { [`${p}`]: v }],
     _elemMatch: () => {
