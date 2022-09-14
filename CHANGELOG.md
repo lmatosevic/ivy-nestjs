@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.65](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.64...v0.3.65) (2022-09-14)
+
+
+### Features
+
+* add file exists function ([d5c880c](https://github.com/Lujo5/ivy-nestjs/commit/d5c880c640d7a6a66378a723dadcf05f0188bc51))
+
 ### [0.3.64](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.63...v0.3.64) (2022-09-14)
 
 
