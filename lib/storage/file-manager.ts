@@ -105,11 +105,15 @@ export class FileManager {
   }
 
   async loadFile(name: string): Promise<Buffer | null> {
-    return await this.storageAdapter.load(name, this.dirname);
+    return this.storageAdapter.load(name, this.dirname);
+  }
+
+  async fileExists(name: string): Promise<boolean> {
+    return this.storageAdapter.exists(name, this.dirname);
   }
 
   async streamFile(name: string, start?: number, end?: number): Promise<StreamableFile | null> {
-    if (!(await this.storageAdapter.exists(name, this.dirname))) {
+    if (!(await this.fileExists(name))) {
       return null;
     }
 
