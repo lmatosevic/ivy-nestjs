@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.63](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.62...v0.3.63) (2022-09-14)
+
+
+### Features
+
+* add random string pool option ([dc41b07](https://github.com/Lujo5/ivy-nestjs/commit/dc41b07ea9c527b13129e010e629b7887d3a036e))
+
 ### [0.3.62](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.61...v0.3.62) (2022-09-14)
 
 
