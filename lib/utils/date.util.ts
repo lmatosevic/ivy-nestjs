@@ -6,4 +6,11 @@ export class DateUtil {
     let yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
     return Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
   }
+
+  static getUTCDayNumber(date: Date): number {
+    let start = new Date(date.getFullYear(), 0, 0);
+    let diff =
+      date.getTime() - start.getTime() + (start.getTimezoneOffset() - date.getTimezoneOffset()) * 60 * 1000;
+    return Math.floor(diff / (1000 * 60 * 60 * 24));
+  }
 }

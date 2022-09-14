@@ -111,11 +111,15 @@ export class FilesUtil {
     let size: number = file['size'];
     if (!mimetype || !size) {
       if (file['data'] && typeof file['data'] !== 'string') {
-        return [{
-          value: file['data'],
-          property: field,
-          constraints: { data: `Invalid file data format; expected: string, received: ${typeof file['data']}` }
-        }];
+        return [
+          {
+            value: file['data'],
+            property: field,
+            constraints: {
+              data: `Invalid file data format; expected: string, received: ${typeof file['data']}`
+            }
+          }
+        ];
       }
       const matches = file['data']?.matchAll(/^data:(.+);base64,(.+)/g);
       const match = matches && matches.next();
@@ -263,6 +267,7 @@ export class FilesUtil {
       day: now.getUTCDate(),
       weekDay: now.getUTCDay(),
       yearWeek: DateUtil.getUTCWeekNumber(now),
+      yearDay: DateUtil.getUTCDayNumber(now),
       hours: now.getUTCHours(),
       minutes: now.getUTCMinutes(),
       seconds: now.getUTCSeconds(),
@@ -276,7 +281,8 @@ export class FilesUtil {
 
     let name = pattern;
     for (const [key, value] of Object.entries({ ...variables, ...extraVariables })) {
-      name = name.replace(`{{${key}}}`, `${value}`);
+      const regex = new RegExp(`\{\{${key}}}`, 'g');
+      name = name.replace(regex, `${value}`);
     }
 
     return name;
