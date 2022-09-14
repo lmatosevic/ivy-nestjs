@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.62](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.61...v0.3.62) (2022-09-14)
+
+
+### Bug Fixes
+
+* change makeSlug method to static ([ca17c91](https://github.com/Lujo5/ivy-nestjs/commit/ca17c910171160c1359e434564a4e43370aef43b))
+
 ### [0.3.61](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.60...v0.3.61) (2022-09-14)
 
 
