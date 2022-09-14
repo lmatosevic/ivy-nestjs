@@ -158,7 +158,7 @@ export class StringUtil {
     }) as string;
   }
 
-  private makeSlug(...values: string[]): string {
+  static makeSlug(...values: string[]): string {
     return values
       .join(' ')
       .normalize('NFD')
