@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.64](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.63...v0.3.64) (2022-09-14)
+
+
+### Features
+
+* add file manager option to not transform name of file ([034e4f9](https://github.com/Lujo5/ivy-nestjs/commit/034e4f9e41954b4fe7f0fa0b991250a4a5b683f6))
+
 ### [0.3.63](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.62...v0.3.63) (2022-09-14)
 
 
