@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.61](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.60...v0.3.61) (2022-09-14)
+
+
+### Features
+
+* add day number variable and enabled multiple same variables in pattern ([001f4d1](https://github.com/Lujo5/ivy-nestjs/commit/001f4d13a6685a8312b66ae262bb6f9cfb78e1c6))
+
 ### [0.3.60](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.59...v0.3.60) (2022-09-13)
 
 
