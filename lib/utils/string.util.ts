@@ -138,10 +138,11 @@ export class StringUtil {
     return Math.round(sizeInBytes);
   }
 
-  static randomString(length: number): string {
-    return this.generateToken('string', length, undefined, {
-      pool: '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    });
+  static randomString(
+    length: number,
+    pool: string = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+  ): string {
+    return this.generateToken('string', length, undefined, { pool });
   }
 
   static generateToken(
