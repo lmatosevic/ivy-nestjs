@@ -81,10 +81,15 @@ export class FileManager {
     return { allowed: false, meta };
   }
 
-  async storeFile(name: string, data: Buffer, meta?: FileMetadata): Promise<StoredFile | null> {
+  async storeFile(
+    name: string,
+    data: Buffer,
+    meta?: FileMetadata,
+    transformName: boolean = true
+  ): Promise<StoredFile | null> {
     const directory = await this.directoryName(name, meta);
     const file = await this.fileName(name, meta);
-    const fileName = `${directory}${file}`;
+    const fileName = transformName ? `${directory}${file}` : name;
 
     const res = await this.storageAdapter.store(fileName, data, this.dirname);
     if (res) {
@@ -123,11 +128,15 @@ export class FileManager {
     return result;
   }
 
-  async moveFromTemp(name: string, meta?: FileMetadata): Promise<StoredFile | null> {
+  async moveFromTemp(
+    name: string,
+    meta?: FileMetadata,
+    transformName: boolean = true
+  ): Promise<StoredFile | null> {
     const originalName = FilesUtil.originalNameFromGenerated(name.split('/').pop());
     const directory = await this.directoryName(originalName, meta);
     const file = await this.fileName(originalName, meta);
-    const fileName = `${directory}${file}`;
+    const fileName = transformName ? `${directory}${file}` : name;
 
     const fromFile = `${this.tempDirname.endsWith('/') ? this.tempDirname : this.tempDirname + '/'}${name}`;
     const toFile = `${this.dirname.endsWith('/') ? this.dirname : this.dirname + '/'}${fileName}`;
