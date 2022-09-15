@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.66](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.65...v0.3.66) (2022-09-15)
+
+
+### Features
+
+* increase default pagination size ([f5df6de](https://github.com/Lujo5/ivy-nestjs/commit/f5df6de44c9a71b627e993c07aff5965cc286b29))
+
 ### [0.3.65](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.64...v0.3.65) (2022-09-14)
 
 
