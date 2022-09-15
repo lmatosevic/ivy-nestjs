@@ -235,8 +235,8 @@ export default () => {
       playground: StringUtil.parseBool(process.env.GRAPHQL_PLAYGROUND_ENABLED, true)
     },
     pagination: {
-      maxSize: StringUtil.parseInteger(process.env.PAGINATION_MAX_SIZE, 100),
-      defaultSize: StringUtil.parseInteger(process.env.PAGINATION_DEFAULT_SIZE, 20),
+      maxSize: StringUtil.parseInteger(process.env.PAGINATION_MAX_SIZE, 200),
+      defaultSize: StringUtil.parseInteger(process.env.PAGINATION_DEFAULT_SIZE, 100),
       defaultSort: process.env.PAGINATION_DEFAULT_SORT
     },
     bulk: {
