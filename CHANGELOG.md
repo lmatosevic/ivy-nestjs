@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.4.1](https://github.com/Lujo5/ivy-nestjs/compare/v0.4.0...v0.4.1) (2022-09-16)
+
+
+### Features
+
+* remove high watermark from files streaming ([fd1a842](https://github.com/Lujo5/ivy-nestjs/commit/fd1a842f8a8444ecc257db7aef1886f14a956486))
+
 ## [0.4.0](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.66...v0.4.0) (2022-09-16)
 
 
