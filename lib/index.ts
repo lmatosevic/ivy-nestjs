@@ -3,6 +3,7 @@ export * from './cache';
 export * from './config';
 export * from './context';
 export * from './enums';
+export * from './event';
 export * from './filters';
 export * from './graphql';
 export * from './health';

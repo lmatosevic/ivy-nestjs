@@ -1,5 +1,5 @@
 import { PolicyRules } from './resource-policy.interceptor';
-import { RequestContext } from '../../context';
+import { Context } from '../../context';
 import { AuthUser } from '../../auth';
 import { Action } from '../../enums';
 import { RequestUtil } from '../../utils';
@@ -58,7 +58,7 @@ export abstract class ResourcePolicyService {
       return {};
     }
     let policyRules =
-      RequestContext.currentContext?.req?.[forceReadPolicy ? 'policyReadRules' : 'policyRules'] || null;
+      Context.currentRequest?.req?.[forceReadPolicy ? 'policyReadRules' : 'policyRules'] || null;
     if (policyRules && this.idFieldName) {
       policyRules = RequestUtil.mapIdKeys(policyRules, this.idFieldName);
     }
@@ -66,13 +66,15 @@ export abstract class ResourcePolicyService {
   }
 
   getAuthUser(): AuthUser {
-    return (RequestContext.currentContext?.req?.['user'] as AuthUser) || null;
+    return (Context.currentRequest?.req?.['user'] as AuthUser) || null;
   }
 
   async expireCache(resource: string, action: Action): Promise<void> {
-    const cacheManager = RequestContext.currentContext?.req?.['cacheManager'];
+    const cacheManager = Context.currentRequest?.req?.['cacheManager'];
     if (cacheManager) {
       await cacheManager.expireOnChange(resource, action);
+    } else {
+      Context.event.emit('cache.expireOnChange', { resource, action });
     }
   }
 }

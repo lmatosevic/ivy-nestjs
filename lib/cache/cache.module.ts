@@ -16,6 +16,7 @@ import { RedisModule, RedisService } from '../redis';
 import { CacheService } from './cache.service';
 import { CacheInterceptor } from './cache.interceptor';
 import { CacheMiddleware } from './cache.middleware';
+import { CacheListener } from './listeners';
 import { CACHE_MODULE_OPTIONS } from './cache.constants';
 
 export type CacheType = 'redis' | 'filesystem' | 'memory' | 'custom';
@@ -70,6 +71,7 @@ export class CacheModule implements NestModule {
         ...providers,
         CacheInterceptor,
         CacheMiddleware,
+        CacheListener,
         { provide: CacheService, useClass: CacheService }
       ],
       exports: [CACHE_MODULE_OPTIONS, NestjsCacheModule, CacheInterceptor, CacheMiddleware, CacheService]

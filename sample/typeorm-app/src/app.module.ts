@@ -9,10 +9,11 @@ import {
   LoggerModule,
   MailModule,
   QueueModule,
-  RequestContextModule,
+  ContextModule,
   StorageModule,
   TemplateModule,
-  TypeOrmModule
+  TypeOrmModule,
+  EventModule
 } from 'ivy-nestjs';
 import { AppService } from './app.service';
 import { InfoModule } from '@modules/info';
@@ -38,6 +39,7 @@ import { CategoriesModule } from '@resources/categories';
     GraphQLModule.forRoot(),
     QueueModule.forRoot(),
     CacheModule.forRoot(),
+    EventModule.forRoot(),
     TemplateModule.forRoot({
       options: {
         helpers: {
@@ -58,7 +60,7 @@ import { CategoriesModule } from '@resources/categories';
         userDetailsService: usersService
       })
     }),
-    RequestContextModule,
+    ContextModule,
     InfoModule,
     WorkerModule,
     MailerModule,
