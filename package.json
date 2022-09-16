@@ -1,6 +1,6 @@
 {
   "name": "ivy-nestjs",
-  "version": "0.3.66",
+  "version": "0.4.0",
   "description": "A library of useful building components for NestJS web application",
   "author": "Luka Matosevic",
   "license": "MIT",

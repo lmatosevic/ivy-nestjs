@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.4.0](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.66...v0.4.0) (2022-09-16)
+
+
+### ⚠ BREAKING CHANGES
+
+* rename request context to just context module
+
+### Features
+
+* add event module with cache listener ([188a99d](https://github.com/Lujo5/ivy-nestjs/commit/188a99df186e405929b84fa95ac0388388fa98c6))
+* rename request context to just context module ([b103cf4](https://github.com/Lujo5/ivy-nestjs/commit/b103cf4f8ffec505e1ff3d458c25b857a9fc01a2))
+
 ### [0.3.66](https://github.com/Lujo5/ivy-nestjs/compare/v0.3.65...v0.3.66) (2022-09-15)
 
 
