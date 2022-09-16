@@ -59,8 +59,7 @@ export class FilesystemAdapter implements StorageAdapter {
       const endIndex = start >= 0 && !end && end !== 0 ? stats.size - 1 : Math.min(end, stats.size - 1);
       const readStream = fs.createReadStream(filePath, {
         start,
-        end: !Number.isNaN(endIndex) ? endIndex : undefined,
-        highWaterMark: 64
+        end: !Number.isNaN(endIndex) ? endIndex : undefined
       });
       return new StreamableFile(readStream, { length: stats.size });
     } catch (e) {
