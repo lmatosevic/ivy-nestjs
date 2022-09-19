@@ -106,9 +106,9 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
       if (Object.keys(filter).length > 0) {
         filter = RequestUtil.transformMongooseFilter(filter);
         this.log.debug('Transformed filter: %j', filter);
+        filter = await this.resolveFilterSubReferences(filter);
       }
 
-      filter = await this.resolveFilterSubReferences(filter);
       results = await this.model
         .find(filter as any, projection, {
           skip: (options.page - 1) * options.size,
@@ -170,7 +170,8 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
       if (Object.keys(filter).length > 0) {
         filter = RequestUtil.transformMongooseFilter(filter);
         this.log.debug('Transformed filter: %j', filter);
-        aggregation.append({ $match: filter });
+        filter = await this.resolveFilterSubReferences(filter);
+        aggregation.append({ $match: this.model.find(filter as any).getQuery() });
       }
 
       if (Object.keys(projection).length > 0) {
@@ -195,7 +196,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
       aggregation.append({ $group: aggregationGroup });
 
       if (index > 0) {
-        const aggregated = await aggregation.exec();
+        const aggregated = await aggregation.session(session).exec();
 
         for (const [key, value] of Object.entries(aggregated[0] || {})) {
           if (key === '_id') {
@@ -746,7 +747,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
 
           // Transform referenced fields query object to an array of matching ids
           if (model && !Array.isArray(value) && this.referencedFields(modelName).includes(key)) {
-            return model.distinct('_id', value).session(this.session).exec();
+            return { $in: await model.distinct('_id', value).session(this.session).exec() };
           }
 
           // Transform virtual fields query object to allowed reverse id references by virtual properties
@@ -756,7 +757,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
             const refData = Object.entries(fieldRefs).find(([_, meta]) => (meta as any).ref === modelName);
             if (refData && refData.length > 1) {
               const refName = refData[0];
-              return model.distinct(refName, query).session(this.session).exec();
+              return { $in: await model.distinct(refName, query).session(this.session).exec() };
             }
           }
 
@@ -774,14 +775,16 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
                   { filterValue },
                   async (k, v, kl) => (k.startsWith('$') || kl.includes('meta') ? k : `${key}.${k}`),
                   async (k, v) =>
-                    k !== 'meta' ? v : metaModel.distinct('_id', v).session(this.session).exec()
+                    k !== 'meta'
+                      ? v
+                      : { $in: await metaModel.distinct('_id', v).session(this.session).exec() }
                 );
                 nestedEntires.push({ key: filterKey, value: replacedEntryKeys[`${key}.filterValue`] });
               } else {
                 const nestedValue =
                   filterKey !== 'meta'
                     ? filterValue
-                    : await metaModel.distinct('_id', filterValue).session(this.session).exec();
+                    : { $in: await metaModel.distinct('_id', filterValue).session(this.session).exec() };
                 nestedEntires.push({ key: `${key}.${filterKey}`, value: nestedValue });
               }
             }

@@ -197,7 +197,12 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     const { repository, queryRunner } = await this.repositoryAndRunner();
 
     try {
-      const { whereQuery, modelAlias } = this.makeQueryBuilderParts(filter, projection, repository, false);
+      const { whereQuery, joins, modelAlias } = this.makeQueryBuilderParts(
+        filter,
+        projection,
+        repository,
+        false
+      );
       const aggregateQueryBuilder = repository.createQueryBuilder().where(whereQuery);
 
       let index = 0;
@@ -216,6 +221,10 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
       }
 
       if (index > 0) {
+        for (const [alias, path] of Object.entries(joins.queryJoin)) {
+          aggregateQueryBuilder.leftJoin(path, alias);
+        }
+
         const aggregated = await aggregateQueryBuilder.getRawOne();
 
         for (const [key, value] of Object.entries(aggregated)) {
