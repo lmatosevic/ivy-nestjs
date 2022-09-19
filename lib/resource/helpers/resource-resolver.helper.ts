@@ -18,6 +18,7 @@ import { Config } from '../../config/decorators';
 import { ReflectionUtil, RequestUtil, StringUtil } from '../../utils';
 import {
   AggregateOperator,
+  AggregateRange,
   AggregateResult,
   AggregateResultValue,
   FilterOperator,
@@ -79,7 +80,7 @@ function AggregateResultType<T>(classRef: Type<T>): any {
     let type = metadata[key].type?.();
     if (['number', 'date'].includes(type?.name?.toLowerCase()) || key === '_id' || key === 'id') {
       Object.defineProperty(AggregateResultClass, key, {});
-      Field(() => AggregateResultValue, { name: key === '_id' ? 'id' : undefined })(
+      Field(() => AggregateResultValue, { name: key === '_id' ? 'id' : undefined, nullable: true })(
         AggregateResultClass.prototype,
         key
       );
@@ -102,7 +103,7 @@ function AggregateSelectType<T>(classRef: Type<T>): any {
     let type = metadata[key].type?.();
     if (['number', 'date'].includes(type?.name?.toLowerCase()) || key === '_id' || key === 'id') {
       Object.defineProperty(AggregateSelectClass, key, {});
-      Field(() => AggregateOperator, { name: key === '_id' ? 'id' : undefined })(
+      Field(() => AggregateOperator, { name: key === '_id' ? 'id' : undefined, nullable: true })(
         AggregateSelectClass.prototype,
         key
       );
@@ -225,6 +226,10 @@ export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown
 
     @Field(() => aggregateSelect)
     select: typeof aggregateSelect;
+
+    @IsOptional()
+    @Field(() => AggregateRange, { nullable: true })
+    range: AggregateRange;
   }
 
   @ObjectType(`${pluralName}AggregateItem`)

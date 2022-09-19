@@ -177,6 +177,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
         aggregation.append({ $project: projection });
       }
 
+      let index = 0;
       const aggregationGroup = { _id: null };
       for (const [field, value] of Object.entries(select || {})) {
         for (const [func, enabled] of Object.entries(value || {})) {
@@ -188,22 +189,30 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
           } else {
             aggregationGroup[`${field}_${func}`] = { [`$${func.toLowerCase()}`]: `$${field}` };
           }
+          index += 1;
         }
       }
       aggregation.append({ $group: aggregationGroup });
 
-      const aggregated = await aggregation.exec();
+      if (index > 0) {
+        const aggregated = await aggregation.exec();
 
-      for (const [key, value] of Object.entries(aggregated[0] || {})) {
-        if (key === '_id') {
-          continue;
+        for (const [key, value] of Object.entries(aggregated[0] || {})) {
+          if (key === '_id') {
+            continue;
+          }
+          const keyParts = key.split('_');
+          const func = keyParts.pop();
+          const field = keyParts.join('_');
+          const numericValue = parseFloat(value as string);
+          const dateValue = Date.parse(value as string);
+          const resolvedValue = Number.isNaN(numericValue)
+            ? Number.isNaN(dateValue)
+              ? value
+              : dateValue
+            : numericValue;
+          _.set(total, `${field}.${func}`, resolvedValue);
         }
-        const keyParts = key.split('_');
-        const func = keyParts.pop();
-        const field = keyParts.join('_');
-        const numericValue = parseFloat(value as string);
-        const resolvedValue = Number.isNaN(numericValue) ? value : numericValue;
-        _.set(total, `${field}.${func}`, resolvedValue);
       }
 
       if (!this.session && session) {

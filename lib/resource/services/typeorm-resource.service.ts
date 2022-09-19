@@ -215,15 +215,22 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
         }
       }
 
-      const aggregated = await aggregateQueryBuilder.getRawOne();
+      if (index > 0) {
+        const aggregated = await aggregateQueryBuilder.getRawOne();
 
-      for (const [key, value] of Object.entries(aggregated)) {
-        const keyParts = key.split('_');
-        const func = keyParts.pop();
-        const field = keyParts.join('_');
-        const numericValue = parseFloat(value as string);
-        const resolvedValue = Number.isNaN(numericValue) ? value : numericValue;
-        _.set(total, `${field}.${func}`, resolvedValue);
+        for (const [key, value] of Object.entries(aggregated)) {
+          const keyParts = key.split('_');
+          const func = keyParts.pop();
+          const field = keyParts.join('_');
+          const numericValue = parseFloat(value as string);
+          const dateValue = Date.parse(value as string);
+          const resolvedValue = Number.isNaN(numericValue)
+            ? Number.isNaN(dateValue)
+              ? value
+              : dateValue
+            : numericValue;
+          _.set(total, `${field}.${func}`, resolvedValue);
+        }
       }
 
       if (!this.entityManager) {
