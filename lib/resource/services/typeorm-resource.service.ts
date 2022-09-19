@@ -16,7 +16,7 @@ import { FILE_PROPS_KEY, FileError, FileManager, FileProps } from '../../storage
 import { POPULATE_RELATION_KEY, PopulateRelationConfig } from '../decorators';
 import { Action } from '../../enums';
 import { AggregateRequest, AggregateResponse, QueryRequest, QueryResponse } from '../dto';
-import { FilesUtil, ObjectUtil, RequestUtil } from '../../utils';
+import { FilesUtil, ObjectUtil, RequestUtil, StringUtil } from '../../utils';
 import { ResourceService } from './resource.service';
 import { ResourceEntity } from '../entity';
 import { ResourcePolicyService } from '../policy';
@@ -222,14 +222,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
           const keyParts = key.split('_');
           const func = keyParts.pop();
           const field = keyParts.join('_');
-          const numericValue = parseFloat(value as string);
-          const dateValue = Date.parse(value as string);
-          const resolvedValue = Number.isNaN(numericValue)
-            ? Number.isNaN(dateValue)
-              ? value
-              : dateValue
-            : numericValue;
-          _.set(total, `${field}.${func}`, resolvedValue);
+          _.set(total, `${field}.${func}`, StringUtil.toNumericValue(value as string));
         }
       }
 

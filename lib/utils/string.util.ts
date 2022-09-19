@@ -138,6 +138,12 @@ export class StringUtil {
     return Math.round(sizeInBytes);
   }
 
+  static toNumericValue(text: string): number {
+    const numericValue = parseFloat(text);
+    const dateValue = Date.parse(text);
+    return Number.isNaN(numericValue) ? (Number.isNaN(dateValue) ? +text : dateValue) : numericValue;
+  }
+
   static randomString(
     length: number,
     pool: string = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'

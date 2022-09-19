@@ -6,7 +6,7 @@ import { FILE_PROPS_KEY, FileProps } from '../../storage/decorators';
 import { FileError, FileManager } from '../../storage';
 import { Action } from '../../enums';
 import { FileMeta } from '../../storage/schema';
-import { FilesUtil, ObjectUtil, RequestUtil } from '../../utils';
+import { FilesUtil, ObjectUtil, RequestUtil, StringUtil } from '../../utils';
 import { AggregateRequest, AggregateResponse, QueryRequest, QueryResponse, ValidationError } from '../dto';
 import { ResourceService } from './resource.service';
 import { ResourcePolicyService } from '../policy';
@@ -204,14 +204,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
           const keyParts = key.split('_');
           const func = keyParts.pop();
           const field = keyParts.join('_');
-          const numericValue = parseFloat(value as string);
-          const dateValue = Date.parse(value as string);
-          const resolvedValue = Number.isNaN(numericValue)
-            ? Number.isNaN(dateValue)
-              ? value
-              : dateValue
-            : numericValue;
-          _.set(total, `${field}.${func}`, resolvedValue);
+          _.set(total, `${field}.${func}`, StringUtil.toNumericValue(value as string));
         }
       }
 
