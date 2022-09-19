@@ -3,7 +3,6 @@ import {
   Args,
   ArgsType,
   Field,
-  ID,
   InputType,
   Int,
   Mutation,
@@ -17,7 +16,13 @@ import { Expose } from 'class-transformer';
 import { IsArray, IsOptional, Min } from 'class-validator';
 import { Config } from '../../config/decorators';
 import { ReflectionUtil, RequestUtil, StringUtil } from '../../utils';
-import { FilterOperator, StatusResponse } from '../dto';
+import {
+  AggregateOperator,
+  AggregateResult,
+  AggregateResultValue,
+  FilterOperator,
+  StatusResponse
+} from '../dto';
 import { ResourceService } from '../services';
 import { Resource, ResourceConfig } from '../decorators';
 import { FILE_PROPS_KEY, FileFilter, FileProps } from '../../storage';
@@ -35,7 +40,7 @@ function extractFileProps<T>(classRef: Type<T>): Record<string, FileProps> {
   return types;
 }
 
-function DeleteFilesArgsType<T>(classRef: Type<T>): any {
+function DeleteFilesArgsType<T>(classRef: Type<T>, idParamType: () => Type<unknown>): any {
   abstract class DeleteFilesClass {
     protected constructor() {}
   }
@@ -43,7 +48,9 @@ function DeleteFilesArgsType<T>(classRef: Type<T>): any {
   ArgsType()(DeleteFilesClass);
 
   Object.defineProperty(DeleteFilesClass, 'id', {});
-  Field(() => ID, { name: 'id' })(DeleteFilesClass.prototype, 'id');
+  Field(() => idParamType(), {
+    name: 'id'
+  })(DeleteFilesClass.prototype, 'id');
 
   const filePropsMap = extractFileProps(classRef);
   for (const [name, value] of Object.entries(filePropsMap)) {
@@ -57,6 +64,52 @@ function DeleteFilesArgsType<T>(classRef: Type<T>): any {
   }
 
   return DeleteFilesClass;
+}
+
+function AggregateResultType<T>(classRef: Type<T>): any {
+  abstract class AggregateResultClass {
+    protected constructor() {}
+  }
+
+  const pluralName = StringUtil.pluralize(classRef.name);
+  ObjectType(`${pluralName}AggregateResult`)(AggregateResultClass);
+
+  const metadata = classRef['_GRAPHQL_METADATA_FACTORY']?.();
+  for (const key of Object.keys(metadata || {})) {
+    let type = metadata[key].type?.();
+    if (['number', 'date'].includes(type?.name?.toLowerCase()) || key === '_id' || key === 'id') {
+      Object.defineProperty(AggregateResultClass, key, {});
+      Field(() => AggregateResultValue, { name: key === '_id' ? 'id' : undefined })(
+        AggregateResultClass.prototype,
+        key
+      );
+    }
+  }
+
+  return AggregateResultClass;
+}
+
+function AggregateSelectType<T>(classRef: Type<T>): any {
+  abstract class AggregateSelectClass {
+    protected constructor() {}
+  }
+
+  const pluralName = StringUtil.pluralize(classRef.name);
+  InputType(`${pluralName}AggregateSelect`)(AggregateSelectClass);
+
+  const metadata = classRef['_GRAPHQL_METADATA_FACTORY']?.();
+  for (const key of Object.keys(metadata || {})) {
+    let type = metadata[key].type?.();
+    if (['number', 'date'].includes(type?.name?.toLowerCase()) || key === '_id' || key === 'id') {
+      Object.defineProperty(AggregateSelectClass, key, {});
+      Field(() => AggregateOperator, { name: key === '_id' ? 'id' : undefined })(
+        AggregateSelectClass.prototype,
+        key
+      );
+    }
+  }
+
+  return AggregateSelectClass;
 }
 
 function OperatorInputType<T>(classRef: Type<T>): any {
@@ -121,10 +174,15 @@ export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown
   const pluralName = StringUtil.pluralize(resourceRef.name);
   const findOperationName = `${resourceRef.name.charAt(0).toLowerCase()}${resourceRef.name.substring(1)}`;
   const queryOperationName = `${pluralName.charAt(0).toLowerCase()}${pluralName.substring(1)}`;
+  const aggregateOperationName = `${queryOperationName}Aggregate`;
 
   const fileProps = extractFileProps(resourceRef);
 
+  const aggregateSelect = AggregateSelectType(resourceRef);
+  const aggregateResult = AggregateResultType(resourceRef);
   const queryFilter = initializeFilterModel(resourceRef);
+
+  const idParamType = () => resourceRef['_GRAPHQL_METADATA_FACTORY']?.()?.['id']?.type?.() || String;
 
   @ArgsType()
   class QueryOptions {
@@ -150,17 +208,45 @@ export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown
   @ObjectType(`${pluralName}Response`)
   class QueryResponse {
     @Field(() => Int)
-    resultCount?: number;
+    resultCount: number;
 
     @Field(() => Int)
-    totalCount?: number;
+    totalCount: number;
 
     @Field(() => [resourceRef])
-    items?: T[];
+    items: T[];
   }
 
   @ArgsType()
-  class DeleteFilesArgs extends PartialType(DeleteFilesArgsType(resourceRef), ArgsType) {}
+  class AggregateOptions {
+    @IsOptional()
+    @Field(() => queryFilter, { nullable: true })
+    filter?: typeof queryFilter;
+
+    @Field(() => aggregateSelect)
+    select: typeof aggregateSelect;
+  }
+
+  @ObjectType(`${pluralName}AggregateItem`)
+  class AggregateResponseItem {
+    @Field(() => Date, { nullable: true })
+    date: Date;
+
+    @Field(() => aggregateResult)
+    result: typeof aggregateResult;
+  }
+
+  @ObjectType(`${pluralName}AggregateResponse`)
+  class AggregateResponse {
+    @Field(() => aggregateResult)
+    total: Record<keyof T, AggregateResultValue> | Record<string, any>;
+
+    @Field(() => [AggregateResponseItem])
+    items: AggregateResult<T>[];
+  }
+
+  @ArgsType()
+  class DeleteFilesArgs extends PartialType(DeleteFilesArgsType(resourceRef, idParamType), ArgsType) {}
 
   @Resource(resourceRef, config)
   @Resolver({ isAbstract: true })
@@ -178,14 +264,14 @@ export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown
     }
 
     @Query(() => resourceRef, { name: findOperationName })
-    async find(@Args('id', { type: () => ID }) id: string | number): Promise<T> {
+    async find(@Args('id', { type: () => idParamType() }) id: string | number): Promise<T> {
       return this.protectedService.find(id);
     }
 
     @Query(() => QueryResponse, { name: queryOperationName })
     async query(@Args() queryOptions: QueryOptions, @Config() config: ConfigService): Promise<QueryResponse> {
       const { filter, ...options } = queryOptions;
-      return await this.protectedService.query({
+      return this.protectedService.query({
         filter,
         ...RequestUtil.prepareQueryParams(
           options,
@@ -196,6 +282,11 @@ export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown
       });
     }
 
+    @Query(() => AggregateResponse, { name: aggregateOperationName })
+    async aggregate(@Args() aggregateOptions: AggregateOptions): Promise<AggregateResponse> {
+      return this.protectedService.aggregate(aggregateOptions);
+    }
+
     @Mutation(() => resourceRef, { name: `create${resourceRef.name}` })
     async create(@Args('data', { type: () => createDtoRef }) createDto: C): Promise<T> {
       const instance = await RequestUtil.deserializeAndValidate(createDtoRef, createDto);
@@ -204,7 +295,7 @@ export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown
 
     @Mutation(() => resourceRef, { name: `update${resourceRef.name}` })
     async update(
-      @Args('id', { type: () => ID }) id: string | number,
+      @Args('id', { type: () => idParamType() }) id: string | number,
       @Args('data', { type: () => updateDtoRef }) updateDto: U
     ): Promise<T> {
       const instance = await RequestUtil.deserializeAndValidate(updateDtoRef, updateDto);
@@ -212,7 +303,7 @@ export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown
     }
 
     @Mutation(() => resourceRef, { name: `delete${resourceRef.name}` })
-    async delete(@Args('id', { type: () => ID }) id: string | number): Promise<T> {
+    async delete(@Args('id', { type: () => idParamType() }) id: string | number): Promise<T> {
       return this.protectedService.delete(id);
     }
 
@@ -246,7 +337,7 @@ export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown
 
     @Mutation(() => [resourceRef], { name: `deleteBulk${pluralName}` })
     async deleteBulk(
-      @Args('ids', { type: () => [ID] }) ids: (string | number)[],
+      @Args('ids', { type: () => [idParamType()] }) ids: (string | number)[],
       @Config() config: ConfigService
     ): Promise<T[]> {
       const instances = await RequestUtil.validateBulkRequest<string | number>(

@@ -34,7 +34,18 @@ import { IsArray, IsOptional } from 'class-validator';
 import { Config } from '../../config/decorators';
 import { FilesUtil, ReflectionUtil, RequestUtil, StringUtil } from '../../utils';
 import { FILE_PROPS_KEY, FileDto, FileFilter, FileProps } from '../../storage';
-import { ErrorResponse, FilterOperator, QueryRequest, QueryResponse, StatusResponse } from '../dto';
+import {
+  AggregateOperator,
+  AggregateRequest,
+  AggregateResponse,
+  AggregateResult,
+  AggregateResultValue,
+  ErrorResponse,
+  FilterOperator,
+  QueryRequest,
+  QueryResponse,
+  StatusResponse
+} from '../dto';
 import { ResourceService } from '../services';
 import { Resource, ResourceConfig } from '../decorators';
 import { ResourcePolicy, ResourcePolicyInterceptor } from '../policy';
@@ -111,6 +122,48 @@ function DeleteFilesDtoType<T>(classRef: Type<T>): any {
   }
 
   return DeleteFilesDtoClass;
+}
+
+function AggregateResultType<T>(classRef: Type<T>): any {
+  abstract class AggregateResultClass {
+    protected constructor() {}
+  }
+
+  const metadata = classRef['_OPENAPI_METADATA_FACTORY']?.();
+  for (const key of Object.keys(metadata || {})) {
+    let type = metadata[key].type?.();
+    if (['number', 'date'].includes(type?.name?.toLowerCase()) || key === '_id' || key === 'id') {
+      Object.defineProperty(AggregateResultClass, key, {});
+      ApiProperty({
+        type: () => AggregateResultValue,
+        required: false,
+        name: key === '_id' ? 'id' : undefined
+      })(AggregateResultClass.prototype, key);
+    }
+  }
+
+  return AggregateResultClass;
+}
+
+function AggregateSelectType<T>(classRef: Type<T>): any {
+  abstract class AggregateSelectClass {
+    protected constructor() {}
+  }
+
+  const metadata = classRef['_OPENAPI_METADATA_FACTORY']?.();
+  for (const key of Object.keys(metadata || {})) {
+    let type = metadata[key].type?.();
+    if (['number', 'date'].includes(type?.name?.toLowerCase()) || key === '_id' || key === 'id') {
+      Object.defineProperty(AggregateSelectClass, key, {});
+      ApiProperty({
+        type: () => AggregateOperator,
+        required: false,
+        name: key === '_id' ? 'id' : undefined
+      })(AggregateSelectClass.prototype, key);
+    }
+  }
+
+  return AggregateSelectClass;
 }
 
 function OperatorInputType<T>(classRef: Type<T>): any {
@@ -214,6 +267,16 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
   };
   const deleteFilesDto = deleteFilesDtoProxy[`${pluralName}DeleteFiles`];
 
+  const aggregateSelectDtoProxy = {
+    [`${pluralName}AggregateSelect`]: class extends PartialType(AggregateSelectType(resourceRef)) {}
+  };
+  const aggregateSelect = aggregateSelectDtoProxy[`${pluralName}AggregateSelect`];
+
+  const aggregateResultDtoProxy = {
+    [`${pluralName}AggregateResult`]: class extends PartialType(AggregateResultType(resourceRef)) {}
+  };
+  const aggregateResult = aggregateResultDtoProxy[`${pluralName}AggregateResult`];
+
   const queryFilter = initializeFilterModel(resourceRef);
 
   const idParamType = () => resourceRef['_OPENAPI_METADATA_FACTORY']?.()?.['id']?.type?.() || String;
@@ -223,7 +286,17 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
     description: 'Internal server error',
     type: ErrorResponse
   })
-  @ApiExtraModels(QueryResponse, QueryRequest, queryFilter, resourceRef)
+  @ApiExtraModels(
+    QueryResponse,
+    QueryRequest,
+    AggregateRequest,
+    AggregateResponse,
+    AggregateResult,
+    queryFilter,
+    aggregateSelect,
+    aggregateResult,
+    resourceRef
+  )
   @ApiTags(pluralName)
   @Resource(resourceRef, config)
   abstract class ResourceController {
@@ -276,7 +349,7 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
       @Query() queryDto?: QueryRequest<T>
     ): Promise<QueryResponse<T>> {
       const { page, size, sort, ...queryParams } = queryDto;
-      const filter = RequestUtil.transformQueryParamsToFilter(queryParams);
+      const filter = RequestUtil.transformQueryParamsToObject(queryParams);
       return this.protectedService.query({
         filter,
         ...RequestUtil.prepareQueryParams(
@@ -331,6 +404,96 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
           config.get('pagination.defaultSort')
         )
       });
+    }
+
+    @ApiOkResponse({
+      schema: {
+        allOf: [
+          { $ref: getSchemaPath(AggregateResponse) },
+          {
+            properties: {
+              total: {
+                $ref: getSchemaPath(aggregateResult)
+              },
+              items: {
+                type: 'array',
+                items: {
+                  allOf: [
+                    { $ref: getSchemaPath(AggregateResult) },
+                    {
+                      properties: {
+                        result: {
+                          $ref: getSchemaPath(aggregateResult)
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    })
+    @ApiBadRequestResponse({ description: 'Bad request', type: ErrorResponse })
+    @HttpCode(200)
+    @Get('/aggregate')
+    async aggregateGet(@Query() aggregateParams): Promise<AggregateResponse<T>> {
+      const aggregateDto = RequestUtil.transformQueryParamsToObject(aggregateParams);
+      return this.protectedService.aggregate(aggregateDto);
+    }
+
+    @ApiOkResponse({
+      schema: {
+        allOf: [
+          { $ref: getSchemaPath(AggregateResponse) },
+          {
+            properties: {
+              total: {
+                $ref: getSchemaPath(aggregateResult)
+              },
+              items: {
+                type: 'array',
+                items: {
+                  allOf: [
+                    { $ref: getSchemaPath(AggregateResult) },
+                    {
+                      properties: {
+                        result: {
+                          $ref: getSchemaPath(aggregateResult)
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    })
+    @ApiBody({
+      schema: {
+        allOf: [
+          { $ref: getSchemaPath(AggregateRequest) },
+          {
+            properties: {
+              filter: {
+                $ref: getSchemaPath(queryFilter)
+              },
+              select: {
+                $ref: getSchemaPath(aggregateSelect)
+              }
+            }
+          }
+        ]
+      }
+    })
+    @ApiBadRequestResponse({ description: 'Bad request', type: ErrorResponse })
+    @HttpCode(200)
+    @Post('/aggregate')
+    async aggregate(@Body() aggregateDto: AggregateRequest<T>): Promise<AggregateResponse<T>> {
+      return this.protectedService.aggregate(aggregateDto);
     }
 
     @ApiBody({ type: createDtoRef })

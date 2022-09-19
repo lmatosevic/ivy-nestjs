@@ -9,6 +9,7 @@ export const RESOURCE_REF_KEY = 'resourceReference';
 
 export const extraOperations = {
   QueryGet: Operation.Query,
+  AggregateGet: Operation.Aggregate,
   CreateBulk: Operation.Create,
   UpdateBulk: Operation.Update,
   DeleteBulk: Operation.Delete
@@ -87,7 +88,9 @@ function applyOperationsConfig(config: ResourceConfig, target: Function) {
     }
 
     if (
-      [Operation.Find, Operation.Query, 'QueryGet'].includes(operation as Operation) &&
+      [Operation.Find, Operation.Query, Operation.Aggregate, 'QueryGet', 'AggregateGet'].includes(
+        operation as Operation
+      ) &&
       (conf.cache === undefined || conf.cache)
     ) {
       cacheOperation(target, operation, conf);

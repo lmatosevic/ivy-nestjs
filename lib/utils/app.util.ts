@@ -144,6 +144,7 @@ export class AppUtil {
     const modules = app['container'].getModules();
 
     const queryMethod = config.get('rest.queryMethod');
+    const aggregateMethod = config.get('rest.aggregateMethod');
 
     for (const module of modules.values()) {
       for (const controller of module.controllers.values()) {
@@ -160,6 +161,12 @@ export class AppUtil {
           ReflectionUtil.deleteResourceOperation(prototype, 'query');
         } else if (queryMethod?.toLowerCase() === 'post') {
           ReflectionUtil.deleteResourceOperation(prototype, 'queryGet');
+        }
+
+        if (aggregateMethod?.toLowerCase() === 'get') {
+          ReflectionUtil.deleteResourceOperation(prototype, 'aggregate');
+        } else if (aggregateMethod?.toLowerCase() === 'post') {
+          ReflectionUtil.deleteResourceOperation(prototype, 'aggregateGet');
         }
       }
     }

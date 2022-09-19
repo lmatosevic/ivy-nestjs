@@ -6,6 +6,7 @@ export enum Operation {
   Delete = 'Delete',
   Find = 'Find',
   Query = 'Query',
+  Aggregate = 'Aggregate',
   Upload = 'Upload',
   Unlink = 'Unlink',
   All = 'All'

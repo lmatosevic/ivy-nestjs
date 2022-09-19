@@ -189,9 +189,11 @@ export class RequestUtil {
         const newKey = key === oldIdKey ? newIdKey : key;
         if (_.isPlainObject(value)) {
           result[newKey] = this.mapIdKeys(value, newIdKey);
-        } else if (Array.isArray(value)) {
+        } else if (Array.isArray(value) && value.length > 0) {
           for (let i = 0; i < value.length; i++) {
-            value[i] = this.mapIdKeys(value[i], newIdKey);
+            if (typeof value[i] === 'object') {
+              value[i] = this.mapIdKeys(value[i], newIdKey);
+            }
           }
           result[newKey] = value;
         } else {
@@ -217,7 +219,7 @@ export class RequestUtil {
     return sortMap;
   }
 
-  static transformQueryParamsToFilter(params: Record<string, any>): any {
+  static transformQueryParamsToObject(params: Record<string, any>): any {
     const filter = {};
     for (const [param, value] of Object.entries(params || {})) {
       _.set(filter, param, value);

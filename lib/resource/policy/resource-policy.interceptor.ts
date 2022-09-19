@@ -48,6 +48,7 @@ export class ResourcePolicyInterceptor<T extends Ability> implements NestInterce
     switch (handlerName) {
       case Operation.Find:
       case Operation.Query:
+      case Operation.Aggregate:
         ({ allowed, rules } = this.checkAbility(ability, Action.Read, sub));
         break;
       case Operation.Create:

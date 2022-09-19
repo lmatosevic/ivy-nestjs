@@ -16,7 +16,7 @@ export default () => {
       port: StringUtil.parseInteger(process.env.APP_PORT, 80),
       bodySizeLimit: process.env.APP_BODY_SIZE_LIMIT || '50mb',
       shutdownHooksEnabled: StringUtil.parseBool(process.env.APP_SHUTDOWN_HOOKS_ENABLED, true),
-      helmetEnabled: StringUtil.parseBool(process.env.APP_HELMET_ENABLED, true),
+      helmetEnabled: StringUtil.parseBool(process.env.APP_HELMET_ENABLED, true)
     },
     log: {
       level: process.env.LOG_LEVEL || 'info',
@@ -39,7 +39,7 @@ export default () => {
       filesDirPattern: process.env.STORAGE_FILES_DIR_PATTERN,
       filesNamePattern: process.env.STORAGE_FILES_NAME_PATTERN ?? '{{name}}_{{uuid}}.{{extension}}',
       tempDirname: process.env.STORAGE_TEMP_DIRNAME ?? 'temp',
-      cacheDuration: StringUtil.parseInteger(process.env.STORAGE_CACHE_DURATION, 86400)
+      cacheDuration: StringUtil.parseInteger(process.env.STORAGE_CACHE_DURATION, 2592000)
     },
     db: {
       type: process.env.DB_TYPE || 'mongoose',
@@ -136,7 +136,7 @@ export default () => {
       methods: StringUtil.parseArray(process.env.CORS_METHODS, ['*']),
       allowedHeaders: StringUtil.parseArray(process.env.CORS_ALLOWED_HEADERS, ['*']),
       exposedHeaders: StringUtil.parseArray(process.env.CORS_EXPOSED_HEADERS, ['*']),
-      maxAge: StringUtil.parseInteger(process.env.CORS_MAX_AGE, 86400),
+      maxAge: StringUtil.parseInteger(process.env.CORS_MAX_AGE, 2592000),
       credentials: StringUtil.parseBool(process.env.CORS_CREDENTIALS, true)
     },
     auth: {
@@ -228,7 +228,8 @@ export default () => {
     rest: {
       enabled: StringUtil.parseBool(process.env.REST_ENABLED, true),
       swagger: StringUtil.parseBool(process.env.REST_SWAGGER_ENABLED, true),
-      queryMethod: process.env.REST_QUERY_METHOD
+      queryMethod: process.env.REST_QUERY_METHOD || 'POST',
+      aggregateMethod: process.env.REST_AGGREGATE_METHOD || 'POST',
     },
     graphql: {
       enabled: StringUtil.parseBool(process.env.GRAPHQL_ENABLED, true),
