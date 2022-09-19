@@ -6,7 +6,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn
 } from 'typeorm';
-import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { ObjectType } from '@nestjs/graphql';
 import { ResourceEntity } from 'ivy-nestjs/resource';
 import { Plan } from '@resources/plans/entity';
 import { FileColumn } from 'ivy-nestjs';
@@ -16,7 +16,6 @@ import { File } from 'ivy-nestjs/storage/entity';
 @Entity()
 export class Feature extends ResourceEntity {
   @PrimaryGeneratedColumn()
-  @Field(() => ID)
   id: number;
 
   @Column()

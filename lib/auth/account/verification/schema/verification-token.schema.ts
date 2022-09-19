@@ -1,16 +1,15 @@
-import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { ObjectType } from '@nestjs/graphql';
 import { Prop, Schema } from '@nestjs/mongoose';
-import { ApiProperty } from '@nestjs/swagger';
 import { VerificationType } from '../../../../enums';
+import { IdProp } from '../../../../resource/decorators/id-prop.decorator';
 import { MongooseSchemaFactory } from '../../../../resource/schema/mongoose-schema.factory';
 import { ResourceSchema } from '../../../../resource/schema/resource-schema';
 
 @ObjectType('VerificationTokenSchema')
 @Schema({ timestamps: true })
 export class VerificationToken extends ResourceSchema {
-  @ApiProperty({ name: 'id' })
-  @Field(() => ID, { name: 'id' })
-  _id: string;
+  @IdProp()
+  id: string;
 
   @Prop({ required: true, unique: true })
   token: string;

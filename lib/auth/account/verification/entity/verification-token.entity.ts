@@ -1,4 +1,4 @@
-import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { ObjectType } from '@nestjs/graphql';
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { VerificationType } from '../../../../enums';
 import { ResourceEntity } from '../../../../resource/entity/resource-entity';
@@ -7,7 +7,6 @@ import { ResourceEntity } from '../../../../resource/entity/resource-entity';
 @Entity({ name: '_verification_token' })
 export class VerificationToken extends ResourceEntity {
   @PrimaryGeneratedColumn()
-  @Field(() => ID)
   id: number;
 
   @Column({ unique: true })

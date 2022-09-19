@@ -7,7 +7,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn
 } from 'typeorm';
-import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { ObjectType } from '@nestjs/graphql';
 import { PopulateRelation, ResourceEntity } from 'ivy-nestjs/resource';
 import { Application } from '@resources/applications/entity';
 
@@ -15,7 +15,6 @@ import { Application } from '@resources/applications/entity';
 @Entity()
 export class Category extends ResourceEntity {
   @PrimaryGeneratedColumn()
-  @Field(() => ID)
   id: number;
 
   @Column()

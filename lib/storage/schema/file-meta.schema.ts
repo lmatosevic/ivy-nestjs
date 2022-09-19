@@ -2,6 +2,7 @@ import { Schema as MongooseSchema } from 'mongoose';
 import { Prop, Schema } from '@nestjs/mongoose';
 import { ApiHideProperty } from '@nestjs/swagger';
 import { HideField, ObjectType } from '@nestjs/graphql';
+import { IdProp } from '../../resource/decorators/id-prop.decorator';
 import { MongooseSchemaFactory, ResourceSchema } from '../../resource/schema';
 
 @ObjectType('FileMetaSchema')
@@ -9,7 +10,7 @@ import { MongooseSchemaFactory, ResourceSchema } from '../../resource/schema';
 export class FileMeta extends ResourceSchema {
   @ApiHideProperty()
   @HideField()
-  @Prop({ toJSON: false })
+  @IdProp({ toJSON: false })
   id: string;
 
   @ApiHideProperty()

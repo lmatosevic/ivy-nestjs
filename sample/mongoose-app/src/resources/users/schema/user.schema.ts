@@ -1,9 +1,9 @@
 import { Prop, Schema } from '@nestjs/mongoose';
-import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
-import { Field, HideField, ID, ObjectType } from '@nestjs/graphql';
+import { ApiHideProperty } from '@nestjs/swagger';
+import { HideField, ObjectType } from '@nestjs/graphql';
 import { AuthSource, Role } from 'ivy-nestjs/enums';
 import { AuthUser } from 'ivy-nestjs/auth';
-import { CreatorProp, MongooseSchemaFactory, ResourceSchema, VirtualProp } from 'ivy-nestjs/resource';
+import { CreatorProp, IdProp, MongooseSchemaFactory, ResourceSchema, VirtualProp } from 'ivy-nestjs/resource';
 import { FileProp } from 'ivy-nestjs/storage';
 import { File } from 'ivy-nestjs/storage/schema';
 import { Project } from '@resources/projects/schema';
@@ -12,26 +12,25 @@ import { Application } from '@resources/applications/schema';
 @ObjectType()
 @Schema({ timestamps: true })
 export class User extends ResourceSchema implements AuthUser {
-  @ApiProperty({ name: 'id' })
-  @Field(() => ID, { name: 'id' })
-  _id: string;
+  @IdProp()
+  id: string;
 
   @Prop()
-  firstName?: string;
+  firstName: string;
 
   @Prop()
-  lastName?: string;
+  lastName: string;
 
   @Prop({ required: true, unique: true })
-  email?: string;
+  email: string;
 
   @Prop({ default: [Role.User] })
-  roles?: Role[];
+  roles: Role[];
 
   @ApiHideProperty()
   @HideField()
   @Prop({ default: AuthSource.Local, toJSON: false })
-  authSource?: AuthSource;
+  authSource: AuthSource;
 
   @ApiHideProperty()
   @HideField()
@@ -72,7 +71,7 @@ export class User extends ResourceSchema implements AuthUser {
 
   @ApiHideProperty()
   @HideField()
-  @CreatorProp({ ref: 'User' })
+  @CreatorProp({ ref: 'User', toJSON: false })
   createdBy?: string;
 
   @Prop()
@@ -82,7 +81,7 @@ export class User extends ResourceSchema implements AuthUser {
   updatedAt?: Date;
 
   getId(): string {
-    return this._id;
+    return this.id;
   }
 
   getEmail(): string {

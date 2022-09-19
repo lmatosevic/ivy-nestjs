@@ -31,4 +31,8 @@ export class CreateProjectDto {
   @ValidateNested({ each: true })
   @Type(() => FileDto)
   readonly documents?: FileDto[];
+
+  @Expose()
+  @IsOptional()
+  readonly score?: number;
 }

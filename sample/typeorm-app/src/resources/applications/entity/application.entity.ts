@@ -9,7 +9,7 @@ import {
   UpdateDateColumn
 } from 'typeorm';
 import { ApiHideProperty } from '@nestjs/swagger';
-import { Field, HideField, ID, ObjectType } from '@nestjs/graphql';
+import { HideField, ObjectType } from '@nestjs/graphql';
 import { Exclude } from 'class-transformer';
 import { CreatorColumn, PopulateRelation, ResourceEntity } from 'ivy-nestjs/resource';
 import { Project } from '@resources/projects/entity';
@@ -20,7 +20,6 @@ import { Category } from '@resources/categories/entity';
 @Entity()
 export class Application extends ResourceEntity {
   @PrimaryGeneratedColumn()
-  @Field(() => ID)
   id: number;
 
   @Column()

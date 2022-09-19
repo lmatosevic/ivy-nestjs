@@ -10,7 +10,7 @@ import {
   UpdateDateColumn
 } from 'typeorm';
 import { ApiHideProperty } from '@nestjs/swagger';
-import { Field, HideField, ID, ObjectType } from '@nestjs/graphql';
+import { HideField, ObjectType } from '@nestjs/graphql';
 import { Exclude } from 'class-transformer';
 import { AuthUser } from 'ivy-nestjs/auth';
 import { AuthSource, Role } from 'ivy-nestjs/enums';
@@ -24,7 +24,6 @@ import { Application } from '@resources/applications/entity';
 @Entity()
 export class User extends ResourceEntity implements AuthUser {
   @PrimaryGeneratedColumn()
-  @Field(() => ID)
   id: number;
 
   @Column()

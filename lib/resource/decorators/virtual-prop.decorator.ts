@@ -9,7 +9,7 @@ export interface VirtualRefProps {
   onDelete?: 'setNull' | 'cascade' | 'none';
 }
 
-export function VirtualProp(config: VirtualTypeOptions & VirtualRefProps) {
+export function VirtualProp(config: VirtualTypeOptions & VirtualRefProps = {}) {
   return function (target: Object, propertyKey: string) {
     if (config.ref && !config.localField) {
       config.localField = '_id';

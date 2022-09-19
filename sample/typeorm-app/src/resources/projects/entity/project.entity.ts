@@ -9,7 +9,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn
 } from 'typeorm';
-import { Field, HideField, ID, ObjectType } from '@nestjs/graphql';
+import { HideField, ObjectType } from '@nestjs/graphql';
 import { CreatorColumn, PopulateRelation, ResourceEntity } from 'ivy-nestjs/resource';
 import { User } from '@resources/users/entity';
 import { File } from 'ivy-nestjs/storage/entity';
@@ -23,7 +23,6 @@ import { Plan } from '@resources/plans/entity';
 @Entity()
 export class Project extends ResourceEntity {
   @PrimaryGeneratedColumn()
-  @Field(() => ID)
   id: number;
 
   @Column()
@@ -44,11 +43,11 @@ export class Project extends ResourceEntity {
   })
   documents?: File[];
 
-  @Column()
-  ownerId: number;
+  @Column({ type: 'int', default: 1 })
+  score?: number;
 
   @Column()
-  planId: number;
+  ownerId: number;
 
   @ManyToOne(() => User, (user) => user.projects)
   owner: User;
@@ -57,6 +56,9 @@ export class Project extends ResourceEntity {
   @OneToOne(() => Plan, (plan) => plan.project)
   @JoinColumn()
   plan: Plan;
+
+  @Column()
+  planId: number;
 
   @PopulateRelation()
   @OneToMany(() => Application, (application) => application.project)

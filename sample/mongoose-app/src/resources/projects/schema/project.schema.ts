@@ -1,8 +1,8 @@
 import { Schema as MongooseSchema } from 'mongoose';
 import { Prop, Schema } from '@nestjs/mongoose';
-import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
-import { Field, HideField, ID, ObjectType } from '@nestjs/graphql';
-import { CreatorProp, MongooseSchemaFactory, ResourceSchema, VirtualProp } from 'ivy-nestjs/resource';
+import { ApiHideProperty } from '@nestjs/swagger';
+import { HideField, ObjectType } from '@nestjs/graphql';
+import { CreatorProp, IdProp, MongooseSchemaFactory, ResourceSchema, VirtualProp } from 'ivy-nestjs/resource';
 import { Application } from '@resources/applications/schema';
 import { User } from '@resources/users/schema';
 import { FileProp } from 'ivy-nestjs/storage';
@@ -13,9 +13,8 @@ import { Plan } from '@resources/plans/schema';
 @ObjectType()
 @Schema({ timestamps: true })
 export class Project extends ResourceSchema {
-  @ApiProperty({ name: 'id' })
-  @Field(() => ID, { name: 'id' })
-  _id: string;
+  @IdProp()
+  id: string;
 
   @Prop()
   name: string;
@@ -44,9 +43,12 @@ export class Project extends ResourceSchema {
   })
   documents?: File[];
 
+  @Prop({ default: 1 })
+  score?: number;
+
   @ApiHideProperty()
   @HideField()
-  @CreatorProp({ ref: 'User' })
+  @CreatorProp({ ref: 'User', toJSON: false })
   createdBy?: string;
 
   @Prop()

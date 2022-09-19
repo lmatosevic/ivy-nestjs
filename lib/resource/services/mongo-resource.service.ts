@@ -7,7 +7,7 @@ import { FileError, FileManager } from '../../storage';
 import { Action } from '../../enums';
 import { FileMeta } from '../../storage/schema';
 import { FilesUtil, ObjectUtil, RequestUtil } from '../../utils';
-import { QueryRequest, QueryResponse, ValidationError } from '../dto';
+import { AggregateRequest, AggregateResponse, QueryRequest, QueryResponse, ValidationError } from '../dto';
 import { ResourceService } from './resource.service';
 import { ResourcePolicyService } from '../policy';
 import { ResourceSchema } from '../schema';
@@ -94,12 +94,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
       options.sort = RequestUtil.normalizeSort(options.sort);
     }
 
-    let session;
-    if (!this.session && MongoResourceService.replicationEnabled) {
-      session = await this.model.db.startSession();
-    } else if (MongoResourceService.replicationEnabled) {
-      session = this.session;
-    }
+    let session = await this.makeSession();
 
     let results;
     let totalCount;
@@ -152,6 +147,85 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
       totalCount: totalCount,
       items: results
     };
+  }
+
+  async aggregate(aggregateDto: AggregateRequest<T>): Promise<AggregateResponse<T>> {
+    let { filter, select, range } = aggregateDto;
+    let results = [];
+    let total = {};
+
+    filter = _.merge(filter || {}, this.policyFilter());
+
+    const projection = this.policyProjection();
+
+    let session = await this.makeSession();
+
+    try {
+      if (!this.session && session) {
+        session.startTransaction();
+      }
+
+      let aggregation = this.model.aggregate();
+
+      if (Object.keys(filter).length > 0) {
+        filter = RequestUtil.transformMongooseFilter(filter);
+        this.log.debug('Transformed filter: %j', filter);
+        aggregation.append({ $match: filter });
+      }
+
+      if (Object.keys(projection).length > 0) {
+        aggregation.append({ $project: projection });
+      }
+
+      const aggregationGroup = { _id: null };
+      for (const [field, value] of Object.entries(select || {})) {
+        for (const [func, enabled] of Object.entries(value || {})) {
+          if (!enabled) {
+            continue;
+          }
+          if (func.toLowerCase() === 'count') {
+            aggregationGroup[`${field}_${func}`] = { $sum: 1 };
+          } else {
+            aggregationGroup[`${field}_${func}`] = { [`$${func.toLowerCase()}`]: `$${field}` };
+          }
+        }
+      }
+      aggregation.append({ $group: aggregationGroup });
+
+      const aggregated = await aggregation.exec();
+
+      for (const [key, value] of Object.entries(aggregated[0] || {})) {
+        if (key === '_id') {
+          continue;
+        }
+        const keyParts = key.split('_');
+        const func = keyParts.pop();
+        const field = keyParts.join('_');
+        const numericValue = parseFloat(value as string);
+        const resolvedValue = Number.isNaN(numericValue) ? value : numericValue;
+        _.set(total, `${field}.${func}`, resolvedValue);
+      }
+
+      if (!this.session && session) {
+        await session.commitTransaction();
+      }
+    } catch (e) {
+      if (!this.session && session) {
+        await session.abortTransaction();
+      }
+      this.log.debug(e);
+      throw new ResourceError(this.model.modelName, {
+        message: 'Bad request',
+        reason: e.reason?.message || e.message,
+        status: 400
+      });
+    } finally {
+      if (!this.session && session) {
+        await session.endSession();
+      }
+    }
+
+    return { total, items: results };
   }
 
   async create(createDto: PartialDeep<T>): Promise<T> {
@@ -333,6 +407,16 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     }
 
     return resource;
+  }
+
+  private async makeSession(): Promise<ClientSession | undefined> {
+    let session;
+    if (!this.session && MongoResourceService.replicationEnabled) {
+      session = await this.model.db.startSession();
+    } else if (MongoResourceService.replicationEnabled) {
+      session = this.session;
+    }
+    return session;
   }
 
   private errorReasonsList(error: any): ValidationError[] | string {

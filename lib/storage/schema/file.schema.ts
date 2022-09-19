@@ -3,6 +3,7 @@ import { Prop, Schema } from '@nestjs/mongoose';
 import { ApiHideProperty } from '@nestjs/swagger';
 import { HideField, ObjectType } from '@nestjs/graphql';
 import { FileMeta } from './file-meta.schema';
+import { IdProp } from '../../resource/decorators/id-prop.decorator';
 import { MongooseSchemaFactory, ResourceSchema } from '../../resource/schema';
 
 @ObjectType('FileSchema')
@@ -10,7 +11,7 @@ import { MongooseSchemaFactory, ResourceSchema } from '../../resource/schema';
 export class File extends ResourceSchema {
   @ApiHideProperty()
   @HideField()
-  @Prop({ toJSON: false })
+  @IdProp({ toJSON: false })
   id: string;
 
   @Prop()

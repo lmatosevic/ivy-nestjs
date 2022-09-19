@@ -1,8 +1,7 @@
 import { Document } from 'mongoose';
 import { Prop, Schema } from '@nestjs/mongoose';
-import { ApiProperty } from '@nestjs/swagger';
-import { Field, ID, ObjectType } from '@nestjs/graphql';
-import { MongooseSchemaFactory, VirtualProp } from 'ivy-nestjs/resource';
+import { ObjectType } from '@nestjs/graphql';
+import { IdProp, MongooseSchemaFactory, VirtualProp } from 'ivy-nestjs/resource';
 import { Project } from '@resources/projects/schema';
 import { Feature, FeatureSchema } from '@resources/features/schema';
 import { FileProp } from 'ivy-nestjs';
@@ -11,9 +10,8 @@ import { File } from 'ivy-nestjs/storage/schema';
 @ObjectType()
 @Schema({ timestamps: true })
 export class Plan extends Document {
-  @ApiProperty({ name: 'id' })
-  @Field(() => ID, { name: 'id' })
-  _id: string;
+  @IdProp()
+  id: string;
 
   @Prop()
   name: string;

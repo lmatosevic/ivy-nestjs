@@ -1,17 +1,15 @@
 import { Document } from 'mongoose';
 import { Prop, Schema } from '@nestjs/mongoose';
-import { ApiProperty } from '@nestjs/swagger';
-import { Field, ID, ObjectType } from '@nestjs/graphql';
-import { MongooseSchemaFactory } from 'ivy-nestjs/resource';
+import { ObjectType } from '@nestjs/graphql';
+import { IdProp, MongooseSchemaFactory } from 'ivy-nestjs/resource';
 import { FileProp } from 'ivy-nestjs';
 import { File } from 'ivy-nestjs/storage/schema';
 
 @ObjectType()
 @Schema({ timestamps: true, autoCreate: false })
 export class Feature extends Document {
-  @ApiProperty({ name: 'id' })
-  @Field(() => ID, { name: 'id' })
-  _id: string;
+  @IdProp()
+  id: string;
 
   @Prop()
   name: string;

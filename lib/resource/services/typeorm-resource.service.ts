@@ -15,7 +15,7 @@ import { ResourceError } from '../../resource/errors';
 import { FILE_PROPS_KEY, FileError, FileManager, FileProps } from '../../storage';
 import { POPULATE_RELATION_KEY, PopulateRelationConfig } from '../decorators';
 import { Action } from '../../enums';
-import { QueryRequest, QueryResponse } from '../dto';
+import { AggregateRequest, AggregateResponse, QueryRequest, QueryResponse } from '../dto';
 import { FilesUtil, ObjectUtil, RequestUtil } from '../../utils';
 import { ResourceService } from './resource.service';
 import { ResourceEntity } from '../entity';
@@ -123,18 +123,10 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
       options.sort = RequestUtil.normalizeSort(options.sort);
     }
 
-    let repository = this.repository;
-    let queryRunner;
-    if (!this.entityManager) {
-      queryRunner = this.repository.metadata.connection.createQueryRunner();
-      repository = queryRunner.manager.getRepository(this.repository.metadata.name);
-
-      await queryRunner.connect();
-      await queryRunner.startTransaction();
-    }
+    const { repository, queryRunner } = await this.repositoryAndRunner();
 
     try {
-      const [queryBuilder, whereQuery, joins, modelAlias] = this.makeQueryBuilderParts(
+      const { queryBuilder, whereQuery, joins, modelAlias } = this.makeQueryBuilderParts(
         filter,
         projection,
         repository,
@@ -191,6 +183,69 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
       resultCount: results.length,
       items: results as T[]
     };
+  }
+
+  async aggregate(aggregateDto: AggregateRequest<T>): Promise<AggregateResponse<T>> {
+    let { filter, select, range } = aggregateDto;
+    let results = [];
+    let total = {};
+
+    filter = _.merge(filter || {}, this.policyFilter());
+
+    const projection = this.policyProjection(false);
+
+    const { repository, queryRunner } = await this.repositoryAndRunner();
+
+    try {
+      const { whereQuery, modelAlias } = this.makeQueryBuilderParts(filter, projection, repository, false);
+      const aggregateQueryBuilder = repository.createQueryBuilder().where(whereQuery);
+
+      let index = 0;
+      for (const [field, value] of Object.entries(select || {})) {
+        for (const [func, enabled] of Object.entries(value || {})) {
+          if (!enabled) {
+            continue;
+          }
+          const { path } = this.makeAliasAndPath(field.split('.'), modelAlias);
+          aggregateQueryBuilder[index > 0 ? 'addSelect' : 'select'](
+            `${func.toUpperCase()}(${path})`,
+            `${field}_${func}`
+          );
+          index += 1;
+        }
+      }
+
+      const aggregated = await aggregateQueryBuilder.getRawOne();
+
+      for (const [key, value] of Object.entries(aggregated)) {
+        const keyParts = key.split('_');
+        const func = keyParts.pop();
+        const field = keyParts.join('_');
+        const numericValue = parseFloat(value as string);
+        const resolvedValue = Number.isNaN(numericValue) ? value : numericValue;
+        _.set(total, `${field}.${func}`, resolvedValue);
+      }
+
+      if (!this.entityManager) {
+        await queryRunner.commitTransaction();
+      }
+    } catch (e) {
+      if (!this.entityManager) {
+        await queryRunner.rollbackTransaction();
+      }
+      this.log.debug(e);
+      throw new ResourceError(repository.metadata.name, {
+        message: 'Bad request',
+        reason: e.message,
+        status: 400
+      });
+    } finally {
+      if (!this.entityManager) {
+        await queryRunner.release();
+      }
+    }
+
+    return { total, items: results };
   }
 
   async create(createDto: PartialDeep<T>): Promise<T> {
@@ -367,7 +422,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     const projection = this.policyProjection(false);
 
     try {
-      const [queryBuilder] = this.makeQueryBuilderParts(filter, projection);
+      const { queryBuilder } = this.makeQueryBuilderParts(filter, projection);
 
       result = await queryBuilder.getOne();
     } catch (e) {
@@ -389,12 +444,30 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     return result as T;
   }
 
+  private async repositoryAndRunner() {
+    let repository = this.repository;
+    let queryRunner;
+    if (!this.entityManager) {
+      queryRunner = this.repository.metadata.connection.createQueryRunner();
+      repository = queryRunner.manager.getRepository(this.repository.metadata.name);
+
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+    }
+    return { repository, queryRunner };
+  }
+
   private makeQueryBuilderParts(
     filter?: any,
     projection?: any,
     repository?: Repository<T & ResourceEntity>,
     single: boolean = true
-  ): [SelectQueryBuilder<T & ResourceEntity>, Brackets, JoinOptions, string] {
+  ): {
+    queryBuilder: SelectQueryBuilder<T & ResourceEntity>;
+    whereQuery: Brackets;
+    joins: JoinOptions;
+    modelAlias: string;
+  } {
     if (!repository) {
       repository = this.repository;
     }
@@ -453,7 +526,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
       queryBuilder.leftJoin(path, alias);
     }
 
-    return [queryBuilder, whereQuery, joins, modelAlias];
+    return { queryBuilder, whereQuery, joins, modelAlias };
   }
 
   private buildWhereQuery(

@@ -1,13 +1,17 @@
 import { Type } from '@nestjs/common';
 import { SchemaFactory } from '@nestjs/mongoose';
 import { Schema } from 'mongoose';
-import { VIRTUAL_PROPS_KEY } from '../../resource/decorators';
+import { ID_PROPS_KEY, VIRTUAL_PROPS_KEY } from '../../resource/decorators';
 
 export class MongooseSchemaFactory {
   public static createForClass<T>(target: Type): Schema<T> {
     const schema = SchemaFactory.createForClass(target);
 
     schema['classRef'] = target;
+
+    schema.virtual('id').get(function () {
+      return this._id;
+    });
 
     const proto = target.prototype;
     for (const name of Object.getOwnPropertyNames(proto)) {
@@ -36,9 +40,19 @@ export class MongooseSchemaFactory {
       }
     }
 
+    const idFields = Reflect.getMetadata(ID_PROPS_KEY, proto);
+    if (idFields) {
+      for (const [prop, config] of Object.entries(idFields)) {
+        if (config['toJSON'] === false) {
+          deleteFromJSON.push(prop);
+        }
+      }
+    }
+
     schema.set('toJSON', {
       virtuals: true,
       transform: (doc, ret) => {
+        ret.id = ret._id;
         delete ret._id;
         delete ret.__v;
         for (const deleteField of deleteFromJSON) {

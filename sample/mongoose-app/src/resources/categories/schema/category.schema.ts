@@ -1,15 +1,13 @@
 import { Document, Schema as MongooseSchema } from 'mongoose';
 import { Prop, Schema } from '@nestjs/mongoose';
-import { ApiProperty } from '@nestjs/swagger';
-import { Field, ID, ObjectType } from '@nestjs/graphql';
-import { MongooseSchemaFactory, VirtualProp } from 'ivy-nestjs/resource';
+import { ObjectType } from '@nestjs/graphql';
+import { IdProp, MongooseSchemaFactory, VirtualProp } from 'ivy-nestjs/resource';
 
 @ObjectType()
 @Schema({ timestamps: true })
 export class Category extends Document {
-  @ApiProperty({ name: 'id' })
-  @Field(() => ID, { name: 'id' })
-  _id: string;
+  @IdProp()
+  id: string;
 
   @Prop()
   name: string;
