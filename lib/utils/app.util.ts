@@ -1,6 +1,7 @@
 import { INestApplication, Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { ResolverTypeMetadata } from '@nestjs/graphql/dist/schema-builder/metadata';
 import { TypeMetadataStorage } from '@nestjs/graphql';
 import { json, urlencoded } from 'body-parser';
@@ -18,27 +19,34 @@ export class AppUtil {
     app.useLogger(app.get(LoggerService));
     app.flushLogs();
 
-    const configService = app.get(ConfigService);
+    const conf = app.get(ConfigService);
 
-    const bodySizeLimit = configService.get('app.bodySizeLimit');
+    const bodySizeLimit = conf.get('app.bodySizeLimit');
     app.use(json({ limit: bodySizeLimit }));
     app.use(urlencoded({ limit: bodySizeLimit, extended: true }));
 
-    const env = configService.get('env');
+    const expressApp = app as NestExpressApplication;
+    if (conf.get('app.assetsEnabled') && expressApp.useStaticAssets) {
+      expressApp.useStaticAssets(conf.get('app.assetsDir'), {
+        prefix: conf.get('app.assetsPrefix')
+      });
+    }
+
+    const env = conf.get('env');
     logger.log('App running in %s', env);
 
-    const port = configService.get('app.port');
-    let host = configService.get('app.host');
-    let hostname = configService.get('app.hostname');
+    const port = conf.get('app.port');
+    let host = conf.get('app.host');
+    let hostname = conf.get('app.hostname');
 
     const address = hostname.startsWith('http') ? hostname : `http://${hostname}:${port}`;
 
-    if (configService.get('app.shutdownHooksEnabled')) {
+    if (conf.get('app.shutdownHooksEnabled')) {
       app.enableShutdownHooks();
       logger.log('Shutdown hooks enabled');
     }
 
-    if (configService.get('app.helmetEnabled')) {
+    if (conf.get('app.helmetEnabled')) {
       app.use(
         helmet({
           contentSecurityPolicy: false,
@@ -49,51 +57,51 @@ export class AppUtil {
       logger.log('Helmet security rules enabled');
     }
 
-    if (configService.get('cors.enabled')) {
+    if (conf.get('cors.enabled')) {
       app.enableCors({
-        origin: configService.get('cors.origin'),
-        methods: configService.get('cors.methods'),
-        allowedHeaders: configService.get('cors.allowedHeaders'),
-        exposedHeaders: configService.get('cors.exposedHeaders'),
-        maxAge: configService.get('cors.maxAge'),
-        credentials: configService.get('cors.credentials')
+        origin: conf.get('cors.origin'),
+        methods: conf.get('cors.methods'),
+        allowedHeaders: conf.get('cors.allowedHeaders'),
+        exposedHeaders: conf.get('cors.exposedHeaders'),
+        maxAge: conf.get('cors.maxAge'),
+        credentials: conf.get('cors.credentials')
       });
-      logger.log(`CORS is enabled for origin: ${configService.get('cors.origin')}`);
+      logger.log(`CORS is enabled for origin: ${conf.get('cors.origin')}`);
     }
 
     app.useGlobalPipes(new ValidationPipe({ transform: true }));
 
-    if (configService.get('app.debug')) {
+    if (conf.get('app.debug')) {
       logger.warn('Debug mode activated');
     }
 
     this.upgradeGraphQLSchemaBuilder();
 
-    this.resolveRestControllerOperations(app, configService);
-    this.resolveGraphqlResolverOperations(app, configService);
+    this.resolveRestControllerOperations(app, conf);
+    this.resolveGraphqlResolverOperations(app, conf);
 
-    if (configService.get('rest.enabled') && configService.get('rest.swagger') && env !== 'test') {
+    if (conf.get('rest.enabled') && conf.get('rest.swagger') && env !== 'test') {
       const builder = new DocumentBuilder()
-        .setTitle(configService.get('app.name'))
+        .setTitle(conf.get('app.name'))
         .setDescription(
           '<small><a href="/api-docs-json" target="_blank">api-docs.json</a></small>' +
             '<br><p>' +
-            configService.get('app.description') +
+            conf.get('app.description') +
             '</p>'
         )
-        .setVersion(configService.get('app.version'))
+        .setVersion(conf.get('app.version'))
         .addServer(address, 'Default server');
 
-      if (configService.get('auth.jwt.enabled')) {
+      if (conf.get('auth.jwt.enabled')) {
         builder.addBearerAuth();
       }
-      if (configService.get('auth.basic.enabled')) {
+      if (conf.get('auth.basic.enabled')) {
         builder.addBasicAuth();
       }
-      if (configService.get('auth.oauth2.enabled')) {
+      if (conf.get('auth.oauth2.enabled')) {
         builder.addOAuth2();
       }
-      if (configService.get('auth.apikey.enabled')) {
+      if (conf.get('auth.apikey.enabled')) {
         builder.addApiKey();
       }
 
@@ -112,7 +120,7 @@ export class AppUtil {
       logger.log(`Swagger docs available on: ${address}/api-docs`);
     }
 
-    if (!configService.get('rest.enabled')) {
+    if (!conf.get('rest.enabled')) {
       app.use((req, res, next) => {
         if (req.path === '/graphql' || req.path.split('.').length > 1) {
           return next();
@@ -121,7 +129,7 @@ export class AppUtil {
       });
     }
 
-    if (configService.get('graphql.enabled') && configService.get('graphql.playground') && env !== 'test') {
+    if (conf.get('graphql.enabled') && conf.get('graphql.playground') && env !== 'test') {
       try {
         await app.resolve(GRAPHQL_MODULE_OPTIONS, undefined, { strict: false });
         logger.log(`GraphQL playground available on: ${address}/graphql`);
@@ -130,7 +138,7 @@ export class AppUtil {
       }
     }
 
-    if (configService.get('docsOnly')) {
+    if (conf.get('docsOnly')) {
       await app.init();
       logger.log('Documentation generated, exiting...');
       await app.close();

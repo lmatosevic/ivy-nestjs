@@ -1,8 +1,10 @@
 import { DynamicModule, Global, Module, Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ModuleAsyncOptions, ModuleUtil } from '../utils';
 import { TemplateService } from './template.service';
 import { InlineCssOptions, TemplateAdapter, HandlebarsAdapter } from './adapters';
+import { TemplateInterceptor } from './template.interceptor';
 import { TEMPLATE_ADAPTER, TEMPLATE_MODULE_OPTIONS } from './template.constants';
 
 export interface TemplateModuleOptions {
@@ -34,7 +36,15 @@ export class TemplateModule {
     return {
       module: TemplateModule,
       imports: [...imports],
-      providers: [...providers, TemplateService, this.templateAdatperProvider()],
+      providers: [
+        ...providers,
+        TemplateService,
+        this.templateAdatperProvider(),
+        {
+          provide: APP_INTERCEPTOR,
+          useClass: TemplateInterceptor
+        }
+      ],
       exports: [TEMPLATE_MODULE_OPTIONS, TemplateService]
     };
   }

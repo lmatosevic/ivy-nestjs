@@ -8,13 +8,16 @@ export default () => {
     docsOnly,
     app: {
       name: process.env.APP_NAME || 'Ivy API',
-      description: process.env.APP_DESCRIPTION || 'Ivy backend API service',
+      description: process.env.APP_DESCRIPTION || 'Ivy API service',
       debug: StringUtil.parseBool(process.env.APP_DEBUG, false),
       version: process.env.npm_package_version || 'unknown',
       host: process.env.APP_HOST || '0.0.0.0',
       hostname: process.env.APP_HOSTNAME || '127.0.0.1',
       port: StringUtil.parseInteger(process.env.APP_PORT, 80),
       bodySizeLimit: process.env.APP_BODY_SIZE_LIMIT || '50mb',
+      assetsEnabled: StringUtil.parseBool(process.env.APP_ASSETS_ENABLED, true),
+      assetsDir: process.env.APP_ASSETS_DIR || './assets',
+      assetsPrefix: process.env.APP_ASSETS_PREFIX || '/assets',
       shutdownHooksEnabled: StringUtil.parseBool(process.env.APP_SHUTDOWN_HOOKS_ENABLED, true),
       helmetEnabled: StringUtil.parseBool(process.env.APP_HELMET_ENABLED, true)
     },
@@ -229,7 +232,7 @@ export default () => {
       enabled: StringUtil.parseBool(process.env.REST_ENABLED, true),
       swagger: StringUtil.parseBool(process.env.REST_SWAGGER_ENABLED, true),
       queryMethod: process.env.REST_QUERY_METHOD || 'POST',
-      aggregateMethod: process.env.REST_AGGREGATE_METHOD || 'POST',
+      aggregateMethod: process.env.REST_AGGREGATE_METHOD || 'POST'
     },
     graphql: {
       enabled: StringUtil.parseBool(process.env.GRAPHQL_ENABLED, true),
