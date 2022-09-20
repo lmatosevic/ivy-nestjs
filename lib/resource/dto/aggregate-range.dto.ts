@@ -9,6 +9,12 @@ export class AggregateRange {
   @IsOptional()
   @Field(() => String, { nullable: true })
   @ApiPropertyOptional({ type: String })
+  dateField?: string;
+
+  @Expose()
+  @IsOptional()
+  @Field(() => String, { nullable: true })
+  @ApiPropertyOptional({ type: String })
   start?: Date | string;
 
   @Expose()
