@@ -1,6 +1,10 @@
 node_modules
 dist
+test
 storage
 logs
+graphql
+openapi
+reports
 .env
 .env.example
