@@ -105,8 +105,8 @@ export class MailService {
     const html = await this.templateService.compile(
       content.template?.name,
       content.template?.context || {},
-      isFile,
-      { inlineCss: { enabled: true, url: '_' } }
+      { inlineCss: { enabled: true, url: '_' } },
+      isFile
     );
 
     return { text: TemplateUtil.textFromHtml(html), html };

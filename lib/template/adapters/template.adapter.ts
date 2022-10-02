@@ -12,7 +12,7 @@ export interface TemplateAdapter {
   compile(
     template: string,
     context: Record<string, any>,
-    isFile?: boolean,
-    config?: CompileConfig
+    config?: CompileConfig,
+    isFile?: boolean
   ): Promise<string>;
 }

@@ -36,8 +36,8 @@ export class HandlebarsAdapter implements TemplateAdapter {
   async compile(
     template: string,
     context: Record<string, any>,
-    isFile: boolean = true,
-    config?: CompileConfig
+    config: CompileConfig = {},
+    isFile: boolean = true
   ): Promise<string> {
     const { templateName } = await this.precompile(template, config, isFile);
 
@@ -74,7 +74,7 @@ export class HandlebarsAdapter implements TemplateAdapter {
     });
 
     let html = rendered;
-    if (inlineCssOptions.enabled) {
+    if (inlineCssOptions.enabled === true) {
       try {
         html = await inlineCss(rendered, inlineCssOptions);
       } catch (e) {

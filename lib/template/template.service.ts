@@ -7,23 +7,26 @@ import * as _ from 'lodash';
 
 @Injectable()
 export class TemplateService {
-  private readonly templateConfig;
+  private readonly templateConfig: CompileConfig;
 
   constructor(
     @Inject(TEMPLATE_MODULE_OPTIONS) private templateModuleOptions: TemplateModuleOptions,
     @Inject(TEMPLATE_ADAPTER) private templateAdapter: TemplateAdapter,
     private configService: ConfigService
   ) {
-    this.templateConfig = _.merge({ ...this.configService.get('template') }, this.templateModuleOptions);
+    this.templateConfig = _.merge(
+      _.cloneDeep(this.configService.get('template')),
+      this.templateModuleOptions
+    );
   }
 
   async compile(
     template: string,
     context: Record<string, any>,
-    isFile: boolean = true,
-    config?: CompileConfig
+    config: CompileConfig = {},
+    isFile: boolean = true
   ): Promise<string> {
-    const templateConfig = _.merge({ ...this.templateConfig }, config || {});
-    return this.templateAdapter.compile(template, context, isFile, templateConfig);
+    const compileConfig = _.merge(_.cloneDeep(this.templateConfig), config);
+    return this.templateAdapter.compile(template, context, compileConfig, isFile);
   }
 }
