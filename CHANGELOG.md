@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.5.2](https://github.com/Lujo5/ivy-nestjs/compare/v0.5.1...v0.5.2) (2022-10-02)
+
+
+### Features
+
+* optimized account imports ([2d858ec](https://github.com/Lujo5/ivy-nestjs/commit/2d858ec4a0b6fd0e8ef9e6c3848e2a2bf5afb5cd))
+
 ### [0.5.1](https://github.com/Lujo5/ivy-nestjs/compare/v0.5.0...v0.5.1) (2022-10-02)
 
 ### Bug Fixes
