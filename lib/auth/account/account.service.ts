@@ -212,7 +212,7 @@ export class AccountService {
       !content?.template?.content &&
       !content?.template?.name
     ) {
-      content = _.merge(content || {}, { template: { name: templateName } });
+      content = _.merge(_.cloneDeep(content || {}), { template: { name: templateName } });
     }
 
     const mailContext = { link, user, expiresIn, expiresAt };

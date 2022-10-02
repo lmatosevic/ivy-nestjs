@@ -115,7 +115,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     let results;
     let totalCount;
 
-    filter = _.merge(filter || {}, this.policyFilter());
+    filter = _.merge(_.cloneDeep(filter || {}), this.policyFilter());
 
     const projection = this.policyProjection(false);
 
@@ -190,7 +190,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     let results = [];
     let total = {};
 
-    filter = _.merge(filter || {}, this.policyFilter());
+    filter = _.merge(_.cloneDeep(filter || {}), this.policyFilter());
 
     const projection = this.policyProjection(false);
 
@@ -483,7 +483,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
 
     const hasProjections = Object.keys(projection || {}).length > 0;
     if (hasProjections && !Object.keys(projection).includes('id')) {
-      projection = _.merge(projection, { id: 1 });
+      projection = _.merge(_.cloneDeep(projection), { id: 1 });
     }
 
     const joins = this.buildJoinRelations(filter, single);

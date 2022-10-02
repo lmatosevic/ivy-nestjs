@@ -86,7 +86,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
   async query(queryDto: QueryRequest<T>): Promise<QueryResponse<T>> {
     let { filter, ...options } = queryDto;
 
-    filter = _.merge(filter || {}, this.policyFilter());
+    filter = _.merge(_.cloneDeep(filter || {}), this.policyFilter());
 
     const projection = this.policyProjection();
 
@@ -154,7 +154,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     let results = [];
     let total = {};
 
-    filter = _.merge(filter || {}, this.policyFilter());
+    filter = _.merge(_.cloneDeep(filter || {}), this.policyFilter());
 
     const projection = this.policyProjection();
 
