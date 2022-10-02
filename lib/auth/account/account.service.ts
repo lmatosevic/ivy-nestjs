@@ -6,9 +6,9 @@ import { StatusResponse } from '../../resource';
 import { MailContent, MailService } from '../../mail';
 import { AccountError, AuthorizationError } from '../errors';
 import { AuthUser } from '../interfaces';
-import { AccountModuleOptions, AccountRouteOptions } from './account.module';
 import { AccountDetailsService } from './interfaces';
 import { VerificationService } from './verification';
+import { AccountModuleOptions, AccountRouteOptions } from './account.module';
 import { ACCOUNT_MODULE_OPTIONS } from './account.constants';
 import * as _ from 'lodash';
 
