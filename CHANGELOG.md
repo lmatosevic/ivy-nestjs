@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.5.0](https://github.com/Lujo5/ivy-nestjs/compare/v0.4.1...v0.5.0) (2022-10-02)
+
+
+### ⚠ BREAKING CHANGES
+
+* change resource ID field typings
+
+### Features
+
+* add resource aggregate endpoints ([1be49db](https://github.com/Lujo5/ivy-nestjs/commit/1be49db9a0a9464c519ba5592768b5089beb9751))
+* change default test report directory ([f7fa73a](https://github.com/Lujo5/ivy-nestjs/commit/f7fa73a0e93483d778f20510120a186d1cfa6e6b))
+* change resource ID field typings ([1e798bf](https://github.com/Lujo5/ivy-nestjs/commit/1e798bf411595afa199023248def13b7132d7a94))
+* normalize aggregate response type as numeric values ([40d9496](https://github.com/Lujo5/ivy-nestjs/commit/40d949645a656fd4fa6d090293b07fdf10060b2d))
+
+
+### Bug Fixes
+
+* aggregate filter now works for sub-relation query params ([8507209](https://github.com/Lujo5/ivy-nestjs/commit/85072094d5eb662e5f328225e4674d29d829c70d))
+* fix template service configuration overriding bug ([646e51c](https://github.com/Lujo5/ivy-nestjs/commit/646e51c2ae9a80e3fad712ae241bed5bbe8f6abc))
+* implement template rendering and static assets serving ([28eef80](https://github.com/Lujo5/ivy-nestjs/commit/28eef80e9f3e201e9c43fac89568424e65fbc12e))
+
 ### [0.4.1](https://github.com/Lujo5/ivy-nestjs/compare/v0.4.0...v0.4.1) (2022-09-16)
 
 
