@@ -74,7 +74,7 @@ export class HandlebarsAdapter implements TemplateAdapter {
     });
 
     let html = rendered;
-    if (inlineCssOptions.enabled === true) {
+    if (inlineCssOptions.enabled) {
       try {
         html = await inlineCss(rendered, inlineCssOptions);
       } catch (e) {
