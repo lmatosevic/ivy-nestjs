@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### [0.5.1](https://github.com/Lujo5/ivy-nestjs/compare/v0.5.0...v0.5.1) (2022-10-02)
 
+### Bug Fixes
+
+* add deep clone to all merge operations ([a444245](https://github.com/Lujo5/ivy-nestjs/commit/a4442459b9dee708f84413980b519166eda71a3f))
+
 ## [0.5.0](https://github.com/Lujo5/ivy-nestjs/compare/v0.4.1...v0.5.0) (2022-10-02)
 
 
