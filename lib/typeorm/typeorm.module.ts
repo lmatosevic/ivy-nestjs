@@ -1,5 +1,7 @@
 import { DynamicModule, Global, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import fs from 'fs';
+import { TlsOptions } from 'tls';
 import { TypeOrmModule as NestjsTypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { DEFAULT_DATA_SOURCE_NAME } from '@nestjs/typeorm/dist/typeorm.constants';
 import { DataSource, DataSourceOptions, LoggerOptions } from 'typeorm';
@@ -48,9 +50,8 @@ export class TypeOrmModule {
             password: conf.get<string>('db.password'),
             database: conf.get<string>('db.name'),
             schema: conf.get<string>('db.schema'),
-            entities: [
-              './node_modules/ivy-nestjs/**/*.entity.js'
-            ],
+            ssl: this.makeSSLProperty(conf.get<boolean>('db.tlsEnabled'), conf.get<string>('db.tlsCAPath')),
+            entities: ['./node_modules/ivy-nestjs/**/*.entity.js'],
             subscribers: [`${conf.get('db.migration.distRoot')}/**/*.subscriber{.ts,.js}`],
             migrations: [
               `${conf.get('db.migration.distRoot')}/**/${conf.get('db.migration.dirname')}/**/*{.ts,.js}`
@@ -68,5 +69,17 @@ export class TypeOrmModule {
       providers: [...providers, MigrationService],
       exports: [TYPEORM_MODULE_OPTIONS, NestjsTypeOrmModule]
     };
+  }
+
+  private static makeSSLProperty(tlsEnabled: boolean, tlsCAPath?: string): boolean | TlsOptions {
+    if (!tlsEnabled) {
+      return false;
+    }
+
+    if (tlsCAPath) {
+      return { ca: fs.readFileSync(tlsCAPath) };
+    }
+
+    return true;
   }
 }

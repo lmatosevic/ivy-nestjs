@@ -57,6 +57,8 @@ export default () => {
       replicaSet: process.env.DB_REPLICA_SET,
       user: process.env.DB_USER || 'admin',
       password: process.env.DB_PASSWORD,
+      tlsEnabled: StringUtil.parseBool(process.env.DB_TLS_ENABLED, false),
+      tlsCAPath: process.env.DB_TLS_CA_PATH,
       logging:
         process.env.DB_LOGGING !== 'false'
           ? process.env.DB_LOGGING !== 'all'

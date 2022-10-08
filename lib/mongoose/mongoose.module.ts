@@ -50,6 +50,8 @@ export class MongooseModule {
             pass: conf.get('db.password'),
             dbName: conf.get('db.name'),
             appname: conf.get('app.name'),
+            tls: conf.get('db.tlsEnabled'),
+            tlsCAFile: conf.get('db.tlsEnabled') ? conf.get('db.tlsCAPath') : undefined,
             autoCreate: true,
             autoIndex: true,
             ...mongooseModuleOptions
