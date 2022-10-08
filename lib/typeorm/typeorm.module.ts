@@ -1,6 +1,6 @@
 import { DynamicModule, Global, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import fs from 'fs';
+import * as fs from 'fs';
 import { TlsOptions } from 'tls';
 import { TypeOrmModule as NestjsTypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { DEFAULT_DATA_SOURCE_NAME } from '@nestjs/typeorm/dist/typeorm.constants';
