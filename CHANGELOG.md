@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.5.3](https://github.com/Lujo5/ivy-nestjs/compare/v0.5.2...v0.5.3) (2022-10-08)
+
+
+### Features
+
+* add tls database options ([6e3d3b6](https://github.com/Lujo5/ivy-nestjs/commit/6e3d3b62a89e1aa9a1927b7154fe9f0d170a0f36))
+
+
+### Bug Fixes
+
+* change fs import syntax ([967d72f](https://github.com/Lujo5/ivy-nestjs/commit/967d72fd565e4ab23a51caaaa802c5397ecaa1b4))
+
 ### [0.5.2](https://github.com/Lujo5/ivy-nestjs/compare/v0.5.1...v0.5.2) (2022-10-02)
 
 
