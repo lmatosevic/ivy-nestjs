@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.5.4](https://github.com/Lujo5/ivy-nestjs/compare/v0.5.3...v0.5.4) (2022-11-02)
+
+
+### Features
+
+* rename openapi to swagger ([8831d7a](https://github.com/Lujo5/ivy-nestjs/commit/8831d7ad884acad657e18aaa81deafa630c4fb09))
+
 ### [0.5.3](https://github.com/Lujo5/ivy-nestjs/compare/v0.5.2...v0.5.3) (2022-10-08)
 
 
