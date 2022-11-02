@@ -5,7 +5,7 @@ build
 
 # Docs
 /graphql
-/openapi
+/swagger
 
 # Logs
 logs

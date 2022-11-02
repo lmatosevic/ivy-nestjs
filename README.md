@@ -144,6 +144,12 @@ Options:
   -o, --overwrite   overwrite existing resource files [boolean] [default: false]
 ```
 
+## Documentation
+
+Swagger documentation is available on: **http://{APP_HOST}:{APP_PORT}/swagger** (if enabled)
+
+GraphQL documentation is available on: **http://{APP_HOST}:{APP_PORT}/graphql** (if enabled)
+
 ## License
 
 Ivy-NestJS is [MIT licensed](LICENSE).

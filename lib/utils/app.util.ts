@@ -84,7 +84,7 @@ export class AppUtil {
       const builder = new DocumentBuilder()
         .setTitle(conf.get('app.name'))
         .setDescription(
-          '<small><a href="/api-docs-json" target="_blank">api-docs.json</a></small>' +
+          '<small><a href="/swagger-json" target="_blank">swagger.json</a></small>' +
             '<br><p>' +
             conf.get('app.description') +
             '</p>'
@@ -107,17 +107,17 @@ export class AppUtil {
 
       const config = builder.build();
       const document = SwaggerModule.createDocument(app, config);
-      SwaggerModule.setup('api-docs', app, document);
+      SwaggerModule.setup('swagger', app, document);
 
-      const docsDir = `${process.cwd()}/openapi`;
+      const docsDir = `${process.cwd()}/swagger`;
       try {
         await fs.access(docsDir);
       } catch {
         await fs.mkdir(docsDir, { recursive: true });
       }
-      await fs.writeFile(`${docsDir}/api-docs.json`, JSON.stringify(document, null, 4));
+      await fs.writeFile(`${docsDir}/openapi.json`, JSON.stringify(document, null, 4));
 
-      logger.log(`Swagger docs available on: ${address}/api-docs`);
+      logger.log(`Swagger docs available on: ${address}/swagger`);
     }
 
     if (!conf.get('rest.enabled')) {
