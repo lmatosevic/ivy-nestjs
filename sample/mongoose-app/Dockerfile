@@ -26,7 +26,7 @@ FROM node:16.14.0-alpine as deploy
 WORKDIR /usr/app
 
 # Copy package.json and build distribution files
-COPY --chown=node:node --from=build /usr/app/ /usr/app/
+COPY --from=build /usr/app/ /usr/app/
 
 # Install tools for building libraries on other platforms
 RUN apk add build-base python3 py3-pip make gcc
@@ -41,14 +41,8 @@ WORKDIR /usr/app/sample/mongoose-app
 RUN mkdir -p storage
 RUN mkdir -p logs
 
-# Set ownership of this directory to node user
-RUN chown -R node .
-
 # Copy current app package.json and install
 RUN npm install --production
-
-# Change to node user
-USER node
 
 # Start server script
 CMD ["npm", "run", "start:prod"]
