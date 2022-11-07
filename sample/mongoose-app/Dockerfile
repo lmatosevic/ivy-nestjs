@@ -22,7 +22,7 @@ RUN npm run build
 ## Run the application
 FROM node:16.14.0-alpine as deploy
 
-# Set directory ownership to node user
+# Set work directory
 WORKDIR /usr/app
 
 # Copy package.json and build distribution files
@@ -34,7 +34,7 @@ RUN apk add build-base python3 py3-pip make gcc
 # Install production dependencies
 RUN npm install --production
 
-# Set current app directory ownership to node user
+# Set current app directory
 WORKDIR /usr/app/sample/mongoose-app
 
 # Create storage and logs directories
