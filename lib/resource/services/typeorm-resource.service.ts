@@ -940,7 +940,10 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
       currentResource,
       isFileUpload
     );
-    storedFiles.push(...fileNames);
+
+    for (const fileName of fileNames) {
+      storedFiles.push(fileName);
+    }
 
     for (const relation of relations) {
       if (fileFileds.includes(relation)) {
@@ -974,7 +977,9 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
             referencedRepository
           );
 
-          storedFiles.push(...storedSubReferenceFiles);
+          for (const storedFile of storedSubReferenceFiles) {
+            storedFiles.push(storedFile);
+          }
         }
       }
     }
@@ -1081,7 +1086,9 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
             referencedRepository
           );
 
-          filesToDelete.push(...subFilesToDelete);
+          for (const deletedFile of subFilesToDelete) {
+            filesToDelete.push(deletedFile);
+          }
         }
       }
     }

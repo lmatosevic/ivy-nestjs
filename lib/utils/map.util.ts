@@ -12,7 +12,10 @@ export class MapUtil {
         return;
       }
 
-      mapped.push(...mapFn(array.slice(i, i + chunkSize)));
+      const mappedValues = mapFn(array.slice(i, i + chunkSize));
+      for (const value of mappedValues) {
+        mapped.push(value);
+      }
 
       setImmediate(processChunk.bind(null, i + chunkSize, cb));
     }

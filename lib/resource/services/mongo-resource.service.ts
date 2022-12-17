@@ -605,7 +605,10 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
       currentResource,
       isFileUpload
     );
-    storedFiles.push(...storedFilesList);
+
+    for (const storedFile of storedFilesList) {
+      storedFiles.push(storedFile);
+    }
 
     for (const embeddedField of embedded) {
       let referencedResources = resource[embeddedField];
@@ -629,7 +632,9 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
           isFileUpload
         );
 
-        storedFiles.push(...subReferencedStoredFiles);
+        for (const storedFile of subReferencedStoredFiles) {
+          storedFiles.push(storedFile);
+        }
       }
     }
 
@@ -682,7 +687,9 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
             currentReferencedResource
           );
 
-          filesToDelete.push(...subFilesToDelete);
+          for (const deletedFile of subFilesToDelete) {
+            filesToDelete.push(deletedFile);
+          }
         }
       }
     }
@@ -708,7 +715,9 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
           currentReferencedResource
         );
 
-        filesToDelete.push(...subFilesToDelete);
+        for (const deletedFile of subFilesToDelete) {
+          filesToDelete.push(deletedFile);
+        }
       }
     }
 
