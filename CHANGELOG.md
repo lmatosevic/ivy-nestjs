@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.5.5](https://github.com/Lujo5/ivy-nestjs/compare/v0.5.4...v0.5.5) (2022-12-17)
+
+
+### Features
+
+* add map util for matched mapping ([e848782](https://github.com/Lujo5/ivy-nestjs/commit/e848782b8e5ac5ee0abc67325493bff1512d9814))
+
+
+### Bug Fixes
+
+* switch from spread push operator to for loop in order to avoid exceeding call stack max number of attributes ([dccb899](https://github.com/Lujo5/ivy-nestjs/commit/dccb899d6e5df875c44f194cad2352d4b48e2df2))
+
 ### [0.5.4](https://github.com/Lujo5/ivy-nestjs/compare/v0.5.3...v0.5.4) (2022-11-02)
 
 
