@@ -10,7 +10,7 @@ import { AccountModuleOptions } from './account.module';
 import { ACCOUNT_MODULE_OPTIONS } from './account.constants';
 import { ResetPasswordDto, SendResetPasswordDto, VerifyEmailDto } from './dto';
 
-export function AccountController<T extends Type<unknown>>(accountRef: T, registerAccountRef: T): any {
+export function AccountController<T>(accountRef: Type<T>, registerAccountRef: Type<T>): any {
   @ApiTags('Account')
   @Controller('account')
   class AccountController {

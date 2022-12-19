@@ -31,6 +31,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { Expose } from 'class-transformer';
 import { IsArray, IsOptional } from 'class-validator';
+import { IResourceController } from './resource.controller';
 import { Config } from '../../config/decorators';
 import { FilesUtil, ReflectionUtil, RequestUtil, StringUtil } from '../../utils';
 import { FILE_PROPS_KEY, FileDto, FileFilter, FileProps } from '../../storage';
@@ -226,12 +227,12 @@ function initializeFilterModel(classRef: Type<unknown>): any {
   return queryFilter;
 }
 
-export function ResourceController<T extends Type<unknown>, C extends Type<unknown>, U extends Type<unknown>>(
-  resourceRef: T,
-  createDtoRef: C,
-  updateDtoRef: U,
+export function ResourceController<T, C, U>(
+  resourceRef: Type<T>,
+  createDtoRef: Type<C>,
+  updateDtoRef: Type<U>,
   config?: ResourceConfig
-): any {
+): Type<IResourceController<T, C, U>> {
   const pluralName = StringUtil.pluralize(resourceRef.name);
 
   const updateDtoProxy = {
@@ -299,13 +300,10 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
   )
   @ApiTags(pluralName)
   @Resource(resourceRef, config)
-  abstract class ResourceController {
+  class ResourceController implements IResourceController<T, C, U> {
     private readonly protectedService: ResourceService<T>;
 
-    protected constructor(
-      protected service: ResourceService<T>,
-      protected policy?: ResourcePolicy<any, any>
-    ) {
+    constructor(protected service: ResourceService<T>, protected policy?: ResourcePolicy<any, any>) {
       this.protectedService = service.asProtected();
       if (policy) {
         UseInterceptors(new ResourcePolicyInterceptor(policy))(ResourceController);
@@ -320,7 +318,7 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
     @ApiParam({ name: 'id', type: () => idParamType() })
     @HttpCode(200)
     @Get('/:id')
-    find(@Param('id', ...idValidationPipes()) id: string): Promise<T> {
+    find(@Param('id', ...idValidationPipes()) id: string | number): Promise<T> {
       return this.protectedService.find(id);
     }
 
@@ -438,7 +436,7 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
     @ApiBadRequestResponse({ description: 'Bad request', type: ErrorResponse })
     @HttpCode(200)
     @Get('/aggregate')
-    async aggregateGet(@Query() aggregateParams): Promise<AggregateResponse<T>> {
+    async aggregateGet(@Query() aggregateParams: Record<string, any>): Promise<AggregateResponse<T>> {
       const aggregateDto = RequestUtil.transformQueryParamsToObject(aggregateParams);
       return this.protectedService.aggregate(aggregateDto);
     }
@@ -602,9 +600,9 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
     @HttpCode(201)
     @Post('/:id/files')
     async upload(
-      @Param('id', ...idValidationPipes()) id: string,
+      @Param('id', ...idValidationPipes()) id: string | number,
       @UploadedFiles() files: Record<string, Express.Multer.File[]>
-    ) {
+    ): Promise<Record<string, string | string[]>> {
       try {
         const updateDto = FilesUtil.createFilesUpdateDto(files, filePropsMap);
         const instance = await RequestUtil.deserializeAndValidate(updateDtoRef, updateDto);
@@ -625,8 +623,8 @@ export function ResourceController<T extends Type<unknown>, C extends Type<unkno
     @HttpCode(200)
     @Post('/:id/delete-files')
     async unlink(
-      @Param('id', ...idValidationPipes()) id: string,
-      @Body() deleteDto: any
+      @Param('id', ...idValidationPipes()) id: string | number,
+      @Body() deleteDto: Record<string, string | string[]>
     ): Promise<StatusResponse> {
       const deleteFilesInstance = await RequestUtil.deserializeAndValidate(deleteFilesDto, deleteDto);
       const resource = await this.protectedService.find(id);

@@ -14,6 +14,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { Expose } from 'class-transformer';
 import { IsArray, IsOptional, Min } from 'class-validator';
+import { IResourceResolver } from './resource.resolver';
 import { Config } from '../../config/decorators';
 import { ReflectionUtil, RequestUtil, StringUtil } from '../../utils';
 import {
@@ -166,12 +167,12 @@ function initializeFilterModel(classRef: Type<unknown>): any {
   return QueryFilter;
 }
 
-export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown>, U extends Type<unknown>>(
-  resourceRef: T,
-  createDtoRef: C,
-  updateDtoRef: U,
+export function ResourceResolver<T, C, U>(
+  resourceRef: Type<T>,
+  createDtoRef: Type<C>,
+  updateDtoRef: Type<U>,
   config?: ResourceConfig
-): any {
+): Type<IResourceResolver<T, C, U>> {
   const pluralName = StringUtil.pluralize(resourceRef.name);
   const findOperationName = `${resourceRef.name.charAt(0).toLowerCase()}${resourceRef.name.substring(1)}`;
   const queryOperationName = `${pluralName.charAt(0).toLowerCase()}${pluralName.substring(1)}`;
@@ -244,7 +245,7 @@ export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown
   @ObjectType(`${pluralName}AggregateResponse`)
   class AggregateResponse {
     @Field(() => aggregateResult)
-    total: Record<keyof T, AggregateResultValue> | Record<string, any>;
+    total: Partial<Record<keyof T, AggregateResultValue>> | Record<string, any>;
 
     @Field(() => [AggregateResponseItem])
     items: AggregateResult<T>[];
@@ -255,13 +256,10 @@ export function ResourceResolver<T extends Type<unknown>, C extends Type<unknown
 
   @Resource(resourceRef, config)
   @Resolver({ isAbstract: true })
-  abstract class ResourceResolver {
+  class ResourceResolver implements IResourceResolver<T, C, U> {
     private readonly protectedService: ResourceService<T>;
 
-    protected constructor(
-      protected service: ResourceService<T>,
-      protected policy?: ResourcePolicy<any, any>
-    ) {
+    constructor(protected service: ResourceService<T>, protected policy?: ResourcePolicy<any, any>) {
       this.protectedService = service.asProtected();
       if (policy) {
         UseInterceptors(new ResourcePolicyInterceptor(policy))(ResourceResolver);

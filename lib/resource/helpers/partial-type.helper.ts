@@ -1,10 +1,11 @@
-import { OmitType, PickType, PartialType as GqlPartialType } from '@nestjs/graphql';
+import { OmitType, PartialType as GqlPartialType, PickType } from '@nestjs/graphql';
 import {
-  PartialType as SwaggerPartialType,
   OmitType as SwaggerOmitType,
+  PartialType as SwaggerPartialType,
   PickType as SwaggerPickType
 } from '@nestjs/swagger';
 import { Type } from '@nestjs/common';
+import { PartialDeep } from 'type-fest';
 
 export interface PartialTypeConfig {
   readonly pick?: string[];
@@ -12,7 +13,7 @@ export interface PartialTypeConfig {
   readonly keepRequired?: boolean;
 }
 
-export function PartialType<T extends Type<unknown>>(resourceRef: T, config: PartialTypeConfig = {}): any {
+export function PartialType<T>(resourceRef: Type<T>, config: PartialTypeConfig = {}): Type<PartialDeep<T>> {
   if (config.pick?.length > 0 && config.omit?.length > 0) {
     throw new Error(`Cannot use both pick and omit types at the same time for partial schema type`);
   }

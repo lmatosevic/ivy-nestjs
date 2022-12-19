@@ -12,7 +12,7 @@ import { AuthModuleOptions } from './auth.module';
 import { AUTH_MODULE_OPTIONS } from './auth.constants';
 import { Cached } from '../cache';
 
-export function AuthController<T extends Type<unknown>>(authUserRef: T): any {
+export function AuthController<T>(authUserRef: Type<T>): any {
   class LoginDto {
     @ApiProperty()
     username: string;

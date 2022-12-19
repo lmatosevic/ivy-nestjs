@@ -210,7 +210,10 @@ export class FilesUtil {
     return filesUpdateDto;
   }
 
-  static createFilesResponseDto(files: Record<string, Express.Multer.File[]>, data: any) {
+  static createFilesResponseDto<T>(
+    files: Record<string, Express.Multer.File[]>,
+    data: any
+  ): Record<string, string | string[]> {
     const filesResponseDto = {};
     for (const [fieldName, file] of Object.entries(files)) {
       const fileData = data[fieldName];
