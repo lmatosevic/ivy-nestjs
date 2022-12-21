@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.5.8](https://github.com/Lujo5/ivy-nestjs/compare/v0.5.7...v0.5.8) (2022-12-21)
+
+
+### Features
+
+* add health ready check endpoint ([82a45cc](https://github.com/Lujo5/ivy-nestjs/commit/82a45cc18a887ef87969731a8aa18358d0a125b9))
+
 ### [0.5.7](https://github.com/Lujo5/ivy-nestjs/compare/v0.5.6...v0.5.7) (2022-12-19)
 
 ### [0.5.6](https://github.com/Lujo5/ivy-nestjs/compare/v0.5.5...v0.5.6) (2022-12-19)
