@@ -1,9 +1,9 @@
-import { Controller, Get, Inject } from '@nestjs/common';
+import { Controller, Get, HttpCode, Inject } from '@nestjs/common';
 import { HealthCheck } from '@nestjs/terminus';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import { HealthService } from './health.service';
-import { HealthDto } from './health.dto';
+import { HealthDto, ReadyCheckDto } from './dto';
 import { HealthModuleOptions } from './health.module';
 import { HEALTH_MODULE_OPTIONS } from './health.constants';
 
@@ -25,5 +25,12 @@ export class HealthController {
   @Get()
   async health(): Promise<HealthDto> {
     return (await this.healthService.allCheck()) as any;
+  }
+
+  @ApiOkResponse({ type: () => ReadyCheckDto })
+  @HttpCode(200)
+  @Get('/ready')
+  async ready(): Promise<ReadyCheckDto> {
+    return { ready: true };
   }
 }
