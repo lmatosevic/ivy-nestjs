@@ -18,10 +18,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/Lujo5/ivy-nestjs.git"
+    "url": "https://github.com/lmatosevic/ivy-nestjs.git"
   },
   "bugs": {
-    "url": "https://github.com/Lujo5/ivy-nestjs/issues"
+    "url": "https://github.com/lmatosevic/ivy-nestjs/issues"
   },
   "homepage": "https://npmjs.com/package/ivy-nestjs",
   "publishConfig": {

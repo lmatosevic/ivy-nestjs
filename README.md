@@ -8,7 +8,9 @@
 
 > A library of useful building components for NestJS web application.
 
-**! In active development !**
+**! In active development. !**
+
+**Backward compatibility is not guaranteed until v1.0.0**
 
 ## Installation
 
@@ -102,9 +104,9 @@ Common utility functions and classes used accross other modules.
 
 ## Environment variables
 
-| Variable name                        | Description                                                                          | Default value                               |
-|--------------------------------------|--------------------------------------------------------------------------------------|---------------------------------------------|
-| NODE_ENV                             | Environment (development, test or production)                                        | production                                  |
+| Variable name | Description                                   | Default value |
+|---------------|-----------------------------------------------|---------------|
+| NODE_ENV      | Environment (development, test or production) | production    |
 
 ## Command-line interface
 
