@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.5.9](https://github.com/lmatosevic/ivy-nestjs/compare/v0.5.8...v0.5.9) (2023-01-09)
+
+
+### Bug Fixes
+
+* update GitHub repository name ([53309b5](https://github.com/lmatosevic/ivy-nestjs/commit/53309b5bfd5a867c87baaa0b4e89ce99d185725b))
+
 ### [0.5.8](https://github.com/lmatosevic/ivy-nestjs/compare/v0.5.7...v0.5.8) (2022-12-21)
 
 
