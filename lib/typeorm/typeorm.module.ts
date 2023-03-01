@@ -8,7 +8,7 @@ import { DataSource, DataSourceOptions, LoggerOptions } from 'typeorm';
 import { EntityClassOrSchema } from '@nestjs/typeorm/dist/interfaces/entity-class-or-schema.type';
 import { ModuleAsyncOptions, ModuleUtil } from '../utils';
 import { TypeOrmLogger } from './logger';
-import { MigrationService } from './migration.service';
+import { TypeormMigrationService } from './typeorm-migration.service';
 import { TYPEORM_MODULE_OPTIONS } from './typeorm.constant';
 
 @Global()
@@ -66,7 +66,7 @@ export class TypeOrmModule {
           })
         })
       ],
-      providers: [...providers, MigrationService],
+      providers: [...providers, TypeormMigrationService],
       exports: [TYPEORM_MODULE_OPTIONS, NestjsTypeOrmModule]
     };
   }

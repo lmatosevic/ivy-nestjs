@@ -59,6 +59,7 @@ export default () => {
       password: process.env.DB_PASSWORD,
       tlsEnabled: StringUtil.parseBool(process.env.DB_TLS_ENABLED, false),
       tlsCAPath: process.env.DB_TLS_CA_PATH,
+      syncIndexes: StringUtil.parseBool(process.env.DB_SYNC_INDEXES, true),
       logging:
         process.env.DB_LOGGING !== 'false'
           ? process.env.DB_LOGGING !== 'all'

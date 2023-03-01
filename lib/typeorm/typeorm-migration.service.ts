@@ -3,7 +3,7 @@ import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
-export class MigrationService implements OnModuleInit {
+export class TypeormMigrationService implements OnModuleInit {
   constructor(private configService: ConfigService, private dataSource: DataSource) {}
 
   async onModuleInit(): Promise<void> {

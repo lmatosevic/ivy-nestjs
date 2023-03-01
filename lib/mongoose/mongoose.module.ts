@@ -8,6 +8,7 @@ import {
 } from '@nestjs/mongoose';
 import { ModuleAsyncOptions, ModuleUtil } from '../utils';
 import { MongooseLoggerService } from './mongoose-logger.service';
+import { MongooseSyncService } from './mongoose-sync.service';
 import { MONGOOSE_MODULE_OPTIONS } from './mongoose.constant';
 
 @Global()
@@ -58,7 +59,7 @@ export class MongooseModule {
           })
         })
       ],
-      providers: [...providers, MongooseLoggerService],
+      providers: [...providers, MongooseLoggerService, MongooseSyncService],
       exports: [MONGOOSE_MODULE_OPTIONS, NestjsMongooseModule]
     };
   }
