@@ -3,4 +3,5 @@ export * from './virtual-prop.decorator';
 export * from './id-prop.decorator';
 export * from './creator-column.decorator';
 export * from './creator-prop.decorator';
+export * from './override.decorator';
 export * from './populate-relation.decorator';
