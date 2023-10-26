@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.6.1](https://github.com/lmatosevic/ivy-nestjs/compare/v0.6.0...v0.6.1) (2023-10-26)
+
+
+### Bug Fixes
+
+* switched to async glob functions ([d1ac7d2](https://github.com/lmatosevic/ivy-nestjs/commit/d1ac7d26e49e9bd4512a59c4999c94bd511c8075))
+
 ## [0.6.0](https://github.com/lmatosevic/ivy-nestjs/compare/v0.5.9...v0.6.0) (2023-10-26)
 
 
