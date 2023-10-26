@@ -23,8 +23,7 @@ export class AccountService {
     @Optional() private mailService: MailService,
     @Optional() private verificationService: VerificationService
   ) {
-    this.accountDetailsService = this.accountModuleOptions
-      .accountDetailsService as AccountDetailsService<AuthUser>;
+    this.accountDetailsService = this.accountModuleOptions.accountDetailsService as AccountDetailsService<AuthUser>;
     this.appName = this.configService.get('app.name');
   }
 
@@ -205,13 +204,7 @@ export class AccountService {
     let content = this.accountModuleOptions[configKey]?.content;
 
     const templateName = this.configService.get(`account.${configKey}.templateName`);
-    if (
-      templateName &&
-      !content?.text &&
-      !content?.html &&
-      !content?.template?.content &&
-      !content?.template?.name
-    ) {
+    if (templateName && !content?.text && !content?.html && !content?.template?.content && !content?.template?.name) {
       content = _.merge(_.cloneDeep(content || {}), { template: { name: templateName } });
     }
 

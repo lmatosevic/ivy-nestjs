@@ -4,7 +4,12 @@ import { AggregateRequest, AggregateResponse, QueryRequest, QueryResponse, Statu
 export interface IResourceController<T, C, U> {
   find(id: string | number): Promise<T>;
 
-  queryGet(config: ConfigService, sortParam?: string, queryDto?: QueryRequest<T>): Promise<QueryResponse<T>>;
+  queryGet(
+    config: ConfigService,
+    sortParam?: string,
+    filterParam?: string,
+    queryDto?: QueryRequest<T>
+  ): Promise<QueryResponse<T>>;
 
   query(queryDto: QueryRequest<T>, config: ConfigService): Promise<QueryResponse<T>>;
 
@@ -24,10 +29,7 @@ export interface IResourceController<T, C, U> {
 
   deleteBulk(ids: (string | number)[], config: ConfigService): Promise<T[]>;
 
-  upload(
-    id: string | number,
-    files: Record<string, Express.Multer.File[]>
-  ): Promise<Record<string, string | string[]>>;
+  upload(id: string | number, files: Record<string, Express.Multer.File[]>): Promise<Record<string, string | string[]>>;
 
   unlink(id: string | number, deleteDto: Record<string, string | string[]>): Promise<StatusResponse>;
 }

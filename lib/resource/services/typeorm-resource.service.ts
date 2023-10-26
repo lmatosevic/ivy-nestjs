@@ -56,10 +56,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
   protected isProtected: boolean = false;
   protected entityManager?: EntityManager;
 
-  protected constructor(
-    protected repository: Repository<T & ResourceEntity>,
-    protected fileManager?: FileManager
-  ) {
+  protected constructor(protected repository: Repository<T & ResourceEntity>, protected fileManager?: FileManager) {
     super('id');
 
     if (!TypeOrmResourceService.modelReferences) {
@@ -84,9 +81,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
   useWith(sessionManager: EntityManager): TypeOrmResourceService<T> {
     const managedService = ObjectUtil.duplicate<TypeOrmResourceService<T>>(this);
 
-    const repository: Repository<T & ResourceEntity> = sessionManager.getRepository(
-      this.repository.metadata.name
-    );
+    const repository: Repository<T & ResourceEntity> = sessionManager.getRepository(this.repository.metadata.name);
 
     managedService.setProtected(this.isProtected);
     managedService.setRepository(repository);
@@ -197,12 +192,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     const { repository, queryRunner } = await this.repositoryAndRunner();
 
     try {
-      const { whereQuery, joins, modelAlias } = this.makeQueryBuilderParts(
-        filter,
-        projection,
-        repository,
-        false
-      );
+      const { whereQuery, joins, modelAlias } = this.makeQueryBuilderParts(filter, projection, repository, false);
       const aggregateQueryBuilder = repository.createQueryBuilder().where(whereQuery);
 
       let index = 0;
@@ -271,20 +261,11 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     model = _.assign(model, intersectedDto) as any;
 
     try {
-      storedFiles = await this.persistResourceFiles(
-        model,
-        null,
-        false,
-        this.repository as Repository<ResourceEntity>
-      );
+      storedFiles = await this.persistResourceFiles(model, null, false, this.repository as Repository<ResourceEntity>);
 
       createdModel = await this.repository.save(model);
 
-      await this.updateFilesMetaResourceIds(
-        storedFiles,
-        createdModel,
-        this.repository as Repository<ResourceEntity>
-      );
+      await this.updateFilesMetaResourceIds(storedFiles, createdModel, this.repository as Repository<ResourceEntity>);
     } catch (e) {
       this.log.debug(e);
       await this.fileManager?.deleteFileArray(storedFiles);
@@ -342,11 +323,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
 
       updatedModel = await this.repository.save(resource);
 
-      await this.updateFilesMetaResourceIds(
-        storedFiles,
-        updatedModel,
-        this.repository as Repository<ResourceEntity>
-      );
+      await this.updateFilesMetaResourceIds(storedFiles, updatedModel, this.repository as Repository<ResourceEntity>);
 
       const filesToDelete = await this.resourceFilesToDelete(
         currentResource,
@@ -614,11 +591,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     });
   }
 
-  private replaceQueryJoinAlias(
-    statement: string,
-    joins: JoinOptions,
-    usedJoins: Record<string, boolean>
-  ): string {
+  private replaceQueryJoinAlias(statement: string, joins: JoinOptions, usedJoins: Record<string, boolean>): string {
     const joinAlias = Object.entries(joins.relationJoin).find(([a, p]) => statement.startsWith(a + '.'));
     if (joinAlias) {
       const lookupAlias = `${joinAlias[0]}__${joins.alias}`;
@@ -698,13 +671,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     for (const filterRelation of filterRelations) {
       const { alias, path, name } = filterRelation;
       if (alias && path && name) {
-        let queryJoins = this.makeRelationQueryJoins(
-          name,
-          alias,
-          path,
-          filterKeysCount,
-          joinOptions.queryJoin
-        );
+        let queryJoins = this.makeRelationQueryJoins(name, alias, path, filterKeysCount, joinOptions.queryJoin);
         Object.entries(queryJoins).forEach(([a, p]) => {
           if (!joinOptions.relationJoin[a] && !joinOptions.queryJoin[a]) {
             joinOptions.queryJoin[a] = p;
@@ -803,9 +770,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
 
         items.push(
           ...this.filtersAliasAndPaths(
-            filterKeys
-              .filter((fk) => fk.startsWith(filterKey + '.'))
-              .map((fk) => fk.replace(filterKey + '.', '')),
+            filterKeys.filter((fk) => fk.startsWith(filterKey + '.')).map((fk) => fk.replace(filterKey + '.', '')),
             relationModelName,
             name
           )
@@ -852,12 +817,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
 
         let subRelations = [];
         if (!config.includeRelations && (!config.excludeRelations || config.excludeRelations?.length > 0)) {
-          subRelations = this.relationsToPopulate(
-            single,
-            subRelationModelName,
-            level + 1,
-            config.excludeRelations
-          );
+          subRelations = this.relationsToPopulate(single, subRelationModelName, level + 1, config.excludeRelations);
         } else if (config.includeRelations?.length > 0) {
           const subRelationFields = this.relationFields(subRelationModelName);
           subRelations = this.relationsToPopulate(
@@ -1046,9 +1006,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
 
     const fileFileds = this.fileFields(modelName);
 
-    filesToDelete.push(
-      ...this.fileManager?.getFilesToDelete(this.fileProps(modelName), resource, newResource)
-    );
+    filesToDelete.push(...this.fileManager?.getFilesToDelete(this.fileProps(modelName), resource, newResource));
 
     for (const relation of relations) {
       if (fileFileds.includes(relation)) {
@@ -1123,23 +1081,23 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
   }
 
   private relationMetadata(fieldName: string, modelName?: string): RelationMetadata {
-    return TypeOrmResourceService.modelReferences[modelName || this.repository.metadata.name]
-      ?.relationMetadata?.[fieldName];
+    return TypeOrmResourceService.modelReferences[modelName || this.repository.metadata.name]?.relationMetadata?.[
+      fieldName
+    ];
   }
 
   private relationMetadataList(modelName?: string): Record<string, RelationMetadata> {
-    return TypeOrmResourceService.modelReferences[modelName || this.repository.metadata.name]
-      ?.relationMetadata;
+    return TypeOrmResourceService.modelReferences[modelName || this.repository.metadata.name]?.relationMetadata;
   }
 
   private relationPopulation(fieldName: string, modelName?: string): PopulateRelationConfig {
-    return TypeOrmResourceService.modelReferences[modelName || this.repository.metadata.name]
-      ?.relationPopulation?.[fieldName];
+    return TypeOrmResourceService.modelReferences[modelName || this.repository.metadata.name]?.relationPopulation?.[
+      fieldName
+    ];
   }
 
   private relationPopulationList(modelName?: string): Record<string, PopulateRelationConfig> {
-    return TypeOrmResourceService.modelReferences[modelName || this.repository.metadata.name]
-      ?.relationPopulation;
+    return TypeOrmResourceService.modelReferences[modelName || this.repository.metadata.name]?.relationPopulation;
   }
 
   private fileFields(modelName?: string): string[] {
@@ -1158,7 +1116,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
       return relationModelNames;
     }
 
-    for (const repo of repositories) {
+    for (const repo of repositories.values()) {
       const name = repo.metadata?.name;
       relationModelNames[name] = this.relationModelNames(name);
       this.log.debug('%s relation names: %j', name, relationModelNames[name]);
@@ -1175,7 +1133,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
       return referencesMap;
     }
 
-    for (const repo of repositories) {
+    for (const repo of repositories.values()) {
       referencesMap[repo.metadata.name] = this.makeReferences(repo);
     }
 
@@ -1205,10 +1163,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
       relations.push(relation.propertyName);
       relationMetadata[relation.propertyName] = relation;
 
-      const relationProps = Reflect.getMetadata(
-        POPULATE_RELATION_KEY,
-        repository.metadata.target?.['prototype']
-      );
+      const relationProps = Reflect.getMetadata(POPULATE_RELATION_KEY, repository.metadata.target?.['prototype']);
 
       if (relationProps && relationProps[relation.propertyName]) {
         relationPopulation[relation.propertyName] = relationProps[relation.propertyName];
@@ -1217,11 +1172,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
 
     this.log.debug('%s file fields: %j', repository.metadata?.name, files);
     this.log.debug('%s relation fields: %j', repository.metadata?.name, relations);
-    this.log.debug(
-      '%s populate relation fields: %j',
-      repository.metadata?.name,
-      Object.keys(relationPopulation)
-    );
+    this.log.debug('%s populate relation fields: %j', repository.metadata?.name, Object.keys(relationPopulation));
 
     return { fields, files, relations, relationMetadata, relationPopulation, fileProps };
   }

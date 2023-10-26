@@ -1,11 +1,5 @@
 import { applyDecorators, SetMetadata, UseGuards } from '@nestjs/common';
-import {
-  ApiBasicAuth,
-  ApiBearerAuth,
-  ApiForbiddenResponse,
-  ApiOAuth2,
-  ApiUnauthorizedResponse
-} from '@nestjs/swagger';
+import { ApiBasicAuth, ApiBearerAuth, ApiForbiddenResponse, ApiOAuth2, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { AuthType } from '../../enums';
 import { ShortErrorResponse } from '../../resource';
 import { AuthMultiGuard } from '../auth-multi.guard';

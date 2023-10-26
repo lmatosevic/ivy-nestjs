@@ -59,9 +59,7 @@ export class LoggerService implements NestLoggerService {
     }
 
     let colorize =
-      loggerModuleOptions.colorize === undefined
-        ? configService.get('log.colorize')
-        : loggerModuleOptions.colorize;
+      loggerModuleOptions.colorize === undefined ? configService.get('log.colorize') : loggerModuleOptions.colorize;
     colorize = colorize === undefined ? true : configService.get('log.colorize');
 
     LoggerService.logger = winston.createLogger({

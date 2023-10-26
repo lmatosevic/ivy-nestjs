@@ -30,10 +30,7 @@ export class VerificationModule {
   }
 
   static forRootAsync(options: ModuleAsyncOptions<VerificationModuleOptions>): DynamicModule {
-    const { providers, imports } = ModuleUtil.makeAsyncImportsAndProviders(
-      options,
-      VERIFICATION_MODULE_OPTIONS
-    );
+    const { providers, imports } = ModuleUtil.makeAsyncImportsAndProviders(options, VERIFICATION_MODULE_OPTIONS);
     return this.createModule(providers, [...imports]);
   }
 

@@ -1,9 +1,5 @@
 export class MapUtil {
-  static async batchMap<T>(
-    array: any[],
-    mapFn: (chunk: any[]) => any[],
-    chunkSize: number = 1000
-  ): Promise<T[]> {
+  static async batchMap<T>(array: any[], mapFn: (chunk: any[]) => any[], chunkSize: number = 1000): Promise<T[]> {
     const mapped: T[] = [];
 
     function processChunk(i: number, cb: (data: T[]) => void): void {

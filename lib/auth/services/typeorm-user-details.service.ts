@@ -12,10 +12,7 @@ export abstract class TypeOrmUserDetailsService<T extends AuthUser>
   extends TypeOrmResourceService<T & ResourceEntity>
   implements UserDetailsService<T>, AccountDetailsService<T>
 {
-  protected constructor(
-    protected repository: Repository<T & ResourceEntity>,
-    protected fileManager?: FileManager
-  ) {
+  protected constructor(protected repository: Repository<T & ResourceEntity>, protected fileManager?: FileManager) {
     super(repository, fileManager);
   }
 

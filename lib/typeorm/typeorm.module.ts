@@ -53,15 +53,12 @@ export class TypeOrmModule {
             ssl: this.makeSSLProperty(conf.get<boolean>('db.tlsEnabled'), conf.get<string>('db.tlsCAPath')),
             entities: ['./node_modules/ivy-nestjs/**/*.entity.js'],
             subscribers: [`${conf.get('db.migration.distRoot')}/**/*.subscriber{.ts,.js}`],
-            migrations: [
-              `${conf.get('db.migration.distRoot')}/**/${conf.get('db.migration.dirname')}/**/*{.ts,.js}`
-            ],
+            migrations: [`${conf.get('db.migration.distRoot')}/**/${conf.get('db.migration.dirname')}/**/*{.ts,.js}`],
             migrationsTableName: conf.get<string>('db.migration.table'),
             autoLoadEntities: true,
             logging: conf.get<LoggerOptions>('db.logging'),
             logger: new TypeOrmLogger(conf.get<LoggerOptions>('db.logging')),
-            synchronize:
-              !conf.get<string>('db.migration.enabled') && conf.get<string>('env') !== 'production',
+            synchronize: !conf.get<string>('db.migration.enabled') && conf.get<string>('env') !== 'production',
             ...(typeOrmModuleOptions as any)
           })
         })

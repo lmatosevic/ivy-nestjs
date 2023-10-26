@@ -11,11 +11,11 @@ export interface LoggerModuleOptions {
   path?: string;
   colorize?: boolean;
   rotate?: {
-    enabled?: boolean,
-    pattern?: string,
-    maxSize?: string | number,
-    maxFiles?: string | number,
-    zipArchive?: boolean
+    enabled?: boolean;
+    pattern?: string;
+    maxSize?: string | number;
+    maxFiles?: string | number;
+    zipArchive?: boolean;
   };
 }
 

@@ -47,12 +47,7 @@ export class FilesystemAdapter implements StorageAdapter {
     }
   }
 
-  async stream(
-    fileName: string,
-    filesDir?: string,
-    start?: number,
-    end?: number
-  ): Promise<StreamableFile | null> {
+  async stream(fileName: string, filesDir?: string, start?: number, end?: number): Promise<StreamableFile | null> {
     const filePath = await this.getFilePath(fileName, filesDir);
     try {
       const stats = await fsp.stat(filePath);

@@ -23,8 +23,7 @@ export class RecaptchaService {
       authModuleOptions.recaptcha?.enabled === undefined
         ? configService.get('auth.recaptcha.enabled')
         : authModuleOptions.recaptcha?.enabled;
-    this.recaptchaSecret =
-      authModuleOptions.recaptcha?.siteSecret || configService.get('auth.recaptcha.siteSecret');
+    this.recaptchaSecret = authModuleOptions.recaptcha?.siteSecret || configService.get('auth.recaptcha.siteSecret');
     this.deliveryMethods = {
       [DeliveryMethod.Header]:
         authModuleOptions.recaptcha?.deliveryHeader ||

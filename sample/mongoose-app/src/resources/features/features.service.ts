@@ -7,10 +7,7 @@ import { Feature } from './schema';
 
 @Injectable()
 export class FeaturesService extends MongoResourceService<Feature> {
-  constructor(
-    @InjectModel(Feature.name) protected featureModel: Model<Feature>,
-    protected fileManager: FileManager
-  ) {
+  constructor(@InjectModel(Feature.name) protected featureModel: Model<Feature>, protected fileManager: FileManager) {
     super(featureModel, fileManager);
   }
 }

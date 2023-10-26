@@ -14,9 +14,7 @@ const db = {
     table: process.env.DB_MIGRATION_TABLE || 'migration',
     dirname: process.env.DB_MIGRATION_DIRNAME || 'migrations',
     sourceRoot: process.env.DB_MIGRATION_SOURCE_ROOT || './src',
-    extraEntities: !process.env.DB_MIGRATION_EXTRA_ENTITIES
-      ? []
-      : process.env.DB_MIGRATION_EXTRA_ENTITIES.split(';'),
+    extraEntities: !process.env.DB_MIGRATION_EXTRA_ENTITIES ? [] : process.env.DB_MIGRATION_EXTRA_ENTITIES.split(';'),
     extraSubscribers: !process.env.DB_MIGRATION_EXTRA_SUBSCRIBERS
       ? []
       : process.env.DB_MIGRATION_EXTRA_SUBSCRIBERS.split(';'),
@@ -40,10 +38,7 @@ export const ormconfig = {
     ...db.migration.extraEntities
   ],
   subscribers: [`${db.migration.sourceRoot}/**/*.subscriber{.ts,.js}`, ...db.migration.extraSubscribers],
-  migrations: [
-    `${db.migration.sourceRoot}/**/${db.migration.dirname}/**/*{.ts,.js}`,
-    ...db.migration.extraMigrations
-  ],
+  migrations: [`${db.migration.sourceRoot}/**/${db.migration.dirname}/**/*{.ts,.js}`, ...db.migration.extraMigrations],
   migrationsTableName: db.migration.table,
   synchronize: db.migration.enabled && process.env.NODE_ENV !== 'production'
 };

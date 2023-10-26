@@ -40,10 +40,8 @@ export class FileManager {
     }
     this.dirname = storageModuleOptions.filesDirname || configService.get('storage.filesDirname') || 'files';
     this.tempDirname = storageModuleOptions.tempDirname || configService.get('storage.tempDirname') || 'temp';
-    this.filesDirPattern =
-      storageModuleOptions.filesDirPattern ?? configService.get('storage.filesDirPattern');
-    this.filesNamePattern =
-      storageModuleOptions.filesNamePattern ?? configService.get('storage.filesNamePattern');
+    this.filesDirPattern = storageModuleOptions.filesDirPattern ?? configService.get('storage.filesDirPattern');
+    this.filesNamePattern = storageModuleOptions.filesNamePattern ?? configService.get('storage.filesNamePattern');
   }
 
   useWith(sessionManager: any): FileManager {
@@ -132,11 +130,7 @@ export class FileManager {
     return result;
   }
 
-  async moveFromTemp(
-    name: string,
-    meta?: FileMetadata,
-    transformName: boolean = true
-  ): Promise<StoredFile | null> {
+  async moveFromTemp(name: string, meta?: FileMetadata, transformName: boolean = true): Promise<StoredFile | null> {
     const originalName = FilesUtil.originalNameFromGenerated(name.split('/').pop());
     const directory = await this.directoryName(originalName, meta);
     const file = await this.fileName(originalName, meta);
@@ -188,11 +182,7 @@ export class FileManager {
     return deleteCount;
   }
 
-  async deleteFiles(
-    fileProps: Record<string, FileProps>,
-    currentModel: any,
-    newModel?: any
-  ): Promise<number> {
+  async deleteFiles(fileProps: Record<string, FileProps>, currentModel: any, newModel?: any): Promise<number> {
     const filesToDelete = this.getFilesToDelete(fileProps, currentModel, newModel);
     return this.deleteFileArray(filesToDelete);
   }

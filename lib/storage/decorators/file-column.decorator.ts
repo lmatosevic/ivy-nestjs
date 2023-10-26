@@ -3,9 +3,7 @@ import { FILE_PROPS_KEY, FileProps } from './file-types';
 import { PopulateRelation } from '../../resource';
 import { File } from '../entity';
 
-export function FileColumn(
-  config: ColumnOptions & RelationOptions & FileProps & { populate?: boolean } = {}
-) {
+export function FileColumn(config: ColumnOptions & RelationOptions & FileProps & { populate?: boolean } = {}) {
   if (!('nullable' in config)) {
     config['nullable'] = true;
   }

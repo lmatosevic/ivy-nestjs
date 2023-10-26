@@ -12,7 +12,8 @@ import {
   QueueModule,
   ContextModule,
   StorageModule,
-  TemplateModule, EventModule
+  TemplateModule,
+  EventModule
 } from 'ivy-nestjs';
 import { AppService } from './app.service';
 import { InfoModule } from '@modules/info';

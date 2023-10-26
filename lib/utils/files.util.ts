@@ -88,11 +88,7 @@ export class FilesUtil {
     }
   }
 
-  static validateFile(
-    field: string,
-    file: Express.Multer.File | FileDto,
-    fileProps: FileProps
-  ): ValidationError[] {
+  static validateFile(field: string, file: Express.Multer.File | FileDto, fileProps: FileProps): ValidationError[] {
     if (!file) {
       return [{ value: null, property: field, constraints: { required: 'File is required' } }];
     }
@@ -137,9 +133,7 @@ export class FilesUtil {
       if (fileProps.mimeType instanceof RegExp) {
         match = mimetype.match(fileProps.mimeType);
       } else {
-        match = mimetype.match(
-          (fileProps.mimeType as string).replace(/[.+?^$]/g, '\\$&').replace(/\*/g, '.*')
-        );
+        match = mimetype.match((fileProps.mimeType as string).replace(/[.+?^$]/g, '\\$&').replace(/\*/g, '.*'));
       }
 
       if (!match) {
@@ -153,9 +147,7 @@ export class FilesUtil {
 
     if (fileProps.maxSize) {
       const maxSizeBytes =
-        typeof fileProps.maxSize === 'number'
-          ? fileProps.maxSize
-          : StringUtil.fileSizeStringToBytes(fileProps.maxSize);
+        typeof fileProps.maxSize === 'number' ? fileProps.maxSize : StringUtil.fileSizeStringToBytes(fileProps.maxSize);
       if (maxSizeBytes < size) {
         errors.push({
           value: size,
@@ -168,10 +160,7 @@ export class FilesUtil {
     return errors;
   }
 
-  static createFilesUpdateDto(
-    files: Record<string, Express.Multer.File[]>,
-    filePropsMap: Record<string, FileProps>
-  ) {
+  static createFilesUpdateDto(files: Record<string, Express.Multer.File[]>, filePropsMap: Record<string, FileProps>) {
     if (!files) {
       throw new FileError('Empty file contents provided', 400);
     }
@@ -218,9 +207,7 @@ export class FilesUtil {
     for (const [fieldName, file] of Object.entries(files)) {
       const fileData = data[fieldName];
       if (Array.isArray(fileData) && Array.isArray(file)) {
-        filesResponseDto[fieldName] = _.orderBy(fileData, (f) => f.meta?.createdAt, ['asc']).splice(
-          -1 * file.length
-        );
+        filesResponseDto[fieldName] = _.orderBy(fileData, (f) => f.meta?.createdAt, ['asc']).splice(-1 * file.length);
       } else {
         filesResponseDto[fieldName] = fileData;
       }

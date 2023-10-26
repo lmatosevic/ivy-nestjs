@@ -15,10 +15,7 @@ export class OAuth2AuthGuard extends AuthGuard('oauth2') {
       context.getHandler(),
       context.getClass()
     ]);
-    const isAuth = this.reflector.getAllAndOverride<boolean>(HAS_AUTH_KEY, [
-      context.getHandler(),
-      context.getClass()
-    ]);
+    const isAuth = this.reflector.getAllAndOverride<boolean>(HAS_AUTH_KEY, [context.getHandler(), context.getClass()]);
 
     if (isPublic && !isAuth) {
       return true;

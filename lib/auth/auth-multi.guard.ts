@@ -35,10 +35,7 @@ export class AuthMultiGuard implements CanActivate {
       context.getHandler(),
       context.getClass()
     ]);
-    const isAuth = this.reflector.getAllAndOverride<boolean>(HAS_AUTH_KEY, [
-      context.getHandler(),
-      context.getClass()
-    ]);
+    const isAuth = this.reflector.getAllAndOverride<boolean>(HAS_AUTH_KEY, [context.getHandler(), context.getClass()]);
 
     // If both Public and Authorized decorators are present, first try to resolve AuthUser object, but if
     // unsuccessful then allow unauthorized user access anyway.

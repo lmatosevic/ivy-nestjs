@@ -9,8 +9,7 @@ export class DateUtil {
 
   static getUTCDayNumber(date: Date): number {
     let start = new Date(date.getFullYear(), 0, 0);
-    let diff =
-      date.getTime() - start.getTime() + (start.getTimezoneOffset() - date.getTimezoneOffset()) * 60 * 1000;
+    let diff = date.getTime() - start.getTime() + (start.getTimezoneOffset() - date.getTimezoneOffset()) * 60 * 1000;
     return Math.floor(diff / (1000 * 60 * 60 * 24));
   }
 }

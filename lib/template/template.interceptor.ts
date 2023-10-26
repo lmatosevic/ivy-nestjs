@@ -11,10 +11,7 @@ export class TemplateInterceptor implements NestInterceptor {
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<string> {
     const ctx = ContextUtil.normalizeContext(context);
-    const renderConfig = this.reflector.getAllAndOverride<RenderConfig>(RENDER_KEY, [
-      ctx.getHandler(),
-      ctx.getClass()
-    ]);
+    const renderConfig = this.reflector.getAllAndOverride<RenderConfig>(RENDER_KEY, [ctx.getHandler(), ctx.getClass()]);
 
     if (!renderConfig) {
       return next.handle();

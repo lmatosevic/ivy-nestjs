@@ -16,9 +16,7 @@ export class TypeOrmFileMetaService implements FileMetaService {
   useWith(sessionManager: EntityManager): FileMetaService {
     const managedService = ObjectUtil.duplicate<TypeOrmFileMetaService>(this);
 
-    const repository: Repository<FileMeta> = sessionManager.getRepository(
-      this.fileMetaRepository.metadata.name
-    );
+    const repository: Repository<FileMeta> = sessionManager.getRepository(this.fileMetaRepository.metadata.name);
 
     managedService.setFileMetaRepository(repository);
     managedService.setEntityManager(sessionManager);

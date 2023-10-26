@@ -41,12 +41,7 @@ export class TypeOrmVerificationTokenService implements VerificationTokenService
     }
   }
 
-  async create(
-    token: string,
-    type: VerificationType,
-    accountId: number,
-    expiresAt?: Date
-  ): Promise<VerificationToken> {
+  async create(token: string, type: VerificationType, accountId: number, expiresAt?: Date): Promise<VerificationToken> {
     const model = this.verificationTokenRepository.create({ token, type, accountId, expiresAt });
 
     let savedModel;
@@ -62,10 +57,7 @@ export class TypeOrmVerificationTokenService implements VerificationTokenService
   async update(id: number, tokenData: Partial<VerificationTokenData>): Promise<boolean> {
     try {
       let verificationToken = await this.verificationTokenRepository.findOneBy({ id });
-      verificationToken = this.verificationTokenRepository.merge(
-        verificationToken,
-        tokenData as VerificationToken
-      );
+      verificationToken = this.verificationTokenRepository.merge(verificationToken, tokenData as VerificationToken);
       await this.verificationTokenRepository.save(verificationToken);
       return true;
     } catch (e) {

@@ -34,9 +34,7 @@ export type AuthRouteOptions = {
 };
 
 export interface AuthModuleOptions {
-  userDetailsService:
-    | UserDetailsService<AuthUser>
-    | (AccountDetailsService<AuthUser> & UserDetailsService<AuthUser>);
+  userDetailsService: UserDetailsService<AuthUser> | (AccountDetailsService<AuthUser> & UserDetailsService<AuthUser>);
   userDetailsClass: Type;
   userRegisterDtoClass?: Type;
   route?: string;

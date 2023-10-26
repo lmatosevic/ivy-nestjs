@@ -1,13 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import Redis, { RedisOptions } from 'ioredis';
+import { Redis, RedisOptions } from 'ioredis';
 import { parse, stringify } from 'flatted';
 import { RedisModuleOptions } from './redis.module';
 import { REDIS_MODULE_OPTIONS } from './redis.constants';
 
 @Injectable()
 export class RedisService {
-  private readonly connection: Redis.Redis;
+  private readonly connection: Redis;
 
   constructor(
     @Inject(REDIS_MODULE_OPTIONS) private redisModuleOptions: RedisModuleOptions,
@@ -55,7 +55,7 @@ export class RedisService {
     });
   }
 
-  getConnection(): Redis.Redis {
+  getConnection(): Redis {
     return this.connection;
   }
 
@@ -80,7 +80,7 @@ export class RedisService {
     });
   }
 
-  private createConnection(extraOptions: RedisOptions = {}): Redis.Redis {
+  private createConnection(extraOptions: RedisOptions = {}): Redis {
     const host = this.redisModuleOptions?.host ?? this.configService.get('redis.host');
     const port = this.redisModuleOptions?.port ?? this.configService.get('redis.port');
     const username = this.redisModuleOptions?.username ?? this.configService.get('redis.user');

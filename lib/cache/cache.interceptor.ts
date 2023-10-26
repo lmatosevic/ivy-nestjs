@@ -1,11 +1,5 @@
-import {
-  CacheInterceptor as NestjsCacheInterceptor,
-  ExecutionContext,
-  Inject,
-  Injectable,
-  Optional,
-  Type
-} from '@nestjs/common';
+import { ExecutionContext, Inject, Injectable, Optional, Type } from '@nestjs/common';
+import { CacheInterceptor as NestjsCacheInterceptor } from '@nestjs/cache-manager';
 import { Reflector } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import * as hash from 'object-hash';
@@ -76,10 +70,7 @@ export class CacheInterceptor extends NestjsCacheInterceptor {
   }
 
   private cachedModelName(context: ExecutionContext): string {
-    return this.reflector.getAllAndOverride<string>(CACHED_MODEL_NAME, [
-      context.getHandler(),
-      context.getClass()
-    ]);
+    return this.reflector.getAllAndOverride<string>(CACHED_MODEL_NAME, [context.getHandler(), context.getClass()]);
   }
 
   private resourceName(context: ExecutionContext): string {
@@ -90,9 +81,7 @@ export class CacheInterceptor extends NestjsCacheInterceptor {
   private resourceRelationNames(resourceName?: string): string[] {
     const dbType = this.configService.get('db.type');
     const modelRelationNames =
-      dbType === 'mongoose'
-        ? MongoResourceService.modelRelationNames
-        : TypeOrmResourceService.modelRelationNames;
+      dbType === 'mongoose' ? MongoResourceService.modelRelationNames : TypeOrmResourceService.modelRelationNames;
 
     if (!resourceName) {
       return Object.keys(modelRelationNames || {});

@@ -2,10 +2,8 @@ export class ObjectUtil {
   static transfromKeysAndValues(
     object: any,
     newKey: (key: string, value: any, keyList?: string[]) => string = (key) => key,
-    newValue: (key: string, value: any, keyList?: string[]) => any | { key: string; value: any }[] = (
-      key,
-      value
-    ) => value,
+    newValue: (key: string, value: any, keyList?: string[]) => any | { key: string; value: any }[] = (key, value) =>
+      value,
     mergeKeyValue: (
       key: string,
       value: any,
@@ -88,11 +86,10 @@ export class ObjectUtil {
   static async transfromKeysAndValuesAsync(
     object: any,
     newKey: (key: string, value: any, keyList?: string[]) => Promise<string> = async (key) => key,
-    newValue: (
-      key: string,
-      value: any,
-      keyList?: string[]
-    ) => Promise<any | { key: string; value: any }[]> = async (key, value) => value,
+    newValue: (key: string, value: any, keyList?: string[]) => Promise<any | { key: string; value: any }[]> = async (
+      key,
+      value
+    ) => value,
     mergeKeyValue: (
       key: string,
       value: any,
@@ -123,9 +120,7 @@ export class ObjectUtil {
           const items = [];
           keyList.push(key);
           for (let item of val) {
-            items.push(
-              await this.transfromKeysAndValuesAsync(item, newKey, newValue, mergeKeyValue, keyList)
-            );
+            items.push(await this.transfromKeysAndValuesAsync(item, newKey, newValue, mergeKeyValue, keyList));
           }
           keyList.pop();
           val = items;

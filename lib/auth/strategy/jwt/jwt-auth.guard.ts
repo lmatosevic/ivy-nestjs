@@ -16,10 +16,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       context.getHandler(),
       context.getClass()
     ]);
-    const isAuth = this.reflector.getAllAndOverride<boolean>(HAS_AUTH_KEY, [
-      context.getHandler(),
-      context.getClass()
-    ]);
+    const isAuth = this.reflector.getAllAndOverride<boolean>(HAS_AUTH_KEY, [context.getHandler(), context.getClass()]);
 
     if (isPublic && !isAuth) {
       return true;
@@ -30,10 +27,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 
     if (req.headers?.['authorization']) {
       const payload = this.jwtService.decode(req.headers['authorization'].split(' ')[1]);
-      if (
-        ['AuthResolver', 'AuthController'].includes(ctx.getClass().name) &&
-        ctx.getHandler().name === 'refresh'
-      ) {
+      if (['AuthResolver', 'AuthController'].includes(ctx.getClass().name) && ctx.getHandler().name === 'refresh') {
         return payload?.['refresh'] === true ? super.canActivate(ctx) : false;
       } else if (payload?.['refresh'] === true) {
         return false;

@@ -45,9 +45,7 @@ export abstract class ResourcePolicyService {
     }
 
     if (excludeSubFields) {
-      return Object.fromEntries(
-        Object.entries(policyRules.projection).filter(([key, _]) => !key.includes('.'))
-      );
+      return Object.fromEntries(Object.entries(policyRules.projection).filter(([key, _]) => !key.includes('.')));
     } else {
       return policyRules.projection;
     }
@@ -57,8 +55,7 @@ export abstract class ResourcePolicyService {
     if (!this.isProtected) {
       return {};
     }
-    let policyRules =
-      Context.currentRequest?.req?.[forceReadPolicy ? 'policyReadRules' : 'policyRules'] || null;
+    let policyRules = Context.currentRequest?.req?.[forceReadPolicy ? 'policyReadRules' : 'policyRules'] || null;
     if (policyRules && this.idFieldName) {
       policyRules = RequestUtil.mapIdKeys(policyRules, this.idFieldName);
     }

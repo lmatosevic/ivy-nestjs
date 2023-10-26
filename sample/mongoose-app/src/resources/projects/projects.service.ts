@@ -7,10 +7,7 @@ import { Project } from './schema';
 
 @Injectable()
 export class ProjectsService extends MongoResourceService<Project> {
-  constructor(
-    @InjectModel(Project.name) protected projectModel: Model<Project>,
-    protected fileManager: FileManager
-  ) {
+  constructor(@InjectModel(Project.name) protected projectModel: Model<Project>, protected fileManager: FileManager) {
     super(projectModel, fileManager);
   }
 }

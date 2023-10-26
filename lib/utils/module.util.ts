@@ -15,8 +15,7 @@ export interface ModuleOptionsFactory<T> {
 }
 
 export class ModuleUtil {
-  private static envFiles: string[] =
-    process.env.NODE_ENV === 'test' ? ['.env.test', '.env'] : ['.env.local', '.env'];
+  private static envFiles: string[] = process.env.NODE_ENV === 'test' ? ['.env.test', '.env'] : ['.env.local', '.env'];
   private static currentEnv: Record<string, any>;
 
   static makeAsyncImportsAndProviders<T = any>(

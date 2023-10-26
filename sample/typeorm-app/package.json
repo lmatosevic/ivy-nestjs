@@ -26,7 +26,7 @@
     "create-resource": "node ../../cli/create-resource.js typeorm"
   },
   "dependencies": {
-    "pg": "8.7.3"
+    "pg": "8.11.3"
   },
   "devDependencies": {
     "tsconfig-paths": "4.1.0"

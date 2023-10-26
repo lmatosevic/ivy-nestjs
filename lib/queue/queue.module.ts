@@ -70,7 +70,7 @@ export class QueueModule {
               username: conf.get('redis.user'),
               password: conf.get('redis.password'),
               keyPrefix: conf.get('redis.keyPrefix'),
-              ...(queueModuleOptions.redis || {})
+              ...((queueModuleOptions.redis as object) || {})
             }
           })
         })

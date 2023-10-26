@@ -1,14 +1,4 @@
-import {
-  Controller,
-  Get,
-  Header,
-  Headers,
-  HttpStatus,
-  Inject,
-  Param,
-  Response,
-  StreamableFile
-} from '@nestjs/common';
+import { Controller, Get, Header, Headers, HttpStatus, Inject, Param, Response, StreamableFile } from '@nestjs/common';
 import { ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import { Response as ExpressResponse } from 'express';
@@ -42,8 +32,7 @@ export class StorageController {
     if (['protected', 'none'].includes(filesAccess)) {
       ReflectionUtil.deleteResourceOperation(StorageController.prototype, 'publicFile');
     }
-    this.cacheDuration =
-      this.storageModuleOptions.cacheDuration ?? configService.get('storage.cacheDuration') ?? 86400;
+    this.cacheDuration = this.storageModuleOptions.cacheDuration ?? configService.get('storage.cacheDuration') ?? 86400;
   }
 
   @ApiOkResponse({ description: 'Binary file content' })

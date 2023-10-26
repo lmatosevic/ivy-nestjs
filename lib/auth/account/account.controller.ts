@@ -41,10 +41,7 @@ export function AccountController<T>(accountRef: Type<T>, registerAccountRef: Ty
     @ApiBadRequestResponse({ description: 'Bad request', type: ErrorResponse })
     @HttpCode(200)
     @Get('identifier-available')
-    async identifierAvailable(
-      @Query('field') field: string,
-      @Query('value') value: string
-    ): Promise<StatusResponse> {
+    async identifierAvailable(@Query('field') field: string, @Query('value') value: string): Promise<StatusResponse> {
       return await this.accountService.identifierAvailable(field, value);
     }
 

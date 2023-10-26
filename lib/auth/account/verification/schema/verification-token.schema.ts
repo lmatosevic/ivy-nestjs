@@ -33,5 +33,4 @@ export class VerificationToken extends ResourceSchema {
   updatedAt?: Date;
 }
 
-export const VerificationTokenSchema =
-  MongooseSchemaFactory.createForClass<VerificationToken>(VerificationToken);
+export const VerificationTokenSchema = MongooseSchemaFactory.createForClass<VerificationToken>(VerificationToken);

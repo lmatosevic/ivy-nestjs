@@ -33,11 +33,7 @@ export class EventModule {
     );
   }
 
-  static createModule(
-    providers: any[] = [],
-    imports: any[] = [],
-    options: EventsModuleOptions = {}
-  ): DynamicModule {
+  static createModule(providers: any[] = [], imports: any[] = [], options: EventsModuleOptions = {}): DynamicModule {
     return {
       module: EventModule,
       imports: [

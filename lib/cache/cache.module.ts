@@ -1,11 +1,5 @@
-import {
-  CacheModule as NestjsCacheModule,
-  DynamicModule,
-  Global,
-  MiddlewareConsumer,
-  Module,
-  NestModule
-} from '@nestjs/common';
+import { DynamicModule, Global, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { CacheModule as NestjsCacheModule } from '@nestjs/cache-manager';
 import { CacheStore, CacheStoreFactory } from '@nestjs/common/cache/interfaces/cache-manager.interface';
 import { ConfigService } from '@nestjs/config';
 import * as fileStore from 'cache-manager-fs-hash';
@@ -117,8 +111,7 @@ export class CacheModule implements NestModule {
           options: {
             ttl: cacheModuleOptions.ttl ?? conf.get('cache.ttl'),
             path: cacheModuleOptions.filesystem?.rootDir ?? conf.get('cache.filesystem.rootDir'),
-            subdirs:
-              cacheModuleOptions.filesystem?.subdirsEnabled ?? conf.get('cache.filesystem.subdirsEnabled'),
+            subdirs: cacheModuleOptions.filesystem?.subdirsEnabled ?? conf.get('cache.filesystem.subdirsEnabled'),
             maxSize: cacheModuleOptions.filesystem?.maxSize ?? conf.get('cache.filesystem.maxSize')
           },
           ttl: cacheModuleOptions.ttl ?? conf.get('cache.ttl'),

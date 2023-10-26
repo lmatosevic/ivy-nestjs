@@ -19,9 +19,7 @@ export class GraphQLModule {
     ]);
   }
 
-  static forRootAsync<T extends Record<string, any> = GqlModuleOptions>(
-    options: ModuleAsyncOptions<T>
-  ): DynamicModule {
+  static forRootAsync<T extends Record<string, any> = GqlModuleOptions>(options: ModuleAsyncOptions<T>): DynamicModule {
     const { providers, imports } = ModuleUtil.makeAsyncImportsAndProviders(options, MONGOOSE_MODULE_OPTIONS);
     return this.createModule(providers, imports);
   }
@@ -39,6 +37,9 @@ export class GraphQLModule {
             playground: conf.get('graphql.playground'),
             autoSchemaFile: `${process.cwd()}/graphql/schema.gql`,
             sortSchema: true,
+            buildSchemaOptions: {
+              numberScalarMode: 'integer'
+            },
             cors: {
               origin: conf.get('cors.origin'),
               credentials: conf.get('cors.credentials')

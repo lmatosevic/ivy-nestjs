@@ -11,9 +11,7 @@ export class MongoVerificationTokenService implements VerificationTokenService<V
   private readonly logger: Logger = new Logger(MongoVerificationTokenService.name);
   protected session?: ClientSession;
 
-  constructor(
-    @InjectModel(VerificationToken.name) protected verificationTokenModel: Model<VerificationToken>
-  ) {}
+  constructor(@InjectModel(VerificationToken.name) protected verificationTokenModel: Model<VerificationToken>) {}
 
   useWith(sessionManager: ClientSession): VerificationTokenService<VerificationToken> {
     const managedService = ObjectUtil.duplicate<MongoVerificationTokenService>(this);
@@ -37,12 +35,7 @@ export class MongoVerificationTokenService implements VerificationTokenService<V
     }
   }
 
-  async create(
-    token: string,
-    type: VerificationType,
-    accountId: string,
-    expiresAt?: Date
-  ): Promise<VerificationToken> {
+  async create(token: string, type: VerificationType, accountId: string, expiresAt?: Date): Promise<VerificationToken> {
     const model = new this.verificationTokenModel({ token, type, accountId, expiresAt });
 
     let savedModel;
@@ -57,10 +50,7 @@ export class MongoVerificationTokenService implements VerificationTokenService<V
 
   async update(id: string, tokenData: Partial<VerificationTokenData>): Promise<boolean> {
     try {
-      const verificationToken = await this.verificationTokenModel
-        .findOne({ _id: id })
-        .session(this.session)
-        .exec();
+      const verificationToken = await this.verificationTokenModel.findOne({ _id: id }).session(this.session).exec();
       verificationToken.set(tokenData);
       await verificationToken.save();
       return true;
@@ -72,11 +62,8 @@ export class MongoVerificationTokenService implements VerificationTokenService<V
 
   async delete(id: string): Promise<boolean> {
     try {
-      const verificationToken = await this.verificationTokenModel
-        .findOne({ _id: id })
-        .session(this.session)
-        .exec();
-      await verificationToken.remove();
+      const verificationToken = await this.verificationTokenModel.findOne({ _id: id }).session(this.session).exec();
+      await verificationToken.deleteOne();
     } catch (e) {
       this.logger.error('Error deleting verification token with id "%s", %j', id, e);
       return false;

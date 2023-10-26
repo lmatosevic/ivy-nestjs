@@ -19,12 +19,9 @@ export class VerificationService {
     private verificationTokenService: VerificationTokenService<VerificationTokenData>,
     private configService: ConfigService
   ) {
-    this.tokenType =
-      verificationModuleOptions.tokenType ?? configService.get('account.verification.tokenType');
-    this.tokenLength =
-      verificationModuleOptions.tokenLength ?? configService.get('account.verification.tokenLength');
-    this.tokenPrefix =
-      verificationModuleOptions.tokenPrefix ?? configService.get('account.verification.tokenPrefix');
+    this.tokenType = verificationModuleOptions.tokenType ?? configService.get('account.verification.tokenType');
+    this.tokenLength = verificationModuleOptions.tokenLength ?? configService.get('account.verification.tokenLength');
+    this.tokenPrefix = verificationModuleOptions.tokenPrefix ?? configService.get('account.verification.tokenPrefix');
   }
 
   useWith(sessionManager: any): VerificationService {

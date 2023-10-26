@@ -50,7 +50,7 @@ import {
 import { ResourceService } from '../services';
 import { Resource, ResourceConfig } from '../decorators';
 import { ResourcePolicy, ResourcePolicyInterceptor } from '../policy';
-import { ApiImplicitQuery } from '@nestjs/swagger/dist/decorators/api-implicit-query.decorator';
+import { ApiQuery } from '@nestjs/swagger';
 
 function extractFileProps<T>(classRef: Type<T>): Record<string, FileProps> {
   const types = {};
@@ -185,10 +185,7 @@ function OperatorInputType<T>(classRef: Type<T>): any {
       }
       ApiProperty({ type: () => type._OPENAPI_QUERY_FILTER_FACTORY?.() })(OperatorValueClass.prototype, key);
     } else if (key === '_id' || key === 'id') {
-      ApiProperty({ type: () => FilterOperator, required: false, name: 'id' })(
-        OperatorValueClass.prototype,
-        key
-      );
+      ApiProperty({ type: () => FilterOperator, required: false, name: 'id' })(OperatorValueClass.prototype, key);
     } else {
       ApiProperty({ type: () => FilterOperator, required: false })(OperatorValueClass.prototype, key);
     }
@@ -337,13 +334,15 @@ export function ResourceController<T, C, U>(
         ]
       }
     })
-    @ApiImplicitQuery({ name: 'sort', required: false })
+    @ApiQuery({ name: 'sort', required: false })
+    @ApiQuery({ name: 'filter', required: false })
     @ApiBadRequestResponse({ description: 'Bad request', type: ErrorResponse })
     @HttpCode(200)
     @Get('')
     queryGet(
       @Config() config: ConfigService,
       @Query('sort') sortParam?: string,
+      @Query('filter') filterParam?: string,
       @Query() queryDto?: QueryRequest<T>
     ): Promise<QueryResponse<T>> {
       const { page, size, sort, ...queryParams } = queryDto;

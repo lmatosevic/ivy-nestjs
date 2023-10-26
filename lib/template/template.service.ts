@@ -14,10 +14,7 @@ export class TemplateService {
     @Inject(TEMPLATE_ADAPTER) private templateAdapter: TemplateAdapter,
     private configService: ConfigService
   ) {
-    this.templateConfig = _.merge(
-      _.cloneDeep(this.configService.get('template')),
-      this.templateModuleOptions
-    );
+    this.templateConfig = _.merge(_.cloneDeep(this.configService.get('template')), this.templateModuleOptions);
   }
 
   async compile(

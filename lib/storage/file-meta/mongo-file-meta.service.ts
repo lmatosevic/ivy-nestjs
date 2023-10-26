@@ -59,7 +59,7 @@ export class MongoFileMetaService implements FileMetaService {
   async delete(name: string): Promise<boolean> {
     try {
       const metadata = await this.fileMetaModel.findOne({ name }).session(this.session).exec();
-      await metadata.remove();
+      await metadata.deleteOne();
     } catch (e) {
       this.logger.error('Error deleting file metadata "%s", %j', name, e);
       return false;

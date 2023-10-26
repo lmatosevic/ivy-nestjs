@@ -6,15 +6,8 @@ import { ApplicationsService } from './applications.service';
 import { ApplicationsPolicy } from './policy';
 
 @Resolver(() => Application)
-export class ApplicationsResolver extends ResourceResolver(
-  Application,
-  CreateApplicationDto,
-  UpdateApplicationDto
-) {
-  constructor(
-    private applicationsService: ApplicationsService,
-    private applicationsPolicy: ApplicationsPolicy
-  ) {
+export class ApplicationsResolver extends ResourceResolver(Application, CreateApplicationDto, UpdateApplicationDto) {
+  constructor(private applicationsService: ApplicationsService, private applicationsPolicy: ApplicationsPolicy) {
     super(applicationsService, applicationsPolicy);
   }
 }

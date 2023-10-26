@@ -15,10 +15,7 @@ export class BasicAuthGuard extends AuthGuard('basic') {
       context.getHandler(),
       context.getClass()
     ]);
-    const isAuth = this.reflector.getAllAndOverride<boolean>(HAS_AUTH_KEY, [
-      context.getHandler(),
-      context.getClass()
-    ]);
+    const isAuth = this.reflector.getAllAndOverride<boolean>(HAS_AUTH_KEY, [context.getHandler(), context.getClass()]);
 
     if (isPublic && !isAuth) {
       return true;

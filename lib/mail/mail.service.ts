@@ -45,12 +45,7 @@ export class MailService {
     this.templateEnabled = mailModuleOptions?.templateEnabled ?? configService.get('mail.templateEnabled');
   }
 
-  async send(
-    to: string,
-    subject: string,
-    content: MailContent,
-    attachments?: MailAttachment[]
-  ): Promise<boolean> {
+  async send(to: string, subject: string, content: MailContent, attachments?: MailAttachment[]): Promise<boolean> {
     if (this.queueEnabled) {
       return !!(await this.sendToQueue(to, subject, content, attachments));
     } else {

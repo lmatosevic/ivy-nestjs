@@ -1,7 +1,8 @@
-import { CACHE_MANAGER, Inject, Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
-import * as glob from 'glob';
+import { globSync } from 'glob';
 import { promises as fsp } from 'fs';
 import { Action } from '../enums';
 import { FilesUtil } from '../utils';
@@ -43,14 +44,11 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
     this.cachePrefix = cacheModuleOptions.prefix ?? configService.get('cache.prefix') ?? '';
     this.maxItems = cacheModuleOptions.maxItems ?? configService.get('cache.maxItems') ?? 100;
     this.ttl = cacheModuleOptions.ttl ?? configService.get('cache.ttl') ?? 5;
-    this.evictionStrategy =
-      cacheModuleOptions.evictionStrategy ?? configService.get('cache.evictionStrategy');
-    this.evictionDeferred =
-      cacheModuleOptions.evictionDeferred ?? configService.get('cache.evictionDeferred');
+    this.evictionStrategy = cacheModuleOptions.evictionStrategy ?? configService.get('cache.evictionStrategy');
+    this.evictionDeferred = cacheModuleOptions.evictionDeferred ?? configService.get('cache.evictionDeferred');
     this.changeStrategy = cacheModuleOptions.changeStrategy ?? configService.get('cache.changeStrategy');
     this.changeDeferred = cacheModuleOptions.changeDeferred ?? configService.get('cache.changeDeferred');
-    this.filesystemRootDir =
-      cacheModuleOptions?.filesystem?.rootDir ?? configService.get('cache.filesystem.rootDir');
+    this.filesystemRootDir = cacheModuleOptions?.filesystem?.rootDir ?? configService.get('cache.filesystem.rootDir');
     this.metadataPath = `${this.filesystemRootDir}/metadata.json`;
     this.cleanStart = cacheModuleOptions.cleanStart ?? configService.get('cache.cleanStart') ?? true;
     this.enabled = cacheModuleOptions.enabled ?? configService.get('cache.enabled') ?? true;
@@ -116,11 +114,7 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
 
       const now = Date.now();
       const expiresAt =
-        ttl === 0
-          ? undefined
-          : ttl
-          ? now + (typeof ttl === 'object' ? ttl.ttl : ttl) * 1000
-          : now + this.ttl * 1000;
+        ttl === 0 ? undefined : ttl ? now + (typeof ttl === 'object' ? ttl.ttl : ttl) * 1000 : now + this.ttl * 1000;
       this.keysMeta[key] = {
         key,
         usedCount: 1,
@@ -258,11 +252,7 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
     return new Promise((resolve, reject) => {
       const keysSet = new Set<string>();
 
-      glob(`${options.path}/**/*.json`, async (err, files) => {
-        if (err) {
-          reject(err);
-        }
-
+      const fn = async (files: string[]) => {
         for (const file of files) {
           try {
             const data = await fsp.readFile(file, 'utf-8');
@@ -276,7 +266,14 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
         }
 
         resolve(keysSet);
-      });
+      };
+
+      try {
+        const files = globSync(`${options.path}/**/*.json`);
+        fn(files);
+      } catch (e) {
+        reject(e);
+      }
     });
   }
 

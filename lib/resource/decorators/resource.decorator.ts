@@ -15,9 +15,7 @@ export const extraOperations = {
   DeleteBulk: Operation.Delete
 };
 
-export type ResourceConfig = Partial<
-  Record<keyof typeof Operation | keyof typeof extraOperations, OperationConfig>
->;
+export type ResourceConfig = Partial<Record<keyof typeof Operation | keyof typeof extraOperations, OperationConfig>>;
 
 export type OperationConfig = {
   enabled?: boolean;
@@ -161,10 +159,7 @@ function cacheOperation(target: Function, operation: string, conf: OperationConf
   cached(parent, operationName(operation), descriptor);
 }
 
-function parentAndDescriptor(
-  target: Function,
-  operation: string
-): { parent: any; descriptor: PropertyDescriptor } {
+function parentAndDescriptor(target: Function, operation: string): { parent: any; descriptor: PropertyDescriptor } {
   const parent = target.prototype;
   const descriptor = Object.getOwnPropertyDescriptor(parent, operationName(operation));
   return { parent, descriptor };

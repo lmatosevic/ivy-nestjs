@@ -86,11 +86,7 @@ export class HandlebarsAdapter implements TemplateAdapter {
     return html;
   }
 
-  private async precompile(
-    template: string,
-    config?: CompileConfig,
-    isFile: boolean = true
-  ): Promise<TemplateInfo> {
+  private async precompile(template: string, config?: CompileConfig, isFile: boolean = true): Promise<TemplateInfo> {
     const { templateExt, templateName, templateDir, templatePath } = isFile
       ? this.templateFileInfo(template, config)
       : this.templateContentInfo();

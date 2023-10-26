@@ -1,4 +1,5 @@
-import { applyDecorators, CacheKey, CacheTTL, SetMetadata, UseInterceptors } from '@nestjs/common';
+import { applyDecorators, SetMetadata, UseInterceptors } from '@nestjs/common';
+import { CacheKey, CacheTTL } from '@nestjs/cache-manager';
 import { CacheInterceptor } from '../cache.interceptor';
 
 export const IS_CACHED = 'isCached';

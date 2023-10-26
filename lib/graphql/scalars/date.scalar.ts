@@ -3,8 +3,7 @@ import { Kind, ValueNode } from 'graphql';
 
 @Scalar('Date', () => Date)
 export class DateScalar implements CustomScalar<string, Date> {
-  description =
-    'A date-time string at UTC, such as 2022-08-27T09:54:281Z, compliant with the date-time format.';
+  description = 'A date-time string at UTC, such as 2022-08-27T09:54:281Z, compliant with the date-time format.';
 
   parseValue(value: number | string): Date {
     return new Date(value);

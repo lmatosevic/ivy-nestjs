@@ -11,10 +11,7 @@ export class ApplicationsController extends ResourceController(
   CreateApplicationDto,
   UpdateApplicationDto
 ) {
-  constructor(
-    private applicationsService: ApplicationsService,
-    private applicationsPolicy: ApplicationsPolicy
-  ) {
+  constructor(private applicationsService: ApplicationsService, private applicationsPolicy: ApplicationsPolicy) {
     super(applicationsService, applicationsPolicy);
   }
 }

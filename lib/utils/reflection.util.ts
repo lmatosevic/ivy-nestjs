@@ -8,8 +8,7 @@ export class ReflectionUtil {
 
   static deleteResourceOperation(prototype: any, name: string): boolean {
     return (
-      this.deleteMetadata(prototype, name, 'path') ||
-      this.deleteMetadata(prototype, name, 'graphql:resolver_type')
+      this.deleteMetadata(prototype, name, 'path') || this.deleteMetadata(prototype, name, 'graphql:resolver_type')
     );
   }
 

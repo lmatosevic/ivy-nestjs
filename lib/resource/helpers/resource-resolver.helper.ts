@@ -12,6 +12,7 @@ import {
   Resolver
 } from '@nestjs/graphql';
 import { ConfigService } from '@nestjs/config';
+import { GraphQLScalarType } from 'graphql/type';
 import { Expose } from 'class-transformer';
 import { IsArray, IsOptional, Min } from 'class-validator';
 import { IResourceResolver } from './resource.resolver';
@@ -42,7 +43,7 @@ function extractFileProps<T>(classRef: Type<T>): Record<string, FileProps> {
   return types;
 }
 
-function DeleteFilesArgsType<T>(classRef: Type<T>, idParamType: () => Type<unknown>): any {
+function DeleteFilesArgsType<T>(classRef: Type<T>, idParamType: () => GraphQLScalarType | Type<unknown>): any {
   abstract class DeleteFilesClass {
     protected constructor() {}
   }
@@ -184,7 +185,8 @@ export function ResourceResolver<T, C, U>(
   const aggregateResult = AggregateResultType(resourceRef);
   const queryFilter = initializeFilterModel(resourceRef);
 
-  const idParamType = () => resourceRef['_GRAPHQL_METADATA_FACTORY']?.()?.['id']?.type?.() || String;
+  const idParamType = () =>
+    resourceRef['_GRAPHQL_METADATA_FACTORY']?.()?.['id']?.type?.()?.name === 'Number' ? Int : String;
 
   @ArgsType()
   class QueryOptions {
@@ -259,7 +261,10 @@ export function ResourceResolver<T, C, U>(
   class ResourceResolver implements IResourceResolver<T, C, U> {
     private readonly protectedService: ResourceService<T>;
 
-    constructor(protected service: ResourceService<T>, protected policy?: ResourcePolicy<any, any>) {
+    constructor(
+      protected service: ResourceService<T>,
+      protected policy?: ResourcePolicy<any, any>
+    ) {
       this.protectedService = service.asProtected();
       if (policy) {
         UseInterceptors(new ResourcePolicyInterceptor(policy))(ResourceResolver);

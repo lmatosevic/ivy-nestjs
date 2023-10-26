@@ -337,7 +337,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     try {
       session.startTransaction();
 
-      removedModel = await resource.remove();
+      removedModel = await resource.deleteOne();
       populatedModel = await this.populateModelDeep(removedModel);
 
       const filesToDelete = await this.resourceFilesToDelete(populatedModel, null);
@@ -385,10 +385,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
 
     try {
       const policyFilter = await this.resolveFilterSubReferences(this.policyFilter(useReadPolicy));
-      const findQuery = this.model.findOne(
-        { $and: [{ _id: id }, policyFilter] } as any,
-        this.policyProjection()
-      );
+      const findQuery = this.model.findOne({ $and: [{ _id: id }, policyFilter] } as any, this.policyProjection());
       if (populate) {
         findQuery.populate(this.makePopulationArray());
       }
@@ -560,7 +557,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
         const logData = { id: referencedResource.id };
 
         if (fieldProp.onDelete === 'cascade') {
-          await referencedResource.remove();
+          await referencedResource.deleteOne();
           this.log.verbose('Cascade delete for %s, %j', fieldProp.ref, logData);
           const populatedRefModel = await this.populateModelAllFields(referencedResource, fieldProp.ref);
           await this.cascadeRelations(populatedRefModel);
@@ -572,9 +569,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
             if (!Array.isArray(referencedResource[field.name])) {
               referencedResource[field.name] = null;
             } else {
-              referencedResource[field.name] = referencedResource[field.name].filter(
-                (id) => id !== deletedResource.id
-              );
+              referencedResource[field.name] = referencedResource[field.name].filter((id) => id !== deletedResource.id);
             }
             await referencedResource.save();
             this.log.verbose('Cascaded to null value for %s.%s, %j', fieldProp.ref, field.name, logData);
@@ -675,17 +670,11 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
             ? currentReferencedResources.find((crr) => crr.id === referencedResource.id)
             : currentReferencedResources;
           if (currentReferencedResource) {
-            currentReferencedResource = await this.populateModelAllFields(
-              currentReferencedResource,
-              fieldProp.ref
-            );
+            currentReferencedResource = await this.populateModelAllFields(currentReferencedResource, fieldProp.ref);
           }
 
           const populatedRefModel = await this.populateModelAllFields(referencedResource, fieldProp.ref);
-          const subFilesToDelete = await this.resourceFilesToDelete(
-            populatedRefModel,
-            currentReferencedResource
-          );
+          const subFilesToDelete = await this.resourceFilesToDelete(populatedRefModel, currentReferencedResource);
 
           for (const deletedFile of subFilesToDelete) {
             filesToDelete.push(deletedFile);
@@ -710,10 +699,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
           ? currentReferencedResources.find((crr) => crr.id === referencedResource.id)
           : currentReferencedResources;
 
-        const subFilesToDelete = await this.resourceFilesToDelete(
-          referencedResource,
-          currentReferencedResource
-        );
+        const subFilesToDelete = await this.resourceFilesToDelete(referencedResource, currentReferencedResource);
 
         for (const deletedFile of subFilesToDelete) {
           filesToDelete.push(deletedFile);
@@ -784,9 +770,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
                   { filterValue },
                   async (k, v, kl) => (k.startsWith('$') || kl.includes('meta') ? k : `${key}.${k}`),
                   async (k, v) =>
-                    k !== 'meta'
-                      ? v
-                      : { $in: await metaModel.distinct('_id', v).session(this.session).exec() }
+                    k !== 'meta' ? v : { $in: await metaModel.distinct('_id', v).session(this.session).exec() }
                 );
                 nestedEntires.push({ key: filterKey, value: replacedEntryKeys[`${key}.filterValue`] });
               } else {
@@ -887,9 +871,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
   }
 
   private embeddedType(fieldName: string, modelName?: string): string {
-    return MongoResourceService.modelReferences[modelName || this.model.modelName]?.embeddedTypes?.[
-      fieldName
-    ];
+    return MongoResourceService.modelReferences[modelName || this.model.modelName]?.embeddedTypes?.[fieldName];
   }
 
   private initRelationModelNames(): Record<string, string[]> {
