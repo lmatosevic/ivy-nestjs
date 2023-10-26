@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.6.2](https://github.com/lmatosevic/ivy-nestjs/compare/v0.6.1...v0.6.2) (2023-10-26)
+
+
+### Bug Fixes
+
+* pinned nestjs core and common packages to version 10.0.0 ([c1f4f0f](https://github.com/lmatosevic/ivy-nestjs/commit/c1f4f0f30fc10aac42fffda6e5bd9c993f5d77c7))
+
 ### [0.6.1](https://github.com/lmatosevic/ivy-nestjs/compare/v0.6.0...v0.6.1) (2023-10-26)
 
 
