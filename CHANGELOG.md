@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.6.0](https://github.com/lmatosevic/ivy-nestjs/compare/v0.5.9...v0.6.0) (2023-10-26)
+
+
+### ⚠ BREAKING CHANGES
+
+* updated NestJs version to 10 and other packages
+
+### Features
+
+* add mongoose sync indexes service and rename typeorm migration service ([1187da2](https://github.com/lmatosevic/ivy-nestjs/commit/1187da2754a6471ad2fa3b29b12e030dafc6b124))
+* updated NestJs version to 10 and other packages ([b60620c](https://github.com/lmatosevic/ivy-nestjs/commit/b60620c6414f27b7b439f181b9647bfbf7241ad3))
+
 ### [0.5.9](https://github.com/lmatosevic/ivy-nestjs/compare/v0.5.8...v0.5.9) (2023-01-09)
 
 
