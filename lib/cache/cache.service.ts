@@ -2,7 +2,7 @@ import { Inject, Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nest
 import { ConfigService } from '@nestjs/config';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
-import { globSync } from 'glob';
+import { glob } from 'glob';
 import { promises as fsp } from 'fs';
 import { Action } from '../enums';
 import { FilesUtil } from '../utils';
@@ -252,28 +252,26 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
     return new Promise((resolve, reject) => {
       const keysSet = new Set<string>();
 
-      const fn = async (files: string[]) => {
-        for (const file of files) {
-          try {
-            const data = await fsp.readFile(file, 'utf-8');
-            const json = JSON.parse(data.toString());
-            if (json['key'].match(regex)) {
-              keysSet.add(json['key']);
+      (async () => {
+        try {
+          const files = await glob(`${options.path}/**/*.json`);
+          for (const file of files) {
+            try {
+              const data = await fsp.readFile(file, 'utf-8');
+              const json = JSON.parse(data.toString());
+              if (json['key'].match(regex)) {
+                keysSet.add(json['key']);
+              }
+            } catch (e) {
+              this.logger.error('Error while reading cache file: %j', e);
+              reject(e);
             }
-          } catch (e) {
-            this.logger.error('Error while reading cache file: %j', e);
           }
+        } catch (e) {
+          reject(e);
         }
-
         resolve(keysSet);
-      };
-
-      try {
-        const files = globSync(`${options.path}/**/*.json`);
-        fn(files);
-      } catch (e) {
-        reject(e);
-      }
+      })();
     });
   }
 

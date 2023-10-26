@@ -5,7 +5,7 @@ import * as handlebarsHelpers from 'handlebars-helpers';
 import { promises as fsp } from 'fs';
 import * as path from 'path';
 import * as inlineCss from 'inline-css';
-import * as glob from 'glob';
+import { glob } from 'glob';
 import { get } from 'lodash';
 import { CompileConfig, TemplateAdapter } from './template.adapter';
 import { TemplateModuleOptions } from '../template.module';
@@ -48,7 +48,7 @@ export class HandlebarsAdapter implements TemplateAdapter {
 
     if (runtimeOptions.partials !== false) {
       const rootDir = get(config, 'rootDir', '');
-      const files = glob.sync(path.join(rootDir, '**', '*.hbs'));
+      const files = await glob(path.join(rootDir, '**', '*.hbs'));
       for (const file of files) {
         const { templateName, templatePath } = await this.precompile(file);
         const templateDir = path.relative(rootDir, path.dirname(file));
