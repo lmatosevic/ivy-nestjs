@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.6.6](https://github.com/lmatosevic/ivy-nestjs/compare/v0.6.5...v0.6.6) (2023-10-27)
+
+
+### Bug Fixes
+
+* switch cli templates Ability with PureAbility class ([fd43064](https://github.com/lmatosevic/ivy-nestjs/commit/fd4306489e9a87f6afbd966a72e56cd787b1bbe6))
+
 ### [0.6.5](https://github.com/lmatosevic/ivy-nestjs/compare/v0.6.4...v0.6.5) (2023-10-27)
 
 
