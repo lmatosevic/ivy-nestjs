@@ -6,7 +6,10 @@ import { RequestUtil } from '../../utils';
 import * as _ from 'lodash';
 
 export abstract class ResourcePolicyService {
-  protected constructor(protected idFieldName?: string, protected isProtected?: boolean) {}
+  protected constructor(
+    protected idFieldName?: string,
+    protected isProtected?: boolean
+  ) {}
 
   intersectFields(object: any): any {
     const allowedFields = this.policyProjection(true, false);

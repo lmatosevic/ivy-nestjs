@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Ability, InferSubjects } from '@casl/ability';
+import { PureAbility, InferSubjects } from '@casl/ability';
 import { Can, Cannot, ResourcePolicy } from 'ivy-nestjs/resource';
 import { Action, Role } from 'ivy-nestjs/enums';
 import { AuthUser } from 'ivy-nestjs/auth';
@@ -7,7 +7,7 @@ import { User } from '@resources/users/entity';
 
 type Subjects = InferSubjects<typeof User.name>;
 
-export type UserAbility = Ability<[Action, Subjects]>;
+export type UserAbility = PureAbility<[Action, Subjects]>;
 
 @Injectable()
 export class UsersPolicy extends ResourcePolicy<UserAbility, Subjects> {

@@ -4,7 +4,10 @@ import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class TypeormMigrationService implements OnModuleInit {
-  constructor(private configService: ConfigService, private dataSource: DataSource) {}
+  constructor(
+    private configService: ConfigService,
+    private dataSource: DataSource
+  ) {}
 
   async onModuleInit(): Promise<void> {
     if (this.configService.get<boolean>('db.migration.autoRun')) {

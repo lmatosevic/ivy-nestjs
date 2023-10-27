@@ -12,7 +12,10 @@ export abstract class MongoUserDetailsService<T extends AuthUser>
   extends MongoResourceService<T>
   implements UserDetailsService<T>, AccountDetailsService<T>
 {
-  protected constructor(protected model: Model<T & ResourceSchema>, protected fileManager?: FileManager) {
+  protected constructor(
+    protected model: Model<T & ResourceSchema>,
+    protected fileManager?: FileManager
+  ) {
     super(model, fileManager);
   }
 

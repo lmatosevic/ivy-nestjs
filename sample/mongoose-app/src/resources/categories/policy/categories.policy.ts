@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Ability, InferSubjects } from '@casl/ability';
+import { PureAbility, InferSubjects } from '@casl/ability';
 import { Can, Cannot, ResourcePolicy } from 'ivy-nestjs/resource';
 import { Action } from 'ivy-nestjs/enums';
 import { AuthUser } from 'ivy-nestjs/auth';
@@ -7,7 +7,7 @@ import { Category } from '@resources/categories/schema';
 
 type Subjects = InferSubjects<typeof Category.name>;
 
-export type CategoryAbility = Ability<[Action, Subjects]>;
+export type CategoryAbility = PureAbility<[Action, Subjects]>;
 
 @Injectable()
 export class CategoriesPolicy extends ResourcePolicy<CategoryAbility, Subjects> {

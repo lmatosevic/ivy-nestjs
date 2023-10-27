@@ -34,7 +34,10 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
   protected isProtected: boolean = false;
   protected session?: ClientSession;
 
-  protected constructor(protected model: Model<T & ResourceSchema>, protected fileManager?: FileManager) {
+  protected constructor(
+    protected model: Model<T & ResourceSchema>,
+    protected fileManager?: FileManager
+  ) {
     super('_id');
 
     if (MongoResourceService.replicationEnabled === undefined) {

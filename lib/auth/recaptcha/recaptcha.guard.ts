@@ -7,7 +7,10 @@ import { RecaptchaService } from './recaptcha.service';
 
 @Injectable()
 export class RecaptchaGuard implements CanActivate {
-  constructor(private reflector: Reflector, private recaptchaService: RecaptchaService) {}
+  constructor(
+    private reflector: Reflector,
+    private recaptchaService: RecaptchaService
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const deliveryMethods = this.reflector.getAllAndOverride<DeliveryMethod[]>(RECAPTCHA_KEY, [

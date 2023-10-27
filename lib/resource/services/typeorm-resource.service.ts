@@ -56,7 +56,10 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
   protected isProtected: boolean = false;
   protected entityManager?: EntityManager;
 
-  protected constructor(protected repository: Repository<T & ResourceEntity>, protected fileManager?: FileManager) {
+  protected constructor(
+    protected repository: Repository<T & ResourceEntity>,
+    protected fileManager?: FileManager
+  ) {
     super('id');
 
     if (!TypeOrmResourceService.modelReferences) {

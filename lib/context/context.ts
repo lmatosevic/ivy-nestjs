@@ -4,7 +4,10 @@ import { Request, Response } from 'express';
 import { EventService } from '../event';
 
 export class Context {
-  constructor(public readonly req: Request, public readonly res: Response) {}
+  constructor(
+    public readonly req: Request,
+    public readonly res: Response
+  ) {}
 
   static context = new AsyncLocalStorage<Context>();
 

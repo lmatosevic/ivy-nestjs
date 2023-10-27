@@ -1,5 +1,5 @@
 import { CallHandler, ExecutionContext, ForbiddenException, Logger, NestInterceptor } from '@nestjs/common';
-import { Ability } from '@casl/ability';
+import { PureAbility } from '@casl/ability';
 import { Observable } from 'rxjs';
 import { Action, Operation } from '../../enums';
 import { ContextUtil } from '../../utils';
@@ -16,7 +16,7 @@ type AbilityCheck = {
   rules: any[];
 };
 
-export class ResourcePolicyInterceptor<T extends Ability> implements NestInterceptor {
+export class ResourcePolicyInterceptor<T extends PureAbility> implements NestInterceptor {
   private readonly log = new Logger(ResourcePolicyInterceptor.name);
 
   constructor(protected readonly resourcePolicy: ResourcePolicy<T, any>) {}
@@ -34,7 +34,7 @@ export class ResourcePolicyInterceptor<T extends Ability> implements NestInterce
 
     const sub = this.resourcePolicy.getSubject();
 
-    let ability;
+    let ability: T;
     try {
       ability = this.resourcePolicy.createAbilityForUser(user);
     } catch (e) {

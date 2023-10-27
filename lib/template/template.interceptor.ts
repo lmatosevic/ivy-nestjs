@@ -7,7 +7,10 @@ import { ContextUtil } from '../utils';
 
 @Injectable()
 export class TemplateInterceptor implements NestInterceptor {
-  constructor(private reflector: Reflector, private templateService: TemplateService) {}
+  constructor(
+    private reflector: Reflector,
+    private templateService: TemplateService
+  ) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<string> {
     const ctx = ContextUtil.normalizeContext(context);

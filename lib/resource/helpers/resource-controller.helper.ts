@@ -300,7 +300,10 @@ export function ResourceController<T, C, U>(
   class ResourceController implements IResourceController<T, C, U> {
     private readonly protectedService: ResourceService<T>;
 
-    constructor(protected service: ResourceService<T>, protected policy?: ResourcePolicy<any, any>) {
+    constructor(
+      protected service: ResourceService<T>,
+      protected policy?: ResourcePolicy<any, any>
+    ) {
       this.protectedService = service.asProtected();
       if (policy) {
         UseInterceptors(new ResourcePolicyInterceptor(policy))(ResourceController);

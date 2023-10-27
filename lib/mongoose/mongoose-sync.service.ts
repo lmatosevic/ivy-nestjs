@@ -5,7 +5,10 @@ import { Connection } from 'mongoose';
 
 @Injectable()
 export class MongooseSyncService implements OnModuleInit {
-  constructor(@InjectConnection() private connection: Connection, private configService: ConfigService) {}
+  constructor(
+    @InjectConnection() private connection: Connection,
+    private configService: ConfigService
+  ) {}
 
   async onModuleInit(): Promise<void> {
     const syncIndexes = this.configService.get<boolean>('db.syncIndexes');

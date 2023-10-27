@@ -10,7 +10,10 @@ import { EventModule, EventService } from '../event';
   exports: [ContextMiddleware]
 })
 export class ContextModule implements NestModule {
-  constructor(private configService: ConfigService, private eventService: EventService) {
+  constructor(
+    private configService: ConfigService,
+    private eventService: EventService
+  ) {
     Context.config = this.configService;
     Context.event = this.eventService;
   }
