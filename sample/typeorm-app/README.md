@@ -58,7 +58,7 @@ npm run migration:run
 Create new migration and write it manually:
 
 ```
-npm run migration:create
+npm run migration:create src/migrations/NewMigrationName
 ```
 
 Revert last executed migration:
