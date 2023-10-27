@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.6.4](https://github.com/lmatosevic/ivy-nestjs/compare/v0.6.3...v0.6.4) (2023-10-27)
+
+
+### Bug Fixes
+
+* lowered most of the dependencies to base versions ([ab3d6c4](https://github.com/lmatosevic/ivy-nestjs/commit/ab3d6c4a42806f93fc3b1387999a75b7c998d35f))
+
 ### [0.6.3](https://github.com/lmatosevic/ivy-nestjs/compare/v0.6.2...v0.6.3) (2023-10-26)
 
 ### [0.6.2](https://github.com/lmatosevic/ivy-nestjs/compare/v0.6.1...v0.6.2) (2023-10-26)
