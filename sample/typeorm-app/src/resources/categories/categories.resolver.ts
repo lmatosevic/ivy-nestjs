@@ -7,7 +7,10 @@ import { CategoriesPolicy } from './policy';
 
 @Resolver(() => Category)
 export class CategoriesResolver extends ResourceResolver(Category, CreateCategoryDto, UpdateCategoryDto) {
-  constructor(private categoriesService: CategoriesService, private categoriesPolicy: CategoriesPolicy) {
+  constructor(
+    private categoriesService: CategoriesService,
+    private categoriesPolicy: CategoriesPolicy
+  ) {
     super(categoriesService, categoriesPolicy);
   }
 }

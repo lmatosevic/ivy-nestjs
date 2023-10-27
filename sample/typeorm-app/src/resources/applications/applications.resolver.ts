@@ -7,7 +7,10 @@ import { ApplicationsPolicy } from './policy';
 
 @Resolver(() => Application)
 export class ApplicationsResolver extends ResourceResolver(Application, CreateApplicationDto, UpdateApplicationDto) {
-  constructor(private applicationsService: ApplicationsService, private applicationsPolicy: ApplicationsPolicy) {
+  constructor(
+    private applicationsService: ApplicationsService,
+    private applicationsPolicy: ApplicationsPolicy
+  ) {
     super(applicationsService, applicationsPolicy);
   }
 }

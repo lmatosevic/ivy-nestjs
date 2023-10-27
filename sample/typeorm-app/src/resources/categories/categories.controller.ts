@@ -7,7 +7,10 @@ import { CategoriesPolicy } from './policy';
 
 @Controller('categories')
 export class CategoriesController extends ResourceController(Category, CreateCategoryDto, UpdateCategoryDto) {
-  constructor(private categoriesService: CategoriesService, private categoriesPolicy: CategoriesPolicy) {
+  constructor(
+    private categoriesService: CategoriesService,
+    private categoriesPolicy: CategoriesPolicy
+  ) {
     super(categoriesService, categoriesPolicy);
   }
 }

@@ -7,7 +7,10 @@ import { UsersPolicy } from './policy';
 
 @Resolver(() => User)
 export class UsersResolver extends ResourceResolver(User, CreateUserDto, UpdateUserDto) {
-  constructor(private usersService: UsersService, private usersPolicy: UsersPolicy) {
+  constructor(
+    private usersService: UsersService,
+    private usersPolicy: UsersPolicy
+  ) {
     super(usersService, usersPolicy);
   }
 }

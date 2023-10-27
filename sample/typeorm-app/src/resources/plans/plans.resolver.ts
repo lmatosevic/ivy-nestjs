@@ -7,7 +7,10 @@ import { PlansPolicy } from './policy';
 
 @Resolver(() => Plan)
 export class PlansResolver extends ResourceResolver(Plan, CreatePlanDto, UpdatePlanDto) {
-  constructor(private plansService: PlansService, private plansPolicy: PlansPolicy) {
+  constructor(
+    private plansService: PlansService,
+    private plansPolicy: PlansPolicy
+  ) {
     super(plansService, plansPolicy);
   }
 }

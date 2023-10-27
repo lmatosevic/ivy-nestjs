@@ -7,7 +7,10 @@ import { UsersPolicy } from './policy';
 
 @Controller('users')
 export class UsersController extends ResourceController(User, CreateUserDto, UpdateUserDto) {
-  constructor(private usersService: UsersService, private usersPolicy: UsersPolicy) {
+  constructor(
+    private usersService: UsersService,
+    private usersPolicy: UsersPolicy
+  ) {
     super(usersService, usersPolicy);
   }
 }

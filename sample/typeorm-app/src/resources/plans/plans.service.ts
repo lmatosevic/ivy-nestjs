@@ -7,7 +7,10 @@ import { Plan } from './entity';
 
 @Injectable()
 export class PlansService extends TypeOrmResourceService<Plan> {
-  constructor(@InjectRepository(Plan) protected planRepository: Repository<Plan>, protected fileManager: FileManager) {
+  constructor(
+    @InjectRepository(Plan) protected planRepository: Repository<Plan>,
+    protected fileManager: FileManager
+  ) {
     super(planRepository, fileManager);
   }
 }

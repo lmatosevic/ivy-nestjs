@@ -7,7 +7,10 @@ import { User } from './entity';
 
 @Injectable()
 export class UsersService extends TypeOrmUserDetailsService<User> {
-  constructor(@InjectRepository(User) private usersRepository: Repository<User>, protected fileManager: FileManager) {
+  constructor(
+    @InjectRepository(User) private usersRepository: Repository<User>,
+    protected fileManager: FileManager
+  ) {
     super(usersRepository, fileManager);
   }
 }

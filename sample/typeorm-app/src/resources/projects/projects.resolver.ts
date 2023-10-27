@@ -7,7 +7,10 @@ import { ProjectsPolicy } from './policy';
 
 @Resolver(() => Project)
 export class ProjectsResolver extends ResourceResolver(Project, CreateProjectDto, UpdateProjectDto) {
-  constructor(private projectsService: ProjectsService, private projectsPolicy: ProjectsPolicy) {
+  constructor(
+    private projectsService: ProjectsService,
+    private projectsPolicy: ProjectsPolicy
+  ) {
     super(projectsService, projectsPolicy);
   }
 }
