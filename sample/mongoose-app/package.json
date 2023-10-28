@@ -21,6 +21,9 @@
     "generate-mongo-key": "randomstring 756 > ./initdb/replica.key",
     "create-resource": "node ../../cli/create-resource.js mongoose"
   },
+  "dependencies": {
+    "mongodb": "5.2.0"
+  },
   "devDependencies": {
     "randomstring": "1.2.2",
     "tsconfig-paths": "4.1.0"

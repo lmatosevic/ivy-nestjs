@@ -1,7 +1,6 @@
 import { DynamicModule, Module } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { ModuleAsyncOptions, ModuleUtil } from '../utils';
-import { MongoExceptionFilter } from './mongo-exception.filter';
 import { ResourceExceptionFilter } from './resource-exception.filter';
 import { HttpExceptionFilter } from './http-exception.filter';
 import { FileExceptionFilter } from './file-exception.filter';
@@ -29,22 +28,11 @@ export class FiltersModule {
   }
 
   static createModule(providers: any[] = [], imports: any[] = []): DynamicModule {
-    const env = ModuleUtil.getCurrentEnv();
-    const dbType = env.DB_TYPE || 'mongoose';
-
     return {
       module: FiltersModule,
       imports: [...imports],
       providers: [
         ...providers,
-        ...(dbType === 'mongoose'
-          ? [
-              {
-                provide: APP_FILTER,
-                useClass: MongoExceptionFilter
-              }
-            ]
-          : []),
         {
           provide: APP_FILTER,
           useClass: HttpExceptionFilter

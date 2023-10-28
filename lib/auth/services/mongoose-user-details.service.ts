@@ -5,11 +5,11 @@ import { AuthUser, UserDetailsService } from '../interfaces';
 import { AuthSource, Role } from '../../enums';
 import { ResourceSchema } from '../../resource';
 import { AccountDetailsService } from '../account/interfaces';
-import { MongoResourceService } from '../../resource/services';
+import { MongooseResourceService } from '../../resource/services';
 import { FileManager } from '../../storage/file-manager';
 
-export abstract class MongoUserDetailsService<T extends AuthUser>
-  extends MongoResourceService<T>
+export abstract class MongooseUserDetailsService<T extends AuthUser>
+  extends MongooseResourceService<T>
   implements UserDetailsService<T>, AccountDetailsService<T>
 {
   protected constructor(

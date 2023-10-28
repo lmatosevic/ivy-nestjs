@@ -7,14 +7,14 @@ import { VerificationToken } from '../schema';
 import { VerificationTokenData, VerificationTokenService } from './verification-token.service';
 
 @Injectable()
-export class MongoVerificationTokenService implements VerificationTokenService<VerificationToken> {
-  private readonly logger: Logger = new Logger(MongoVerificationTokenService.name);
+export class MongooseVerificationTokenService implements VerificationTokenService<VerificationToken> {
+  private readonly logger: Logger = new Logger(MongooseVerificationTokenService.name);
   protected session?: ClientSession;
 
   constructor(@InjectModel(VerificationToken.name) protected verificationTokenModel: Model<VerificationToken>) {}
 
   useWith(sessionManager: ClientSession): VerificationTokenService<VerificationToken> {
-    const managedService = ObjectUtil.duplicate<MongoVerificationTokenService>(this);
+    const managedService = ObjectUtil.duplicate<MongooseVerificationTokenService>(this);
 
     managedService.setVerificationTokenModel(this.verificationTokenModel);
     managedService.setSession(sessionManager);

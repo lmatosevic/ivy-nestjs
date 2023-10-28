@@ -1,4 +1,5 @@
 import { DynamicModule, Global, Module } from '@nestjs/common';
+import { APP_FILTER } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import {
   AsyncModelFactory,
@@ -10,6 +11,7 @@ import { ModuleAsyncOptions, ModuleUtil } from '../utils';
 import { MongooseLoggerService } from './mongoose-logger.service';
 import { MongooseSyncService } from './mongoose-sync.service';
 import { MONGOOSE_MODULE_OPTIONS } from './mongoose.constant';
+import { MongooseExceptionFilter } from './mongoose-exception.filter';
 
 @Global()
 @Module({})
@@ -59,7 +61,15 @@ export class MongooseModule {
           })
         })
       ],
-      providers: [...providers, MongooseLoggerService, MongooseSyncService],
+      providers: [
+        ...providers,
+        MongooseLoggerService,
+        MongooseSyncService,
+        {
+          provide: APP_FILTER,
+          useClass: MongooseExceptionFilter
+        }
+      ],
       exports: [MONGOOSE_MODULE_OPTIONS, NestjsMongooseModule]
     };
   }

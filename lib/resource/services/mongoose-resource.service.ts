@@ -24,12 +24,12 @@ type ModelReferences = {
   embeddedTypes: Record<string, string>;
 };
 
-export abstract class MongoResourceService<T> extends ResourcePolicyService implements ResourceService<T> {
+export abstract class MongooseResourceService<T> extends ResourcePolicyService implements ResourceService<T> {
   public static modelRelationNames: Record<string, string[]>;
   public static modelReferences: Record<string, ModelReferences>;
   private static replicationEnabled: boolean;
 
-  private readonly log = new Logger(MongoResourceService.name);
+  private readonly log = new Logger(MongooseResourceService.name);
 
   protected isProtected: boolean = false;
   protected session?: ClientSession;
@@ -40,16 +40,16 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
   ) {
     super('_id');
 
-    if (MongoResourceService.replicationEnabled === undefined) {
-      MongoResourceService.replicationEnabled = !!this.model.db['_connectionOptions'].replicaSet;
+    if (MongooseResourceService.replicationEnabled === undefined) {
+      MongooseResourceService.replicationEnabled = !!this.model.db['_connectionOptions'].replicaSet;
       this.log.log('Database replication enabled');
     }
 
-    if (!MongoResourceService.modelReferences) {
-      MongoResourceService.modelReferences = this.initAllReferences();
+    if (!MongooseResourceService.modelReferences) {
+      MongooseResourceService.modelReferences = this.initAllReferences();
     }
-    if (!MongoResourceService.modelRelationNames) {
-      MongoResourceService.modelRelationNames = this.initRelationModelNames();
+    if (!MongooseResourceService.modelRelationNames) {
+      MongooseResourceService.modelRelationNames = this.initRelationModelNames();
     }
   }
 
@@ -59,10 +59,10 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
     return { session };
   }
 
-  useWith(sessionManager: ClientSession): MongoResourceService<T> {
-    const managedService = ObjectUtil.duplicate<MongoResourceService<T>>(this);
+  useWith(sessionManager: ClientSession): MongooseResourceService<T> {
+    const managedService = ObjectUtil.duplicate<MongooseResourceService<T>>(this);
 
-    const session = MongoResourceService.replicationEnabled ? sessionManager : undefined;
+    const session = MongooseResourceService.replicationEnabled ? sessionManager : undefined;
 
     managedService.setProtected(this.isProtected);
     managedService.setModel(this.model);
@@ -73,7 +73,7 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
   }
 
   asProtected(): ResourceService<T> {
-    const protectedService = ObjectUtil.duplicate<MongoResourceService<T>>(this);
+    const protectedService = ObjectUtil.duplicate<MongooseResourceService<T>>(this);
 
     protectedService.setProtected(true);
     protectedService.setModel(this.model);
@@ -414,9 +414,9 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
 
   private async makeSession(): Promise<ClientSession | undefined> {
     let session;
-    if (!this.session && MongoResourceService.replicationEnabled) {
+    if (!this.session && MongooseResourceService.replicationEnabled) {
       session = await this.model.db.startSession();
-    } else if (MongoResourceService.replicationEnabled) {
+    } else if (MongooseResourceService.replicationEnabled) {
       session = this.session;
     }
     return session;
@@ -838,43 +838,43 @@ export abstract class MongoResourceService<T> extends ResourcePolicyService impl
   }
 
   private fields(modelName?: string): string[] {
-    return MongoResourceService.modelReferences[modelName || this.model.modelName]?.fields;
+    return MongooseResourceService.modelReferences[modelName || this.model.modelName]?.fields;
   }
 
   private referencedFields(modelName?: string): string[] {
-    return MongoResourceService.modelReferences[modelName || this.model.modelName]?.references;
+    return MongooseResourceService.modelReferences[modelName || this.model.modelName]?.references;
   }
 
   private virtualFields(modelName?: string): string[] {
-    return MongoResourceService.modelReferences[modelName || this.model.modelName]?.virtuals;
+    return MongooseResourceService.modelReferences[modelName || this.model.modelName]?.virtuals;
   }
 
   private embeddedFields(modelName?: string): string[] {
-    return MongoResourceService.modelReferences[modelName || this.model.modelName]?.embedded;
+    return MongooseResourceService.modelReferences[modelName || this.model.modelName]?.embedded;
   }
 
   private fileFields(modelName?: string): string[] {
-    return MongoResourceService.modelReferences[modelName || this.model.modelName]?.files;
+    return MongooseResourceService.modelReferences[modelName || this.model.modelName]?.files;
   }
 
   private fileProps(modelName?: string): Record<string, FileProps> {
-    return MongoResourceService.modelReferences[modelName || this.model.modelName]?.fileProps;
+    return MongooseResourceService.modelReferences[modelName || this.model.modelName]?.fileProps;
   }
 
   private refProps(modelName?: string): Record<string, any> {
-    return MongoResourceService.modelReferences[modelName || this.model.modelName]?.refProps;
+    return MongooseResourceService.modelReferences[modelName || this.model.modelName]?.refProps;
   }
 
   private refProp(fieldName: string, modelName?: string): any {
-    return MongoResourceService.modelReferences[modelName || this.model.modelName]?.refProps?.[fieldName];
+    return MongooseResourceService.modelReferences[modelName || this.model.modelName]?.refProps?.[fieldName];
   }
 
   private embeddedTypes(modelName?: string): any {
-    return MongoResourceService.modelReferences[modelName || this.model.modelName]?.embeddedTypes;
+    return MongooseResourceService.modelReferences[modelName || this.model.modelName]?.embeddedTypes;
   }
 
   private embeddedType(fieldName: string, modelName?: string): string {
-    return MongoResourceService.modelReferences[modelName || this.model.modelName]?.embeddedTypes?.[fieldName];
+    return MongooseResourceService.modelReferences[modelName || this.model.modelName]?.embeddedTypes?.[fieldName];
   }
 
   private initRelationModelNames(): Record<string, string[]> {

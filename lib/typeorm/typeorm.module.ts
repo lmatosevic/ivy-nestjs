@@ -7,7 +7,7 @@ import { DEFAULT_DATA_SOURCE_NAME } from '@nestjs/typeorm/dist/typeorm.constants
 import { DataSource, DataSourceOptions, LoggerOptions } from 'typeorm';
 import { EntityClassOrSchema } from '@nestjs/typeorm/dist/interfaces/entity-class-or-schema.type';
 import { ModuleAsyncOptions, ModuleUtil } from '../utils';
-import { TypeOrmLogger } from './logger';
+import { TypeOrmLogger } from './typeorm-logger';
 import { TypeormMigrationService } from './typeorm-migration.service';
 import { TYPEORM_MODULE_OPTIONS } from './typeorm.constant';
 

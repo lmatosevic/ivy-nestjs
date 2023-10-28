@@ -3,7 +3,7 @@ import { CacheInterceptor as NestjsCacheInterceptor } from '@nestjs/cache-manage
 import { Reflector } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import * as hash from 'object-hash';
-import { MongoResourceService, RESOURCE_REF_KEY, TypeOrmResourceService } from '../resource';
+import { MongooseResourceService, RESOURCE_REF_KEY, TypeOrmResourceService } from '../resource';
 import { CacheService } from './cache.service';
 import { ContextUtil } from '../utils';
 import { CACHED_MODEL_NAME, CACHED_RELATIONS } from './decorators';
@@ -81,7 +81,7 @@ export class CacheInterceptor extends NestjsCacheInterceptor {
   private resourceRelationNames(resourceName?: string): string[] {
     const dbType = this.configService.get('db.type');
     const modelRelationNames =
-      dbType === 'mongoose' ? MongoResourceService.modelRelationNames : TypeOrmResourceService.modelRelationNames;
+      dbType === 'mongoose' ? MongooseResourceService.modelRelationNames : TypeOrmResourceService.modelRelationNames;
 
     if (!resourceName) {
       return Object.keys(modelRelationNames || {});

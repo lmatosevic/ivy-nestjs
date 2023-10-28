@@ -1,20 +1,20 @@
-import { ExceptionFilter, Catch, ArgumentsHost, Logger, Inject } from '@nestjs/common';
+import { ArgumentsHost, Catch, ExceptionFilter, Inject, Logger, Optional } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Request, Response } from 'express';
 import { MongoError } from 'mongodb';
-import { FiltersModuleOptions } from './filters.module';
-import { FILTERS_MODULE_OPTIONS } from './filters.constants';
+import { FiltersModuleOptions } from '../filters';
+import { FILTERS_MODULE_OPTIONS } from '../filters/filters.constants';
 
 @Catch(MongoError)
-export class MongoExceptionFilter implements ExceptionFilter {
-  private readonly logger = new Logger(MongoExceptionFilter.name);
+export class MongooseExceptionFilter implements ExceptionFilter {
+  private readonly logger = new Logger(MongooseExceptionFilter.name);
   private readonly debug: boolean;
 
   constructor(
-    @Inject(FILTERS_MODULE_OPTIONS) private filtersModuleOptions: FiltersModuleOptions,
+    @Optional() @Inject(FILTERS_MODULE_OPTIONS) private filtersModuleOptions: FiltersModuleOptions,
     private configService: ConfigService
   ) {
-    this.debug = filtersModuleOptions.debug ?? configService.get('app.debug') ?? false;
+    this.debug = filtersModuleOptions?.debug ?? configService.get('app.debug') ?? false;
   }
 
   catch(exception: MongoError, host: ArgumentsHost) {

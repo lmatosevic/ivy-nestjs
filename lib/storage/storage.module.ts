@@ -10,7 +10,7 @@ import { FileMeta, FileMetaSchema } from './schema';
 import { File, FileMeta as FileMetaEntity } from './entity';
 import { StorageController } from './storage.controller';
 import { FileManager } from './file-manager';
-import { MongoFileMetaService, TypeOrmFileMetaService } from './file-meta';
+import { MongooseFileMetaService, TypeOrmFileMetaService } from './file-meta';
 import { FILE_META_SERVICE, STORAGE_ADAPTER, STORAGE_MODULE_OPTIONS } from './storage.constants';
 
 export interface StorageModuleOptions {
@@ -93,7 +93,7 @@ export class StorageModule {
           collection: '_files'
         }
       ]);
-      databaseFileMetaService = MongoFileMetaService;
+      databaseFileMetaService = MongooseFileMetaService;
     } else {
       databaseModule = TypeOrmModule.forFeature([File, FileMetaEntity]);
       databaseFileMetaService = TypeOrmFileMetaService;

@@ -4,7 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ModuleAsyncOptions, ModuleUtil } from '../../../utils';
 import { VerificationToken as VerificationTokenEntity } from './entity';
 import { VerificationToken, VerificationTokenSchema } from './schema';
-import { MongoVerificationTokenService, TypeOrmVerificationTokenService } from './services';
+import { MongooseVerificationTokenService, TypeOrmVerificationTokenService } from './services';
 import { VerificationService } from './verification.service';
 import { VERIFICATION_MODULE_OPTIONS, VERIFICATION_TOKEN_SERVICE } from './verification.constants';
 
@@ -63,7 +63,7 @@ export class VerificationModule {
           collection: '_verificationtokens'
         }
       ]);
-      databaseService = MongoVerificationTokenService;
+      databaseService = MongooseVerificationTokenService;
     } else {
       databaseModule = TypeOrmModule.forFeature([VerificationTokenEntity]);
       databaseService = TypeOrmVerificationTokenService;

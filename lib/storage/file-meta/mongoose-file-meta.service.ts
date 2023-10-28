@@ -7,14 +7,14 @@ import { FileMeta } from '../schema';
 import { FILE_PROPS_KEY, FileProps } from '../../storage';
 
 @Injectable()
-export class MongoFileMetaService implements FileMetaService {
-  private readonly logger: Logger = new Logger(MongoFileMetaService.name);
+export class MongooseFileMetaService implements FileMetaService {
+  private readonly logger: Logger = new Logger(MongooseFileMetaService.name);
   protected session?: ClientSession;
 
   constructor(@InjectModel(FileMeta.name) protected fileMetaModel: Model<FileMeta>) {}
 
   useWith(sessionManager: ClientSession): FileMetaService {
-    const managedService = ObjectUtil.duplicate<MongoFileMetaService>(this);
+    const managedService = ObjectUtil.duplicate<MongooseFileMetaService>(this);
 
     managedService.setFileMetaModel(this.fileMetaModel);
     managedService.setSession(sessionManager);
