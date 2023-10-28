@@ -106,6 +106,7 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
 
       return data;
     }
+    return null;
   }
 
   async set(key: string, value: any, ttl?: number | any): Promise<void> {
@@ -186,7 +187,7 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
     if (this.enabled && this.changeStrategy !== 'none') {
       this.logger.verbose('Expiring cache on %s %s', resource, action);
 
-      let pattern;
+      let pattern: string;
       if (this.changeStrategy === 'expire-all') {
         pattern = '*';
       } else if (this.changeStrategy === 'expire-related') {
@@ -233,9 +234,9 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
 
       const keysSet = new Set<string>();
 
-      stream.on('data', (keys) => {
+      stream.on('data', (keys: string[]) => {
         stream.pause();
-        keys.forEach((key) => keysSet.add(key));
+        keys.forEach((key: string) => keysSet.add(key));
         stream.resume();
       });
 
@@ -304,7 +305,7 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
       return;
     }
 
-    let sortedKeys;
+    let sortedKeys: string[];
     switch (this.evictionStrategy) {
       case 'LRU':
         sortedKeys = this.sortLRU();

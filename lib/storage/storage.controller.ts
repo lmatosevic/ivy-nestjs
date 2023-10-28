@@ -13,7 +13,7 @@ import { STORAGE_MODULE_OPTIONS } from './storage.constants';
 @ApiTags('Files')
 @Controller('files')
 export class StorageController {
-  private readonly cacheDuration;
+  private readonly cacheDuration: number;
 
   constructor(
     @Inject(STORAGE_MODULE_OPTIONS) private storageModuleOptions: StorageModuleOptions,

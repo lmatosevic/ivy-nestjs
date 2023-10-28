@@ -16,7 +16,7 @@ import { FILE_PROPS_KEY, FileError, FileManager, FileProps } from '../../storage
 import { POPULATE_RELATION_KEY, PopulateRelationConfig } from '../decorators';
 import { Action } from '../../enums';
 import { AggregateRequest, AggregateResponse, QueryRequest, QueryResponse } from '../dto';
-import { FilesUtil, ObjectUtil, RequestUtil, StringUtil } from '../../utils';
+import { FilesUtil, FilterUtil, ObjectUtil, RequestUtil, StringUtil } from '../../utils';
 import { ResourceService } from './resource.service';
 import { ResourceEntity } from '../entity';
 import { ResourcePolicyService } from '../policy';
@@ -470,7 +470,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     const modelAlias = joins.alias;
 
     if (Object.keys(filter).length > 0) {
-      filter = RequestUtil.transformTypeormFilter(filter, repository.metadata.name);
+      filter = FilterUtil.transformTypeormFilter(filter, repository.metadata.name);
       this.log.debug('Transformed filter: %j', filter);
     }
 
@@ -541,13 +541,13 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
         let whereKey = first ? 'where' : 'andWhere';
 
         // Map AND & OR operators using recursive brackets expressions
-        if (RequestUtil.filterQueryBrackets.includes(key) && Array.isArray(value)) {
+        if (FilterUtil.isQueryOperator(key) && Array.isArray(value)) {
           for (const operator of value) {
             const whereType = key === '_and' ? 'andWhere' : 'orWhere';
             whereKey = first ? 'where' : whereType;
             switch (key) {
               case '_and':
-                qb[whereKey](this.buildWhereQuery(operator, joins, bracketUsedJoins));
+                qb[whereKey](this.buildWhereQuery(operator, joins, bracketUsedJoins, false));
                 break;
               case '_or':
                 qb[whereKey](this.buildWhereQuery(operator, joins, bracketUsedJoins, false));
@@ -562,8 +562,8 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
         }
 
         // Add where statements for entity properties with single or multiple values and replace relation join alias
-        // with query join alias to prevent data exclusion from array relations caused by filtering by subrelations
-        if (!RequestUtil.filterQueryKeys.includes(key) && Array.isArray(value)) {
+        // with query join alias to prevent data exclusion from array relations caused by filtering by sub-relations
+        if (!FilterUtil.isQueryKey(key) && Array.isArray(value)) {
           if (value.length === 2 && typeof value[0] === 'string' && typeof value[1] === 'object') {
             let statement = this.replaceQueryJoinAlias(value[0], joins, bracketUsedJoins);
             qb[whereKey](statement, value[1]);
@@ -585,8 +585,8 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
           continue;
         }
 
-        // Recursively traverse nested relation propertis map
-        if (!RequestUtil.filterQueryKeys.includes(key) && typeof value === 'object') {
+        // Recursively traverse nested relation properties map
+        if (!FilterUtil.isQueryKey(key) && typeof value === 'object') {
           qb[whereKey](this.buildWhereQuery(value, joins, bracketUsedJoins, isNot));
           first = false;
         }
@@ -619,9 +619,9 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
       queryJoin: {}
     };
 
-    const filterKeys = ObjectUtil.nestedKeys(filter, RequestUtil.filterQueryKeys, (key, value, keys) => {
+    const filterKeys = ObjectUtil.nestedKeys(filter, FilterUtil.getQueryKeys(), (key, value, keys) => {
       let totalCount = 0;
-      for (const bracketKey of RequestUtil.filterQueryBrackets) {
+      for (const bracketKey of FilterUtil.getQueryOperators()) {
         const bracketValue = value[bracketKey];
         if (bracketValue && Array.isArray(bracketValue)) {
           totalCount += bracketValue.length;

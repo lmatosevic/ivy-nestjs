@@ -6,7 +6,7 @@ import { FILE_PROPS_KEY, FileProps } from '../../storage/decorators';
 import { FileError, FileManager } from '../../storage';
 import { Action } from '../../enums';
 import { FileMeta } from '../../storage/schema';
-import { FilesUtil, ObjectUtil, RequestUtil, StringUtil } from '../../utils';
+import { FilesUtil, FilterUtil, ObjectUtil, RequestUtil, StringUtil } from '../../utils';
 import { AggregateRequest, AggregateResponse, QueryRequest, QueryResponse, ValidationError } from '../dto';
 import { ResourceService } from './resource.service';
 import { ResourcePolicyService } from '../policy';
@@ -107,7 +107,7 @@ export abstract class MongooseResourceService<T> extends ResourcePolicyService i
       }
 
       if (Object.keys(filter).length > 0) {
-        filter = RequestUtil.transformMongooseFilter(filter);
+        filter = FilterUtil.transformMongooseFilter(filter);
         this.log.debug('Transformed filter: %j', filter);
         filter = await this.resolveFilterSubReferences(filter);
       }
@@ -171,7 +171,7 @@ export abstract class MongooseResourceService<T> extends ResourcePolicyService i
       let aggregation = this.model.aggregate();
 
       if (Object.keys(filter).length > 0) {
-        filter = RequestUtil.transformMongooseFilter(filter);
+        filter = FilterUtil.transformMongooseFilter(filter);
         this.log.debug('Transformed filter: %j', filter);
         filter = await this.resolveFilterSubReferences(filter);
         aggregation.append({ $match: this.model.find(filter as any).getQuery() });

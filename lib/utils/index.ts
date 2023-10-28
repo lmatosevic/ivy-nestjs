@@ -3,6 +3,7 @@ export * from './context.util';
 export * from './crypto.util';
 export * from './date.util';
 export * from './files.util';
+export * from './filter.util';
 export * from './map.util';
 export * from './module.util';
 export * from './object.util';

@@ -2,6 +2,7 @@ import { ConfigService } from '@nestjs/config';
 import { AsyncLocalStorage } from 'async_hooks';
 import { Request, Response } from 'express';
 import { EventService } from '../event';
+import { CacheService } from '../cache';
 
 export class Context {
   constructor(
@@ -14,6 +15,8 @@ export class Context {
   static config: ConfigService;
 
   static event: EventService;
+
+  static cache?: CacheService;
 
   static get currentRequest() {
     return this.context.getStore();
