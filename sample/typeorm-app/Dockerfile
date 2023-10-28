@@ -1,5 +1,5 @@
 ## Install dependencies and build application
-FROM node:16.14.0-alpine as build
+FROM node:18.18.2 as build
 
 # Create app directory
 WORKDIR /usr/app
@@ -20,7 +20,7 @@ RUN npm run build
 
 
 ## Run the application
-FROM node:16.14.0-alpine as deploy
+FROM node:18.18.2-alpine as deploy
 
 # Set work directory
 WORKDIR /usr/app
