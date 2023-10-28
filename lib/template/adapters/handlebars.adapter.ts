@@ -48,7 +48,8 @@ export class HandlebarsAdapter implements TemplateAdapter {
 
     if (runtimeOptions.partials !== false) {
       const rootDir = get(config, 'rootDir', '');
-      const files = await glob(path.join(rootDir, '**', '*.hbs'));
+      const searchPattern = path.join(rootDir, '**', '*.hbs').replace(/\\/g, '/');
+      const files = await glob(searchPattern);
       for (const file of files) {
         const { templateName, templatePath } = await this.precompile(file);
         const templateDir = path.relative(rootDir, path.dirname(file));
