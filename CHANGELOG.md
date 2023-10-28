@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.6.8](https://github.com/lmatosevic/ivy-nestjs/compare/v0.6.7...v0.6.8) (2023-10-28)
+
+
+### Features
+
+* add caching for authorized user object ([d7442a0](https://github.com/lmatosevic/ivy-nestjs/commit/d7442a06b46ea79b225e0ddea4d299d7ff97789f))
+* removed Document extension from Mongoose resource schema object ([bec6e0f](https://github.com/lmatosevic/ivy-nestjs/commit/bec6e0f2bc005943c569adad99d85239dbe43312))
+
+
+### Bug Fixes
+
+* fixed query bug without root operator ([c123a9e](https://github.com/lmatosevic/ivy-nestjs/commit/c123a9e5abf2882199748054cbb18527141e1e8c))
+
 ### [0.6.7](https://github.com/lmatosevic/ivy-nestjs/compare/v0.6.6...v0.6.7) (2023-10-28)
 
 
