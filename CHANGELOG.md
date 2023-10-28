@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.6.7](https://github.com/lmatosevic/ivy-nestjs/compare/v0.6.6...v0.6.7) (2023-10-28)
+
+
+### Features
+
+* moved mongo error filter to mongoose module ([fc76e1f](https://github.com/lmatosevic/ivy-nestjs/commit/fc76e1fc253a282a72a827c4388e5ee44fd741ca))
+
+
+### Bug Fixes
+
+* fixed handlebars template file resolving ([22332d6](https://github.com/lmatosevic/ivy-nestjs/commit/22332d6e413fe019675cf6498e83079a25707de3))
+
 ### [0.6.6](https://github.com/lmatosevic/ivy-nestjs/compare/v0.6.5...v0.6.6) (2023-10-27)
 
 
