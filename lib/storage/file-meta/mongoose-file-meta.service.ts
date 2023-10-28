@@ -36,7 +36,7 @@ export class MongooseFileMetaService implements FileMetaService {
 
     try {
       const savedModel = await model.save();
-      return savedModel._id;
+      return savedModel._id.toString();
     } catch (e) {
       this.logger.error('Error saving file metadata "%s", %j', meta.name, e);
       throw e;
@@ -44,14 +44,13 @@ export class MongooseFileMetaService implements FileMetaService {
   }
 
   async update(name: string, metadata: Partial<FileMetadata>): Promise<boolean> {
-    const meta = (await this.find(name)) as FileMeta;
-
     try {
+      const meta = await this.fileMetaModel.findOne({ name }).session(this.session).exec();
       meta.set(metadata);
       await meta.save();
       return true;
     } catch (e) {
-      this.logger.error('Error updating file metadata "%s", %j', meta.name, e);
+      this.logger.error('Error updating file metadata "%s", %j', name, e);
       throw e;
     }
   }

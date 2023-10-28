@@ -1,10 +1,11 @@
-import { Document } from 'mongoose';
 import { AuthUser } from '../../auth';
 
-export abstract class ResourceSchema extends Document {
+interface AuthorizedUser extends AuthUser {}
+
+export abstract class ResourceSchema {
   id: string;
 
-  createdBy?: string | AuthUser;
+  createdBy?: string | AuthorizedUser;
 
   createdAt?: Date;
 
