@@ -3,9 +3,9 @@ import { CacheInterceptor as NestjsCacheInterceptor } from '@nestjs/cache-manage
 import { Reflector } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import * as hash from 'object-hash';
-import { MongooseResourceService, RESOURCE_REF_KEY, TypeOrmResourceService } from '../resource';
+import { RESOURCE_REF_KEY } from '../resource';
 import { CacheService } from './cache.service';
-import { ContextUtil } from '../utils';
+import { CacheUtil, ContextUtil } from '../utils';
 import { CACHED_MODEL_NAME, CACHED_RELATIONS } from './decorators';
 
 @Injectable()
@@ -37,21 +37,10 @@ export class CacheInterceptor extends NestjsCacheInterceptor {
     }
 
     // Create cache key suffix composed of all related resources names to enable on-change expiration
-    const cachedRelations = this.cachedRelations(ctx);
     const cachedModelName = this.cachedModelName(ctx);
-    const name = this.resourceName(ctx);
-    if ((cachedRelations.length === 1 && cachedRelations[0] === '*') || cachedModelName) {
-      const allRelations = this.resourceRelationNames(cachedModelName);
-      key = `${key}_!${allRelations.join('!')}!`;
-    } else if (cachedRelations.length > 0) {
-      key = `${key}_!${cachedRelations.join('!')}!`;
-    } else if (name) {
-      const relations = this.resourceRelationNames(name);
-      if (!relations.includes(name)) {
-        relations.push(name);
-      }
-      key = `${key}_!${relations.join('!')}!`;
-    }
+    const cachedRelations = this.cachedRelations(ctx);
+    const resourceName = this.resourceName(ctx);
+    key = CacheUtil.createResourceCacheKey(key, cachedModelName, cachedRelations, resourceName);
 
     // Set authorized user id as cache key prefix
     const request = ctx.switchToHttp().getRequest();
@@ -59,6 +48,10 @@ export class CacheInterceptor extends NestjsCacheInterceptor {
     const userId = user?.getId();
 
     return `${userId ? userId : ''}_${key}`;
+  }
+
+  private cachedModelName(context: ExecutionContext): string {
+    return this.reflector.getAllAndOverride<string>(CACHED_MODEL_NAME, [context.getHandler(), context.getClass()]);
   }
 
   private cachedRelations(context: ExecutionContext): string[] {
@@ -69,24 +62,8 @@ export class CacheInterceptor extends NestjsCacheInterceptor {
     return relations || [];
   }
 
-  private cachedModelName(context: ExecutionContext): string {
-    return this.reflector.getAllAndOverride<string>(CACHED_MODEL_NAME, [context.getHandler(), context.getClass()]);
-  }
-
   private resourceName(context: ExecutionContext): string {
     const resourceRef = this.reflector.get<Type<unknown>>(RESOURCE_REF_KEY, context.getClass());
     return resourceRef?.name || null;
-  }
-
-  private resourceRelationNames(resourceName?: string): string[] {
-    const dbType = this.configService.get('db.type');
-    const modelRelationNames =
-      dbType === 'mongoose' ? MongooseResourceService.modelRelationNames : TypeOrmResourceService.modelRelationNames;
-
-    if (!resourceName) {
-      return Object.keys(modelRelationNames || {});
-    }
-
-    return modelRelationNames?.[resourceName] || [];
   }
 }

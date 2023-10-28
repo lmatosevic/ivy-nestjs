@@ -70,9 +70,8 @@ export abstract class ResourcePolicyService {
   }
 
   async expireCache(resource: string, action: Action): Promise<void> {
-    const cacheManager = Context.currentRequest?.req?.['cacheManager'];
-    if (cacheManager) {
-      await cacheManager.expireOnChange(resource, action);
+    if (Context.cache) {
+      await Context.cache.expireOnChange(resource, action);
     } else {
       Context.event.emit('cache.expireOnChange', { resource, action });
     }

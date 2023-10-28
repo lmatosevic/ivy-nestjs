@@ -1,5 +1,5 @@
 export class ObjectUtil {
-  static transfromKeysAndValues(
+  static transformKeysAndValues(
     object: any,
     newKey: (key: string, value: any, keyList?: string[]) => string = (key) => key,
     newValue: (key: string, value: any, keyList?: string[]) => any | { key: string; value: any }[] = (key, value) =>
@@ -28,13 +28,13 @@ export class ObjectUtil {
       if (val && typeof val === 'object') {
         if (!Array.isArray(val)) {
           keyList.push(key);
-          val = this.transfromKeysAndValues(val, newKey, newValue, mergeKeyValue, keyList);
+          val = this.transformKeysAndValues(val, newKey, newValue, mergeKeyValue, keyList);
           keyList.pop();
         } else {
           const items = [];
           keyList.push(key);
           for (let item of val) {
-            items.push(this.transfromKeysAndValues(item, newKey, newValue, mergeKeyValue, keyList));
+            items.push(this.transformKeysAndValues(item, newKey, newValue, mergeKeyValue, keyList));
           }
           keyList.pop();
           val = items;

@@ -1,9 +1,10 @@
-import { Inject, Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnModuleDestroy, OnModuleInit, Type } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { glob } from 'glob';
 import { promises as fsp } from 'fs';
+import { plainToInstance } from 'class-transformer';
 import { Action } from '../enums';
 import { FilesUtil } from '../utils';
 import { CacheChangeStrategy, CacheEvictionStrategy, CacheModuleOptions, CacheType } from './cache.module';
@@ -90,7 +91,7 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
     return `${prefix}${key}`;
   }
 
-  async get<T>(key: string): Promise<T | null> {
+  async get<T>(key: string, type?: Type): Promise<T | null> {
     if (this.enabled) {
       const data = await this.cacheManager.get<T>(this.prefixedKey(key));
 
@@ -104,18 +105,22 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
         };
       }
 
-      return data;
+      return type && data ? plainToInstance(type, data) : data;
     }
     return null;
   }
 
   async set(key: string, value: any, ttl?: number | any): Promise<void> {
     if (this.enabled) {
-      await this.cacheManager.set(this.prefixedKey(key), value, ttl);
+      await this.cacheManager.set(
+        this.prefixedKey(key),
+        value,
+        ttl ? (this.storeType !== 'memory' ? ({ ttl } as any) : ttl * 1000) : undefined
+      );
 
       const now = Date.now();
       const expiresAt =
-        ttl === 0 ? undefined : ttl ? now + (typeof ttl === 'object' ? ttl.ttl : ttl) * 1000 : now + this.ttl * 1000;
+        ttl === 0 ? undefined : now + (ttl ? (typeof ttl === 'object' ? ttl.ttl : ttl) : this.ttl) * 1000;
       this.keysMeta[key] = {
         key,
         usedCount: 1,
@@ -260,7 +265,7 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
             try {
               const data = await fsp.readFile(file, 'utf-8');
               const json = JSON.parse(data.toString());
-              if (json['key'].match(regex)) {
+              if ('key' in json && json['key'].match(regex)) {
                 keysSet.add(json['key']);
               }
             } catch (e) {

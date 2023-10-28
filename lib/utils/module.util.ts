@@ -27,7 +27,13 @@ export class ModuleUtil {
     if (options.useFactory) {
       providers.push({
         provide: optionsKey,
-        useFactory: options.useFactory,
+        useFactory: async (...args: any[]) => {
+          const data = await options.useFactory(...args);
+          return {
+            ..._.omit(options, ['imports', 'useExisting', 'useClass', 'useFactory', 'inject']),
+            ...data
+          };
+        },
         inject: options.inject || []
       });
     } else if (options.useExisting || options.useClass) {

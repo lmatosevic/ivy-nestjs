@@ -1,4 +1,5 @@
 export * from './app.util';
+export * from './cache.util';
 export * from './context.util';
 export * from './crypto.util';
 export * from './date.util';

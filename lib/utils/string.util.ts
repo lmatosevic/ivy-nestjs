@@ -75,7 +75,7 @@ export class StringUtil {
   static sanitizeData(data: any, replacement = '********'): any {
     const sensitiveKeys = ['password', 'authorization', 'cookie', 'accesstoken', 'refreshtoken', 'idtoken'];
 
-    return ObjectUtil.transfromKeysAndValues(
+    return ObjectUtil.transformKeysAndValues(
       data,
       (key) => key,
       (key, value) => {

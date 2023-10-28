@@ -1,13 +1,16 @@
-import { Inject, Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnApplicationBootstrap, Optional } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { ReflectionUtil, StringUtil } from '../utils';
+import { CacheUtil, ReflectionUtil, StringUtil } from '../utils';
 import { StatusResponse } from '../resource';
 import { AuthUser, UserDetailsService } from './interfaces';
 import { AuthModuleOptions, AuthRouteOptions } from './auth.module';
 import { JwtPayload, JwtToken } from './strategy/jwt/jwt.dto';
 import { AuthorizationError } from './errors';
 import { AUTH_MODULE_OPTIONS } from './auth.constants';
+import { CacheService } from '../cache';
+
+export const AUTH_CACHE_PREFIX = 'auth';
 
 @Injectable()
 export class AuthService implements OnApplicationBootstrap {
@@ -16,6 +19,7 @@ export class AuthService implements OnApplicationBootstrap {
 
   constructor(
     @Inject(AUTH_MODULE_OPTIONS) private authModuleOptions: AuthModuleOptions,
+    @Optional() @Inject(CacheService) private cacheService: CacheService,
     private configService: ConfigService,
     private jwtService: JwtService
   ) {
@@ -35,7 +39,11 @@ export class AuthService implements OnApplicationBootstrap {
   }
 
   async findUser(username: string): Promise<AuthUser> {
-    return this.userDetailsService.findByUsername(username);
+    return this.findAndCacheUser(username, 'findByUsername');
+  }
+
+  async findUserById(id: string | number): Promise<AuthUser> {
+    return this.findAndCacheUser(id, 'findById');
   }
 
   async validateUser(username: string, password: string): Promise<AuthUser | null> {
@@ -56,7 +64,7 @@ export class AuthService implements OnApplicationBootstrap {
     const accessToken = await this.jwtService.signAsync(payload);
     const refreshToken = await this.jwtService.signAsync({ ...payload, refresh: true });
 
-    let result;
+    let result: boolean;
     try {
       result = await this.userDetailsService.onLogin(user);
     } catch (e) {
@@ -81,6 +89,24 @@ export class AuthService implements OnApplicationBootstrap {
       this.logger.warn(e);
       throw new AuthorizationError('Unauthorized', 401);
     }
+  }
+
+  private async findAndCacheUser(
+    key: string | number,
+    findFnName: 'findById' | 'findByUsername'
+  ): Promise<AuthUser | null> {
+    const cacheKey = CacheUtil.createResourceCacheKey(
+      `${AUTH_CACHE_PREFIX}_${key}`,
+      this.authModuleOptions.userDetailsClass.name
+    );
+
+    let user = await this.cacheService?.get<AuthUser>(cacheKey, this.authModuleOptions.userDetailsClass);
+    if (!user) {
+      user = await this.userDetailsService[findFnName](key as string);
+      await this.cacheService?.set(cacheKey, user);
+    }
+
+    return user;
   }
 
   private async createAdminUser(): Promise<void> {

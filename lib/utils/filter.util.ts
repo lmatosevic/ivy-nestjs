@@ -59,7 +59,7 @@ export class FilterUtil {
 
     filter = addILikeOptions(filter);
 
-    const newFilter = ObjectUtil.transfromKeysAndValues(
+    const newFilter = ObjectUtil.transformKeysAndValues(
       filter,
       (key) => {
         if (['_like', '_ilike'].includes(key)) {
@@ -111,7 +111,7 @@ export class FilterUtil {
       wrappedFilter = { [this.defaultFilterOperator]: { ...filter } };
     }
 
-    return ObjectUtil.transfromKeysAndValues(
+    return ObjectUtil.transformKeysAndValues(
       wrappedFilter,
       (key) => key,
       (key, value, keyList) => {

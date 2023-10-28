@@ -125,7 +125,7 @@ export class CacheModule implements NestModule {
       inject: [CACHE_MODULE_OPTIONS, ConfigService],
       useFactory: async (cacheModuleOptions: CacheModuleOptions, conf: ConfigService) => ({
         store: cacheModuleOptions.store || 'memory',
-        ttl: cacheModuleOptions.ttl ?? conf.get('cache.ttl'),
+        ttl: (cacheModuleOptions.ttl ?? conf.get('cache.ttl')) * 1000,
         max: cacheModuleOptions.maxItems ?? conf.get('cache.maxItems'),
         isCacheableValue: cacheModuleOptions.isCacheableValue,
         ...(cacheModuleOptions.options || {})

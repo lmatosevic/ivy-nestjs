@@ -4,6 +4,8 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AuthModuleOptions } from '../../auth.module';
 import { AuthorizationError } from '../../errors';
+import { AuthUser } from '../../interfaces';
+import { AuthService } from '../../auth.service';
 import { AUTH_MODULE_OPTIONS } from '../../auth.constants';
 import { JwtPayload } from './jwt.dto';
 
@@ -13,6 +15,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   constructor(
     @Inject(AUTH_MODULE_OPTIONS) private authModuleOptions: AuthModuleOptions,
+    private authService: AuthService,
     private configService: ConfigService
   ) {
     super({
@@ -26,9 +29,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: JwtPayload) {
-    let user;
+    let user: AuthUser;
     try {
-      user = await this.authModuleOptions.userDetailsService.findById(payload.sub);
+      user = await this.authService.findUserById(payload.sub);
     } catch (e) {
       this.logger.warn(e);
       throw new AuthorizationError('Unauthorized', 401);
