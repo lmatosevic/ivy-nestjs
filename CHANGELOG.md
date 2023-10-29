@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.6.9](https://github.com/lmatosevic/ivy-nestjs/compare/v0.6.8...v0.6.9) (2023-10-29)
+
+
+### Features
+
+* added extra logging configuration ([6f96937](https://github.com/lmatosevic/ivy-nestjs/commit/6f96937b77950454952c221541da37d21cb2f5fe))
+
+
+### Bug Fixes
+
+* add support for "yes" and "on" strings as boolean config values ([8c6d031](https://github.com/lmatosevic/ivy-nestjs/commit/8c6d03172f55ecc7aebacc2ee7b4416e2839ff8b))
+
 ### [0.6.8](https://github.com/lmatosevic/ivy-nestjs/compare/v0.6.7...v0.6.8) (2023-10-28)
 
 
