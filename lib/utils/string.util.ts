@@ -23,7 +23,7 @@ export class StringUtil {
     if (!value) {
       return defaultVal;
     }
-    return value.toLowerCase() === 'true';
+    return ['true', 'yes', 'on'].includes(value.toLowerCase().trim());
   }
 
   static parseArray(value: string, defaultVal: any = [], delimiter: string = ','): string[] {
