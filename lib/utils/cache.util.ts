@@ -26,7 +26,7 @@ export class CacheUtil {
     return key;
   }
 
-  private static resourceRelationNames(resourceName?: string): string[] {
+  static resourceRelationNames(resourceName?: string): string[] {
     const env = ModuleUtil.getCurrentEnv();
     const dbType = env.DB_TYPE || 'mongoose';
 

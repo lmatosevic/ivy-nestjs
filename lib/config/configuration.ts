@@ -24,7 +24,9 @@ export default () => {
     log: {
       level: process.env.LOG_LEVEL || 'info',
       path: process.env.LOG_PATH === 'false' ? undefined : process.env.LOG_PATH || './logs',
+      timestampFormat: process.env.LOG_TIMESTAMP_FORMAT || 'YYYY-MM-DD HH:mm:ss.SSSZ',
       colorize: StringUtil.parseBool(process.env.LOG_COLORIZE, true),
+      json: StringUtil.parseBool(process.env.LOG_JSON, false),
       rotate: {
         enabled: StringUtil.parseBool(process.env.LOG_ROTATE_ENABLED, true),
         pattern: process.env.LOG_ROTATE_PATTERN || 'YYYY-MM-DD',

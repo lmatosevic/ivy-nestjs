@@ -58,16 +58,17 @@ export class LoggerService implements NestLoggerService {
       });
     }
 
-    let colorize =
-      loggerModuleOptions.colorize === undefined ? configService.get('log.colorize') : loggerModuleOptions.colorize;
-    colorize = colorize === undefined ? true : configService.get('log.colorize');
+    let timestampFormat =
+      loggerModuleOptions.timestampFormat ?? configService.get('log.timestampFormat') ?? 'YYYY-MM-DD HH:mm:ss.SSSZ';
+    let colorize = loggerModuleOptions.colorize ?? configService.get('log.colorize') ?? true;
+    let asJson = loggerModuleOptions.json ?? configService.get('log.json') ?? false;
 
     LoggerService.logger = winston.createLogger({
       level: logLevel,
       silent: logLevel === 'silent',
       format: winston.format.combine(
         winston.format.timestamp({
-          format: 'YYYY-MM-DD HH:mm:ss.SSS'
+          format: timestampFormat
         }),
         winston.format.splat(),
         winston.format.json()
@@ -81,27 +82,27 @@ export class LoggerService implements NestLoggerService {
 
         // Console logger
         new winston.transports.Console({
-          format: winston.format.combine(
-            winston.format((info) => {
-              info.level = info.level.toUpperCase();
-              return info;
-            })(),
-            ...(colorize
-              ? [
-                  winston.format.colorize({
-                    all: true
-                  })
-                ]
-              : []),
-            winston.format.timestamp({
-              format: 'YYYY-MM-DD HH:mm:ss.SSS'
-            }),
-            winston.format.printf((info) =>
-              colorize
-                ? `\x1b[36m[${info.service}]\x1b[0m ${info.timestamp}  ${info.level} \x1b[33m[${info.label}]\x1b[0m ${info.message}`
-                : `[${info.service}] ${info.timestamp}  ${info.level} [${info.label}] ${info.message}`
-            )
-          ),
+          format: asJson
+            ? winston.format.json()
+            : winston.format.combine(
+                winston.format((info) => {
+                  info.level = info.level.toUpperCase();
+                  return info;
+                })(),
+                ...(colorize
+                  ? [
+                      winston.format.colorize({
+                        all: true
+                      })
+                    ]
+                  : []),
+                winston.format.timestamp({
+                  format: timestampFormat
+                }),
+                winston.format.printf((info) =>
+                  colorize ? this.formatColorizedOutput(info) : this.formatPlainOutput(info)
+                )
+              ),
           silent: logLevel === 'silent'
         })
       ]
@@ -132,13 +133,22 @@ export class LoggerService implements NestLoggerService {
     LoggerService.logger.error(message, ...this.prepareParams(optionalParams));
   }
 
+  private formatColorizedOutput(info: winston.Logform.TransformableInfo): string {
+    return `${info.pid} - \x1b[36m[${info.service}]\x1b[0m ${info.timestamp}  ${info.level} \x1b[33m[${info.label}]\x1b[0m ${info.message}`;
+  }
+
+  private formatPlainOutput(info: winston.Logform.TransformableInfo): string {
+    return `${info.pid} - [${info.service}] ${info.timestamp}  ${info.level} [${info.label}] ${info.message}`;
+  }
+
   private prepareParams(optionalParams: any[]): any {
+    const pid = process.pid;
     let label = 'default';
     if (optionalParams.length > 0) {
       const idx = optionalParams.length - 1;
       label = optionalParams[idx];
       optionalParams.splice(idx, 1);
     }
-    return [...optionalParams, { label }];
+    return [...optionalParams, { pid, label }];
   }
 }

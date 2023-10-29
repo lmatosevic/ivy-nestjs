@@ -9,7 +9,9 @@ export interface LoggerModuleOptions {
   appName?: string;
   level?: string;
   path?: string;
+  timestampFormat?: string;
   colorize?: boolean;
+  json?: boolean;
   rotate?: {
     enabled?: boolean;
     pattern?: string;
