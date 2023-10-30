@@ -1,5 +1,6 @@
 import * as pluralize from 'pluralize';
 import { DefaultGenerationOptions, generateApiKey } from 'generate-api-key';
+import { v4 as uuidv4, v5 as uuidv5 } from 'uuid';
 import { ObjectUtil } from './object.util';
 
 export class StringUtil {
@@ -163,6 +164,14 @@ export class StringUtil {
       prefix,
       ...options
     }) as string;
+  }
+
+  static uuidV4(): string {
+    return uuidv4();
+  }
+
+  static uuidV5(name: string, namespace: string): string {
+    return uuidv5(name, namespace);
   }
 
   static makeSlug(...values: string[]): string {

@@ -2,7 +2,6 @@ import * as fs from 'fs';
 import { constants, promises as fsp } from 'fs';
 import * as path from 'path';
 import * as dotenv from 'dotenv';
-import { v4 as uuidv4 } from 'uuid';
 import { FileDto, FileError, FileProps } from '../storage';
 import { FileMetadata } from '../storage/file-meta';
 import { ValidationError } from '../resource';
@@ -13,7 +12,7 @@ import * as _ from 'lodash';
 export class FilesUtil {
   static generateFileName(originalName: string): string {
     const nameParts = originalName.split('.');
-    const uuid = uuidv4();
+    const uuid = StringUtil.uuidV4();
     if (nameParts.length > 1) {
       return `${nameParts.slice(0, -1).join('.')}_${uuid}.${nameParts.slice(-1)[0]}`;
     } else {
@@ -263,7 +262,7 @@ export class FilesUtil {
       seconds: now.getUTCSeconds(),
       milliseconds: now.getUTCMilliseconds(),
       timestamp: now.getTime(),
-      uuid: uuidv4(),
+      uuid: StringUtil.uuidV4(),
       hash: StringUtil.generateToken('bytes', 32),
       fieldName: StringUtil.camelToSnakeCase(meta?.field),
       resourceName: StringUtil.camelToSnakeCase(meta?.resource)

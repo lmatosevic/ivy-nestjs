@@ -1,5 +1,4 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { v4 as uuidv4 } from 'uuid';
 import * as handlebars from 'handlebars';
 import * as handlebarsHelpers from 'handlebars-helpers';
 import { promises as fsp } from 'fs';
@@ -7,6 +6,7 @@ import * as path from 'path';
 import * as inlineCss from 'inline-css';
 import { glob } from 'glob';
 import { get } from 'lodash';
+import { StringUtil } from '../../utils';
 import { CompileConfig, TemplateAdapter } from './template.adapter';
 import { TemplateModuleOptions } from '../template.module';
 import { TEMPLATE_MODULE_OPTIONS } from '../template.constants';
@@ -117,7 +117,7 @@ export class HandlebarsAdapter implements TemplateAdapter {
   }
 
   private templateContentInfo(): TemplateInfo {
-    const uuid = uuidv4();
+    const uuid = StringUtil.uuidV4();
     return {
       templateExt: 'hbs',
       templateName: `template_${uuid}`,
