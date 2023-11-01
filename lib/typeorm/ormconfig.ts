@@ -20,7 +20,8 @@ const db = {
       : process.env.DB_MIGRATION_EXTRA_SUBSCRIBERS.split(';'),
     extraMigrations: !process.env.DB_MIGRATION_EXTRA_MIGRATIONS
       ? []
-      : process.env.DB_MIGRATION_EXTRA_MIGRATIONS.split(';')
+      : process.env.DB_MIGRATION_EXTRA_MIGRATIONS.split(';'),
+    ignoreEntities: (process.env.DB_MIGRATION_IGNORE_ENTITIES || '').split(',').join('|')
   }
 };
 
@@ -33,8 +34,8 @@ export const ormconfig = {
   database: db.name,
   schema: db.schema,
   entities: [
-    `${db.migration.sourceRoot}/**/*.entity{.ts,.js}`,
-    './node_modules/ivy-nestjs/**/*.entity.js',
+    `${db.migration.sourceRoot}/**/!(${db.migration.ignoreEntities}).entity{.ts,.js}`,
+    `./node_modules/ivy-nestjs/**/!(${db.migration.ignoreEntities}).entity.js`,
     ...db.migration.extraEntities
   ],
   subscribers: [`${db.migration.sourceRoot}/**/*.subscriber{.ts,.js}`, ...db.migration.extraSubscribers],

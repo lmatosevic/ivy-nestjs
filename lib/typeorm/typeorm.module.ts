@@ -51,7 +51,7 @@ export class TypeOrmModule {
             database: conf.get<string>('db.name'),
             schema: conf.get<string>('db.schema'),
             ssl: this.makeSSLProperty(conf.get<boolean>('db.tlsEnabled'), conf.get<string>('db.tlsCAPath')),
-            entities: ['./node_modules/ivy-nestjs/**/*.entity.js'],
+            entities: [`./node_modules/ivy-nestjs/**/!(${conf.get('db.migration.ignoreEntities')}).entity.js`],
             subscribers: [`${conf.get('db.migration.distRoot')}/**/*.subscriber{.ts,.js}`],
             migrations: [`${conf.get('db.migration.distRoot')}/**/${conf.get('db.migration.dirname')}/**/*{.ts,.js}`],
             migrationsTableName: conf.get<string>('db.migration.table'),
