@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.6.10](https://github.com/lmatosevic/ivy-nestjs/compare/v0.6.9...v0.6.10) (2023-11-01)
+
+
+### Features
+
+* add ignore entities config property ([2f76988](https://github.com/lmatosevic/ivy-nestjs/commit/2f7698823d84286c3428663ac0aca38ac5a2a24e))
+* add uuid v4 and v4 to string utils ([5d67859](https://github.com/lmatosevic/ivy-nestjs/commit/5d678595eb781e7a3116a3dfc2f93a6db1d6de7e))
+
 ### [0.6.9](https://github.com/lmatosevic/ivy-nestjs/compare/v0.6.8...v0.6.9) (2023-10-29)
 
 
