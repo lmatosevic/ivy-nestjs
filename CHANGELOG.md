@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.6.11](https://github.com/lmatosevic/ivy-nestjs/compare/v0.6.10...v0.6.11) (2024-01-31)
+
+
+### Features
+
+* add first and last positional aggregation fields ([3aca428](https://github.com/lmatosevic/ivy-nestjs/commit/3aca4283c0fd3bf3504de9615fedcd74514fd23e))
+
 ### [0.6.10](https://github.com/lmatosevic/ivy-nestjs/compare/v0.6.9...v0.6.10) (2023-11-01)
 
 
