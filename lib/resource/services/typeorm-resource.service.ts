@@ -205,6 +205,22 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
             continue;
           }
           const { path } = this.makeAliasAndPath(field.split('.'), modelAlias);
+
+          if (['first', 'last'].includes(func)) {
+            const positionalQuery = repository
+              .createQueryBuilder()
+              .where(whereQuery)
+              .select(field, func)
+              .orderBy(field, func === 'first' ? 'ASC' : 'DESC')
+              .limit(1)
+              .getSql();
+
+            aggregateQueryBuilder[index > 0 ? 'addSelect' : 'select'](`(${positionalQuery})`, `${field}_${func}`);
+            index += 1;
+
+            continue;
+          }
+
           aggregateQueryBuilder[index > 0 ? 'addSelect' : 'select'](
             `${func.toUpperCase()}(${path})`,
             `${field}_${func}`

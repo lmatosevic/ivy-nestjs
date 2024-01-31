@@ -28,4 +28,12 @@ export class AggregateResultValue {
   @Field(() => Float, { nullable: true })
   @ApiProperty({ type: () => Number, required: false })
   sum?: number;
+
+  @Field(() => Float, { nullable: true })
+  @ApiProperty({ type: () => Number, required: false })
+  first?: number;
+
+  @Field(() => Float, { nullable: true })
+  @ApiProperty({ type: () => Number, required: false })
+  last?: number;
 }

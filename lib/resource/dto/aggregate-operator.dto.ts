@@ -22,4 +22,12 @@ export class AggregateOperator {
   @Field(() => Boolean, { nullable: true })
   @ApiPropertyOptional({ type: Boolean })
   sum?: boolean;
+
+  @Field(() => Boolean, { nullable: true })
+  @ApiPropertyOptional({ type: Boolean })
+  first?: boolean;
+
+  @Field(() => Boolean, { nullable: true })
+  @ApiPropertyOptional({ type: Boolean })
+  last?: boolean;
 }
