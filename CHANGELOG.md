@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.6.12](https://github.com/lmatosevic/ivy-nestjs/compare/v0.6.11...v0.6.12) (2024-02-02)
+
+
+### Bug Fixes
+
+* add mongoose sorting by createdAt field when first and last aggregation is used ([214bd81](https://github.com/lmatosevic/ivy-nestjs/commit/214bd818fd1ab256203e0e0827c1224e1003b2ea))
+* add required int type and min step value of 1 ([245be5f](https://github.com/lmatosevic/ivy-nestjs/commit/245be5fcb81ce62682003577a72b30a524b7f38f))
+* changed first and last aggregation functions to be sorted by createdAt column ([b32447d](https://github.com/lmatosevic/ivy-nestjs/commit/b32447d59d1f73d3a4fc7dd11ea0f5782188e8f1))
+
 ### [0.6.11](https://github.com/lmatosevic/ivy-nestjs/compare/v0.6.10...v0.6.11) (2024-01-31)
 
 
