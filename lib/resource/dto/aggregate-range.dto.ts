@@ -1,7 +1,7 @@
 import { Field, InputType } from '@nestjs/graphql';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { IsOptional } from 'class-validator';
+import { IsInt, IsOptional, Min } from 'class-validator';
 
 @InputType()
 export class AggregateRange {
@@ -25,6 +25,8 @@ export class AggregateRange {
 
   @Expose()
   @IsOptional()
+  @IsInt()
+  @Min(1)
   @Field(() => Number, { nullable: true })
   @ApiPropertyOptional({ type: Number })
   step?: number;
