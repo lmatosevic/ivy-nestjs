@@ -181,6 +181,7 @@ export abstract class MongooseResourceService<T> extends ResourcePolicyService i
         aggregation.append({ $project: projection });
       }
 
+      let hasFirstOrLast = false;
       let index = 0;
       const aggregationGroup = { _id: null };
       for (const [field, value] of Object.entries(select || {})) {
@@ -193,9 +194,19 @@ export abstract class MongooseResourceService<T> extends ResourcePolicyService i
           } else {
             aggregationGroup[`${field}_${func}`] = { [`$${func.toLowerCase()}`]: `$${field}` };
           }
+
+          if (['first', 'last'].includes(func)) {
+            hasFirstOrLast = true;
+          }
+
           index += 1;
         }
       }
+
+      if (hasFirstOrLast) {
+        aggregation.append({ $sort: { createdAt: 1 } });
+      }
+
       aggregation.append({ $group: aggregationGroup });
 
       if (index > 0) {
