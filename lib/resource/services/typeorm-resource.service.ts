@@ -207,11 +207,12 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
           const { path } = this.makeAliasAndPath(field.split('.'), modelAlias);
 
           if (['first', 'last'].includes(func)) {
+            const { path: datePath } = this.makeAliasAndPath(['createdAt'], modelAlias);
             const positionalQuery = repository
               .createQueryBuilder()
               .where(whereQuery)
               .select(field, func)
-              .orderBy(field, func === 'first' ? 'ASC' : 'DESC')
+              .orderBy(datePath, func === 'first' ? 'ASC' : 'DESC')
               .limit(1)
               .getSql();
 
