@@ -185,7 +185,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
 
   async aggregate(aggregateDto: AggregateRequest<T>): Promise<AggregateResponse<T>> {
     let { filter, select, range } = aggregateDto;
-    let results = [];
+    let items = [];
     let total = {};
 
     filter = _.merge(_.cloneDeep(filter || {}), this.policyFilter());
@@ -197,6 +197,16 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
     try {
       const { whereQuery, joins, modelAlias } = this.makeQueryBuilderParts(filter, projection, repository, false);
       const aggregateQueryBuilder = repository.createQueryBuilder().where(whereQuery);
+
+      const startDate = new Date(range?.start);
+      const endDate = new Date(range?.end);
+      const stepSeconds = range.step ?? 3600;
+      const halfStep = Math.round(stepSeconds / 2);
+      const dateField = range.dateField ?? 'createdAt';
+
+      const timeRangeCondition = `("${modelAlias}"."${dateField}" - (1 * INTERVAL '${halfStep} seconds')) AT TIME ZONE 'UTC' < TO_TIMESTAMP(column1, 'YYYY-MM-DD"T"HH24:MI:ss') AND ("${modelAlias}"."${dateField}" + (1 * INTERVAL '${halfStep} seconds')) AT TIME ZONE 'UTC' > TO_TIMESTAMP(column1, 'YYYY-MM-DD"T"HH24:MI:ss')`;
+
+      const aggregateSelect: Array<{ func: string; alias: string }> = [];
 
       let index = 0;
       for (const [field, value] of Object.entries(select || {})) {
@@ -213,15 +223,30 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
               .where(whereQuery)
               .select(path, func)
               .orderBy(datePath, func === 'first' ? 'ASC' : 'DESC')
-              .limit(1)
-              .getSql();
+              .limit(1);
 
-            aggregateQueryBuilder[index > 0 ? 'addSelect' : 'select'](`(${positionalQuery})`, `${field}_${func}`);
+            const querySql = positionalQuery.getSql();
+
+            aggregateSelect.push({
+              func: `(${positionalQuery.andWhere(timeRangeCondition).getSql()})`,
+              alias: `${field}_${func}`
+            });
+            aggregateQueryBuilder[index > 0 ? 'addSelect' : 'select'](
+              `(${querySql})`,
+              `${field}_${func}`
+            );
             index += 1;
 
             continue;
           }
 
+          aggregateSelect.push({
+            func: `${func.toUpperCase()}(${path
+              .split('.')
+              .map((p) => `"${p}"`)
+              .join('.')})`,
+            alias: `${field}_${func}`
+          });
           aggregateQueryBuilder[index > 0 ? 'addSelect' : 'select'](
             `${func.toUpperCase()}(${path})`,
             `${field}_${func}`
@@ -242,6 +267,53 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
           const func = keyParts.pop();
           const field = keyParts.join('_');
           _.set(total, `${field}.${func}`, StringUtil.toNumericValue(value as string));
+        }
+
+        if (range) {
+          const dates = [];
+
+          const currentDate = startDate;
+          while (currentDate < endDate) {
+            dates.push(currentDate.toISOString().split('.').shift());
+            currentDate.setSeconds(currentDate.getSeconds() + stepSeconds);
+          }
+
+          if (dates.length > 0) {
+            const dateValues = dates.map((d) => `('${d}')`).join(',');
+
+            const rangeQuery = queryRunner.manager
+              .createQueryBuilder()
+              .select('column1') // column1 is actually datetime value, TypeOrm is adding quotes, so it is not mapping to datetime correctly
+              .where(whereQuery)
+              .orWhere(`"${modelAlias}" IS NULL`)
+              .from(`(values ${dateValues})`, 's(datetime)')
+              .leftJoin(this.repository.metadata.tableName, modelAlias, timeRangeCondition)
+              .groupBy('column1')
+              .orderBy('column1');
+
+            for (let select of aggregateSelect) {
+              rangeQuery.addSelect(select.func, select.alias);
+            }
+
+            for (const [alias, path] of Object.entries(joins.queryJoin)) {
+              rangeQuery.leftJoin(path, alias);
+            }
+
+            const results = await rangeQuery.getRawMany();
+
+            for (let result of results) {
+              const item = {};
+              for (const [key, value] of Object.entries(result)) {
+                const keyParts = key.split('_');
+                const func = keyParts.pop();
+                const field = keyParts.join('_');
+                if (field && func) {
+                  _.set(item, `${field}.${func}`, StringUtil.toNumericValue(value as string));
+                }
+              }
+              items.push(item);
+            }
+          }
         }
       }
 
@@ -264,7 +336,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
       }
     }
 
-    return { total, items: results };
+    return { total, items };
   }
 
   async create(createDto: PartialDeep<T>): Promise<T> {

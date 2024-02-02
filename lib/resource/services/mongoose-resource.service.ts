@@ -154,7 +154,7 @@ export abstract class MongooseResourceService<T> extends ResourcePolicyService i
 
   async aggregate(aggregateDto: AggregateRequest<T>): Promise<AggregateResponse<T>> {
     let { filter, select, range } = aggregateDto;
-    let results = [];
+    let items = [];
     let total = {};
 
     filter = _.merge(_.cloneDeep(filter || {}), this.policyFilter());
@@ -242,7 +242,7 @@ export abstract class MongooseResourceService<T> extends ResourcePolicyService i
       }
     }
 
-    return { total, items: results };
+    return { total, items };
   }
 
   async create(createDto: PartialDeep<T>): Promise<T> {
