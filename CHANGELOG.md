@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.6.13](https://github.com/lmatosevic/ivy-nestjs/compare/v0.6.12...v0.6.13) (2024-02-02)
+
+
+### Bug Fixes
+
+* fixed SQL query for first and last aggregate function in TypeOrm service ([61247c2](https://github.com/lmatosevic/ivy-nestjs/commit/61247c25c40c4ea799b4b03be2f2ba4f4d624cda))
+
 ### [0.6.12](https://github.com/lmatosevic/ivy-nestjs/compare/v0.6.11...v0.6.12) (2024-02-02)
 
 
