@@ -211,7 +211,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
             const positionalQuery = repository
               .createQueryBuilder()
               .where(whereQuery)
-              .select(field, func)
+              .select(path, func)
               .orderBy(datePath, func === 'first' ? 'ASC' : 'DESC')
               .limit(1)
               .getSql();
