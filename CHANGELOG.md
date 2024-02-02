@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.6.14](https://github.com/lmatosevic/ivy-nestjs/compare/v0.6.13...v0.6.14) (2024-02-02)
+
+
+### Features
+
+* implement aggregated range query feature ([77f64c1](https://github.com/lmatosevic/ivy-nestjs/commit/77f64c1299576e4ed681e371b6f30692fd8400cc))
+
 ### [0.6.13](https://github.com/lmatosevic/ivy-nestjs/compare/v0.6.12...v0.6.13) (2024-02-02)
 
 
