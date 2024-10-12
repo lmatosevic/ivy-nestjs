@@ -58,12 +58,16 @@ export class HealthService implements OnModuleInit {
       optionalChecks.push(() => this.redisCheck());
     }
 
-    return this.health.check([
-      () => this.databaseCheck(),
-      () => this.memoryCheck(),
-      () => this.storageCheck(),
-      ...optionalChecks
-    ]);
+    try {
+      return await this.health.check([
+        () => this.databaseCheck(),
+        () => this.memoryCheck(),
+        () => this.storageCheck(),
+        ...optionalChecks
+      ]);
+    } catch (err) {
+      return err.response;
+    }
   }
 
   public async databaseCheck(): Promise<HealthIndicatorResult> {
