@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.6.16](https://github.com/lmatosevic/ivy-nestjs/compare/v0.6.15...v0.6.16) (2024-10-18)
+
+
+### Bug Fixes
+
+* add default policy fields and conditions matchers ([2a949e5](https://github.com/lmatosevic/ivy-nestjs/commit/2a949e5159082d181d1214c77e875c84d682f826))
+
 ### [0.6.15](https://github.com/lmatosevic/ivy-nestjs/compare/v0.6.14...v0.6.15) (2024-10-12)
 
 
