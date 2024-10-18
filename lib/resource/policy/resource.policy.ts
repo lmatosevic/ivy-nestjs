@@ -1,4 +1,4 @@
-import { PureAbility, AbilityBuilder, AbilityClass } from '@casl/ability';
+import { PureAbility, AbilityBuilder, AbilityClass, ExtractSubjectType, MatchConditions } from '@casl/ability';
 import { AuthUser } from '../../auth';
 
 export type Can<T extends PureAbility> = AbilityBuilder<T>['can'];
@@ -11,7 +11,11 @@ export abstract class ResourcePolicy<T extends PureAbility, S> {
 
     this.define(user, subject, can, cannot);
 
-    return build() as T;
+    return build({
+      fieldMatcher: () => () => true,
+      conditionsMatcher: (matcher: MatchConditions) => matcher,
+      detectSubjectType: (item) => item.constructor as ExtractSubjectType<S>
+    }) as T;
   }
 
   abstract define(user: AuthUser, subject: S, can: Can<T>, cannot: Cannot<T>): void;
