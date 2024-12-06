@@ -30,8 +30,8 @@ export default () => {
       rotate: {
         enabled: StringUtil.parseBool(process.env.LOG_ROTATE_ENABLED, true),
         pattern: process.env.LOG_ROTATE_PATTERN || 'YYYY-MM-DD',
-        maxSize: process.env.LOG_ROTATE_MAX_SIZE,
-        maxFiles: process.env.LOG_ROTATE_MAX_FILES,
+        maxSize: process.env.LOG_ROTATE_MAX_SIZE ?? '100mb',
+        maxFiles: process.env.LOG_ROTATE_MAX_FILES ?? '30',
         zipArchive: StringUtil.parseBool(process.env.LOG_ROTATE_ZIP_ARCHIVE, false)
       }
     },
