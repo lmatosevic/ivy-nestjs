@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.6.17](https://github.com/lmatosevic/ivy-nestjs/compare/v0.6.16...v0.6.17) (2024-12-06)
+
+
+### Bug Fixes
+
+* added optional JWT logout session expiration flag ([832faa1](https://github.com/lmatosevic/ivy-nestjs/commit/832faa16eb433c255c5f921954a0e1b5a9cdaee5))
+
 ### [0.6.16](https://github.com/lmatosevic/ivy-nestjs/compare/v0.6.15...v0.6.16) (2024-10-18)
 
 
