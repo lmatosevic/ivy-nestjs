@@ -41,7 +41,7 @@ export interface AuthModuleOptions {
   login?: AuthRouteOptions;
   logout?: { enabled?: boolean };
   admin?: { create?: boolean; username?: string; password?: string };
-  jwt?: { secret: string; expiresIn?: number; enabled?: boolean };
+  jwt?: { secret: string; expiresIn?: number; logoutSessionEnabled?: boolean, enabled?: boolean };
   basic?: { enabled?: boolean };
   oauth2?: { enabled?: boolean };
   apikey?: { enabled?: boolean };

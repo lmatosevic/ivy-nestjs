@@ -37,7 +37,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new AuthorizationError('Unauthorized', 401);
     }
 
-    if (!user || !user.enabled || (user.logoutAt && user.logoutAt.getTime() > payload.iat)) {
+    let logoutAt = null;
+    if (user.logoutAt && this.configService.get<boolean>('auth.jwt.logoutSessionEnabled')) {
+      logoutAt = typeof user.logoutAt === 'string' ? new Date(user.logoutAt) : user.logoutAt;
+    }
+
+    if (!user || !user.enabled || logoutAt?.getTime() > payload.iat) {
       throw new AuthorizationError('Unauthorized', 401);
     }
 

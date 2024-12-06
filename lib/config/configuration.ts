@@ -166,6 +166,7 @@ export default () => {
       jwt: {
         enabled: StringUtil.parseBool(process.env.AUTH_JWT_ENABLED, true),
         expiresIn: StringUtil.parseInteger(process.env.AUTH_JWT_EXPIRES_IN, 2592000),
+        logoutSessionEnabled: StringUtil.parseBool(process.env.AUTH_JWT_LOGOUT_SESSION_ENABLED, true),
         secret: process.env.AUTH_JWT_SECRET
       },
       basic: {
