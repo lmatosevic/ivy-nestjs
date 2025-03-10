@@ -111,6 +111,8 @@ export class FilterUtil {
       wrappedFilter = { [this.defaultFilterOperator]: { ...filter } };
     }
 
+    this.removeEmptyQueryArrays(wrappedFilter);
+
     return ObjectUtil.transformKeysAndValues(
       wrappedFilter,
       (key) => key,
@@ -148,5 +150,16 @@ export class FilterUtil {
         return value;
       }
     );
+  }
+
+  private static removeEmptyQueryArrays(filter: any) {
+    for (const key in filter) {
+      if (Array.isArray(filter[key]) && this.filterQueryOperators.includes(key) && filter[key].length === 0) {
+        delete filter[key];
+      } else if (typeof filter[key] === 'object' && filter[key] !== null) {
+        this.removeEmptyQueryArrays(filter[key]);
+      }
+    }
+    return filter;
   }
 }
