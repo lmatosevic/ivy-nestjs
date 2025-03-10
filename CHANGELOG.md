@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.6.19](https://github.com/lmatosevic/ivy-nestjs/compare/v0.6.18...v0.6.19) (2025-03-10)
+
+
+### Bug Fixes
+
+* fixed bug with TypeOrm long query time when empty array is provided in filter property ([83a953f](https://github.com/lmatosevic/ivy-nestjs/commit/83a953fc1fd062a5e5d688e905bb8300dce2f32f))
+
 ### [0.6.18](https://github.com/lmatosevic/ivy-nestjs/compare/v0.6.17...v0.6.18) (2024-12-06)
 
 
