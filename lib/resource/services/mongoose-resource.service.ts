@@ -168,22 +168,41 @@ export abstract class MongooseResourceService<T> extends ResourcePolicyService i
         session.startTransaction();
       }
 
+      const startDate = new Date(range?.start);
+      const endDate = new Date(range?.end);
+      const stepSeconds = range.step ?? 3600;
+      const dateField = range.dateField ?? 'createdAt';
+
       let aggregation = this.model.aggregate();
+      let aggregationRange = this.model.aggregate();
 
       if (Object.keys(filter).length > 0) {
         filter = FilterUtil.transformMongooseFilter(filter);
         this.log.debug('Transformed filter: %j', filter);
         filter = await this.resolveFilterSubReferences(filter);
-        aggregation.append({ $match: this.model.find(filter as any).getQuery() });
+        const matchQuery = this.model.find(filter as any).getQuery();
+        aggregation.append({ $match: matchQuery });
+        aggregationRange.append({ $match: { ...matchQuery, [dateField]: { $gte: startDate, $lte: endDate } } });
       }
 
       if (Object.keys(projection).length > 0) {
         aggregation.append({ $project: projection });
+        aggregationRange.append({ $project: projection });
       }
 
       let hasFirstOrLast = false;
       let index = 0;
       const aggregationGroup = { _id: null };
+      const aggregationRangeGroup = {
+        _id: {
+          $dateTrunc: {
+            date: `$${dateField}`,
+            unit: 'second',
+            binSize: stepSeconds
+          }
+        }
+      };
+      const aggregationRangeProjection = { _id: null };
       for (const [field, value] of Object.entries(select || {})) {
         for (const [func, enabled] of Object.entries(value || {})) {
           if (!enabled) {
@@ -191,9 +210,15 @@ export abstract class MongooseResourceService<T> extends ResourcePolicyService i
           }
           if (func.toLowerCase() === 'count') {
             aggregationGroup[`${field}_${func}`] = { $sum: 1 };
+            aggregationRangeGroup[`${field}_${func}`] = { $sum: 1 };
           } else {
             aggregationGroup[`${field}_${func}`] = { [`$${func.toLowerCase()}`]: `$${field}` };
+            aggregationRangeGroup[`${field}_${func}`] = { [`$${func.toLowerCase()}`]: `$${field}` };
           }
+
+          aggregationRangeProjection[`${field}_${func}`] = {
+            $cond: [{ $not: [`$${field}_${func}`] }, 0, `$${field}_${func}`]
+          };
 
           if (['first', 'last'].includes(func)) {
             hasFirstOrLast = true;
@@ -203,11 +228,24 @@ export abstract class MongooseResourceService<T> extends ResourcePolicyService i
         }
       }
 
+      aggregation.append({ $group: aggregationGroup });
+      aggregationRange.append({ $group: aggregationRangeGroup });
+      aggregationRange.append({
+        $densify: {
+          field: '_id',
+          range: {
+            step: stepSeconds,
+            unit: 'second',
+            bounds: [startDate, endDate]
+          }
+        }
+      });
+      aggregationRange.append({ $project: aggregationRangeProjection });
+
       if (hasFirstOrLast) {
         aggregation.append({ $sort: { createdAt: 1 } });
+        aggregationRange.append({ $sort: { [dateField]: 1 } });
       }
-
-      aggregation.append({ $group: aggregationGroup });
 
       if (index > 0) {
         const aggregated = await aggregation.session(session).exec();
@@ -220,6 +258,26 @@ export abstract class MongooseResourceService<T> extends ResourcePolicyService i
           const func = keyParts.pop();
           const field = keyParts.join('_');
           _.set(total, `${field}.${func}`, StringUtil.toNumericValue(value as string));
+        }
+
+        if (range) {
+          const rangeResults = await aggregationRange.session(session).exec();
+
+          for (let result of rangeResults) {
+            const item = {};
+            for (const [key, value] of Object.entries(result)) {
+              if (key === '_id') {
+                continue;
+              }
+              const keyParts = key.split('_');
+              const func = keyParts.pop();
+              const field = keyParts.join('_');
+              if (field && func) {
+                _.set(item, `${field}.${func}`, StringUtil.toNumericValue(value as string));
+              }
+            }
+            items.push(item);
+          }
         }
       }
 

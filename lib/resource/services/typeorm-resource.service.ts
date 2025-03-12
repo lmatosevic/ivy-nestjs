@@ -206,7 +206,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
 
       const timeRangeCondition = `("${modelAlias}"."${dateField}" - (1 * INTERVAL '${halfStep} seconds')) AT TIME ZONE 'UTC' < TO_TIMESTAMP(column1, 'YYYY-MM-DD"T"HH24:MI:ss') AND ("${modelAlias}"."${dateField}" + (1 * INTERVAL '${halfStep} seconds')) AT TIME ZONE 'UTC' > TO_TIMESTAMP(column1, 'YYYY-MM-DD"T"HH24:MI:ss')`;
 
-      const aggregateSelect: Array<{ func: string; alias: string }> = [];
+      const aggregateRangeSelect: Array<{ func: string; alias: string }> = [];
 
       let index = 0;
       for (const [field, value] of Object.entries(select || {})) {
@@ -227,20 +227,17 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
 
             const querySql = positionalQuery.getSql();
 
-            aggregateSelect.push({
+            aggregateRangeSelect.push({
               func: `(${positionalQuery.andWhere(timeRangeCondition).getSql()})`,
               alias: `${field}_${func}`
             });
-            aggregateQueryBuilder[index > 0 ? 'addSelect' : 'select'](
-              `(${querySql})`,
-              `${field}_${func}`
-            );
+            aggregateQueryBuilder[index > 0 ? 'addSelect' : 'select'](`(${querySql})`, `${field}_${func}`);
             index += 1;
 
             continue;
           }
 
-          aggregateSelect.push({
+          aggregateRangeSelect.push({
             func: `${func.toUpperCase()}(${path
               .split('.')
               .map((p) => `"${p}"`)
@@ -272,7 +269,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
         if (range) {
           const dates = [];
 
-          const currentDate = startDate;
+          const currentDate = new Date(startDate);
           while (currentDate < endDate) {
             dates.push(currentDate.toISOString().split('.').shift());
             currentDate.setSeconds(currentDate.getSeconds() + stepSeconds);
@@ -291,7 +288,7 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
               .groupBy('column1')
               .orderBy('column1');
 
-            for (let select of aggregateSelect) {
+            for (let select of aggregateRangeSelect) {
               rangeQuery.addSelect(select.func, select.alias);
             }
 
@@ -299,9 +296,9 @@ export abstract class TypeOrmResourceService<T extends ResourceEntity>
               rangeQuery.leftJoin(path, alias);
             }
 
-            const results = await rangeQuery.getRawMany();
+            const rangeResults = await rangeQuery.getRawMany();
 
-            for (let result of results) {
+            for (let result of rangeResults) {
               const item = {};
               for (const [key, value] of Object.entries(result)) {
                 const keyParts = key.split('_');
