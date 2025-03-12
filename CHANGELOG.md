@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.6.20](https://github.com/lmatosevic/ivy-nestjs/compare/v0.6.19...v0.6.20) (2025-03-12)
+
+
+### Features
+
+* implemented Mongoose range aggregation ([fd486d7](https://github.com/lmatosevic/ivy-nestjs/commit/fd486d7dd26fd8a33398ea47657bb89d603ca940))
+
 ### [0.6.19](https://github.com/lmatosevic/ivy-nestjs/compare/v0.6.18...v0.6.19) (2025-03-10)
 
 
