@@ -77,8 +77,8 @@ export class StorageController {
     }
 
     const headers = {};
-    let stream;
-    let code;
+    let stream: StreamableFile;
+    let code: number;
     if (range) {
       const parts = range.replace(/bytes=/, '').split('-');
       const start = parseInt(parts[0], 10);
